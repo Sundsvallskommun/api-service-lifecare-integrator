@@ -8,10 +8,10 @@
 		<relativePath />
 		<!-- lookup parent from repository -->
 	</parent>
-	<groupId>se.sundsvall</groupId>
-	<artifactId>template-spring-boot</artifactId>
+	<groupId>se.sundsvall.lifecareintegrator</groupId>
+	<artifactId>api-service-lifecare-integrator</artifactId>
 	<version>1.0</version>
-	<name>template</name>
+	<name>api-service-lifecare-integrator</name>
 	<properties />
 	<dependencies>
 		<dependency>
