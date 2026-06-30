@@ -1,4 +1,4 @@
-package se.sundsvall.lifecareintegrator.integration.lifecareec.configuration;
+package se.sundsvall.lifecareintegrator.integration.lifecarefc.configuration;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
@@ -17,10 +17,10 @@ import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static se.sundsvall.lifecareintegrator.integration.lifecareec.configuration.LifecareEcConfiguration.CLIENT_ID;
+import static se.sundsvall.lifecareintegrator.integration.lifecarefc.configuration.LifecareFcConfiguration.CLIENT_ID;
 
 @ExtendWith(MockitoExtension.class)
-class LifecareEcConfigurationTest {
+class LifecareFcConfigurationTest {
 
 	@Spy
 	private FeignMultiCustomizer feignMultiCustomizerSpy;
@@ -29,11 +29,11 @@ class LifecareEcConfigurationTest {
 	private FeignBuilderCustomizer feignBuilderCustomizerMock;
 
 	@Mock
-	private LifecareEcProperties propertiesMock;
+	private LifecareFcProperties propertiesMock;
 
 	@Test
 	void testFeignBuilderCustomizer() {
-		final var configuration = new LifecareEcConfiguration();
+		final var configuration = new LifecareFcConfiguration();
 
 		when(propertiesMock.domain()).thenReturn("the-domain");
 		when(propertiesMock.key()).thenReturn("the-key");

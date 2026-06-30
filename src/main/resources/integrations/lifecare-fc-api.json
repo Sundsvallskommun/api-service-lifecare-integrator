@@ -1,0 +1,7323 @@
+{
+	"swagger": "2.0",
+	"info": {
+		"version": "v1",
+		"title": "FamilyCare API V1"
+	},
+	"host": "tieto.com",
+	"basePath": "/WESE.FC.Api.FC",
+	"schemes": [
+		"https"
+	],
+	"paths": {
+		"/apifc/v1/OrderEC/Orders/{orderId}": {
+			"get": {
+				"tags": [
+					"Order EC"
+				],
+				"summary": "Retrieves the details of a specific EC order by its unique order ID.",
+				"description": "<para>\r\n  <b>Note:</b> The StartDate, EndDate, and UpdateDate properties in the response represent calendar dates without time zone.\r\n            They should not be interpreted as UTC or local time, and must not be converted between time zones.\r\n            The OrderDateUtc property is a UTC datetime, converted from local time, and includes time information.\r\n            </para>\r\n<para>\r\n  <b>409 Conflict:</b> This status is returned if the order is found, but required associated data (such as decision or person) is missing.\r\n            </para>",
+				"operationId": "OrderEC_GetOrders",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "orderId",
+						"in": "path",
+						"description": "The unique identifier (GUID) of the order.",
+						"required": true,
+						"type": "string",
+						"format": "uuid"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/OrderECDetailsDTO"
+						}
+					},
+					"404": {
+						"description": "NotFound"
+					},
+					"409": {
+						"description": "Conflict"
+					}
+				}
+			}
+		},
+		"/apifc/v1/OrderEC/Attachment": {
+			"get": {
+				"tags": [
+					"v1"
+				],
+				"summary": "Retrieves the content of a specific attached PDF document by its document ID.",
+				"operationId": "OrderEC_Attachment",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "documentId",
+						"in": "query",
+						"description": "The unique identifier of the PDF document.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/PdfDTO"
+						}
+					},
+					"404": {
+						"description": "NotFound"
+					}
+				}
+			}
+		},
+		"/apifc/v1/Persons/Proposals": {
+			"get": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "Get proposal for person",
+				"operationId": "Persons_GetPersonsProposal",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "domain",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/PersonBasedPersonProposalDTO"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/OrderEC/NotAcceptedOrders/Count": {
+			"get": {
+				"tags": [
+					"Order EC"
+				],
+				"summary": "Gets the count of not accepted EC orders for a specified unit.",
+				"operationId": "OrderEC_GetNotAcceptedOrdersCount",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "unitId",
+						"in": "query",
+						"description": "The unique identifier of the unit.",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"format": "int32",
+							"type": "integer"
+						}
+					},
+					"400": {
+						"description": "BadRequest"
+					}
+				}
+			}
+		},
+		"/apifc/v1/DocumentContent": {
+			"get": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "Get content of document",
+				"operationId": "DocumentContent_GetDocumentContent",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "query",
+						"description": "Document id",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "object"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/OrderEC/Orders": {
+			"get": {
+				"tags": [
+					"Order EC"
+				],
+				"summary": "Retrieves all EC orders for a specified unit, optionally filtered by person.",
+				"description": "<para>\r\n  <b>Note:</b> The StartDate, EndDate, and UpdateDate properties in the response represent calendar dates without time zone.\r\n            They should not be interpreted as UTC or local time, and must not be converted between time zones.\r\n            The OrderDateUtc property is a UTC datetime, converted from local time, and includes time information.\r\n            </para>",
+				"operationId": "OrderEC_GetOrdersByUnit",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "unitId",
+						"in": "query",
+						"description": "The unique identifier of the unit. (Required)",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "personId",
+						"in": "query",
+						"description": "The identifier of the person to filter orders by. (Optional)",
+						"required": false,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/OrderECForUnitDTO"
+							}
+						}
+					},
+					"400": {
+						"description": "BadRequest"
+					}
+				}
+			}
+		},
+		"/apifc/v1/OrderEC/Attachments": {
+			"get": {
+				"tags": [
+					"v1"
+				],
+				"summary": "Lists metadata for all PDF attachments associated with a specific external order.",
+				"operationId": "OrderEC_Attachments",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "externalOrderId",
+						"in": "query",
+						"description": "The unique identifier (GUID) of the external order.",
+						"required": true,
+						"type": "string",
+						"format": "uuid"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/PdfMetadataDTO"
+							}
+						}
+					},
+					"404": {
+						"description": "NotFound"
+					}
+				}
+			}
+		},
+		"/apifc/v1/Persons": {
+			"get": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "List persons",
+				"operationId": "Persons_GetPersons",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "personId",
+						"in": "query",
+						"description": "Full personId.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/PersonBasedPersonDTO"
+						}
+					},
+					"400": {
+						"description": "Bad Request"
+					},
+					"404": {
+						"description": "Not Found"
+					}
+				}
+			},
+			"post": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "Post a Person",
+				"operationId": "Persons_PostPerson",
+				"consumes": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml",
+					"application/x-www-form-urlencoded"
+				],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "body",
+						"in": "body",
+						"description": "",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostPersonBodyRequest"
+						}
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "string"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Contacts": {
+			"get": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "List contacts",
+				"operationId": "Contacts_GetContacts",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "personId",
+						"in": "query",
+						"description": "Full personId.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/PersonBasedContactDTO"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Users/GetUser": {
+			"get": {
+				"tags": [
+					"Users"
+				],
+				"summary": "Get a user",
+				"operationId": "Users_GetUser",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "userId",
+						"in": "query",
+						"description": "User id.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/User"
+						}
+					},
+					"401": {
+						"description": "Authentication failed"
+					},
+					"404": {
+						"description": "User not found"
+					},
+					"500": {
+						"description": "Internal Server error"
+					}
+				}
+			}
+		},
+		"/apifc/v1/batches/checkstatusjournaldigital/{jobId}": {
+			"get": {
+				"tags": [
+					"Status bakgrundsjobb Journal Digital"
+				],
+				"summary": "Checks the Journal Digital batchjob status.",
+				"operationId": "AutoStartBatch_StatusJournalDigital",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html"
+				],
+				"parameters": [
+					{
+						"name": "jobId",
+						"in": "path",
+						"description": "Type",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/BatchJobListDTO"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Calculations/Proposals": {
+			"get": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "Get proposal for calculations",
+				"operationId": "Calculations_GetCalculationProposal",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "domain",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "personId",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/PersonBasedCalculationProposalDTO"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Actualisations/Proposals": {
+			"get": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "Get proposal for actualisation",
+				"operationId": "Aktualiserings_GetAktualiseringProposal",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "domain",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "personId",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/PersonBasedAktualiseringProposalDTO"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/InvoiceForTreatment": {
+			"get": {
+				"tags": [
+					"InvoiceForTreatment"
+				],
+				"summary": "List ResourceAllocation",
+				"operationId": "InvoiceForTreatment_GetInvoiceForTreatment",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "personId",
+						"in": "query",
+						"description": "Full personId.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "customerNumber",
+						"in": "query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/InvoiceForTreatmentDTO"
+							}
+						}
+					}
+				}
+			},
+			"put": {
+				"tags": [
+					"InvoiceForTreatment"
+				],
+				"summary": "Update invoice",
+				"operationId": "InvoiceForTreatment_PutInvoiceForTreatment",
+				"consumes": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml",
+					"application/x-www-form-urlencoded"
+				],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "invoiceDetails",
+						"in": "body",
+						"description": "",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/InvoiceForTreatmentRequest"
+						}
+					},
+					{
+						"name": "invoiceRowId",
+						"in": "query",
+						"description": "InvoiceRowId",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "object"
+						}
+					}
+				}
+			},
+			"post": {
+				"tags": [
+					"InvoiceForTreatment"
+				],
+				"summary": "Save invoice",
+				"operationId": "InvoiceForTreatment_PostInvoiceForTreatment",
+				"consumes": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml",
+					"application/x-www-form-urlencoded"
+				],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "invoiceDetails",
+						"in": "body",
+						"description": "",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/InvoiceForTreatmentRequest"
+						}
+					},
+					{
+						"name": "resourceAllocationId",
+						"in": "query",
+						"description": "ResourceAllocationId",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "object"
+						}
+					}
+				}
+			},
+			"delete": {
+				"tags": [
+					"InvoiceForTreatment"
+				],
+				"summary": "Delete invoice",
+				"operationId": "InvoiceForTreatment_DeleteInvoiceForTreatment",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "updateSign",
+						"in": "query",
+						"description": "[Max length: 10] UpdateSign",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "invoiceRowId",
+						"in": "query",
+						"description": "InvoiceRowId",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "object"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Extract/Payments": {
+			"get": {
+				"tags": [
+					"Extract"
+				],
+				"summary": "List payments extract",
+				"operationId": "Extract_GetPaymentsExtract",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "modifiedAfter",
+						"in": "query",
+						"description": "Gets resources modified after specified date or date-time.",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "The offset controls the starting point within the returned resources.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "The limit controls the maximum number of resources that may be returned.",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "q",
+						"in": "query",
+						"description": "The search query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/ApiExtractComposite[ExtractPaymentDTO]"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Extract/Services": {
+			"get": {
+				"tags": [
+					"Extract"
+				],
+				"summary": "List services extract",
+				"operationId": "Extract_GetServicesExtract",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "modifiedAfter",
+						"in": "query",
+						"description": "Gets resources modified after specified date or date-time.",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "The offset controls the starting point within the returned resources.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "The limit controls the maximum number of resources that may be returned.",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "q",
+						"in": "query",
+						"description": "The search query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/ApiExtractComposite[ExtractServiceDTO]"
+						}
+					},
+					"400": {
+						"description": "Bad Request"
+					}
+				}
+			}
+		},
+		"/apifc/v1/Extract/Decisions": {
+			"get": {
+				"tags": [
+					"Extract"
+				],
+				"summary": "List decisions extract",
+				"operationId": "Extract_GetDecisionsExtract",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "modifiedAfter",
+						"in": "query",
+						"description": "Gets resources modified after specified date or date-time.",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "The offset controls the starting point within the returned resources.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "The limit controls the maximum number of resources that may be returned.",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "q",
+						"in": "query",
+						"description": "The search query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/ApiExtractComposite[ExtractDecisionDTO]"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Extract/Executions": {
+			"get": {
+				"tags": [
+					"Extract"
+				],
+				"summary": "List executions extract",
+				"operationId": "Extract_GetExecutionsExtract",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "modifiedAfter",
+						"in": "query",
+						"description": "Gets resources modified after specified date or date-time.",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "The offset controls the starting point within the returned resources.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "The limit controls the maximum number of resources that may be returned.",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "q",
+						"in": "query",
+						"description": "The search query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/ApiExtractComposite[ExtractExecutionDTO]"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Extract/Calculations": {
+			"get": {
+				"tags": [
+					"Extract"
+				],
+				"summary": "List calculations extract",
+				"operationId": "Extract_GetCalculationsExtract",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "modifiedAfter",
+						"in": "query",
+						"description": "Gets resources modified after specified date or date-time.",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "The offset controls the starting point within the returned resources.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "The limit controls the maximum number of resources that may be returned.",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "q",
+						"in": "query",
+						"description": "The search query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/ApiExtractComposite[ExtractCalculationDTO]"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Extract/Actualisations": {
+			"get": {
+				"tags": [
+					"Extract"
+				],
+				"summary": "List actualisations extract",
+				"operationId": "Extract_GetActualisationsExtract",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "modifiedAfter",
+						"in": "query",
+						"description": "Gets resources modified after specified date or date-time.",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "The offset controls the starting point within the returned resources.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "The limit controls the maximum number of resources that may be returned.",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "q",
+						"in": "query",
+						"description": "The search query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/ApiExtractComposite[ExtractAktualiseringDTO]"
+						}
+					},
+					"400": {
+						"description": "Bad Request"
+					}
+				}
+			}
+		},
+		"/apifc/v1/Extract/Investigations": {
+			"get": {
+				"tags": [
+					"Extract"
+				],
+				"summary": "List investigations extract",
+				"operationId": "Extract_GetInvestigationsExtract",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "modifiedAfter",
+						"in": "query",
+						"description": "Gets resources modified after specified date or date-time.",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "The offset controls the starting point within the returned resources.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "The limit controls the maximum number of resources that may be returned.",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "q",
+						"in": "query",
+						"description": "The search query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/ApiExtractComposite[ExtractInvestigationDTO]"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Extract/ResourceAllocations": {
+			"get": {
+				"tags": [
+					"Extract"
+				],
+				"summary": "List resource allocations extract",
+				"operationId": "Extract_GetResourceAllocationsExtract",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "modifiedAfter",
+						"in": "query",
+						"description": "Gets resources modified after specified date or date-time.",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "The offset controls the starting point within the returned resources.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "The limit controls the maximum number of resources that may be returned.",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "q",
+						"in": "query",
+						"description": "The search query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/ApiExtractComposite[ExtractResourceAllocationDTO]"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Users/GetUsers": {
+			"get": {
+				"tags": [
+					"Users"
+				],
+				"summary": "List users",
+				"operationId": "Users_GetUsers",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "modifiedAfter",
+						"in": "query",
+						"description": "Gets resources modified after specified time (greater than) in UTC.",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "modifiedBefore",
+						"in": "query",
+						"description": "Gets resources modified before specified time (less than) in UTC.",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "The offset controls the starting point within the returned resources.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "The limit controls the maximum number of resources that may be returned.",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/User"
+							}
+						}
+					},
+					"401": {
+						"description": "Authentication failed"
+					},
+					"404": {
+						"description": "Users not found"
+					},
+					"500": {
+						"description": "Internal Server error"
+					}
+				}
+			}
+		},
+		"/apifc/v1/Users/GetUsersByRole": {
+			"get": {
+				"tags": [
+					"Users"
+				],
+				"summary": "List users by role",
+				"operationId": "Users_GetUsersByRole",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "role",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "modifiedAfter",
+						"in": "query",
+						"description": "Gets resources modified after specified time (greater than) in UTC.",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "modifiedBefore",
+						"in": "query",
+						"description": "Gets resources modified before specified time (less than) in UTC.",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "offset",
+						"in": "query",
+						"description": "The offset controls the starting point within the returned resources.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "limit",
+						"in": "query",
+						"description": "The limit controls the maximum number of resources that may be returned.",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "array",
+							"items": {
+								"$ref": "#/definitions/User"
+							}
+						}
+					},
+					"401": {
+						"description": "Authentication failed"
+					},
+					"404": {
+						"description": "Users not found"
+					},
+					"500": {
+						"description": "Internal Server error"
+					}
+				}
+			}
+		},
+		"/apifc/v1/Payments": {
+			"get": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "List payments",
+				"operationId": "Payments_GetPayments",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "personId",
+						"in": "query",
+						"description": "Full personId.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "startDate",
+						"in": "query",
+						"description": "Return payments made this date or later.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "endDate",
+						"in": "query",
+						"description": "Return payments made this date or before.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"description": "Max number of records to return.\r\n0 or null gives all records.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "pageNr",
+						"in": "query",
+						"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "ascending",
+						"in": "query",
+						"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+						"required": false,
+						"type": "boolean"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/ApiPaginationComposite[PersonBasedPaymentDTO]"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Services": {
+			"get": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "List services",
+				"operationId": "Services_GetServices",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "personId",
+						"in": "query",
+						"description": "Full personId.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "startDate",
+						"in": "query",
+						"description": "Return services made this date or later.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "endDate",
+						"in": "query",
+						"description": "Return services made this date or before.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"description": "Max number of records to return.\r\n0 or null gives all records.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "pageNr",
+						"in": "query",
+						"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "ascending",
+						"in": "query",
+						"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+						"required": false,
+						"type": "boolean"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/ApiPaginationComposite[PersonBasedServiceDTO]"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Decisions": {
+			"get": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "List decisions",
+				"operationId": "Decisions_GetDecisions",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "personId",
+						"in": "query",
+						"description": "Full personId.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "startDate",
+						"in": "query",
+						"description": "Return decisions made this date or later.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "endDate",
+						"in": "query",
+						"description": "Return decisions made this date or before.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"description": "Max number of records to return.\r\n0 or null gives all records.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "pageNr",
+						"in": "query",
+						"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "ascending",
+						"in": "query",
+						"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+						"required": false,
+						"type": "boolean"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/ApiPaginationComposite[PersonBasedDecisionDTO]"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Documents": {
+			"get": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "List documents",
+				"operationId": "Documents_GetDocuments",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "personId",
+						"in": "query",
+						"description": "Full personId.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "startDate",
+						"in": "query",
+						"description": "Return applications made this date or later.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "endDate",
+						"in": "query",
+						"description": "Return applications made this date or later.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"description": "Max number of records to return.\r\n0 or null gives all records.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "pageNr",
+						"in": "query",
+						"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "ascending",
+						"in": "query",
+						"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+						"required": false,
+						"type": "boolean"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/ApiPaginationComposite[PersonBasedDocumentDTO]"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Executions": {
+			"get": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "List executions",
+				"operationId": "Executions_GetExecutions",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "personId",
+						"in": "query",
+						"description": "Full personId.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "startDate",
+						"in": "query",
+						"description": "Return executions made this date or later.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "endDate",
+						"in": "query",
+						"description": "Return executions made this date or before.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"description": "Max number of records to return.\r\n0 or null gives all records.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "pageNr",
+						"in": "query",
+						"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "ascending",
+						"in": "query",
+						"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+						"required": false,
+						"type": "boolean"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/ApiPaginationComposite[PersonBasedExecutionDTO]"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Calculations": {
+			"get": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "List calculations",
+				"operationId": "Calculations_GetCalculations",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "personId",
+						"in": "query",
+						"description": "Full personId.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "startDate",
+						"in": "query",
+						"description": "Return calculations made this date or later.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "endDate",
+						"in": "query",
+						"description": "Return Calculations end this date or before",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"description": "Max number of records to return.\r\n0 or null gives all records.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "pageNr",
+						"in": "query",
+						"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "ascending",
+						"in": "query",
+						"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+						"required": false,
+						"type": "boolean"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/ApiPaginationComposite[PersonBasedCalculationDTO]"
+						}
+					}
+				}
+			},
+			"post": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "Post an calculations",
+				"operationId": "Calculations_PostCalculation",
+				"consumes": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml",
+					"application/x-www-form-urlencoded"
+				],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "body",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostCalculationBodyRequest"
+						}
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"format": "int32",
+							"type": "integer"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Actualisations": {
+			"get": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "List actualisations",
+				"operationId": "Aktualiserings_GetAktualiserings",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "personId",
+						"in": "query",
+						"description": "Full personId.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "startDate",
+						"in": "query",
+						"description": "Return applications made this date or later.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "endDate",
+						"in": "query",
+						"description": "Return applications made this date or before.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"description": "Max number of records to return.\r\n0 or null gives all records.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "pageNr",
+						"in": "query",
+						"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "ascending",
+						"in": "query",
+						"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+						"required": false,
+						"type": "boolean"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/ApiPaginationComposite[PersonBasedAktualiseringDTO]"
+						}
+					},
+					"400": {
+						"description": "Bad Request"
+					}
+				}
+			},
+			"post": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "Post an actualisation",
+				"operationId": "Aktualiserings_PostAktualisering",
+				"consumes": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml",
+					"application/x-www-form-urlencoded"
+				],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "body",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostAktualiseringsBodyRequest"
+						}
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"format": "int32",
+							"type": "integer"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/Investigations": {
+			"get": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "List investigations",
+				"operationId": "Investigations_GetInvestigations",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "personId",
+						"in": "query",
+						"description": "Full personId.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "startDate",
+						"in": "query",
+						"description": "Return investigations made this date or later.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "endDate",
+						"in": "query",
+						"description": "Return investigations made this date or before.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"description": "Max number of records to return.\r\n0 or null gives all records.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "pageNr",
+						"in": "query",
+						"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "ascending",
+						"in": "query",
+						"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+						"required": false,
+						"type": "boolean"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/ApiPaginationComposite[PersonBasedInvestigationDTO]"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/ResourceAllocations": {
+			"get": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "List resource allocations",
+				"operationId": "ResourceAllocations_GetResourceAllocations",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "personId",
+						"in": "query",
+						"description": "Full personId.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "startDate",
+						"in": "query",
+						"description": "Return resourceAllocations made this date or later.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "endDate",
+						"in": "query",
+						"description": "Return resourceAllocations made this date or before.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"description": "Max number of records to return.\r\n0 or null gives all records.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "pageNr",
+						"in": "query",
+						"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "ascending",
+						"in": "query",
+						"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+						"required": false,
+						"type": "boolean"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/ApiPaginationComposite[PersonBasedResourceAllocationDTO]"
+						}
+					}
+				}
+			}
+		},
+		"/apifc/v1/ApiLogs": {
+			"get": {
+				"tags": [
+					"Logs"
+				],
+				"summary": "List API Logs",
+				"operationId": "APILog_ListAPILogs",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "startDate",
+						"in": "query",
+						"description": "Start Date (yyyy-MM-ddTHH:mm:ss)",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "endDate",
+						"in": "query",
+						"description": "End Date (yyyy-MM-ddTHH:mm:ss)",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "source",
+						"in": "query",
+						"description": "The Source (Consumer/Provider)",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "consumer",
+						"in": "query",
+						"description": "The Consumer",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "provider",
+						"in": "query",
+						"description": "The Provider",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "api",
+						"in": "query",
+						"description": "The API Url (apifc/v1/ApiLogs)",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "method",
+						"in": "query",
+						"description": "The Method (GET/POST)",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"description": "The Status (Ok/Error)",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "durationLongerThan",
+						"in": "query",
+						"description": "Duration greater then equal to (hh:mm:ss[.fffffff])",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "durationShorterThan",
+						"in": "query",
+						"description": "Duration less then equal to (hh:mm:ss[.fffffff])",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "requestId",
+						"in": "query",
+						"description": "The Request Id (x-api-requestId)",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"description": "Max number of records to return.\r\nDefault is 100.",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "pageNr",
+						"in": "query",
+						"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"schema": {
+							"$ref": "#/definitions/ApiPaginationComposite[ApiLogEntryDTO]"
+						}
+					},
+					"400": {
+						"description": "Bad Request"
+					}
+				}
+			}
+		},
+		"/apifc/v1/Users/SetUser": {
+			"post": {
+				"tags": [
+					"Users"
+				],
+				"summary": "Create or Update a user",
+				"operationId": "Users_SetUser",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "domain",
+						"in": "query",
+						"description": "The domain ID.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"description": "The API key.",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "id",
+						"in": "query",
+						"description": "[Max length: 10] ",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "personId",
+						"in": "query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "hsaId",
+						"in": "query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "networkUserId",
+						"in": "query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "vrkId",
+						"in": "query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "firstName",
+						"in": "query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "lastName",
+						"in": "query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "fullName",
+						"in": "query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "description",
+						"in": "query",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "validFrom",
+						"in": "query",
+						"required": false,
+						"type": "string",
+						"format": "date-time"
+					},
+					{
+						"name": "validTo",
+						"in": "query",
+						"required": false,
+						"type": "string",
+						"format": "date-time"
+					},
+					{
+						"name": "disabled",
+						"in": "query",
+						"required": false,
+						"type": "boolean"
+					},
+					{
+						"name": "logonTypes",
+						"in": "query",
+						"required": false,
+						"type": "array",
+						"items": {
+							"type": "string",
+							"enum": [
+								"Certificate",
+								"External",
+								"Idp",
+								"Token",
+								"Tss"
+							]
+						},
+						"collectionFormat": "multi"
+					},
+					{
+						"name": "password",
+						"in": "query",
+						"required": false,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/definitions/User"
+						}
+					},
+					"401": {
+						"description": "Authentication failed"
+					},
+					"500": {
+						"description": "Internal Server error"
+					}
+				}
+			}
+		},
+		"/apifc/v1/Actualisations/{id}/Attachments": {
+			"post": {
+				"tags": [
+					"Person based"
+				],
+				"summary": "Post an attatchment to be bound to an actualisation",
+				"operationId": "Aktualiserings_PostAktualiseringsAttachment",
+				"consumes": [
+					"multipart/form-data"
+				],
+				"produces": [],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"required": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "InsertDocumentType",
+						"in": "formData",
+						"description": "The type of document sent",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "InsertDocumentSenderType",
+						"in": "formData",
+						"description": "The sendertype of the document",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "Title",
+						"in": "formData",
+						"description": "The title of the document",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "SenderName",
+						"in": "formData",
+						"description": "The name of the sender",
+						"required": false,
+						"type": "string"
+					},
+					{
+						"name": "Content",
+						"in": "formData",
+						"description": "The file to attach",
+						"required": true,
+						"type": "file"
+					}
+				],
+				"responses": {
+					"204": {
+						"description": "No Content"
+					}
+				}
+			}
+		},
+		"/apifc/v1/batches/autostartjournaldigital": {
+			"post": {
+				"tags": [
+					"Autostart bakgrundsjobb Journal Digital"
+				],
+				"summary": "Starts a background batch process to handle Journal Digital entries for the specified domain and key,\r\nbeginning from the given date. The key should be sent as an X-API-Key in the header for better security.",
+				"description": "This endpoint is typically used to initiate background processing jobs for Journal Digital entries.\r\nEnsure that the provided domain and key in the request object are valid for the intended operation.\r\nSending the key in the querystring is supported but not recommended due to security concerns.",
+				"operationId": "AutoStartBatch_StartJournalDigitalBatch",
+				"consumes": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml",
+					"application/x-www-form-urlencoded"
+				],
+				"produces": [
+					"application/json",
+					"text/json",
+					"text/html",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "body",
+						"in": "body",
+						"description": "The request body containing additional parameters for the batch process, such as the fromDate, the date from which to start processing digital journal entries.\r\n            Only entries on or after this date are included. If this value is omitted, the last successful integration date stored in the customer data will be used.",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostAutostartJDBatchBodyRequest"
+						}
+					},
+					{
+						"name": "domain",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "key",
+						"in": "query",
+						"required": true,
+						"type": "string"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"format": "int32",
+							"type": "integer"
+						}
+					}
+				}
+			}
+		}
+	},
+	"definitions": {
+		"OrderECDetailsDTO": {
+			"description": "Detailed information about an EC order.",
+			"type": "object",
+			"properties": {
+				"OrderId": {
+					"format": "uuid",
+					"type": "string",
+					"example": "00000000-0000-0000-0000-000000000000"
+				},
+				"PersonName": {
+					"type": "string"
+				},
+				"PersonId": {
+					"type": "string"
+				},
+				"RegistrationProtection": {
+					"description": "Indicates whether the person has protected registration (skyddad folkbokföring).",
+					"type": "boolean"
+				},
+				"AddressProtection": {
+					"description": "Indicates whether the person has address protection (adresskydd eller sekretessmarkering).",
+					"type": "boolean"
+				},
+				"CareOfAddress": {
+					"type": "string"
+				},
+				"StreetAddress": {
+					"type": "string"
+				},
+				"PostalAddress": {
+					"type": "string"
+				},
+				"PostalCode": {
+					"type": "string"
+				},
+				"StartDate": {
+					"format": "date-time",
+					"description": "The start date of the order period.\r\n<b>Note:</b> This is a calendar date without time zone. Do not interpret as UTC or local time.\r\nDo not convert between time zones; use the value directly as a date.",
+					"type": "string",
+					"example": "2026-01-29T00:00:00.000"
+				},
+				"EndDate": {
+					"format": "date-time",
+					"description": "The end date of the order period.\r\n<b>Note:</b> This is a calendar date without time zone. Do not interpret as UTC or local time.\r\nDo not convert between time zones; use the value directly as a date.",
+					"type": "string",
+					"example": "2026-01-29T00:00:00.000"
+				},
+				"ProviderUnitId": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"OrderByName": {
+					"type": "string"
+				},
+				"OrderBySignature": {
+					"type": "string"
+				},
+				"OrderDateUtc": {
+					"format": "date-time",
+					"description": "The date and time the order was created, in UTC.\r\n<b>Note:</b> This value is converted from local time to UTC and includes time information.",
+					"type": "string"
+				},
+				"UpdateDate": {
+					"format": "date-time",
+					"description": "The date the order was last updated.\r\n<b>Note:</b> This is a calendar date without time zone. Do not interpret as UTC or local time.\r\nDo not convert between time zones; use the value directly as a date.",
+					"type": "string",
+					"example": "2026-01-29T00:00:00.000"
+				},
+				"UpdateSignature": {
+					"type": "string"
+				},
+				"UpdateName": {
+					"type": "string"
+				}
+			}
+		},
+		"PdfDTO": {
+			"type": "object",
+			"properties": {
+				"DocumentId": {
+					"type": "string"
+				},
+				"Description": {
+					"type": "string"
+				},
+				"Content": {
+					"format": "byte",
+					"type": "string"
+				},
+				"Date": {
+					"format": "date-time",
+					"type": "string"
+				},
+				"Time": {
+					"type": "string"
+				},
+				"UpdateSignature": {
+					"type": "string"
+				}
+			}
+		},
+		"GetpersonsProposalRequest": {
+			"required": [
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"domain": {
+					"type": "string"
+				},
+				"key": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedPersonProposalDTO": {
+			"type": "object",
+			"properties": {
+				"CitizenShips": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedPersonCitizenShipsDTO"
+					}
+				},
+				"MaritalStatuses": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedPersonMartialStatusesDTO"
+					}
+				},
+				"Areas": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedPersonAreasDTO"
+					}
+				},
+				"AreaKeyCodes": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedPersonAreasKeyCodeDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedPersonCitizenShipsDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedPersonMartialStatusesDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedPersonAreasDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedPersonAreasKeyCodeDTO": {
+			"type": "object",
+			"properties": {
+				"Name": {
+					"type": "string"
+				},
+				"KeyCodes": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedPersonKeyCodeDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedPersonKeyCodeDTO": {
+			"type": "object",
+			"properties": {
+				"Code": {
+					"type": "string"
+				}
+			}
+		},
+		"GetDocumentContentRequest": {
+			"description": "",
+			"required": [
+				"id",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"id": {
+					"description": "Document id",
+					"type": "string"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"OrderECForUnitDTO": {
+			"description": "EC order information for a unit.",
+			"type": "object",
+			"properties": {
+				"ProviderUnitId": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"ExternalOrderId": {
+					"format": "uuid",
+					"type": "string",
+					"example": "00000000-0000-0000-0000-000000000000"
+				},
+				"StartDate": {
+					"format": "date-time",
+					"description": "The start date of the order period.\r\n<b>Note:</b> This is a calendar date without time zone. Do not interpret as UTC or local time.\r\nDo not convert between time zones; use the value directly as a date.",
+					"type": "string",
+					"example": "2026-01-29T00:00:00.000"
+				},
+				"EndDate": {
+					"format": "date-time",
+					"description": "The end date of the order period.\r\n<b>Note:</b> This is a calendar date without time zone. Do not interpret as UTC or local time.\r\nDo not convert between time zones; use the value directly as a date.",
+					"type": "string",
+					"example": "2026-01-29T00:00:00.000"
+				},
+				"OrderDateUtc": {
+					"format": "date-time",
+					"description": "The date and time the order was created, in UTC.\r\n<b>Note:</b> This value is converted from local time to UTC and includes time information.",
+					"type": "string"
+				},
+				"Status": {
+					"enum": [
+						"None",
+						"New",
+						"Received",
+						"Ongoing",
+						"Finished",
+						"Declined",
+						"Withdrawn"
+					],
+					"type": "string"
+				},
+				"UpdateDate": {
+					"format": "date-time",
+					"description": "The date the order was last updated.\r\n<b>Note:</b> This is a calendar date without time zone. Do not interpret as UTC or local time.\r\nDo not convert between time zones; use the value directly as a date.",
+					"type": "string",
+					"example": "2026-01-29T00:00:00.000"
+				},
+				"PersonId": {
+					"type": "string"
+				},
+				"PersonName": {
+					"type": "string"
+				},
+				"RegistrationProtection": {
+					"description": "Indicates whether the person has protected registration (skyddad folkbokföring).",
+					"type": "boolean"
+				},
+				"AddressProtection": {
+					"description": "Indicates whether the person has address protection (adresskydd eller sekretessmarkering).",
+					"type": "boolean"
+				}
+			}
+		},
+		"PdfMetadataDTO": {
+			"type": "object",
+			"properties": {
+				"DocumentId": {
+					"type": "string"
+				},
+				"Description": {
+					"type": "string"
+				},
+				"Date": {
+					"format": "date-time",
+					"type": "string"
+				}
+			}
+		},
+		"GetPersonsRequest": {
+			"description": "GetPersonsRequest",
+			"required": [
+				"personId",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"personId": {
+					"description": "Full personId.",
+					"type": "string"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedPersonDTO": {
+			"description": "Person documentation",
+			"type": "object",
+			"properties": {
+				"PersonId": {
+					"description": "PersonId",
+					"type": "string"
+				},
+				"CustomerNumber": {
+					"format": "int32",
+					"description": "CustomerNumber",
+					"type": "integer"
+				},
+				"Name": {
+					"description": "Name",
+					"type": "string"
+				},
+				"StreetAddress": {
+					"description": "StreetAddress",
+					"type": "string"
+				},
+				"PostalCode": {
+					"description": "PostalCode",
+					"type": "string"
+				},
+				"PostalAddress": {
+					"description": "PostalAddress",
+					"type": "string"
+				},
+				"CareOfAddress": {
+					"description": "CareOfAddress",
+					"type": "string"
+				},
+				"PhoneHome": {
+					"description": "PhoneHome",
+					"type": "string"
+				},
+				"PhoneWork": {
+					"description": "PhoneWork",
+					"type": "string"
+				},
+				"PhoneMobile": {
+					"description": "PhoneMobile",
+					"type": "string"
+				},
+				"Email": {
+					"description": "Email",
+					"type": "string"
+				},
+				"Source": {
+					"description": "Source, \"FC\" or \"Population\"",
+					"type": "string"
+				},
+				"AddressProtection": {
+					"description": "AddressProtection",
+					"type": "boolean"
+				},
+				"SecretPhone": {
+					"description": "SecretPhone",
+					"type": "boolean"
+				},
+				"ProtectedRegistration": {
+					"description": "RegistrationProtection",
+					"type": "boolean"
+				}
+			}
+		},
+		"PostPersonsRequest": {
+			"required": [
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"domain": {
+					"type": "string"
+				},
+				"key": {
+					"type": "string"
+				}
+			}
+		},
+		"PostPersonBodyRequest": {
+			"type": "object",
+			"properties": {
+				"PersonId": {
+					"type": "string"
+				},
+				"Name": {
+					"type": "string"
+				},
+				"Surname": {
+					"type": "string"
+				},
+				"MaritalStatus": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"StreetAddress": {
+					"type": "string"
+				},
+				"PostalCode": {
+					"type": "string"
+				},
+				"PostalAddress": {
+					"type": "string"
+				},
+				"CareOfAddress": {
+					"type": "string"
+				},
+				"PhoneHome": {
+					"type": "string"
+				},
+				"PhoneWork": {
+					"type": "string"
+				},
+				"PhoneMobile": {
+					"type": "string"
+				},
+				"Email": {
+					"type": "string"
+				},
+				"Area": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"KeyCode": {
+					"type": "string"
+				},
+				"CitizenShipCountry": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"BornCountry": {
+					"format": "int32",
+					"type": "integer"
+				}
+			}
+		},
+		"GetContactsRequest": {
+			"description": "GetContactsRequest",
+			"required": [
+				"personId",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"personId": {
+					"description": "Full personId.",
+					"type": "string"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedContactDTO": {
+			"description": "Contact documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"description": "Id of the contact",
+					"type": "string"
+				},
+				"Name": {
+					"description": "Name of the contact",
+					"type": "string"
+				},
+				"EmploymentTitle": {
+					"description": "Employment Title of the contact",
+					"type": "string"
+				},
+				"OrganizationName": {
+					"description": "Organization Name of the contact",
+					"type": "string"
+				},
+				"Phone": {
+					"description": "Phone",
+					"type": "string"
+				},
+				"Email": {
+					"description": "Email",
+					"type": "string"
+				},
+				"Address": {
+					"$ref": "#/definitions/PersonBasedAddressDTO",
+					"description": "Address"
+				},
+				"TypeOfContact": {
+					"description": "TypeOfContact",
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedAddressDTO": {
+			"description": "Address documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"description": "",
+					"type": "string"
+				},
+				"VisitingAddress": {
+					"description": "",
+					"type": "string"
+				},
+				"StreetAddress": {
+					"description": "",
+					"type": "string"
+				},
+				"PostalCode": {
+					"description": "",
+					"type": "string"
+				},
+				"PostalAddress": {
+					"description": "",
+					"type": "string"
+				}
+			}
+		},
+		"GetUserRequest": {
+			"description": "GetUserRequest",
+			"required": [
+				"userId",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"userId": {
+					"description": "User id.",
+					"type": "string"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"User": {
+			"required": [
+				"Id"
+			],
+			"type": "object",
+			"properties": {
+				"Id": {
+					"description": "[Max length: 10] ",
+					"type": "string"
+				},
+				"PersonId": {
+					"type": "string"
+				},
+				"HsaId": {
+					"type": "string"
+				},
+				"NetworkUserId": {
+					"type": "string"
+				},
+				"VrkId": {
+					"type": "string"
+				},
+				"FirstName": {
+					"type": "string"
+				},
+				"LastName": {
+					"type": "string"
+				},
+				"FullName": {
+					"type": "string"
+				},
+				"Description": {
+					"type": "string"
+				},
+				"ValidFrom": {
+					"format": "date-time",
+					"type": "string"
+				},
+				"ValidTo": {
+					"format": "date-time",
+					"type": "string"
+				},
+				"Disabled": {
+					"type": "boolean"
+				},
+				"LogonTypes": {
+					"type": "array",
+					"items": {
+						"enum": [
+							"Certificate",
+							"External",
+							"Idp",
+							"Token",
+							"Tss"
+						],
+						"type": "string"
+					}
+				},
+				"Password": {
+					"type": "string"
+				}
+			}
+		},
+		"StatusStatusJournalDigitalRequest": {
+			"required": [
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"domain": {
+					"type": "string"
+				},
+				"key": {
+					"type": "string"
+				}
+			}
+		},
+		"BatchJobListDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Status": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"StatusText": {
+					"type": "string"
+				},
+				"StartTime": {
+					"type": "string"
+				},
+				"EndTime": {
+					"type": "string"
+				},
+				"ResultMessage": {
+					"type": "string"
+				},
+				"StartedBy": {
+					"type": "string"
+				},
+				"Parameters": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		"GetCalculationProposalRequest": {
+			"required": [
+				"domain",
+				"key",
+				"personId"
+			],
+			"type": "object",
+			"properties": {
+				"domain": {
+					"type": "string"
+				},
+				"key": {
+					"type": "string"
+				},
+				"personId": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedCalculationProposalDTO": {
+			"type": "object",
+			"properties": {
+				"Investigations": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedCalculationInvestigationDTO"
+					}
+				},
+				"Services": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedCalculationServiceDTO"
+					}
+				},
+				"Norms": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedCalculationNormDTO"
+					}
+				},
+				"HouseholdMembers": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedCalculationHouseholdMemberDTO"
+					}
+				},
+				"CalculationExpenseTypes": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedCalculationExpenseTypeDTO"
+					}
+				},
+				"CalculationSpecialExpenseTypes": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedCalculationSpecialExpenseTypeDTO"
+					}
+				},
+				"CalculationIncomeTypes": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedCalculationCalculationIncomeTypeDTO"
+					}
+				},
+				"AktualiseringMandatory": {
+					"type": "boolean"
+				},
+				"NumberOfFamilyMembersNotInHousehold": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Aktualiserings": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedCalculationAktualiseringDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedCalculationInvestigationDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Type": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				},
+				"StartDate": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedCalculationServiceDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Type": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				},
+				"StartDate": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedCalculationNormDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				},
+				"FromDate": {
+					"type": "string"
+				},
+				"ToDate": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedCalculationHouseholdMemberDTO": {
+			"type": "object",
+			"properties": {
+				"PersonId": {
+					"type": "string"
+				},
+				"Name": {
+					"type": "string"
+				},
+				"ChildFromOtherHousehold": {
+					"type": "boolean"
+				}
+			}
+		},
+		"PersonBasedCalculationExpenseTypeDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedCalculationSpecialExpenseTypeDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedCalculationCalculationIncomeTypeDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedCalculationAktualiseringDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Type": {
+					"type": "string"
+				},
+				"Date": {
+					"type": "string"
+				}
+			}
+		},
+		"GetAktualiseringsProposalRequest": {
+			"required": [
+				"domain",
+				"key",
+				"personId"
+			],
+			"type": "object",
+			"properties": {
+				"domain": {
+					"type": "string"
+				},
+				"key": {
+					"type": "string"
+				},
+				"personId": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedAktualiseringProposalDTO": {
+			"type": "object",
+			"properties": {
+				"ActualisationTypes": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedAktualiseringsInfoDTO"
+					}
+				},
+				"SpecifyTypes": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedAktualiseringsSpecifyTypeDTO"
+					}
+				},
+				"WorkingStatus": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedAktualiseringsWorkingStatusDTO"
+					}
+				},
+				"Organizations": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedAktualiseringsOrganizationDTO"
+					}
+				},
+				"Investigations": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedAktualiseringsInvestigationDTO"
+					}
+				},
+				"Services": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedAktualiseringsServiceDTO"
+					}
+				},
+				"AttachmentTypes": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedAktualiseringAttachmentTypeDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedAktualiseringsInfoDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				},
+				"SpecifyTypeMandatory": {
+					"type": "boolean"
+				},
+				"WorkingStatus": {
+					"type": "boolean"
+				},
+				"Reasons": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedAktualiseringsReasonDTO"
+					}
+				},
+				"FromWho": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedAktualiseringsFromWhoDTO"
+					}
+				},
+				"InvestigationTypes": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedAktualiseringsInvestigationTypeDTO"
+					}
+				},
+				"ServiceTypes": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedAktualiseringsServiceTypeDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedAktualiseringsSpecifyTypeDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedAktualiseringsWorkingStatusDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedAktualiseringsOrganizationDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"UnitId": {
+					"type": "string"
+				},
+				"Name": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedAktualiseringsInvestigationDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Type": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				},
+				"StartDate": {
+					"type": "string"
+				},
+				"OrganisationId": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"OrganisationUnitId": {
+					"type": "string"
+				},
+				"CaseworkerId": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedAktualiseringsServiceDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Type": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				},
+				"StartDate": {
+					"type": "string"
+				},
+				"OrganisationId": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"OrganisationUnitId": {
+					"type": "string"
+				},
+				"CaseworkerId": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedAktualiseringAttachmentTypeDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				},
+				"SenderTypes": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/AktualisationsAttachmentSenderTypeDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedAktualiseringsReasonDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedAktualiseringsFromWhoDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedAktualiseringsInvestigationTypeDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedAktualiseringsServiceTypeDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				}
+			}
+		},
+		"AktualisationsAttachmentSenderTypeDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Name": {
+					"type": "string"
+				}
+			}
+		},
+		"GetInvoiceForTreatmentRequest": {
+			"description": "GetInvoiceForTreatmentRequest",
+			"required": [
+				"personId",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"personId": {
+					"description": "Full personId.",
+					"type": "string"
+				},
+				"customerNumber": {
+					"type": "string"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"InvoiceForTreatmentDTO": {
+			"description": "Person documentation",
+			"type": "object",
+			"properties": {
+				"ResourceAllocationId": {
+					"format": "int32",
+					"description": "ResourceAllocationId",
+					"type": "integer"
+				},
+				"Type": {
+					"description": "Type",
+					"type": "string"
+				},
+				"Name": {
+					"description": "Name",
+					"type": "string"
+				},
+				"StartDate": {
+					"description": "StartDate",
+					"type": "string"
+				},
+				"EndDate": {
+					"description": "EndDate",
+					"type": "string"
+				},
+				"Organisation": {
+					"description": "Organisation",
+					"type": "string"
+				},
+				"Caseworker": {
+					"description": "Caseworker",
+					"type": "string"
+				},
+				"FullName": {
+					"description": "FullName",
+					"type": "string"
+				},
+				"ServiceType": {
+					"type": "string"
+				}
+			}
+		},
+		"PutInvoiceForTreatmentUriRequest": {
+			"description": "PutInvoiceForTreatmentUriRequest",
+			"required": [
+				"InvoiceRowId",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"InvoiceRowId": {
+					"format": "int32",
+					"description": "InvoiceRowId",
+					"type": "integer"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"InvoiceForTreatmentRequest": {
+			"description": "InvoiceForTreatment",
+			"required": [
+				"InvoiceId",
+				"InvoiceNumber",
+				"PaymentDate",
+				"Amount",
+				"FromDate",
+				"ToDate",
+				"ExpireDate",
+				"CareProviderId",
+				"CareProviderName",
+				"CareProviderOrgNr",
+				"Status",
+				"UpdateSign"
+			],
+			"type": "object",
+			"properties": {
+				"InvoiceId": {
+					"format": "int32",
+					"description": "InvoiceId.",
+					"type": "integer"
+				},
+				"InvoiceNumber": {
+					"description": "InvoiceNumber.",
+					"type": "string"
+				},
+				"PaymentDate": {
+					"description": "PaymentDate",
+					"type": "string"
+				},
+				"Amount": {
+					"format": "double",
+					"description": "Amount.",
+					"type": "number"
+				},
+				"FromDate": {
+					"description": "FromDate.",
+					"type": "string"
+				},
+				"ToDate": {
+					"description": "ToDate.",
+					"type": "string"
+				},
+				"ExpireDate": {
+					"description": "ExpireDate.",
+					"type": "string"
+				},
+				"CareProviderId": {
+					"format": "int32",
+					"description": "ReceiverId.",
+					"type": "integer"
+				},
+				"CareProviderName": {
+					"description": "[Max length: 250] ReceiverName.",
+					"type": "string"
+				},
+				"CareProviderOrgNr": {
+					"format": "int32",
+					"description": "ReceiverOrgNr.",
+					"type": "integer"
+				},
+				"Status": {
+					"description": "[Max length: 250] Status.",
+					"type": "string"
+				},
+				"UpdateSign": {
+					"description": "[Max length: 10] UpdateSign.",
+					"type": "string"
+				}
+			}
+		},
+		"PostInvoiceForTreatmentUriRequest": {
+			"description": "PostInvoiceForTreatmentUriRequest",
+			"required": [
+				"ResourceAllocationId",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"ResourceAllocationId": {
+					"format": "int32",
+					"description": "ResourceAllocationId",
+					"type": "integer"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"DeleteInvoiceForTreatmentUriRequest": {
+			"description": "DeleteInvoiceForTreatmentUriRequest",
+			"required": [
+				"UpdateSign",
+				"InvoiceRowId",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"UpdateSign": {
+					"description": "[Max length: 10] UpdateSign",
+					"type": "string"
+				},
+				"InvoiceRowId": {
+					"format": "int32",
+					"description": "InvoiceRowId",
+					"type": "integer"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"ExtractRequest": {
+			"required": [
+				"limit",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"modifiedAfter": {
+					"description": "Gets resources modified after specified date or date-time.",
+					"type": "string"
+				},
+				"offset": {
+					"format": "int32",
+					"description": "The offset controls the starting point within the returned resources.",
+					"type": "integer"
+				},
+				"limit": {
+					"format": "int32",
+					"description": "The limit controls the maximum number of resources that may be returned.",
+					"type": "integer"
+				},
+				"q": {
+					"description": "The search query",
+					"type": "string"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"ApiExtractComposite[ExtractPaymentDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"ModifiedAfter": {
+					"format": "date-time",
+					"description": "ModifiedAfter",
+					"type": "string"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The total records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ExtractPaymentDTO"
+					}
+				}
+			}
+		},
+		"ExtractPaymentDTO": {
+			"description": "Payment documentation",
+			"type": "object",
+			"properties": {
+				"Name": {
+					"description": "Name",
+					"type": "string"
+				},
+				"Id": {
+					"format": "int32",
+					"description": "[Searchable] Id of payment",
+					"type": "integer"
+				},
+				"CustomerNumber": {
+					"format": "int32",
+					"description": "CustomerNumber",
+					"type": "integer"
+				},
+				"Amount": {
+					"format": "double",
+					"description": "Amount",
+					"type": "number"
+				},
+				"PaymentMethod": {
+					"description": "[Searchable] PaymentMethod",
+					"type": "string"
+				},
+				"PayDate": {
+					"description": "[Searchable] PayDate",
+					"type": "string"
+				},
+				"Clearing": {
+					"description": "Clearing",
+					"type": "string"
+				},
+				"AccountNumber": {
+					"description": "AccountNumber",
+					"type": "string"
+				},
+				"StreetAddress": {
+					"description": "StreetAddress",
+					"type": "string"
+				},
+				"CareOfAddress": {
+					"description": "CareOfAddress",
+					"type": "string"
+				},
+				"PostalCode": {
+					"description": "PostalCode",
+					"type": "string"
+				},
+				"PostalAddress": {
+					"description": "PostalAddress",
+					"type": "string"
+				},
+				"BillingNumber": {
+					"description": "BillingNumber",
+					"type": "string"
+				},
+				"LocalNumber": {
+					"description": "LocalNumber",
+					"type": "string"
+				},
+				"VoucherNumber": {
+					"description": "VoucherNumber",
+					"type": "string"
+				},
+				"Message": {
+					"description": "Message",
+					"type": "string"
+				},
+				"ConnectedApplication": {
+					"format": "int32",
+					"description": "[Searchable] ConnectedApplication",
+					"type": "integer"
+				},
+				"StartTime": {
+					"description": "StartTime",
+					"type": "string"
+				},
+				"EndTime": {
+					"description": "EndTime",
+					"type": "string"
+				},
+				"PaymentPersonDTOs": {
+					"description": "PaymentPersons",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ExtractPaymentPersonDTO"
+					}
+				}
+			}
+		},
+		"ExtractPaymentPersonDTO": {
+			"description": "PaymentPerson documentation",
+			"type": "object",
+			"properties": {
+				"Name": {
+					"description": "Name",
+					"type": "string"
+				},
+				"PersonId": {
+					"description": "PersonId",
+					"type": "string"
+				},
+				"CustomerNumber": {
+					"format": "int32",
+					"description": "CustomerNumber",
+					"type": "integer"
+				}
+			}
+		},
+		"ApiExtractComposite[ExtractServiceDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"ModifiedAfter": {
+					"format": "date-time",
+					"description": "ModifiedAfter",
+					"type": "string"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The total records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ExtractServiceDTO"
+					}
+				}
+			}
+		},
+		"ExtractServiceDTO": {
+			"description": "Service documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"description": "[Searchable] Id of service",
+					"type": "integer"
+				},
+				"CustomerNumber": {
+					"format": "int32",
+					"description": "CustomerNumber",
+					"type": "integer"
+				},
+				"ServiceType": {
+					"description": "[Searchable] ServiceType",
+					"type": "string"
+				},
+				"Organization": {
+					"description": "[Searchable] Organization",
+					"type": "string"
+				},
+				"StartDate": {
+					"description": "[Searchable] StartDate",
+					"type": "string"
+				},
+				"EndDate": {
+					"description": "[Searchable] EndDate",
+					"type": "string"
+				},
+				"Caseworker": {
+					"description": "[Searchable] Caseworker",
+					"type": "string"
+				},
+				"CoCaseworker": {
+					"description": "[Searchable] CoCaseworker",
+					"type": "string"
+				},
+				"InvestigationId": {
+					"format": "int32",
+					"description": "[Searchable] InvestigationId",
+					"type": "integer"
+				},
+				"ExecutionId": {
+					"format": "int32",
+					"description": "[Searchable] ExecutionId",
+					"type": "integer"
+				},
+				"DecisionId": {
+					"format": "int32",
+					"description": "[Searchable] DecisionId",
+					"type": "integer"
+				},
+				"StartTime": {
+					"description": "StartTime",
+					"type": "string"
+				},
+				"EndTime": {
+					"description": "EndTime",
+					"type": "string"
+				},
+				"CoApplicant": {
+					"description": "CoApplicant",
+					"type": "string"
+				},
+				"ServicePersonDTOs": {
+					"description": "ServicePersonDTOs",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ExtractServicePersonDTO"
+					}
+				}
+			}
+		},
+		"ExtractServicePersonDTO": {
+			"description": "ServicePerson documentation",
+			"type": "object",
+			"properties": {
+				"Name": {
+					"description": "Name",
+					"type": "string"
+				},
+				"PersonId": {
+					"description": "PersonId",
+					"type": "string"
+				},
+				"CustomerNumber": {
+					"format": "int32",
+					"description": "CustomerNumber",
+					"type": "integer"
+				},
+				"CoApplicant": {
+					"description": "CoApplicant",
+					"type": "boolean"
+				}
+			}
+		},
+		"ApiExtractComposite[ExtractDecisionDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"ModifiedAfter": {
+					"format": "date-time",
+					"description": "ModifiedAfter",
+					"type": "string"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The total records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ExtractDecisionDTO"
+					}
+				}
+			}
+		},
+		"ExtractDecisionDTO": {
+			"description": "Decision documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"description": "[Searchable] Id",
+					"type": "integer"
+				},
+				"CustomerNumber": {
+					"format": "int32",
+					"description": "CustomerNumber",
+					"type": "integer"
+				},
+				"Date": {
+					"description": "[Searchable] Date",
+					"type": "string"
+				},
+				"Type": {
+					"description": "[Searchable] Type",
+					"type": "string"
+				},
+				"FromDate": {
+					"description": "[Searchable] FromDate",
+					"type": "string"
+				},
+				"ToDate": {
+					"description": "[Searchable] ToDate",
+					"type": "string"
+				},
+				"Reason": {
+					"description": "[Searchable] Reason",
+					"type": "string"
+				},
+				"DecisionMaker": {
+					"description": "[Searchable] DecisionMaker",
+					"type": "string"
+				},
+				"Caseworker": {
+					"description": "Caseworker",
+					"type": "string"
+				},
+				"Organization": {
+					"description": "Organization",
+					"type": "string"
+				},
+				"InvestigationExecutionId": {
+					"format": "int32",
+					"description": "[Searchable] InvestigationId",
+					"type": "integer"
+				},
+				"ServiceId": {
+					"format": "int32",
+					"description": "[Searchable] ServiceId",
+					"type": "integer"
+				},
+				"Amount": {
+					"format": "double",
+					"description": "Amount",
+					"type": "number"
+				},
+				"ConnectedApplication": {
+					"format": "int32",
+					"description": "[Searchable] ConnectedApplication",
+					"type": "integer"
+				},
+				"StartTime": {
+					"description": "StartTime",
+					"type": "string"
+				},
+				"EndTime": {
+					"description": "EndTime",
+					"type": "string"
+				},
+				"DecisionPersonDTOs": {
+					"description": "DecisionPersons",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ExtractDecisionPersonDTO"
+					}
+				}
+			}
+		},
+		"ExtractDecisionPersonDTO": {
+			"description": "DecisionPerson documentation",
+			"type": "object",
+			"properties": {
+				"Name": {
+					"description": "Name",
+					"type": "string"
+				},
+				"PersonId": {
+					"description": "PersonId",
+					"type": "string"
+				},
+				"CustomerNumber": {
+					"format": "int32",
+					"description": "CustomerNumber",
+					"type": "integer"
+				},
+				"IsCoApplicant": {
+					"description": "IsCoApplicant",
+					"type": "boolean"
+				}
+			}
+		},
+		"ApiExtractComposite[ExtractExecutionDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"ModifiedAfter": {
+					"format": "date-time",
+					"description": "ModifiedAfter",
+					"type": "string"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The total records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ExtractExecutionDTO"
+					}
+				}
+			}
+		},
+		"ExtractExecutionDTO": {
+			"description": "Execution documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"description": "[Searchable] Id",
+					"type": "integer"
+				},
+				"CustomerNumber": {
+					"format": "int32",
+					"description": "CustomerNumber",
+					"type": "integer"
+				},
+				"Type": {
+					"description": "[Searchable] Type",
+					"type": "string"
+				},
+				"FromDate": {
+					"description": "[Searchable] FromDate",
+					"type": "string"
+				},
+				"ToDate": {
+					"description": "[Searchable] ToDate",
+					"type": "string"
+				},
+				"Caseworker": {
+					"description": "[Searchable] Caseworker",
+					"type": "string"
+				},
+				"Organization": {
+					"description": "[Searchable] Organization",
+					"type": "string"
+				},
+				"DossierType": {
+					"description": "[Searchable] DossierType",
+					"type": "string"
+				},
+				"StartTime": {
+					"description": "StartTime",
+					"type": "string"
+				},
+				"EndTime": {
+					"description": "EndTime",
+					"type": "string"
+				}
+			}
+		},
+		"ApiExtractComposite[ExtractCalculationDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"ModifiedAfter": {
+					"format": "date-time",
+					"description": "ModifiedAfter",
+					"type": "string"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The total records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ExtractCalculationDTO"
+					}
+				}
+			}
+		},
+		"ExtractCalculationDTO": {
+			"description": "Calculation documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"description": "[Searchable] CalculationId",
+					"type": "integer"
+				},
+				"CustomerNumber": {
+					"format": "int32",
+					"description": "CustomerNumber",
+					"type": "integer"
+				},
+				"Norm": {
+					"description": "[Searchable] Norm",
+					"type": "string"
+				},
+				"FromDate": {
+					"description": "[Searchable] FromDate",
+					"type": "string"
+				},
+				"ToDate": {
+					"description": "[Searchable] ToDate",
+					"type": "string"
+				},
+				"IncomeSum": {
+					"format": "double",
+					"description": "IncomeSum",
+					"type": "number"
+				},
+				"ExpenseSum": {
+					"format": "double",
+					"description": "ExpenseSum",
+					"type": "number"
+				},
+				"SpecialExpenseSum": {
+					"format": "double",
+					"description": "SpecialExpenseSum",
+					"type": "number"
+				},
+				"NormSum": {
+					"format": "double",
+					"description": "NormSum",
+					"type": "number"
+				},
+				"CommonHouseholdCost": {
+					"format": "double",
+					"description": "CommonHouseholdCost",
+					"type": "number"
+				},
+				"FamilyCost": {
+					"format": "double",
+					"description": "FamilyCost",
+					"type": "number"
+				},
+				"Balance": {
+					"format": "double",
+					"description": "Balance",
+					"type": "number"
+				},
+				"TotalSum": {
+					"format": "double",
+					"description": "TotalSum",
+					"type": "number"
+				},
+				"InvestigationId": {
+					"format": "int32",
+					"description": "[Searchable] InvestigationId",
+					"type": "integer"
+				},
+				"ServiceId": {
+					"format": "int32",
+					"description": "[Searchable] ServiceId",
+					"type": "integer"
+				},
+				"CalculationPersonDTOs": {
+					"description": "CalculationPersons",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ExtractCalculationPersonDTO"
+					}
+				},
+				"Final": {
+					"description": "[Searchable] Final",
+					"type": "boolean"
+				},
+				"ConnectedApplication": {
+					"format": "int32",
+					"description": "[Searchable] ConnectedApplication",
+					"type": "integer"
+				},
+				"StartTime": {
+					"description": "StartTime",
+					"type": "string"
+				},
+				"EndTime": {
+					"description": "EndTime",
+					"type": "string"
+				},
+				"CalculationIncomesDTOs": {
+					"description": "CalculationIncomes",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/CommonCalculationIncomeDTO"
+					}
+				},
+				"CalculationExpensesDTOs": {
+					"description": "CalculationExpenses",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/CommonCalculationExpenseDTO"
+					}
+				},
+				"CalculationSpecialExpensesDTOs": {
+					"description": "CalculationSpecialExpenses",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/CommonCalculationSpecialExpenseDTO"
+					}
+				}
+			}
+		},
+		"ExtractCalculationPersonDTO": {
+			"description": "CalculationPerson documentation",
+			"type": "object",
+			"properties": {
+				"Name": {
+					"description": "Name",
+					"type": "string"
+				},
+				"PersonId": {
+					"description": "PersonId",
+					"type": "string"
+				},
+				"CustomerNumber": {
+					"format": "int32",
+					"description": "CustomerNumber",
+					"type": "integer"
+				},
+				"Amount": {
+					"format": "double",
+					"description": "Amount",
+					"type": "number"
+				},
+				"DeviationFromDate": {
+					"description": "DeviationFromDate",
+					"type": "string"
+				},
+				"DeviationToDate": {
+					"description": "DeviationToDate",
+					"type": "string"
+				}
+			}
+		},
+		"CommonCalculationIncomeDTO": {
+			"description": "CalculationIncome documentation",
+			"type": "object",
+			"properties": {
+				"AmountApplicant": {
+					"format": "double",
+					"description": "AmountApplicant",
+					"type": "number"
+				},
+				"ApplicantSearchDate": {
+					"description": "ApplicantSearchDate",
+					"type": "string"
+				},
+				"AmountCoApplicant": {
+					"format": "double",
+					"description": "AmountCoApplicant",
+					"type": "number"
+				},
+				"CoApplicantSearchDate": {
+					"description": "CoApplicantSearchDate",
+					"type": "string"
+				},
+				"Type": {
+					"description": "Type",
+					"type": "string"
+				}
+			}
+		},
+		"CommonCalculationExpenseDTO": {
+			"description": "CalculationExpense documentation",
+			"type": "object",
+			"properties": {
+				"AppliedAmount": {
+					"format": "double",
+					"description": "AppliedAmount",
+					"type": "number"
+				},
+				"ApprovedAmount": {
+					"format": "double",
+					"description": "ApprovedAmount",
+					"type": "number"
+				},
+				"Type": {
+					"description": "Type",
+					"type": "string"
+				}
+			}
+		},
+		"CommonCalculationSpecialExpenseDTO": {
+			"description": "CalculationSpecialExpense documentation",
+			"type": "object",
+			"properties": {
+				"AppliedAmount": {
+					"format": "double",
+					"description": "AppliedAmount",
+					"type": "number"
+				},
+				"ApprovedAmount": {
+					"format": "double",
+					"description": "ApprovedAmount",
+					"type": "number"
+				},
+				"Type": {
+					"description": "Type",
+					"type": "string"
+				}
+			}
+		},
+		"ApiExtractComposite[ExtractAktualiseringDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"ModifiedAfter": {
+					"format": "date-time",
+					"description": "ModifiedAfter",
+					"type": "string"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The total records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ExtractAktualiseringDTO"
+					}
+				}
+			}
+		},
+		"ExtractAktualiseringDTO": {
+			"description": "Aktualisering documentation",
+			"type": "object",
+			"properties": {
+				"PersonId": {
+					"description": "[Searchable] PersonId",
+					"type": "string"
+				},
+				"Name": {
+					"description": "Name",
+					"type": "string"
+				},
+				"Id": {
+					"format": "int32",
+					"description": "[Searchable] Id",
+					"type": "integer"
+				},
+				"Aktualisering": {
+					"description": "[Searchable] Aktualisering",
+					"type": "string"
+				},
+				"Type": {
+					"description": "[Searchable] Type",
+					"type": "string"
+				},
+				"CustomerNumber": {
+					"format": "int32",
+					"description": "CustomerNumber",
+					"type": "integer"
+				},
+				"Date": {
+					"description": "[Searchable] Date",
+					"type": "string"
+				},
+				"Reason": {
+					"description": "[Searchable] Reason",
+					"type": "string"
+				},
+				"Regards": {
+					"description": "[Searchable] Regards",
+					"type": "string"
+				},
+				"FromWho": {
+					"description": "[Searchable] FromWho",
+					"type": "string"
+				},
+				"Caseworker": {
+					"description": "[Searchable] Caseworker",
+					"type": "string"
+				},
+				"Organization": {
+					"description": "[Searchable] Organization",
+					"type": "string"
+				},
+				"Status": {
+					"description": "[Searchable] Status",
+					"type": "string"
+				},
+				"InvestigationId": {
+					"format": "int32",
+					"description": "[Searchable] InvestigationId",
+					"type": "integer"
+				},
+				"ServiceId": {
+					"format": "int32",
+					"description": "[Searchable] ServiceId",
+					"type": "integer"
+				},
+				"DecisionId": {
+					"format": "int32",
+					"description": "[Searchable] DecisionId",
+					"type": "integer"
+				},
+				"StartTime": {
+					"description": "StartTime",
+					"type": "string"
+				},
+				"EndTime": {
+					"description": "EndTime",
+					"type": "string"
+				}
+			}
+		},
+		"ApiExtractComposite[ExtractInvestigationDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"ModifiedAfter": {
+					"format": "date-time",
+					"description": "ModifiedAfter",
+					"type": "string"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The total records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ExtractInvestigationDTO"
+					}
+				}
+			}
+		},
+		"ExtractInvestigationDTO": {
+			"description": "Investigation documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"description": "[Searchable] Id",
+					"type": "integer"
+				},
+				"CustomerNumber": {
+					"format": "int32",
+					"description": "CustomerNumber",
+					"type": "integer"
+				},
+				"Type": {
+					"description": "[Searchable] Type",
+					"type": "string"
+				},
+				"FromDate": {
+					"description": "[Searchable] FromDate",
+					"type": "string"
+				},
+				"ToDate": {
+					"description": "[Searchable] ToDate",
+					"type": "string"
+				},
+				"Caseworker": {
+					"description": "[Searchable] Caseworker",
+					"type": "string"
+				},
+				"Organization": {
+					"description": "[Searchable] Organization",
+					"type": "string"
+				},
+				"DossierType": {
+					"description": "[Searchable] DossierType",
+					"type": "string"
+				},
+				"StartTime": {
+					"description": "StartTime",
+					"type": "string"
+				},
+				"EndTime": {
+					"description": "EndTime",
+					"type": "string"
+				},
+				"InvestigationPersonDTOs": {
+					"description": "InvestigationPersons",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ExtractInvestigationPersonDTO"
+					}
+				}
+			}
+		},
+		"ExtractInvestigationPersonDTO": {
+			"description": "InvestigationPerson documentation",
+			"type": "object",
+			"properties": {
+				"Name": {
+					"description": "Name",
+					"type": "string"
+				},
+				"PersonId": {
+					"description": "PersonId",
+					"type": "string"
+				},
+				"CustomerNumber": {
+					"format": "int32",
+					"description": "CustomerNumber",
+					"type": "integer"
+				},
+				"CoApplicant": {
+					"description": "CoApplicant",
+					"type": "boolean"
+				}
+			}
+		},
+		"ApiExtractComposite[ExtractResourceAllocationDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"ModifiedAfter": {
+					"format": "date-time",
+					"description": "ModifiedAfter",
+					"type": "string"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The total records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ExtractResourceAllocationDTO"
+					}
+				}
+			}
+		},
+		"ExtractResourceAllocationDTO": {
+			"description": "Resource allocation documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"description": "[Searchable] Id of resource allocation",
+					"type": "integer"
+				},
+				"CustomerNumber": {
+					"format": "int32",
+					"description": "CustomerNumber",
+					"type": "integer"
+				},
+				"StartDate": {
+					"description": "[Searchable] StartDate",
+					"type": "string"
+				},
+				"EndDate": {
+					"description": "[Searchable] EndDate",
+					"type": "string"
+				},
+				"Percent": {
+					"format": "int32",
+					"description": "Percent",
+					"type": "integer"
+				},
+				"Resource": {
+					"description": "[Searchable] Resource",
+					"type": "string"
+				},
+				"ResourceType": {
+					"description": "[Searchable] ResourceType",
+					"type": "string"
+				},
+				"ServiceId": {
+					"format": "int32",
+					"description": "[Searchable] ServiceId",
+					"type": "integer"
+				},
+				"StartTime": {
+					"description": "StartTime",
+					"type": "string"
+				},
+				"EndTime": {
+					"description": "EndTime",
+					"type": "string"
+				}
+			}
+		},
+		"ExtractUserRequest": {
+			"required": [
+				"limit",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"modifiedAfter": {
+					"description": "Gets resources modified after specified time (greater than) in UTC.",
+					"type": "string"
+				},
+				"modifiedBefore": {
+					"description": "Gets resources modified before specified time (less than) in UTC.",
+					"type": "string"
+				},
+				"offset": {
+					"format": "int32",
+					"description": "The offset controls the starting point within the returned resources.",
+					"type": "integer"
+				},
+				"limit": {
+					"format": "int32",
+					"description": "The limit controls the maximum number of resources that may be returned.",
+					"type": "integer"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"GetPaymentsRequest": {
+			"description": "GetPaymentsRequest",
+			"required": [
+				"personId",
+				"startDate",
+				"endDate",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"personId": {
+					"description": "Full personId.",
+					"type": "string"
+				},
+				"startDate": {
+					"description": "Return payments made this date or later.",
+					"type": "string"
+				},
+				"endDate": {
+					"description": "Return payments made this date or before.",
+					"type": "string"
+				},
+				"pageSize": {
+					"format": "int32",
+					"description": "Max number of records to return.\r\n0 or null gives all records.",
+					"type": "integer"
+				},
+				"pageNr": {
+					"format": "int32",
+					"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+					"type": "integer"
+				},
+				"ascending": {
+					"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+					"type": "boolean"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"ApiPaginationComposite[PersonBasedPaymentDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"StartDate": {
+					"format": "date-time",
+					"description": "The start date.",
+					"type": "string"
+				},
+				"EndDate": {
+					"format": "date-time",
+					"description": "The end date.",
+					"type": "string"
+				},
+				"PageNumber": {
+					"format": "int32",
+					"description": "The page number this page represents.",
+					"type": "integer"
+				},
+				"TotalNumberOfPages": {
+					"format": "int32",
+					"description": "The total number of pages available.",
+					"type": "integer"
+				},
+				"PageSize": {
+					"format": "int32",
+					"description": "The size of this page.",
+					"type": "integer"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedPaymentDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedPaymentDTO": {
+			"description": "Payment documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"description": "Id of payment",
+					"type": "integer"
+				},
+				"Amount": {
+					"format": "double",
+					"description": "",
+					"type": "number"
+				},
+				"PaymentMethod": {
+					"description": "",
+					"type": "string"
+				},
+				"PayDate": {
+					"description": "",
+					"type": "string"
+				},
+				"Clearing": {
+					"description": "",
+					"type": "string"
+				},
+				"AccountNumber": {
+					"description": "",
+					"type": "string"
+				},
+				"Name": {
+					"description": "",
+					"type": "string"
+				},
+				"StreetAddress": {
+					"description": "",
+					"type": "string"
+				},
+				"CareOfAddress": {
+					"description": "",
+					"type": "string"
+				},
+				"PostalCode": {
+					"description": "",
+					"type": "string"
+				},
+				"PostalAddress": {
+					"description": "",
+					"type": "string"
+				},
+				"BillingNumber": {
+					"description": "",
+					"type": "string"
+				},
+				"LocalNumber": {
+					"description": "",
+					"type": "string"
+				},
+				"VoucherNumber": {
+					"description": "",
+					"type": "string"
+				},
+				"Message": {
+					"description": "",
+					"type": "string"
+				},
+				"InvestigationExecutionId": {
+					"format": "int32",
+					"description": "InvestigationExecutionId",
+					"type": "integer"
+				},
+				"ServiceId": {
+					"format": "int32",
+					"description": "ServiceId",
+					"type": "integer"
+				},
+				"ConnectedApplication": {
+					"format": "int32",
+					"description": "ConnectedApplication",
+					"type": "integer"
+				},
+				"ConcernedMonth": {
+					"description": "ConcernedMonth",
+					"type": "string"
+				},
+				"PaymentPersonDTOs": {
+					"description": "PaymentPersons",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedPaymentPersonDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedPaymentPersonDTO": {
+			"description": "PaymentPerson documentation",
+			"type": "object",
+			"properties": {
+				"PersonId": {
+					"description": "",
+					"type": "string"
+				},
+				"Name": {
+					"description": "",
+					"type": "string"
+				}
+			}
+		},
+		"GetServicesRequest": {
+			"description": "GetServicesRequest",
+			"required": [
+				"personId",
+				"startDate",
+				"endDate",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"personId": {
+					"description": "Full personId.",
+					"type": "string"
+				},
+				"startDate": {
+					"description": "Return services made this date or later.",
+					"type": "string"
+				},
+				"endDate": {
+					"description": "Return services made this date or before.",
+					"type": "string"
+				},
+				"pageSize": {
+					"format": "int32",
+					"description": "Max number of records to return.\r\n0 or null gives all records.",
+					"type": "integer"
+				},
+				"pageNr": {
+					"format": "int32",
+					"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+					"type": "integer"
+				},
+				"ascending": {
+					"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+					"type": "boolean"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"ApiPaginationComposite[PersonBasedServiceDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"StartDate": {
+					"format": "date-time",
+					"description": "The start date.",
+					"type": "string"
+				},
+				"EndDate": {
+					"format": "date-time",
+					"description": "The end date.",
+					"type": "string"
+				},
+				"PageNumber": {
+					"format": "int32",
+					"description": "The page number this page represents.",
+					"type": "integer"
+				},
+				"TotalNumberOfPages": {
+					"format": "int32",
+					"description": "The total number of pages available.",
+					"type": "integer"
+				},
+				"PageSize": {
+					"format": "int32",
+					"description": "The size of this page.",
+					"type": "integer"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedServiceDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedServiceDTO": {
+			"description": "Service documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"description": "Id of service",
+					"type": "integer"
+				},
+				"Type": {
+					"description": "Type",
+					"type": "string"
+				},
+				"Organization": {
+					"description": "Organization",
+					"type": "string"
+				},
+				"StartDate": {
+					"description": "StartDate",
+					"type": "string"
+				},
+				"EndDate": {
+					"description": "EndDate",
+					"type": "string"
+				},
+				"Caseworker": {
+					"description": "Caseworker",
+					"type": "string"
+				},
+				"CoCaseworker": {
+					"description": "CoCaseworker",
+					"type": "string"
+				},
+				"InvestigationId": {
+					"format": "int32",
+					"description": "InvestigationId",
+					"type": "integer"
+				},
+				"DecisionId": {
+					"format": "int32",
+					"description": "DecisionId",
+					"type": "integer"
+				},
+				"Applicant": {
+					"description": "Applicant",
+					"type": "string"
+				},
+				"CoApplicant": {
+					"description": "CoApplicant",
+					"type": "string"
+				},
+				"ServicePersonDTOs": {
+					"description": "ServicePersonDTOs",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedServicePersonDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedServicePersonDTO": {
+			"description": "ServicePerson documentation",
+			"type": "object",
+			"properties": {
+				"PersonId": {
+					"description": "",
+					"type": "string"
+				},
+				"Name": {
+					"description": "",
+					"type": "string"
+				}
+			}
+		},
+		"GetDecisionsRequest": {
+			"description": "GetDecisionsRequest",
+			"required": [
+				"personId",
+				"startDate",
+				"endDate",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"personId": {
+					"description": "Full personId.",
+					"type": "string"
+				},
+				"startDate": {
+					"description": "Return decisions made this date or later.",
+					"type": "string"
+				},
+				"endDate": {
+					"description": "Return decisions made this date or before.",
+					"type": "string"
+				},
+				"pageSize": {
+					"format": "int32",
+					"description": "Max number of records to return.\r\n0 or null gives all records.",
+					"type": "integer"
+				},
+				"pageNr": {
+					"format": "int32",
+					"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+					"type": "integer"
+				},
+				"ascending": {
+					"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+					"type": "boolean"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"ApiPaginationComposite[PersonBasedDecisionDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"StartDate": {
+					"format": "date-time",
+					"description": "The start date.",
+					"type": "string"
+				},
+				"EndDate": {
+					"format": "date-time",
+					"description": "The end date.",
+					"type": "string"
+				},
+				"PageNumber": {
+					"format": "int32",
+					"description": "The page number this page represents.",
+					"type": "integer"
+				},
+				"TotalNumberOfPages": {
+					"format": "int32",
+					"description": "The total number of pages available.",
+					"type": "integer"
+				},
+				"PageSize": {
+					"format": "int32",
+					"description": "The size of this page.",
+					"type": "integer"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedDecisionDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedDecisionDTO": {
+			"description": "Decision documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"description": "Id",
+					"type": "integer"
+				},
+				"Date": {
+					"description": "Date",
+					"type": "string"
+				},
+				"Type": {
+					"description": "Type",
+					"type": "string"
+				},
+				"FromDate": {
+					"description": "FromDate",
+					"type": "string"
+				},
+				"ToDate": {
+					"description": "ToDate",
+					"type": "string"
+				},
+				"Reason": {
+					"description": "Reason",
+					"type": "string"
+				},
+				"DecisionMaker": {
+					"description": "DecisionMaker",
+					"type": "string"
+				},
+				"Organization": {
+					"description": "Organization",
+					"type": "string"
+				},
+				"InvestigationExecutionId": {
+					"format": "int32",
+					"description": "InvestigationExecutionId",
+					"type": "integer"
+				},
+				"ServiceId": {
+					"format": "int32",
+					"description": "ServiceId",
+					"type": "integer"
+				},
+				"Amount": {
+					"format": "double",
+					"description": "Amount",
+					"type": "number"
+				},
+				"CoApplicant": {
+					"description": "CoApplicant",
+					"type": "string"
+				},
+				"ReasonCoApplicant": {
+					"description": "ReasonCoApplicant",
+					"type": "string"
+				},
+				"ConnectedApplication": {
+					"format": "int32",
+					"description": "ConnectedApplication",
+					"type": "integer"
+				},
+				"DecisionPersonDTOs": {
+					"description": "DecisionPersons",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedDecisionPersonDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedDecisionPersonDTO": {
+			"description": "DecisionPerson documentation",
+			"type": "object",
+			"properties": {
+				"PersonId": {
+					"description": "PersonId",
+					"type": "string"
+				},
+				"Name": {
+					"description": "Name",
+					"type": "string"
+				},
+				"IsCoApplicant": {
+					"description": "IsCoApplicant",
+					"type": "boolean"
+				}
+			}
+		},
+		"GetDocumentsRequest": {
+			"description": "GetDocumentsRequest",
+			"required": [
+				"personId",
+				"startDate",
+				"endDate",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"personId": {
+					"description": "Full personId.",
+					"type": "string"
+				},
+				"startDate": {
+					"description": "Return applications made this date or later.",
+					"type": "string"
+				},
+				"endDate": {
+					"description": "Return applications made this date or later.",
+					"type": "string"
+				},
+				"pageSize": {
+					"format": "int32",
+					"description": "Max number of records to return.\r\n0 or null gives all records.",
+					"type": "integer"
+				},
+				"pageNr": {
+					"format": "int32",
+					"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+					"type": "integer"
+				},
+				"ascending": {
+					"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+					"type": "boolean"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"ApiPaginationComposite[PersonBasedDocumentDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"StartDate": {
+					"format": "date-time",
+					"description": "The start date.",
+					"type": "string"
+				},
+				"EndDate": {
+					"format": "date-time",
+					"description": "The end date.",
+					"type": "string"
+				},
+				"PageNumber": {
+					"format": "int32",
+					"description": "The page number this page represents.",
+					"type": "integer"
+				},
+				"TotalNumberOfPages": {
+					"format": "int32",
+					"description": "The total number of pages available.",
+					"type": "integer"
+				},
+				"PageSize": {
+					"format": "int32",
+					"description": "The size of this page.",
+					"type": "integer"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedDocumentDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedDocumentDTO": {
+			"description": "Document documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"description": "Id",
+					"type": "string"
+				},
+				"Title": {
+					"description": "Title",
+					"type": "string"
+				},
+				"Date": {
+					"description": "Date",
+					"type": "string"
+				},
+				"DocumentType": {
+					"description": "DocumentType",
+					"type": "string"
+				},
+				"OwnerId": {
+					"description": "OwnerId",
+					"type": "string"
+				},
+				"OwnerType": {
+					"description": "OwnerType",
+					"type": "string"
+				}
+			}
+		},
+		"GetExecutionsRequest": {
+			"description": "GetExecutionsRequest",
+			"required": [
+				"personId",
+				"startDate",
+				"endDate",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"personId": {
+					"description": "Full personId.",
+					"type": "string"
+				},
+				"startDate": {
+					"description": "Return executions made this date or later.",
+					"type": "string"
+				},
+				"endDate": {
+					"description": "Return executions made this date or before.",
+					"type": "string"
+				},
+				"pageSize": {
+					"format": "int32",
+					"description": "Max number of records to return.\r\n0 or null gives all records.",
+					"type": "integer"
+				},
+				"pageNr": {
+					"format": "int32",
+					"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+					"type": "integer"
+				},
+				"ascending": {
+					"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+					"type": "boolean"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"ApiPaginationComposite[PersonBasedExecutionDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"StartDate": {
+					"format": "date-time",
+					"description": "The start date.",
+					"type": "string"
+				},
+				"EndDate": {
+					"format": "date-time",
+					"description": "The end date.",
+					"type": "string"
+				},
+				"PageNumber": {
+					"format": "int32",
+					"description": "The page number this page represents.",
+					"type": "integer"
+				},
+				"TotalNumberOfPages": {
+					"format": "int32",
+					"description": "The total number of pages available.",
+					"type": "integer"
+				},
+				"PageSize": {
+					"format": "int32",
+					"description": "The size of this page.",
+					"type": "integer"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedExecutionDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedExecutionDTO": {
+			"description": "Execution documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"description": "Id",
+					"type": "integer"
+				},
+				"Type": {
+					"description": "Type",
+					"type": "string"
+				},
+				"FromDate": {
+					"description": "FromDate",
+					"type": "string"
+				},
+				"ToDate": {
+					"description": "ToDate",
+					"type": "string"
+				},
+				"Caseworker": {
+					"description": "Caseworker",
+					"type": "string"
+				},
+				"Organization": {
+					"description": "Organization",
+					"type": "string"
+				},
+				"DossierType": {
+					"description": "DossierType",
+					"type": "string"
+				}
+			}
+		},
+		"GetCalculationsRequest": {
+			"description": "GetCalculationsRequest",
+			"required": [
+				"personId",
+				"startDate",
+				"endDate",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"personId": {
+					"description": "Full personId.",
+					"type": "string"
+				},
+				"startDate": {
+					"description": "Return calculations made this date or later.",
+					"type": "string"
+				},
+				"endDate": {
+					"description": "Return Calculations end this date or before",
+					"type": "string"
+				},
+				"pageSize": {
+					"format": "int32",
+					"description": "Max number of records to return.\r\n0 or null gives all records.",
+					"type": "integer"
+				},
+				"pageNr": {
+					"format": "int32",
+					"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+					"type": "integer"
+				},
+				"ascending": {
+					"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+					"type": "boolean"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"ApiPaginationComposite[PersonBasedCalculationDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"StartDate": {
+					"format": "date-time",
+					"description": "The start date.",
+					"type": "string"
+				},
+				"EndDate": {
+					"format": "date-time",
+					"description": "The end date.",
+					"type": "string"
+				},
+				"PageNumber": {
+					"format": "int32",
+					"description": "The page number this page represents.",
+					"type": "integer"
+				},
+				"TotalNumberOfPages": {
+					"format": "int32",
+					"description": "The total number of pages available.",
+					"type": "integer"
+				},
+				"PageSize": {
+					"format": "int32",
+					"description": "The size of this page.",
+					"type": "integer"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedCalculationDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedCalculationDTO": {
+			"description": "Calculation documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"description": "CalculationId",
+					"type": "integer"
+				},
+				"Norm": {
+					"description": "Norm",
+					"type": "string"
+				},
+				"FromDate": {
+					"description": "FromDate",
+					"type": "string"
+				},
+				"ToDate": {
+					"description": "ToDate",
+					"type": "string"
+				},
+				"IncomeSum": {
+					"format": "double",
+					"description": "IncomeSum",
+					"type": "number"
+				},
+				"ExpenseSum": {
+					"format": "double",
+					"description": "ExpenseSum",
+					"type": "number"
+				},
+				"SpecialExpenseSum": {
+					"format": "double",
+					"description": "SpecialExpenseSum",
+					"type": "number"
+				},
+				"NormSum": {
+					"format": "double",
+					"description": "NormSum",
+					"type": "number"
+				},
+				"CommonHouseholdCost": {
+					"format": "double",
+					"description": "CommonHouseholdCost",
+					"type": "number"
+				},
+				"FamilyCost": {
+					"format": "double",
+					"description": "FamilyCost",
+					"type": "number"
+				},
+				"Balance": {
+					"format": "double",
+					"description": "Balance",
+					"type": "number"
+				},
+				"TotalSum": {
+					"format": "double",
+					"description": "TotalSum",
+					"type": "number"
+				},
+				"InvestigationId": {
+					"format": "int32",
+					"description": "InvestigationId",
+					"type": "integer"
+				},
+				"ServiceId": {
+					"format": "int32",
+					"description": "ServiceId",
+					"type": "integer"
+				},
+				"Final": {
+					"description": "Final",
+					"type": "boolean"
+				},
+				"ConnectedApplication": {
+					"format": "int32",
+					"description": "ConnectedApplication",
+					"type": "integer"
+				},
+				"CalculationPersonDTOs": {
+					"description": "CalculationPersons",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedCalculationPersonDTO"
+					}
+				},
+				"CalculationIncomesDTOs": {
+					"description": "CalculationIncomes",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/CommonCalculationIncomeDTO"
+					}
+				},
+				"CalculationExpensesDTOs": {
+					"description": "CalculationExpenses",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/CommonCalculationExpenseDTO"
+					}
+				},
+				"CalculationSpecialExpensesDTOs": {
+					"description": "CalculationSpecialExpenses",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/CommonCalculationSpecialExpenseDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedCalculationPersonDTO": {
+			"description": "CalculationPerson documentation",
+			"type": "object",
+			"properties": {
+				"PersonId": {
+					"description": "PersonId",
+					"type": "string"
+				},
+				"Name": {
+					"description": "Name",
+					"type": "string"
+				},
+				"Amount": {
+					"format": "double",
+					"description": "Amount",
+					"type": "number"
+				},
+				"DeviationFromDate": {
+					"description": "DeviationFromDate",
+					"type": "string"
+				},
+				"DeviationToDate": {
+					"description": "DeviationToDate",
+					"type": "string"
+				}
+			}
+		},
+		"PostCalculationRequest": {
+			"required": [
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"domain": {
+					"type": "string"
+				},
+				"key": {
+					"type": "string"
+				}
+			}
+		},
+		"PostCalculationBodyRequest": {
+			"type": "object",
+			"properties": {
+				"PersonId": {
+					"type": "string"
+				},
+				"ServiceId": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"InvestigationId": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"NormId": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"AktualiseringId": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"CalculationDate": {
+					"type": "string"
+				},
+				"CalculationFromDate": {
+					"type": "string"
+				},
+				"CalculationToDate": {
+					"type": "string"
+				},
+				"HasCustomHouseholdSize": {
+					"type": "boolean"
+				},
+				"HouseholdSize": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"CalculationPersons": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedCalculationPersonPostDTO"
+					}
+				},
+				"CalculationExpenses": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedCalculationExpensePostDTO"
+					}
+				},
+				"CalculationSpecialExpenses": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedCalculationSpecialExpensePostDTO"
+					}
+				},
+				"CalculationIncomes": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedCalculationIncomePostDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedCalculationPersonPostDTO": {
+			"type": "object",
+			"properties": {
+				"PersonId": {
+					"type": "string"
+				},
+				"NumberOfDays": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"DeviationFromDate": {
+					"format": "date-time",
+					"type": "string"
+				},
+				"DeviationToDate": {
+					"format": "date-time",
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedCalculationExpensePostDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Amount": {
+					"format": "double",
+					"type": "number"
+				},
+				"ApprovedAmount": {
+					"format": "double",
+					"type": "number"
+				},
+				"Note": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedCalculationSpecialExpensePostDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Amount": {
+					"format": "double",
+					"type": "number"
+				},
+				"ApprovedAmount": {
+					"format": "double",
+					"type": "number"
+				},
+				"Note": {
+					"type": "string"
+				}
+			}
+		},
+		"PersonBasedCalculationIncomePostDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"ApplicantAmount": {
+					"format": "double",
+					"type": "number"
+				},
+				"ApplicantAmountDate": {
+					"format": "date-time",
+					"type": "string"
+				},
+				"CoApplicantAmount": {
+					"format": "double",
+					"type": "number"
+				},
+				"CoApplicantAmountDate": {
+					"format": "date-time",
+					"type": "string"
+				},
+				"Note": {
+					"type": "string"
+				}
+			}
+		},
+		"GetAktualiseringsRequest": {
+			"description": "GetAktualiseringsRequest",
+			"required": [
+				"personId",
+				"startDate",
+				"endDate",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"personId": {
+					"description": "Full personId.",
+					"type": "string"
+				},
+				"startDate": {
+					"description": "Return applications made this date or later.",
+					"type": "string"
+				},
+				"endDate": {
+					"description": "Return applications made this date or before.",
+					"type": "string"
+				},
+				"pageSize": {
+					"format": "int32",
+					"description": "Max number of records to return.\r\n0 or null gives all records.",
+					"type": "integer"
+				},
+				"pageNr": {
+					"format": "int32",
+					"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+					"type": "integer"
+				},
+				"ascending": {
+					"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+					"type": "boolean"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"ApiPaginationComposite[PersonBasedAktualiseringDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"StartDate": {
+					"format": "date-time",
+					"description": "The start date.",
+					"type": "string"
+				},
+				"EndDate": {
+					"format": "date-time",
+					"description": "The end date.",
+					"type": "string"
+				},
+				"PageNumber": {
+					"format": "int32",
+					"description": "The page number this page represents.",
+					"type": "integer"
+				},
+				"TotalNumberOfPages": {
+					"format": "int32",
+					"description": "The total number of pages available.",
+					"type": "integer"
+				},
+				"PageSize": {
+					"format": "int32",
+					"description": "The size of this page.",
+					"type": "integer"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedAktualiseringDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedAktualiseringDTO": {
+			"description": "Aktualisering documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"description": "Id",
+					"type": "integer"
+				},
+				"Type": {
+					"description": "Type",
+					"type": "string"
+				},
+				"PersonId": {
+					"description": "PersonId",
+					"type": "string"
+				},
+				"Name": {
+					"description": "Name",
+					"type": "string"
+				},
+				"Date": {
+					"description": "Date",
+					"type": "string"
+				},
+				"Reason": {
+					"description": "Reason",
+					"type": "string"
+				},
+				"Regards": {
+					"description": "Regards",
+					"type": "string"
+				},
+				"FromWho": {
+					"description": "FromWho",
+					"type": "string"
+				},
+				"Caseworker": {
+					"description": "Caseworker",
+					"type": "string"
+				},
+				"Organization": {
+					"description": "Organization",
+					"type": "string"
+				},
+				"Status": {
+					"description": "Status",
+					"type": "string"
+				},
+				"InvestigationId": {
+					"format": "int32",
+					"description": "InvestigationId",
+					"type": "integer"
+				},
+				"ServiceId": {
+					"format": "int32",
+					"description": "ServiceId",
+					"type": "integer"
+				},
+				"DecisionId": {
+					"format": "int32",
+					"description": "DecisionId",
+					"type": "integer"
+				}
+			}
+		},
+		"PostAktualiseringsRequest": {
+			"required": [
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"domain": {
+					"type": "string"
+				},
+				"key": {
+					"type": "string"
+				}
+			}
+		},
+		"PostAktualiseringsBodyRequest": {
+			"type": "object",
+			"properties": {
+				"PersonId": {
+					"type": "string"
+				},
+				"Date": {
+					"type": "string"
+				},
+				"Type": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"FromWho": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Reason": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"OrganisationId": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"OrganisationUnitId": {
+					"type": "string"
+				},
+				"CaseworkerId": {
+					"type": "string"
+				},
+				"Specifies": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"ServiceId": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"InvestigationId": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"WorkingStatus": {
+					"format": "int32",
+					"type": "integer"
+				}
+			}
+		},
+		"GetInvestigationsRequest": {
+			"description": "GetInvestigationsRequest",
+			"required": [
+				"personId",
+				"startDate",
+				"endDate",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"personId": {
+					"description": "Full personId.",
+					"type": "string"
+				},
+				"startDate": {
+					"description": "Return investigations made this date or later.",
+					"type": "string"
+				},
+				"endDate": {
+					"description": "Return investigations made this date or before.",
+					"type": "string"
+				},
+				"pageSize": {
+					"format": "int32",
+					"description": "Max number of records to return.\r\n0 or null gives all records.",
+					"type": "integer"
+				},
+				"pageNr": {
+					"format": "int32",
+					"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+					"type": "integer"
+				},
+				"ascending": {
+					"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+					"type": "boolean"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"ApiPaginationComposite[PersonBasedInvestigationDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"StartDate": {
+					"format": "date-time",
+					"description": "The start date.",
+					"type": "string"
+				},
+				"EndDate": {
+					"format": "date-time",
+					"description": "The end date.",
+					"type": "string"
+				},
+				"PageNumber": {
+					"format": "int32",
+					"description": "The page number this page represents.",
+					"type": "integer"
+				},
+				"TotalNumberOfPages": {
+					"format": "int32",
+					"description": "The total number of pages available.",
+					"type": "integer"
+				},
+				"PageSize": {
+					"format": "int32",
+					"description": "The size of this page.",
+					"type": "integer"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedInvestigationDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedInvestigationDTO": {
+			"description": "Investigation documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"description": "Id",
+					"type": "integer"
+				},
+				"Type": {
+					"description": "Type",
+					"type": "string"
+				},
+				"FromDate": {
+					"description": "FromDate",
+					"type": "string"
+				},
+				"ToDate": {
+					"description": "ToDate",
+					"type": "string"
+				},
+				"Caseworker": {
+					"description": "Caseworker",
+					"type": "string"
+				},
+				"Organization": {
+					"description": "Organization",
+					"type": "string"
+				},
+				"DossierType": {
+					"description": "DossierType",
+					"type": "string"
+				},
+				"Applicant": {
+					"description": "Applicant",
+					"type": "string"
+				},
+				"CoApplicant": {
+					"description": "CoApplicant",
+					"type": "string"
+				},
+				"InvestigationPersonDTOs": {
+					"description": "InvestigationPersonDTOs",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedInvestigationPersonDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedInvestigationPersonDTO": {
+			"description": "InvestigationPerson documentation",
+			"type": "object",
+			"properties": {
+				"PersonId": {
+					"description": "PersonId",
+					"type": "string"
+				},
+				"Name": {
+					"description": "Name",
+					"type": "string"
+				},
+				"CoApplicant": {
+					"description": "Name",
+					"type": "boolean"
+				}
+			}
+		},
+		"GetResourceAllocationsRequest": {
+			"description": "GetResourceAllocationsRequest",
+			"required": [
+				"personId",
+				"startDate",
+				"endDate",
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"personId": {
+					"description": "Full personId.",
+					"type": "string"
+				},
+				"startDate": {
+					"description": "Return resourceAllocations made this date or later.",
+					"type": "string"
+				},
+				"endDate": {
+					"description": "Return resourceAllocations made this date or before.",
+					"type": "string"
+				},
+				"pageSize": {
+					"format": "int32",
+					"description": "Max number of records to return.\r\n0 or null gives all records.",
+					"type": "integer"
+				},
+				"pageNr": {
+					"format": "int32",
+					"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+					"type": "integer"
+				},
+				"ascending": {
+					"description": "Indicates whether or not the order should be ascending \r\n(True) Ascending, (False) descending",
+					"type": "boolean"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"ApiPaginationComposite[PersonBasedResourceAllocationDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"StartDate": {
+					"format": "date-time",
+					"description": "The start date.",
+					"type": "string"
+				},
+				"EndDate": {
+					"format": "date-time",
+					"description": "The end date.",
+					"type": "string"
+				},
+				"PageNumber": {
+					"format": "int32",
+					"description": "The page number this page represents.",
+					"type": "integer"
+				},
+				"TotalNumberOfPages": {
+					"format": "int32",
+					"description": "The total number of pages available.",
+					"type": "integer"
+				},
+				"PageSize": {
+					"format": "int32",
+					"description": "The size of this page.",
+					"type": "integer"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/PersonBasedResourceAllocationDTO"
+					}
+				}
+			}
+		},
+		"PersonBasedResourceAllocationDTO": {
+			"description": "Resource allocation documentation",
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"description": "Id of resource allocation",
+					"type": "integer"
+				},
+				"StartDate": {
+					"description": "StartDate",
+					"type": "string"
+				},
+				"EndDate": {
+					"description": "EndDate",
+					"type": "string"
+				},
+				"Percent": {
+					"format": "int32",
+					"description": "Percent",
+					"type": "integer"
+				},
+				"Resource": {
+					"description": "Resource",
+					"type": "string"
+				},
+				"ResourceType": {
+					"description": "ResourceType",
+					"type": "string"
+				},
+				"ServiceId": {
+					"format": "int32",
+					"description": "ServiceId",
+					"type": "integer"
+				}
+			}
+		},
+		"ApiLogRequest": {
+			"description": "ApiLogRequest",
+			"required": [
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"startDate": {
+					"description": "Start Date (yyyy-MM-ddTHH:mm:ss)",
+					"type": "string"
+				},
+				"endDate": {
+					"description": "End Date (yyyy-MM-ddTHH:mm:ss)",
+					"type": "string"
+				},
+				"source": {
+					"description": "The Source (Consumer/Provider)",
+					"type": "string"
+				},
+				"consumer": {
+					"description": "The Consumer",
+					"type": "string"
+				},
+				"provider": {
+					"description": "The Provider",
+					"type": "string"
+				},
+				"api": {
+					"description": "The API Url (apifc/v1/ApiLogs)",
+					"type": "string"
+				},
+				"method": {
+					"description": "The Method (GET/POST)",
+					"type": "string"
+				},
+				"status": {
+					"description": "The Status (Ok/Error)",
+					"type": "string"
+				},
+				"durationLongerThan": {
+					"description": "Duration greater then equal to (hh:mm:ss[.fffffff])",
+					"type": "string"
+				},
+				"durationShorterThan": {
+					"description": "Duration less then equal to (hh:mm:ss[.fffffff])",
+					"type": "string"
+				},
+				"requestId": {
+					"description": "The Request Id (x-api-requestId)",
+					"type": "string"
+				},
+				"pageSize": {
+					"format": "int32",
+					"description": "Max number of records to return.\r\nDefault is 100.",
+					"type": "integer"
+				},
+				"pageNr": {
+					"format": "int32",
+					"description": "The page number you want to retrieve\r\nDefault is 0 for the first page",
+					"type": "integer"
+				},
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"ApiPaginationComposite[ApiLogEntryDTO]": {
+			"description": "",
+			"type": "object",
+			"properties": {
+				"StartDate": {
+					"format": "date-time",
+					"description": "The start date.",
+					"type": "string"
+				},
+				"EndDate": {
+					"format": "date-time",
+					"description": "The end date.",
+					"type": "string"
+				},
+				"PageNumber": {
+					"format": "int32",
+					"description": "The page number this page represents.",
+					"type": "integer"
+				},
+				"TotalNumberOfPages": {
+					"format": "int32",
+					"description": "The total number of pages available.",
+					"type": "integer"
+				},
+				"PageSize": {
+					"format": "int32",
+					"description": "The size of this page.",
+					"type": "integer"
+				},
+				"TotalNumberOfRecords": {
+					"format": "int32",
+					"description": "The total number of records available.",
+					"type": "integer"
+				},
+				"Result": {
+					"description": "The records available.",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ApiLogEntryDTO"
+					}
+				}
+			}
+		},
+		"ApiLogEntryDTO": {
+			"type": "object",
+			"properties": {
+				"Id": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"DomainId": {
+					"type": "string"
+				},
+				"Source": {
+					"enum": [
+						"Consumer",
+						"Provider"
+					],
+					"type": "string"
+				},
+				"Consumer": {
+					"type": "string"
+				},
+				"Provider": {
+					"type": "string"
+				},
+				"Api": {
+					"type": "string"
+				},
+				"Method": {
+					"type": "string"
+				},
+				"StartTime": {
+					"format": "date-time",
+					"type": "string"
+				},
+				"Duration": {
+					"type": "string"
+				},
+				"Status": {
+					"enum": [
+						"Ok",
+						"Error"
+					],
+					"type": "string"
+				},
+				"RequestId": {
+					"type": "string"
+				},
+				"HttpStatusCode": {
+					"enum": [
+						"Continue",
+						"SwitchingProtocols",
+						"OK",
+						"Created",
+						"Accepted",
+						"NonAuthoritativeInformation",
+						"NoContent",
+						"ResetContent",
+						"PartialContent",
+						"MultipleChoices",
+						"Ambiguous",
+						"MovedPermanently",
+						"Moved",
+						"Found",
+						"Redirect",
+						"SeeOther",
+						"RedirectMethod",
+						"NotModified",
+						"UseProxy",
+						"Unused",
+						"TemporaryRedirect",
+						"RedirectKeepVerb",
+						"BadRequest",
+						"Unauthorized",
+						"PaymentRequired",
+						"Forbidden",
+						"NotFound",
+						"MethodNotAllowed",
+						"NotAcceptable",
+						"ProxyAuthenticationRequired",
+						"RequestTimeout",
+						"Conflict",
+						"Gone",
+						"LengthRequired",
+						"PreconditionFailed",
+						"RequestEntityTooLarge",
+						"RequestUriTooLong",
+						"UnsupportedMediaType",
+						"RequestedRangeNotSatisfiable",
+						"ExpectationFailed",
+						"UpgradeRequired",
+						"InternalServerError",
+						"NotImplemented",
+						"BadGateway",
+						"ServiceUnavailable",
+						"GatewayTimeout",
+						"HttpVersionNotSupported"
+					],
+					"type": "string"
+				},
+				"Code": {
+					"type": "string"
+				},
+				"Message": {
+					"type": "string"
+				}
+			}
+		},
+		"Request": {
+			"description": "The base request that defines the minimum required parameters.",
+			"required": [
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"domain": {
+					"description": "The domain ID.",
+					"type": "string"
+				},
+				"key": {
+					"description": "The API key.",
+					"type": "string"
+				}
+			}
+		},
+		"PostAutostartJDBatchRequest": {
+			"required": [
+				"domain",
+				"key"
+			],
+			"type": "object",
+			"properties": {
+				"domain": {
+					"type": "string"
+				},
+				"key": {
+					"type": "string"
+				}
+			}
+		},
+		"PostAutostartJDBatchBodyRequest": {
+			"type": "object",
+			"properties": {
+				"fromDate": {
+					"type": "string"
+				}
+			}
+		}
+	}
+}
