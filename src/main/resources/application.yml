@@ -11,6 +11,14 @@ openapi:
 spring:
   application:
     name: api-lifecare-integrator
+  security:
+    oauth2:
+      client:
+        registration:
+          party:
+            authorization-grant-type: client_credentials
+            provider: party
+
 #========================================
 # Integrations
 #========================================
@@ -18,12 +26,18 @@ integration:
   # Lifecare Welfare API Services / Elderly care (EC) — WE.EC.Integration.Host. Auth is domain + key (query params /
   # X-API-Key header); the key is a secret — override per environment, never commit it.
   lifecare-ec:
-    url: ${INTEGRATION_LIFECARE_EC_URL:http://localhost}
-    domain: ${INTEGRATION_LIFECARE_EC_DOMAIN}
-    key: ${INTEGRATION_LIFECARE_EC_KEY}
+    url: override-me
+    domain: override-me
+    key: override-me
+  lifecare-fc:
+    url: override-me
+    domain: override-me
+    key: override-me
 
 resilience4j:
   circuitbreaker:
     instances:
       lifecare-ec:
+        ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
+      lifecare-fc:
         ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem

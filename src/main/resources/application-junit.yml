@@ -9,3 +9,24 @@ integration:
     url: http://lifecareec.url
     domain: junit-domain
     key: junit-key
+  lifecare-fc:
+    url: http://lifecarefc.url
+    domain: junit-domain
+    key: junit-key
+  party:
+    url: http://party.local
+    connect-timeout: 10
+    read-timeout: 20
+    max-legal-ids-per-call: 20
+    max-party-ids-per-call: 30
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          party:
+            token-uri: http://token.url
+        registration:
+          party:
+            client-id: the-client-id
+            client-secret: the-client-secret
