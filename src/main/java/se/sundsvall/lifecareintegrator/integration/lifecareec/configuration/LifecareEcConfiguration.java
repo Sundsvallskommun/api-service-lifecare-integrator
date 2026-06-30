@@ -1,0 +1,45 @@
+package se.sundsvall.lifecareintegrator.integration.lifecareec.configuration;
+
+import feign.Logger;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import se.sundsvall.dept44.configuration.feign.FeignConfiguration;
+import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
+import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
+
+/**
+ * Builds the {@link se.sundsvall.lifecareintegrator.integration.lifecareec.LifecareEcClient} customizer. EC
+ * authenticates with a {@code domain} + {@code key}, both required as query parameters; the gateway also accepts the
+ * key as an {@code X-API-Key} header, so we send both. The header is harmless where ignored and lets us drop the
+ * query-string key once header auth is confirmed.
+ *
+ * <p>
+ * Feign logging is forced to {@link feign.Logger.Level#NONE}, overriding the dept44 default of {@code FULL}. EC reads
+ * carry the citizen's {@code personId} and the {@code key} secret as query parameters and return care/execution
+ * payloads as bodies; at any level above {@code NONE} Feign would log the request URL (personnummer + secret) and/or
+ * the
+ * bodies as soon as the client logger is raised to {@code DEBUG}. Pinning it to {@code NONE} keeps that impossible
+ * regardless of the configured log level.
+ */
+@Import(FeignConfiguration.class)
+@EnableConfigurationProperties(LifecareEcProperties.class)
+public class LifecareEcConfiguration {
+
+	public static final String CLIENT_ID = "lifecare-ec";
+
+	@Bean
+	FeignBuilderCustomizer feignBuilderCustomizer(final LifecareEcProperties properties) {
+		return FeignMultiCustomizer.create()
+			.withErrorDecoder(new ProblemErrorDecoder(CLIENT_ID))
+			.withRequestInterceptor(template -> {
+				template.query("domain", properties.domain());
+				template.query("key", properties.key());
+				template.header("X-API-Key", properties.key());
+			})
+			.withCustomizer(builder -> builder.logLevel(Logger.Level.NONE))
+			.withRequestTimeoutsInSeconds(properties.connectTimeout(), properties.readTimeout())
+			.composeCustomizersToOne();
+	}
+}

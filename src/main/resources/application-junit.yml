@@ -4,3 +4,8 @@
 logging:
   level:
     root: DEBUG
+integration:
+  lifecare-ec:
+    url: http://lifecareec.url
+    domain: junit-domain
+    key: junit-key
