@@ -19,5 +19,11 @@ integration:
   # X-API-Key header); the key is a secret — override per environment, never commit it.
   lifecare-ec:
     url: ${INTEGRATION_LIFECARE_EC_URL:http://localhost}
-    domain: ${INTEGRATION_LIFECARE_EC_DOMAIN:override}
-    key: ${INTEGRATION_LIFECARE_EC_KEY:override}
+    domain: ${INTEGRATION_LIFECARE_EC_DOMAIN}
+    key: ${INTEGRATION_LIFECARE_EC_KEY}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      lifecare-ec:
+        ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem

@@ -12,16 +12,17 @@ import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 /**
  * Builds the {@link se.sundsvall.lifecareintegrator.integration.lifecareec.LifecareEcClient} customizer. EC
  * authenticates with a {@code domain} + {@code key}, both required as query parameters; the gateway also accepts the
- * key as an {@code X-API-Key} header, so we send both. The header is harmless where ignored and lets us drop the
- * query-string key once header auth is confirmed.
+ * key as an {@code X-API-Key}
+ * header, so we send both. The header is harmless where ignored and lets us drop the query-string key once header auth
+ * is confirmed.
  *
  * <p>
  * Feign logging is forced to {@link feign.Logger.Level#NONE}, overriding the dept44 default of {@code FULL}. EC reads
  * carry the citizen's {@code personId} and the {@code key} secret as query parameters and return care/execution
- * payloads as bodies; at any level above {@code NONE} Feign would log the request URL (personnummer + secret) and/or
- * the
- * bodies as soon as the client logger is raised to {@code DEBUG}. Pinning it to {@code NONE} keeps that impossible
- * regardless of the configured log level.
+ * payloads as bodies; at any
+ * level above {@code NONE} Feign would log the request URL (personnummer + secret) and/or the bodies as soon as the
+ * client logger is raised to {@code DEBUG}. Pinning it to {@code NONE} keeps that impossible regardless of the
+ * configured log level.
  */
 @Import(FeignConfiguration.class)
 @EnableConfigurationProperties(LifecareEcProperties.class)
@@ -38,7 +39,7 @@ public class LifecareEcConfiguration {
 				template.query("key", properties.key());
 				template.header("X-API-Key", properties.key());
 			})
-			.withCustomizer(builder -> builder.logLevel(Logger.Level.NONE))
+			.withCustomizer(builder -> builder.logLevel(Logger.Level.valueOf(properties.logLevel())))
 			.withRequestTimeoutsInSeconds(properties.connectTimeout(), properties.readTimeout())
 			.composeCustomizersToOne();
 	}
