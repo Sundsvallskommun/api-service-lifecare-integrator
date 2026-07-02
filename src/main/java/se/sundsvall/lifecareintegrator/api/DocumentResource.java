@@ -78,6 +78,6 @@ class DocumentResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "documentId", description = "The document id", example = "12345") @NotBlank @PathVariable final String documentId) {
 
-		return ok(familyCareService.getDocumentContent(municipalityId, documentId));
+		return ok(familyCareService.getDocumentContent(documentId));
 	}
 }

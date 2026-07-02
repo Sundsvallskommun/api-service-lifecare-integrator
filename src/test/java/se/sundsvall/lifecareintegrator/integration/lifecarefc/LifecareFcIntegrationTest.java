@@ -5,6 +5,7 @@ import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedPaymen
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedPersonDTO;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -27,8 +28,8 @@ class LifecareFcIntegrationTest {
 
 	private static final String PERSON_NUMBER = "199001011234";
 	private static final String DOCUMENT_ID = "12345";
-	private static final LocalDate START_DATE = LocalDate.of(2016, 7, 1);
-	private static final LocalDate END_DATE = LocalDate.of(2026, 7, 1);
+	private static final LocalDate START_DATE = LocalDate.of(2016, Month.JULY, 1);
+	private static final LocalDate END_DATE = LocalDate.of(2026, Month.JULY, 1);
 
 	@Mock
 	private LifecareFcClient lifecareFcClientMock;

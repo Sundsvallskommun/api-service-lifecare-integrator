@@ -120,7 +120,7 @@ class ActualisationResource {
 		@Parameter(name = "senderName", description = "The sender name") @RequestPart(value = "senderName", required = false) final String senderName,
 		@RequestPart("file") final MultipartFile file) {
 
-		familyCareService.addActualisationAttachment(municipalityId, actualisationId, documentType, senderType, title, senderName, file);
+		familyCareService.addActualisationAttachment(actualisationId, documentType, senderType, title, senderName, file);
 		return noContent().build();
 	}
 }

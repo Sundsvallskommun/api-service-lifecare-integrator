@@ -38,7 +38,7 @@ class UserResourceTest {
 	void getUsers() {
 		// Mock
 		final var users = List.of(CaseworkerUser.create());
-		when(familyCareServiceMock.getUsers(MUNICIPALITY_ID, 100, null, null, null)).thenReturn(users);
+		when(familyCareServiceMock.getUsers(100, null, null, null)).thenReturn(users);
 
 		// Call
 		final var result = webTestClient.get()
@@ -51,7 +51,7 @@ class UserResourceTest {
 
 		// Verification
 		assertThat(result).isEqualTo(users);
-		verify(familyCareServiceMock).getUsers(MUNICIPALITY_ID, 100, null, null, null);
+		verify(familyCareServiceMock).getUsers(100, null, null, null);
 	}
 
 	@Test
@@ -63,7 +63,7 @@ class UserResourceTest {
 
 		// Mock
 		final var users = List.of(CaseworkerUser.create());
-		when(familyCareServiceMock.getUsers(MUNICIPALITY_ID, 100, offset, modifiedAfter, modifiedBefore)).thenReturn(users);
+		when(familyCareServiceMock.getUsers(100, offset, modifiedAfter, modifiedBefore)).thenReturn(users);
 
 		// Call
 		final var result = webTestClient.get()
@@ -81,6 +81,6 @@ class UserResourceTest {
 
 		// Verification
 		assertThat(result).isEqualTo(users);
-		verify(familyCareServiceMock).getUsers(MUNICIPALITY_ID, 100, offset, modifiedAfter, modifiedBefore);
+		verify(familyCareServiceMock).getUsers(100, offset, modifiedAfter, modifiedBefore);
 	}
 }

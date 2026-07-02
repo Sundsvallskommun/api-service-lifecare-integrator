@@ -61,7 +61,7 @@ class DocumentResourceTest {
 	void getDocumentContent() {
 		// Mock
 		final var content = "%PDF-1.4".getBytes();
-		when(familyCareServiceMock.getDocumentContent(MUNICIPALITY_ID, DOCUMENT_ID)).thenReturn(content);
+		when(familyCareServiceMock.getDocumentContent(DOCUMENT_ID)).thenReturn(content);
 
 		// Call
 		final var result = webTestClient.get()
@@ -75,6 +75,6 @@ class DocumentResourceTest {
 
 		// Verification
 		assertThat(result).isEqualTo(content);
-		verify(familyCareServiceMock).getDocumentContent(MUNICIPALITY_ID, DOCUMENT_ID);
+		verify(familyCareServiceMock).getDocumentContent(DOCUMENT_ID);
 	}
 }

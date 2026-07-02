@@ -132,14 +132,14 @@ public class FamilyCareService {
 		return DocumentMapper.toDocuments(lifecareFcIntegration.getDocuments(personNumber, window.start(), window.end(), pageSize, page, ascending));
 	}
 
-	public byte[] getDocumentContent(final String municipalityId, final String documentId) {
+	public byte[] getDocumentContent(final String documentId) {
 		return lifecareFcIntegration.getDocumentContent(documentId)
 			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, DOCUMENT_CONTENT_NOT_FOUND.formatted(documentId)));
 	}
 
 	// ---- Users -------------------------------------------------------------------------------------------------------
 
-	public List<CaseworkerUser> getUsers(final String municipalityId, final Integer limit, final Integer offset,
+	public List<CaseworkerUser> getUsers(final Integer limit, final Integer offset,
 		final OffsetDateTime modifiedAfter, final OffsetDateTime modifiedBefore) {
 		return UserMapper.toCaseworkerUsers(lifecareFcIntegration.getUsers(limit, offset, modifiedAfter, modifiedBefore));
 	}
@@ -188,7 +188,7 @@ public class FamilyCareService {
 		return lifecareFcIntegration.createCalculation(RequestMapper.toPostCalculationBodyRequest(request, personNumber, personNumbersByPartyId));
 	}
 
-	public void addActualisationAttachment(final String municipalityId, final Integer actualisationId, final String documentType,
+	public void addActualisationAttachment(final Integer actualisationId, final String documentType,
 		final String senderType, final String title, final String senderName, final MultipartFile content) {
 		lifecareFcIntegration.addActualisationAttachment(actualisationId, documentType, senderType, title, senderName, content);
 	}

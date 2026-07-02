@@ -131,6 +131,6 @@ class ActualisationResourceTest {
 			.expectStatus().isNoContent();
 
 		// Verification
-		verify(familyCareServiceMock).addActualisationAttachment(eq(MUNICIPALITY_ID), eq(actualisationId), eq("DOC_TYPE"), eq("SENDER_TYPE"), eq(null), eq(null), any(MultipartFile.class));
+		verify(familyCareServiceMock).addActualisationAttachment(eq(actualisationId), eq("DOC_TYPE"), eq("SENDER_TYPE"), eq(null), eq(null), any(MultipartFile.class));
 	}
 }

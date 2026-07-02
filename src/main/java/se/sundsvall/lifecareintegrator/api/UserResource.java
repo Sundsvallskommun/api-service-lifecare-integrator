@@ -60,6 +60,6 @@ class UserResource {
 		@Parameter(name = "modifiedAfter", description = "Only users modified after this time") @DateTimeFormat(iso = DATE_TIME) @RequestParam(required = false) final OffsetDateTime modifiedAfter,
 		@Parameter(name = "modifiedBefore", description = "Only users modified before this time") @DateTimeFormat(iso = DATE_TIME) @RequestParam(required = false) final OffsetDateTime modifiedBefore) {
 
-		return ok(familyCareService.getUsers(municipalityId, limit, offset, modifiedAfter, modifiedBefore));
+		return ok(familyCareService.getUsers(limit, offset, modifiedAfter, modifiedBefore));
 	}
 }

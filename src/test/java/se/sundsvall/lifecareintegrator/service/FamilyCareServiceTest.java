@@ -141,7 +141,7 @@ class FamilyCareServiceTest {
 		when(lifecareFcIntegrationMock.getDocumentContent("doc-1")).thenReturn(java.util.Optional.of(content));
 
 		// Act
-		final var result = familyCareService.getDocumentContent(MUNICIPALITY_ID, "doc-1");
+		final var result = familyCareService.getDocumentContent("doc-1");
 
 		// Verify: no party resolution for document content
 		assertThat(result).isEqualTo(content);
@@ -154,7 +154,7 @@ class FamilyCareServiceTest {
 		when(lifecareFcIntegrationMock.getDocumentContent("doc-1")).thenReturn(empty());
 
 		// Act
-		final var exception = assertThrows(ThrowableProblem.class, () -> familyCareService.getDocumentContent(MUNICIPALITY_ID, "doc-1"));
+		final var exception = assertThrows(ThrowableProblem.class, () -> familyCareService.getDocumentContent("doc-1"));
 
 		// Verify
 		assertThat(exception.getStatus()).isEqualTo(NOT_FOUND);
@@ -170,7 +170,7 @@ class FamilyCareServiceTest {
 		when(lifecareFcIntegrationMock.getUsers(100, 0, modifiedAfter, null)).thenReturn(List.of());
 
 		// Act
-		final var result = familyCareService.getUsers(MUNICIPALITY_ID, 100, 0, modifiedAfter, null);
+		final var result = familyCareService.getUsers(100, 0, modifiedAfter, null);
 
 		// Verify
 		assertThat(result).isEmpty();
@@ -252,7 +252,7 @@ class FamilyCareServiceTest {
 		});
 
 		// Act
-		familyCareService.addActualisationAttachment(MUNICIPALITY_ID, 12345, "type", "sender", "title", "senderName", file);
+		familyCareService.addActualisationAttachment(12345, "type", "sender", "title", "senderName", file);
 
 		// Verify
 		verify(lifecareFcIntegrationMock).addActualisationAttachment(12345, "type", "sender", "title", "senderName", file);

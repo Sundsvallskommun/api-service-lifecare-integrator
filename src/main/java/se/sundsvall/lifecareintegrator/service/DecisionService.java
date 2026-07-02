@@ -109,7 +109,14 @@ public class DecisionService {
 			return SourceStatus.create()
 				.withSource(source)
 				.withLaw(law)
-				.withStatus(ok ? STATUS_OK : STATUS_UNAVAILABLE);
+				.withStatus(status());
+		}
+
+		private String status() {
+			if (ok) {
+				return STATUS_OK;
+			}
+			return STATUS_UNAVAILABLE;
 		}
 	}
 }
