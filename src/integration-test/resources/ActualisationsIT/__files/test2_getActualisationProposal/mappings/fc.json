@@ -1,0 +1,73 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-fc/apifc/v1/Actualisations/Proposals",
+		"queryParameters": {
+			"personId": {
+				"equalTo": "199001011234"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"ActualisationTypes": [
+				{
+					"Id": 1,
+					"Name": "Ansökan",
+					"SpecifyTypeMandatory": false,
+					"Reasons": [
+						{
+							"Id": 10,
+							"Name": "Behov"
+						}
+					],
+					"FromWho": [
+						{
+							"Id": 20,
+							"Name": "Klient"
+						}
+					],
+					"InvestigationTypes": [],
+					"ServiceTypes": []
+				}
+			],
+			"SpecifyTypes": [
+				{
+					"Id": 2,
+					"Name": "Special"
+				}
+			],
+			"WorkingStatus": [
+				{
+					"Id": 3,
+					"Name": "Aktiv"
+				}
+			],
+			"Organizations": [
+				{
+					"Id": 4,
+					"UnitId": "U1",
+					"Name": "IFO"
+				}
+			],
+			"Investigations": [],
+			"Services": [],
+			"AttachmentTypes": [
+				{
+					"Id": 5,
+					"Name": "Bilaga",
+					"SenderTypes": [
+						{
+							"Id": 6,
+							"Name": "Klient"
+						}
+					]
+				}
+			]
+		},
+		"status": 200
+	}
+}

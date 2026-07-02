@@ -1,0 +1,36 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-fc/apifc/v1/Decisions",
+		"queryParameters": {
+			"personId": {
+				"equalTo": "199001011234"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"PageNumber": 1,
+			"PageSize": 100,
+			"TotalNumberOfPages": 1,
+			"TotalNumberOfRecords": 1,
+			"Result": [
+				{
+					"Id": 3003,
+					"Date": "2025-04-01T00:00:00Z",
+					"FromDate": "2025-04-01T00:00:00Z",
+					"ToDate": "2026-03-31T00:00:00Z",
+					"Type": "Ekonomiskt bistånd",
+					"Reason": "Försörjningsstöd",
+					"DecisionMaker": "Fc Handläggare",
+					"Amount": 3000.0,
+					"Organization": "IFO"
+				}
+			]
+		},
+		"status": 200
+	}
+}

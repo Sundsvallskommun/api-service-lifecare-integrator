@@ -1,0 +1,33 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-fc/apifc/v1/Documents",
+		"queryParameters": {
+			"personId": {
+				"equalTo": "199001011234"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"PageNumber": 1,
+			"PageSize": 20,
+			"TotalNumberOfPages": 1,
+			"TotalNumberOfRecords": 1,
+			"Result": [
+				{
+					"Id": "12345",
+					"Title": "Beslutsdokument",
+					"Date": "2025-06-01T00:00:00Z",
+					"DocumentType": "Beslut",
+					"OwnerType": "Person",
+					"OwnerId": "199001011234"
+				}
+			]
+		},
+		"status": 200
+	}
+}

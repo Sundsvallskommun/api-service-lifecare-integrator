@@ -1,0 +1,17 @@
+{
+	"page": 1,
+	"pageSize": 20,
+	"results": [
+		{
+			"endDate": "2025-09-30",
+			"id": 1101,
+			"percent": 50,
+			"resource": "Personal",
+			"resourceType": "Typ",
+			"serviceId": 901,
+			"startDate": "2025-03-01"
+		}
+	],
+	"totalPages": 1,
+	"totalRecords": 1
+}

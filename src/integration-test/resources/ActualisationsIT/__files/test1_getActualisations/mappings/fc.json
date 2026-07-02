@@ -1,0 +1,36 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-fc/apifc/v1/Actualisations",
+		"queryParameters": {
+			"personId": {
+				"equalTo": "199001011234"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"PageNumber": 1,
+			"PageSize": 20,
+			"TotalNumberOfPages": 1,
+			"TotalNumberOfRecords": 1,
+			"Result": [
+				{
+					"Id": 1201,
+					"Type": "Ansökan",
+					"Name": "Ansökan om bistånd",
+					"Date": "2025-04-01T00:00:00Z",
+					"Reason": "Behov",
+					"FromWho": "Klient",
+					"Caseworker": "Handläggare",
+					"Organization": "IFO",
+					"Status": "Öppen"
+				}
+			]
+		},
+		"status": 200
+	}
+}

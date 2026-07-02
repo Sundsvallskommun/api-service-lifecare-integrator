@@ -1,0 +1,17 @@
+{
+	"page": 1,
+	"pageSize": 20,
+	"results": [
+		{
+			"caseworker": "Handläggare",
+			"dossierType": "Akt",
+			"fromDate": "2025-02-01",
+			"id": 1001,
+			"organization": "IFO",
+			"toDate": "2025-08-31",
+			"type": "Verkställighet"
+		}
+	],
+	"totalPages": 1,
+	"totalRecords": 1
+}

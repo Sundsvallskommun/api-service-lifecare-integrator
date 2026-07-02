@@ -1,0 +1,50 @@
+{
+	"decisions": [
+		{
+			"amount": 2000.0,
+			"decided": "2025-03-01",
+			"decisionId": "2002",
+			"decisionMaker": "Lss Handläggare",
+			"elderlyCareDetails": {
+				"orderIds": []
+			},
+			"law": "LSS",
+			"reason": "LSS behov",
+			"source": "ELDERLY_CARE",
+			"type": "Ledsagning",
+			"validFrom": "2025-03-01",
+			"validTo": "2026-02-28"
+		},
+		{
+			"amount": 1000.0,
+			"decided": "2025-02-01",
+			"decisionId": "1001",
+			"decisionMaker": "Sol Handläggare",
+			"elderlyCareDetails": {
+				"orderIds": []
+			},
+			"law": "SOL",
+			"reason": "Behov",
+			"source": "ELDERLY_CARE",
+			"type": "Hemtjänst",
+			"validFrom": "2025-02-01",
+			"validTo": "2026-01-31"
+		}
+	],
+	"sources": [
+		{
+			"law": "SOL",
+			"source": "ELDERLY_CARE",
+			"status": "OK"
+		},
+		{
+			"law": "LSS",
+			"source": "ELDERLY_CARE",
+			"status": "OK"
+		},
+		{
+			"source": "FAMILY_CARE",
+			"status": "UNAVAILABLE"
+		}
+	]
+}

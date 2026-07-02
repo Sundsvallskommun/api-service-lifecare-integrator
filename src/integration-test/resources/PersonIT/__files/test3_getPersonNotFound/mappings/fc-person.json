@@ -1,0 +1,22 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-fc/apifc/v1/Persons",
+		"queryParameters": {
+			"personId": {
+				"equalTo": "199001011234"
+			}
+		}
+	},
+	"response": {
+		"status": 404,
+		"headers": {
+			"Content-Type": "application/problem+json"
+		},
+		"jsonBody": {
+			"title": "Not Found",
+			"status": 404,
+			"detail": "Person not found"
+		}
+	}
+}

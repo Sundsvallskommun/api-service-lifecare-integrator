@@ -1,0 +1,15 @@
+{
+	"page": 1,
+	"pageSize": 20,
+	"results": [
+		{
+			"date": "2025-06-01",
+			"documentType": "Beslut",
+			"id": "12345",
+			"ownerType": "Person",
+			"title": "Beslutsdokument"
+		}
+	],
+	"totalPages": 1,
+	"totalRecords": 1
+}

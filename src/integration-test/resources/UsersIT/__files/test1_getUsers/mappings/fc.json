@@ -1,0 +1,32 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-fc/apifc/v1/Users/GetUsers",
+		"queryParameters": {
+			"limit": {
+				"equalTo": "100"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": [
+			{
+				"Id": 501,
+				"HsaId": "SE-HSA-501",
+				"NetworkUserId": "netuser1",
+				"FirstName": "Carl",
+				"LastName": "Caseworker",
+				"FullName": "Carl Caseworker",
+				"Description": "Socialsekreterare",
+				"Disabled": false,
+				"PersonId": "198001011111",
+				"Password": "secret",
+				"VrkId": "vrk-1"
+			}
+		],
+		"status": 200
+	}
+}

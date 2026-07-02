@@ -1,0 +1,56 @@
+{
+	"actualisationTypes": [
+		{
+			"fromWho": [
+				{
+					"id": 20,
+					"name": "Klient"
+				}
+			],
+			"id": 1,
+			"investigationTypes": [],
+			"name": "Ansökan",
+			"reasons": [
+				{
+					"id": 10,
+					"name": "Behov"
+				}
+			],
+			"serviceTypes": [],
+			"specifyTypeMandatory": false
+		}
+	],
+	"attachmentTypes": [
+		{
+			"id": 5,
+			"name": "Bilaga",
+			"senderTypes": [
+				{
+					"id": 6,
+					"name": "Klient"
+				}
+			]
+		}
+	],
+	"investigations": [],
+	"organizations": [
+		{
+			"id": 4,
+			"name": "IFO",
+			"unitId": "U1"
+		}
+	],
+	"services": [],
+	"specifyTypes": [
+		{
+			"id": 2,
+			"name": "Special"
+		}
+	],
+	"workingStatus": [
+		{
+			"id": 3,
+			"name": "Aktiv"
+		}
+	]
+}

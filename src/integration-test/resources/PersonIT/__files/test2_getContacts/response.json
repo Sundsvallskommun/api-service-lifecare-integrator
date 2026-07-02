@@ -1,0 +1,16 @@
+[
+	{
+		"address": {
+			"postalAddress": "Sundsvall",
+			"postalCode": "85102",
+			"streetAddress": "Lillgatan 2"
+		},
+		"email": "bertil@example.com",
+		"employmentTitle": "Kontaktperson",
+		"id": "55",
+		"name": "Bertil Berg",
+		"organizationName": "Kommunen",
+		"phone": "060-123456",
+		"typeOfContact": "Anhörig"
+	}
+]

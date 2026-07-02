@@ -1,0 +1,12 @@
+[
+	{
+		"description": "Socialsekreterare",
+		"disabled": false,
+		"firstName": "Carl",
+		"fullName": "Carl Caseworker",
+		"hsaId": "SE-HSA-501",
+		"id": "501",
+		"lastName": "Caseworker",
+		"networkUserId": "netuser1"
+	}
+]

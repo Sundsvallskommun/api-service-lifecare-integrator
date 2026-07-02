@@ -1,0 +1,37 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-ec/api/v1/sol_decisions",
+		"queryParameters": {
+			"q": {
+				"equalTo": "PersonId:199001011234"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": [
+			{
+				"Id": 1001,
+				"Date": "2025-02-01T00:00:00Z",
+				"FromDate": "2025-02-01T00:00:00Z",
+				"ToDate": "2026-01-31T00:00:00Z",
+				"Type": {
+					"Code": 11,
+					"Text": "Hemtjänst"
+				},
+				"Reason": {
+					"Code": 21,
+					"Text": "Behov"
+				},
+				"Caseworker": {
+					"FullName": "Sol Handläggare"
+				},
+				"Amount": 1000.0
+			}
+		],
+		"status": 200
+	}
+}
