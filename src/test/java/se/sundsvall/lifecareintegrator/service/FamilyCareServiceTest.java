@@ -10,6 +10,7 @@ import generated.se.sundsvall.lifecarefc.PostAktualiseringsBodyRequest;
 import generated.se.sundsvall.lifecarefc.PostCalculationBodyRequest;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -127,7 +128,8 @@ class FamilyCareServiceTest {
 		familyCareService.getActualisations(MUNICIPALITY_ID, PARTY_ID, null, null, null, null, null);
 
 		// Verify: default 10-year lookback window
-		verify(lifecareFcIntegrationMock).getActualisations(PERSON_NUMBER, LocalDate.now().minusYears(10), LocalDate.now(), null, null, null);
+		final var today = LocalDate.now(ZoneId.of("Europe/Stockholm"));
+		verify(lifecareFcIntegrationMock).getActualisations(PERSON_NUMBER, today.minusYears(10), today, null, null, null);
 	}
 
 	@Test

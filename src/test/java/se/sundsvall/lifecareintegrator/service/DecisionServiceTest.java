@@ -5,6 +5,7 @@ import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1LssDe
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -77,7 +78,8 @@ class DecisionServiceTest {
 				tuple("FAMILY_CARE", null, "OK"));
 
 		// Default FC window: 10 years back until today
-		verify(lifecareFcIntegrationMock).getAllDecisions(PERSON_NUMBER, LocalDate.now().minusYears(10), LocalDate.now());
+		final var today = LocalDate.now(ZoneId.of("Europe/Stockholm"));
+		verify(lifecareFcIntegrationMock).getAllDecisions(PERSON_NUMBER, today.minusYears(10), today);
 	}
 
 	@Test

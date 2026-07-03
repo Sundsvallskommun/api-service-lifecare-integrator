@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.service;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Optional;
 import se.sundsvall.dept44.problem.Problem;
 
@@ -15,12 +16,15 @@ record DateWindow(LocalDate start, LocalDate end) {
 	static final String INVALID_DATE_WINDOW = "'from' must be on or before 'to'";
 	static final int DEFAULT_LOOKBACK_YEARS = 10;
 
+	// The default window boundaries are resolved in Sundsvall local time, independent of the server time zone.
+	private static final ZoneId ZONE = ZoneId.of("Europe/Stockholm");
+
 	static DateWindow of(final LocalDate from, final LocalDate to) {
 		if (from != null && to != null && from.isAfter(to)) {
 			throw Problem.valueOf(BAD_REQUEST, INVALID_DATE_WINDOW);
 		}
 		return new DateWindow(
-			Optional.ofNullable(from).orElseGet(() -> LocalDate.now().minusYears(DEFAULT_LOOKBACK_YEARS)),
-			Optional.ofNullable(to).orElseGet(LocalDate::now));
+			Optional.ofNullable(from).orElseGet(() -> LocalDate.now(ZONE).minusYears(DEFAULT_LOOKBACK_YEARS)),
+			Optional.ofNullable(to).orElseGet(() -> LocalDate.now(ZONE)));
 	}
 }
