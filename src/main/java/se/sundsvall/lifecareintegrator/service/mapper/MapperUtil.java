@@ -5,6 +5,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
+import se.sundsvall.dept44.models.api.paging.PagingMetaData;
 
 /**
  * Shared mapping helpers for the vendor models: the FC API represents dates as strings (sometimes with a time part),
@@ -55,5 +56,26 @@ final class MapperUtil {
 			.map(LocalDate::atStartOfDay)
 			.map(dateTime -> dateTime.atOffset(ZoneOffset.UTC))
 			.orElse(null);
+	}
+
+	/**
+	 * Builds the dept44 {@link PagingMetaData} from an FC pagination composite's fields. {@code count} is the number of
+	 * items on the current page; null vendor values default to 0.
+	 */
+	static PagingMetaData toPagingMetaData(final Integer page, final Integer pageSize, final Integer totalPages, final Integer totalRecords, final int count) {
+		return PagingMetaData.create()
+			.withPage(toInt(page))
+			.withLimit(toInt(pageSize))
+			.withCount(count)
+			.withTotalPages(toInt(totalPages))
+			.withTotalRecords(toLong(totalRecords));
+	}
+
+	private static int toInt(final Integer value) {
+		return Optional.ofNullable(value).orElse(0);
+	}
+
+	private static long toLong(final Integer value) {
+		return Optional.ofNullable(value).map(Integer::longValue).orElse(0L);
 	}
 }

@@ -15,7 +15,7 @@ import static com.google.code.beanmatchers.BeanMatchers.registerValueGenerator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 
-class CaseworkerUserTest {
+class CaseworkerTest {
 
 	@BeforeAll
 	static void setup() {
@@ -24,7 +24,7 @@ class CaseworkerUserTest {
 
 	@Test
 	void testBean() {
-		MatcherAssert.assertThat(CaseworkerUser.class, allOf(
+		MatcherAssert.assertThat(Caseworker.class, allOf(
 			hasValidBeanConstructor(),
 			hasValidGettersAndSetters(),
 			hasValidBeanHashCode(),
@@ -47,7 +47,7 @@ class CaseworkerUserTest {
 		final var disabled = false;
 
 		// Act
-		final var result = CaseworkerUser.create()
+		final var result = Caseworker.create()
 			.withId(id)
 			.withHsaId(hsaId)
 			.withNetworkUserId(networkUserId)
@@ -75,6 +75,6 @@ class CaseworkerUserTest {
 
 	@Test
 	void testNoDirtOnCreatedBean() {
-		assertThat(CaseworkerUser.create()).hasAllNullFieldsOrProperties();
+		assertThat(Caseworker.create()).hasAllNullFieldsOrProperties();
 	}
 }

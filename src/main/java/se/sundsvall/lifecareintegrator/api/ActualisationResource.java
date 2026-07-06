@@ -8,12 +8,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import java.time.LocalDate;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,13 +26,12 @@ import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.lifecareintegrator.api.model.common.CreatedResource;
-import se.sundsvall.lifecareintegrator.api.model.common.PagedResponse;
-import se.sundsvall.lifecareintegrator.api.model.familycare.Actualisation;
 import se.sundsvall.lifecareintegrator.api.model.familycare.ActualisationProposal;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedActualisationResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PeriodParameters;
 import se.sundsvall.lifecareintegrator.service.FamilyCareService;
 
-import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
@@ -68,16 +63,11 @@ class ActualisationResource {
 		@ApiResponse(responseCode = "200", description = "Successful operation", useReturnTypeSchema = true),
 		@ApiResponse(responseCode = "404", description = "Not found", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 	})
-	ResponseEntity<PagedResponse<Actualisation>> getActualisations(
+	ResponseEntity<PagedActualisationResponse> getActualisations(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Parameter(name = "partyId", description = "Party id of the person", example = "81471222-5798-11e9-ae24-57fa13b361e1") @ValidUuid @NotNull @RequestParam final String partyId,
-		@Parameter(name = "from", description = "Start of the period", example = "2025-01-01") @DateTimeFormat(iso = DATE) @RequestParam(required = false) final LocalDate from,
-		@Parameter(name = "to", description = "End of the period", example = "2026-12-31") @DateTimeFormat(iso = DATE) @RequestParam(required = false) final LocalDate to,
-		@Parameter(name = "page", description = "Page number", example = "1") @Positive @RequestParam(required = false) final Integer page,
-		@Parameter(name = "pageSize", description = "Page size", example = "20") @Positive @Max(1000) @RequestParam(required = false) final Integer pageSize,
-		@Parameter(name = "ascending", description = "Sort order", example = "true") @RequestParam(required = false) final Boolean ascending) {
+		@Valid final PeriodParameters parameters) {
 
-		return ok(familyCareService.getActualisations(municipalityId, partyId, from, to, page, pageSize, ascending));
+		return ok(familyCareService.getActualisations(municipalityId, parameters));
 	}
 
 	@GetMapping(path = "/proposal", produces = APPLICATION_JSON_VALUE)

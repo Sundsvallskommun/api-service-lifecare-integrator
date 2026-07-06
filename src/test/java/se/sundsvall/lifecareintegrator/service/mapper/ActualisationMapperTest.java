@@ -17,11 +17,8 @@ class ActualisationMapperTest {
 
 		// Assert
 		assertThat(result).isNotNull();
-		assertThat(result.getResults()).isEmpty();
-		assertThat(result.getPage()).isNull();
-		assertThat(result.getPageSize()).isNull();
-		assertThat(result.getTotalPages()).isNull();
-		assertThat(result.getTotalRecords()).isNull();
+		assertThat(result.getActualisations()).isEmpty();
+		assertThat(result.getMetaData()).isNull();
 	}
 
 	@Test
@@ -90,12 +87,13 @@ class ActualisationMapperTest {
 		final var result = ActualisationMapper.toActualisations(composite);
 
 		// Assert
-		assertThat(result.getPage()).isEqualTo(2);
-		assertThat(result.getPageSize()).isEqualTo(20);
-		assertThat(result.getTotalPages()).isEqualTo(5);
-		assertThat(result.getTotalRecords()).isEqualTo(100);
-		assertThat(result.getResults()).hasSize(1);
-		assertThat(result.getResults().getFirst().getId()).isEqualTo(1);
-		assertThat(result.getResults().getFirst().getName()).isEqualTo("Ansökan");
+		assertThat(result.getMetaData().getPage()).isEqualTo(2);
+		assertThat(result.getMetaData().getLimit()).isEqualTo(20);
+		assertThat(result.getMetaData().getCount()).isEqualTo(1);
+		assertThat(result.getMetaData().getTotalPages()).isEqualTo(5);
+		assertThat(result.getMetaData().getTotalRecords()).isEqualTo(100L);
+		assertThat(result.getActualisations()).hasSize(1);
+		assertThat(result.getActualisations().getFirst().getId()).isEqualTo(1);
+		assertThat(result.getActualisations().getFirst().getName()).isEqualTo("Ansökan");
 	}
 }

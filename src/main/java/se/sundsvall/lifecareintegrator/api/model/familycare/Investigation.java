@@ -41,7 +41,7 @@ public class Investigation {
 	private String coApplicant;
 
 	@Schema(description = "The persons included in the investigation")
-	private List<InvestigationPerson> persons;
+	private List<RelatedPerson> persons;
 
 	public static Investigation create() {
 		return new Investigation();
@@ -164,15 +164,15 @@ public class Investigation {
 		return this;
 	}
 
-	public List<InvestigationPerson> getPersons() {
+	public List<RelatedPerson> getPersons() {
 		return persons;
 	}
 
-	public void setPersons(final List<InvestigationPerson> persons) {
+	public void setPersons(final List<RelatedPerson> persons) {
 		this.persons = persons;
 	}
 
-	public Investigation withPersons(final List<InvestigationPerson> persons) {
+	public Investigation withPersons(final List<RelatedPerson> persons) {
 		this.persons = persons;
 		return this;
 	}

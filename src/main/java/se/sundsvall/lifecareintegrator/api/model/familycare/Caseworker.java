@@ -8,7 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 
 @Schema(description = "A caseworker user account in the Lifecare family care system")
-public class CaseworkerUser {
+public class Caseworker {
 
 	@Schema(description = "The user id in the source system", examples = "12345")
 	private String id;
@@ -42,8 +42,8 @@ public class CaseworkerUser {
 	@Schema(description = "Whether the user account is disabled", examples = "false")
 	private Boolean disabled;
 
-	public static CaseworkerUser create() {
-		return new CaseworkerUser();
+	public static Caseworker create() {
+		return new Caseworker();
 	}
 
 	public String getId() {
@@ -54,7 +54,7 @@ public class CaseworkerUser {
 		this.id = id;
 	}
 
-	public CaseworkerUser withId(final String id) {
+	public Caseworker withId(final String id) {
 		this.id = id;
 		return this;
 	}
@@ -67,7 +67,7 @@ public class CaseworkerUser {
 		this.hsaId = hsaId;
 	}
 
-	public CaseworkerUser withHsaId(final String hsaId) {
+	public Caseworker withHsaId(final String hsaId) {
 		this.hsaId = hsaId;
 		return this;
 	}
@@ -80,7 +80,7 @@ public class CaseworkerUser {
 		this.networkUserId = networkUserId;
 	}
 
-	public CaseworkerUser withNetworkUserId(final String networkUserId) {
+	public Caseworker withNetworkUserId(final String networkUserId) {
 		this.networkUserId = networkUserId;
 		return this;
 	}
@@ -93,7 +93,7 @@ public class CaseworkerUser {
 		this.firstName = firstName;
 	}
 
-	public CaseworkerUser withFirstName(final String firstName) {
+	public Caseworker withFirstName(final String firstName) {
 		this.firstName = firstName;
 		return this;
 	}
@@ -106,7 +106,7 @@ public class CaseworkerUser {
 		this.lastName = lastName;
 	}
 
-	public CaseworkerUser withLastName(final String lastName) {
+	public Caseworker withLastName(final String lastName) {
 		this.lastName = lastName;
 		return this;
 	}
@@ -119,7 +119,7 @@ public class CaseworkerUser {
 		this.fullName = fullName;
 	}
 
-	public CaseworkerUser withFullName(final String fullName) {
+	public Caseworker withFullName(final String fullName) {
 		this.fullName = fullName;
 		return this;
 	}
@@ -132,7 +132,7 @@ public class CaseworkerUser {
 		this.description = description;
 	}
 
-	public CaseworkerUser withDescription(final String description) {
+	public Caseworker withDescription(final String description) {
 		this.description = description;
 		return this;
 	}
@@ -145,7 +145,7 @@ public class CaseworkerUser {
 		this.validFrom = validFrom;
 	}
 
-	public CaseworkerUser withValidFrom(final OffsetDateTime validFrom) {
+	public Caseworker withValidFrom(final OffsetDateTime validFrom) {
 		this.validFrom = validFrom;
 		return this;
 	}
@@ -158,7 +158,7 @@ public class CaseworkerUser {
 		this.validTo = validTo;
 	}
 
-	public CaseworkerUser withValidTo(final OffsetDateTime validTo) {
+	public Caseworker withValidTo(final OffsetDateTime validTo) {
 		this.validTo = validTo;
 		return this;
 	}
@@ -171,7 +171,7 @@ public class CaseworkerUser {
 		this.disabled = disabled;
 	}
 
-	public CaseworkerUser withDisabled(final Boolean disabled) {
+	public Caseworker withDisabled(final Boolean disabled) {
 		this.disabled = disabled;
 		return this;
 	}
@@ -181,7 +181,7 @@ public class CaseworkerUser {
 		if (o == null || getClass() != o.getClass()) {
 			return false;
 		}
-		final CaseworkerUser that = (CaseworkerUser) o;
+		final Caseworker that = (Caseworker) o;
 		return Objects.equals(id, that.id) && Objects.equals(hsaId, that.hsaId) && Objects.equals(networkUserId, that.networkUserId)
 			&& Objects.equals(firstName, that.firstName) && Objects.equals(lastName, that.lastName) && Objects.equals(fullName, that.fullName)
 			&& Objects.equals(description, that.description) && Objects.equals(validFrom, that.validFrom) && Objects.equals(validTo, that.validTo)
@@ -195,7 +195,7 @@ public class CaseworkerUser {
 
 	@Override
 	public String toString() {
-		return "CaseworkerUser{" +
+		return "Caseworker{" +
 			"id='" + id + '\'' +
 			", hsaId='" + hsaId + '\'' +
 			", networkUserId='" + networkUserId + '\'' +

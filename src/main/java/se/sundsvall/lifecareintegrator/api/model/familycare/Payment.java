@@ -69,8 +69,8 @@ public class Payment {
 	@Schema(description = "The month the payment concerns", examples = "2026-05")
 	private String concernedMonth;
 
-	@Schema(description = "Names of the persons the payment concerns", examples = "[\"Anna Andersson\"]")
-	private List<String> persons;
+	@Schema(description = "The persons the payment concerns")
+	private List<RelatedPerson> persons;
 
 	public static Payment create() {
 		return new Payment();
@@ -323,15 +323,15 @@ public class Payment {
 		return this;
 	}
 
-	public List<String> getPersons() {
+	public List<RelatedPerson> getPersons() {
 		return persons;
 	}
 
-	public void setPersons(final List<String> persons) {
+	public void setPersons(final List<RelatedPerson> persons) {
 		this.persons = persons;
 	}
 
-	public Payment withPersons(final List<String> persons) {
+	public Payment withPersons(final List<RelatedPerson> persons) {
 		this.persons = persons;
 		return this;
 	}

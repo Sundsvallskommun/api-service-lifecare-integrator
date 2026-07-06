@@ -13,12 +13,12 @@ class UserMapperTest {
 	private static final OffsetDateTime VALID_TO = OffsetDateTime.parse("2026-12-31T00:00:00Z");
 
 	@Test
-	void toCaseworkerUsersWithNull() {
-		assertThat(UserMapper.toCaseworkerUsers(null)).isEmpty();
+	void toCaseworkersWithNull() {
+		assertThat(UserMapper.toCaseworkers(null)).isEmpty();
 	}
 
 	@Test
-	void toCaseworkerUsers() {
+	void toCaseworkers() {
 		// Arrange: personId, vrkId, password and logonTypes must never survive — the model has no such fields
 		final var source = new User()
 			.id("user-1")
@@ -36,7 +36,7 @@ class UserMapperTest {
 			.password("secret");
 
 		// Act
-		final var result = UserMapper.toCaseworkerUsers(List.of(source));
+		final var result = UserMapper.toCaseworkers(List.of(source));
 
 		// Assert
 		assertThat(result).hasSize(1);

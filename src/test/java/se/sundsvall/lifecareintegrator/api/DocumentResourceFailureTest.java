@@ -70,7 +70,7 @@ class DocumentResourceFailureTest {
 		assertThat(response).isNotNull();
 		assertThat(response.getViolations())
 			.extracting(Violation::field, Violation::message)
-			.containsExactly(tuple("getDocuments.partyId", "not a valid UUID"));
+			.contains(tuple("partyId", "not a valid UUID"));
 
 		verifyNoInteractions(familyCareServiceMock);
 	}

@@ -1,7 +1,5 @@
 {
-	"page": 1,
-	"pageSize": 20,
-	"results": [
+	"payments": [
 		{
 			"amount": 1500.0,
 			"id": 701,
@@ -9,10 +7,17 @@
 			"payDate": "2025-05-10",
 			"paymentMethod": "Bankgiro",
 			"persons": [
-				"Anna Andersson"
+				{
+					"name": "Anna Andersson"
+				}
 			]
 		}
 	],
-	"totalPages": 1,
-	"totalRecords": 1
+	"_meta": {
+		"page": 1,
+		"limit": 20,
+		"count": 1,
+		"totalPages": 1,
+		"totalRecords": 1
+	}
 }

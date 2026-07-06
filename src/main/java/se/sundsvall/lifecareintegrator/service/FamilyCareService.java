@@ -1,7 +1,6 @@
 package se.sundsvall.lifecareintegrator.service;
 
 import generated.se.sundsvall.lifecarefc.PersonBasedCalculationHouseholdMemberDTO;
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -9,23 +8,23 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import se.sundsvall.dept44.problem.Problem;
-import se.sundsvall.lifecareintegrator.api.model.common.PagedResponse;
-import se.sundsvall.lifecareintegrator.api.model.familycare.Actualisation;
 import se.sundsvall.lifecareintegrator.api.model.familycare.ActualisationProposal;
-import se.sundsvall.lifecareintegrator.api.model.familycare.Calculation;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationPersonRequest;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationProposal;
-import se.sundsvall.lifecareintegrator.api.model.familycare.CaseService;
-import se.sundsvall.lifecareintegrator.api.model.familycare.CaseworkerUser;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Caseworker;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Contact;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationRequest;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateCalculationRequest;
-import se.sundsvall.lifecareintegrator.api.model.familycare.DocumentMetadata;
-import se.sundsvall.lifecareintegrator.api.model.familycare.Execution;
-import se.sundsvall.lifecareintegrator.api.model.familycare.Investigation;
-import se.sundsvall.lifecareintegrator.api.model.familycare.Payment;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedActualisationResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedCalculationResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedDocumentResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedExecutionResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedInvestigationResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedPaymentResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedResourceAllocationResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedServiceResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PeriodParameters;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Person;
-import se.sundsvall.lifecareintegrator.api.model.familycare.ResourceAllocation;
 import se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcIntegration;
 import se.sundsvall.lifecareintegrator.integration.party.PartyIntegration;
 import se.sundsvall.lifecareintegrator.service.mapper.ActualisationMapper;
@@ -74,62 +73,54 @@ public class FamilyCareService {
 
 	// ---- Period reads ------------------------------------------------------------------------------------------------
 
-	public PagedResponse<Actualisation> getActualisations(final String municipalityId, final String partyId, final LocalDate from, final LocalDate to,
-		final Integer page, final Integer pageSize, final Boolean ascending) {
-		final var window = DateWindow.of(from, to);
-		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
-		return ActualisationMapper.toActualisations(lifecareFcIntegration.getActualisations(personNumber, window.start(), window.end(), pageSize, page, ascending));
+	public PagedActualisationResponse getActualisations(final String municipalityId, final PeriodParameters parameters) {
+		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
+		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
+		return ActualisationMapper.toActualisations(lifecareFcIntegration.getActualisations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
-	public PagedResponse<Calculation> getCalculations(final String municipalityId, final String partyId, final LocalDate from, final LocalDate to,
-		final Integer page, final Integer pageSize, final Boolean ascending) {
-		final var window = DateWindow.of(from, to);
-		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
-		return CalculationMapper.toCalculations(lifecareFcIntegration.getCalculations(personNumber, window.start(), window.end(), pageSize, page, ascending));
+	public PagedCalculationResponse getCalculations(final String municipalityId, final PeriodParameters parameters) {
+		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
+		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
+		return CalculationMapper.toCalculations(lifecareFcIntegration.getCalculations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
-	public PagedResponse<Payment> getPayments(final String municipalityId, final String partyId, final LocalDate from, final LocalDate to,
-		final Integer page, final Integer pageSize, final Boolean ascending) {
-		final var window = DateWindow.of(from, to);
-		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
-		return CaseDataMapper.toPayments(lifecareFcIntegration.getPayments(personNumber, window.start(), window.end(), pageSize, page, ascending));
+	public PagedPaymentResponse getPayments(final String municipalityId, final PeriodParameters parameters) {
+		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
+		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
+		return CaseDataMapper.toPayments(lifecareFcIntegration.getPayments(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
-	public PagedResponse<Investigation> getInvestigations(final String municipalityId, final String partyId, final LocalDate from, final LocalDate to,
-		final Integer page, final Integer pageSize, final Boolean ascending) {
-		final var window = DateWindow.of(from, to);
-		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
-		return CaseDataMapper.toInvestigations(lifecareFcIntegration.getInvestigations(personNumber, window.start(), window.end(), pageSize, page, ascending));
+	public PagedInvestigationResponse getInvestigations(final String municipalityId, final PeriodParameters parameters) {
+		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
+		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
+		return CaseDataMapper.toInvestigations(lifecareFcIntegration.getInvestigations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
-	public PagedResponse<CaseService> getServices(final String municipalityId, final String partyId, final LocalDate from, final LocalDate to,
-		final Integer page, final Integer pageSize, final Boolean ascending) {
-		final var window = DateWindow.of(from, to);
-		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
-		return CaseDataMapper.toCaseServices(lifecareFcIntegration.getServices(personNumber, window.start(), window.end(), pageSize, page, ascending));
+	public PagedServiceResponse getServices(final String municipalityId, final PeriodParameters parameters) {
+		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
+		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
+		return CaseDataMapper.toCaseServices(lifecareFcIntegration.getServices(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
-	public PagedResponse<Execution> getExecutions(final String municipalityId, final String partyId, final LocalDate from, final LocalDate to,
-		final Integer page, final Integer pageSize, final Boolean ascending) {
-		final var window = DateWindow.of(from, to);
-		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
-		return CaseDataMapper.toExecutions(lifecareFcIntegration.getExecutions(personNumber, window.start(), window.end(), pageSize, page, ascending));
+	public PagedExecutionResponse getExecutions(final String municipalityId, final PeriodParameters parameters) {
+		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
+		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
+		return CaseDataMapper.toExecutions(lifecareFcIntegration.getExecutions(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
-	public PagedResponse<ResourceAllocation> getResourceAllocations(final String municipalityId, final String partyId, final LocalDate from, final LocalDate to,
-		final Integer page, final Integer pageSize, final Boolean ascending) {
-		final var window = DateWindow.of(from, to);
-		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
-		return CaseDataMapper.toResourceAllocations(lifecareFcIntegration.getResourceAllocations(personNumber, window.start(), window.end(), pageSize, page, ascending));
+	public PagedResourceAllocationResponse getResourceAllocations(final String municipalityId, final PeriodParameters parameters) {
+		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
+		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
+		return CaseDataMapper.toResourceAllocations(lifecareFcIntegration.getResourceAllocations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
 	// ---- Documents ---------------------------------------------------------------------------------------------------
 
-	public PagedResponse<DocumentMetadata> getDocuments(final String municipalityId, final String partyId, final LocalDate from, final LocalDate to,
-		final Integer page, final Integer pageSize, final Boolean ascending) {
-		final var window = DateWindow.of(from, to);
-		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
-		return DocumentMapper.toDocuments(lifecareFcIntegration.getDocuments(personNumber, window.start(), window.end(), pageSize, page, ascending));
+	public PagedDocumentResponse getDocuments(final String municipalityId, final PeriodParameters parameters) {
+		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
+		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
+		return DocumentMapper.toDocuments(lifecareFcIntegration.getDocuments(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
 	public byte[] getDocumentContent(final String documentId) {
@@ -139,9 +130,9 @@ public class FamilyCareService {
 
 	// ---- Users -------------------------------------------------------------------------------------------------------
 
-	public List<CaseworkerUser> getUsers(final Integer limit, final Integer offset,
+	public List<Caseworker> getUsers(final Integer limit, final Integer offset,
 		final OffsetDateTime modifiedAfter, final OffsetDateTime modifiedBefore) {
-		return UserMapper.toCaseworkerUsers(lifecareFcIntegration.getUsers(limit, offset, modifiedAfter, modifiedBefore));
+		return UserMapper.toCaseworkers(lifecareFcIntegration.getUsers(limit, offset, modifiedAfter, modifiedBefore));
 	}
 
 	// ---- Proposals and write-back ------------------------------------------------------------------------------------

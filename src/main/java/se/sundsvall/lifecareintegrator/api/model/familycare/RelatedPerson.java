@@ -3,17 +3,17 @@ package se.sundsvall.lifecareintegrator.api.model.familycare;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Objects;
 
-@Schema(description = "A person a decision concerns")
-public class DecisionPerson {
+@Schema(description = "A person related to a family care case")
+public class RelatedPerson {
 
-	@Schema(description = "Name of the person", examples = "Kalle Karlsson")
+	@Schema(description = "The name of the person", examples = "Anna Andersson")
 	private String name;
 
-	@Schema(description = "Whether the person is a co-applicant", examples = "false")
+	@Schema(description = "Whether the person is a co-applicant. Null when the source does not state a role", examples = "false")
 	private Boolean coApplicant;
 
-	public static DecisionPerson create() {
-		return new DecisionPerson();
+	public static RelatedPerson create() {
+		return new RelatedPerson();
 	}
 
 	public String getName() {
@@ -24,7 +24,7 @@ public class DecisionPerson {
 		this.name = name;
 	}
 
-	public DecisionPerson withName(final String name) {
+	public RelatedPerson withName(final String name) {
 		this.name = name;
 		return this;
 	}
@@ -37,7 +37,7 @@ public class DecisionPerson {
 		this.coApplicant = coApplicant;
 	}
 
-	public DecisionPerson withCoApplicant(final Boolean coApplicant) {
+	public RelatedPerson withCoApplicant(final Boolean coApplicant) {
 		this.coApplicant = coApplicant;
 		return this;
 	}
@@ -47,7 +47,7 @@ public class DecisionPerson {
 		if (o == null || getClass() != o.getClass()) {
 			return false;
 		}
-		final DecisionPerson that = (DecisionPerson) o;
+		final RelatedPerson that = (RelatedPerson) o;
 		return Objects.equals(name, that.name) && Objects.equals(coApplicant, that.coApplicant);
 	}
 
@@ -58,7 +58,7 @@ public class DecisionPerson {
 
 	@Override
 	public String toString() {
-		return "DecisionPerson{" +
+		return "RelatedPerson{" +
 			"name='" + name + '\'' +
 			", coApplicant=" + coApplicant +
 			'}';

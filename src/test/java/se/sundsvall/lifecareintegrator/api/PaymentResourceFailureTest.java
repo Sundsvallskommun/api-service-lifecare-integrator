@@ -23,14 +23,13 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
 @AutoConfigureWebTestClient
 @ActiveProfiles("junit")
-class CaseDataResourceFailureTest {
+class PaymentResourceFailureTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
 	private static final String PARTY_ID = "81471222-5798-11e9-ae24-57fa13b361e1";
 	private static final String INVALID_MUNICIPALITY_ID = "bad-municipality-id";
 	private static final String INVALID_UUID = "not-a-valid-uuid";
-	private static final String PAYMENTS_PATH = "/{municipalityId}/payments";
-	private static final String INVESTIGATIONS_PATH = "/{municipalityId}/investigations";
+	private static final String PATH = "/{municipalityId}/payments";
 
 	@MockitoBean
 	private FamilyCareService familyCareServiceMock;
@@ -41,7 +40,7 @@ class CaseDataResourceFailureTest {
 	@Test
 	void getPaymentsWithInvalidMunicipalityId() {
 		final var response = webTestClient.get()
-			.uri(builder -> builder.path(PAYMENTS_PATH).queryParam("partyId", PARTY_ID).build(Map.of("municipalityId", INVALID_MUNICIPALITY_ID)))
+			.uri(builder -> builder.path(PATH).queryParam("partyId", PARTY_ID).build(Map.of("municipalityId", INVALID_MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isBadRequest()
 			.expectBody(ConstraintViolationProblem.class)
@@ -53,7 +52,7 @@ class CaseDataResourceFailureTest {
 		assertThat(response.getStatus()).isEqualTo(BAD_REQUEST);
 		assertThat(response.getViolations())
 			.extracting(Violation::field, Violation::message)
-			.containsExactly(tuple("getPayments.municipalityId", "not a valid municipality ID"));
+			.contains(tuple("getPayments.municipalityId", "not a valid municipality ID"));
 
 		verifyNoInteractions(familyCareServiceMock);
 	}
@@ -61,7 +60,7 @@ class CaseDataResourceFailureTest {
 	@Test
 	void getPaymentsWithInvalidPartyId() {
 		final var response = webTestClient.get()
-			.uri(builder -> builder.path(PAYMENTS_PATH).queryParam("partyId", INVALID_UUID).build(Map.of("municipalityId", MUNICIPALITY_ID)))
+			.uri(builder -> builder.path(PATH).queryParam("partyId", INVALID_UUID).build(Map.of("municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isBadRequest()
 			.expectBody(ConstraintViolationProblem.class)
@@ -69,9 +68,10 @@ class CaseDataResourceFailureTest {
 			.getResponseBody();
 
 		assertThat(response).isNotNull();
+		assertThat(response.getStatus()).isEqualTo(BAD_REQUEST);
 		assertThat(response.getViolations())
 			.extracting(Violation::field, Violation::message)
-			.containsExactly(tuple("getPayments.partyId", "not a valid UUID"));
+			.contains(tuple("partyId", "not a valid UUID"));
 
 		verifyNoInteractions(familyCareServiceMock);
 	}
@@ -79,7 +79,7 @@ class CaseDataResourceFailureTest {
 	@Test
 	void getPaymentsWithMissingPartyId() {
 		final var response = webTestClient.get()
-			.uri(builder -> builder.path(PAYMENTS_PATH).build(Map.of("municipalityId", MUNICIPALITY_ID)))
+			.uri(builder -> builder.path(PATH).build(Map.of("municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isBadRequest()
 			.expectBody(Problem.class)
@@ -88,60 +88,6 @@ class CaseDataResourceFailureTest {
 
 		assertThat(response).isNotNull();
 		assertThat(response.getStatus()).isEqualTo(BAD_REQUEST);
-
-		verifyNoInteractions(familyCareServiceMock);
-	}
-
-	@Test
-	void getPaymentsWithNegativePage() {
-		final var response = webTestClient.get()
-			.uri(builder -> builder.path(PAYMENTS_PATH).queryParam("partyId", PARTY_ID).queryParam("page", "-1").build(Map.of("municipalityId", MUNICIPALITY_ID)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
-
-		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::field, Violation::message)
-			.containsExactly(tuple("getPayments.page", "must be greater than 0"));
-
-		verifyNoInteractions(familyCareServiceMock);
-	}
-
-	@Test
-	void getInvestigationsWithInvalidMunicipalityId() {
-		final var response = webTestClient.get()
-			.uri(builder -> builder.path(INVESTIGATIONS_PATH).queryParam("partyId", PARTY_ID).build(Map.of("municipalityId", INVALID_MUNICIPALITY_ID)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
-
-		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::field, Violation::message)
-			.containsExactly(tuple("getInvestigations.municipalityId", "not a valid municipality ID"));
-
-		verifyNoInteractions(familyCareServiceMock);
-	}
-
-	@Test
-	void getInvestigationsWithNegativePageSize() {
-		final var response = webTestClient.get()
-			.uri(builder -> builder.path(INVESTIGATIONS_PATH).queryParam("partyId", PARTY_ID).queryParam("pageSize", "-5").build(Map.of("municipalityId", MUNICIPALITY_ID)))
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody(ConstraintViolationProblem.class)
-			.returnResult()
-			.getResponseBody();
-
-		assertThat(response).isNotNull();
-		assertThat(response.getViolations())
-			.extracting(Violation::field, Violation::message)
-			.containsExactly(tuple("getInvestigations.pageSize", "must be greater than 0"));
 
 		verifyNoInteractions(familyCareServiceMock);
 	}

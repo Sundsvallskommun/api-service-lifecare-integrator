@@ -4,25 +4,26 @@ import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedDocume
 import generated.se.sundsvall.lifecarefc.PersonBasedDocumentDTO;
 import java.util.List;
 import java.util.Optional;
-import se.sundsvall.lifecareintegrator.api.model.common.PagedResponse;
 import se.sundsvall.lifecareintegrator.api.model.familycare.DocumentMetadata;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedDocumentResponse;
 
 import static java.util.Collections.emptyList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toPagingMetaData;
 
 public final class DocumentMapper {
 
 	private DocumentMapper() {}
 
-	public static PagedResponse<DocumentMetadata> toDocuments(final ApiPaginationCompositePersonBasedDocumentDTO documents) {
+	public static PagedDocumentResponse toDocuments(final ApiPaginationCompositePersonBasedDocumentDTO documents) {
 		return Optional.ofNullable(documents)
-			.map(source -> PagedResponse.<DocumentMetadata>create()
-				.withPage(source.getPageNumber())
-				.withPageSize(source.getPageSize())
-				.withTotalPages(source.getTotalNumberOfPages())
-				.withTotalRecords(source.getTotalNumberOfRecords())
-				.withResults(toDocumentMetadataList(source.getResult())))
-			.orElseGet(() -> PagedResponse.<DocumentMetadata>create().withResults(emptyList()));
+			.map(source -> {
+				final var documentList = toDocumentMetadataList(source.getResult());
+				return PagedDocumentResponse.create()
+					.withDocuments(documentList)
+					.withMetaData(toPagingMetaData(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords(), documentList.size()));
+			})
+			.orElseGet(() -> PagedDocumentResponse.create().withDocuments(emptyList()));
 	}
 
 	private static List<DocumentMetadata> toDocumentMetadataList(final List<PersonBasedDocumentDTO> documents) {

@@ -7,18 +7,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.multipart.MultipartFile;
+import se.sundsvall.dept44.models.api.paging.PagingMetaData;
 import se.sundsvall.lifecareintegrator.Application;
 import se.sundsvall.lifecareintegrator.api.model.common.CreatedResource;
-import se.sundsvall.lifecareintegrator.api.model.common.PagedResponse;
-import se.sundsvall.lifecareintegrator.api.model.familycare.Actualisation;
 import se.sundsvall.lifecareintegrator.api.model.familycare.ActualisationProposal;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedActualisationResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PeriodParameters;
 import se.sundsvall.lifecareintegrator.service.FamilyCareService;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,21 +47,30 @@ class ActualisationResourceTest {
 	@Test
 	void getActualisations() {
 		// Mock
-		final var response = PagedResponse.<Actualisation>create().withResults(List.of());
-		when(familyCareServiceMock.getActualisations(MUNICIPALITY_ID, PARTY_ID, null, null, null, null, null)).thenReturn(response);
+		final var response = PagedActualisationResponse.create()
+			.withActualisations(List.of())
+			.withMetaData(PagingMetaData.create().withPage(1).withLimit(20).withCount(0).withTotalPages(0).withTotalRecords(0));
+		when(familyCareServiceMock.getActualisations(eq(MUNICIPALITY_ID), any(PeriodParameters.class))).thenReturn(response);
 
 		// Call
 		final var result = webTestClient.get()
-			.uri(builder -> builder.path(PATH).queryParam("partyId", PARTY_ID).build(Map.of("municipalityId", MUNICIPALITY_ID)))
+			.uri(builder -> builder.path(PATH)
+				.queryParam("partyId", PARTY_ID)
+				.queryParam("from", "2025-01-01")
+				.queryParam("to", "2026-12-31")
+				.queryParam("page", 1)
+				.queryParam("limit", 20)
+				.queryParam("ascending", true)
+				.build(Map.of("municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
-			.expectBody(new ParameterizedTypeReference<PagedResponse<Actualisation>>() {})
+			.expectBody(PagedActualisationResponse.class)
 			.returnResult()
 			.getResponseBody();
 
 		// Verification
 		assertThat(result).isEqualTo(response);
-		verify(familyCareServiceMock).getActualisations(MUNICIPALITY_ID, PARTY_ID, null, null, null, null, null);
+		verify(familyCareServiceMock).getActualisations(eq(MUNICIPALITY_ID), any(PeriodParameters.class));
 	}
 
 	@Test

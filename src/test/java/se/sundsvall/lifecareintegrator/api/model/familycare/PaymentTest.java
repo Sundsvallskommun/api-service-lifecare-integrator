@@ -55,7 +55,7 @@ class PaymentTest {
 		final var serviceId = 34567;
 		final var connectedApplication = 45678;
 		final var concernedMonth = "2026-05";
-		final var persons = List.of("Anna Andersson");
+		final var persons = List.of(RelatedPerson.create().withName("Anna Andersson").withCoApplicant(false));
 
 		// Act
 		final var result = Payment.create()

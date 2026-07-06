@@ -1,7 +1,5 @@
 {
-	"page": 1,
-	"pageSize": 20,
-	"results": [
+	"resourceAllocations": [
 		{
 			"endDate": "2025-09-30",
 			"id": 1101,
@@ -12,6 +10,11 @@
 			"startDate": "2025-03-01"
 		}
 	],
-	"totalPages": 1,
-	"totalRecords": 1
+	"_meta": {
+		"page": 1,
+		"limit": 20,
+		"count": 1,
+		"totalPages": 1,
+		"totalRecords": 1
+	}
 }

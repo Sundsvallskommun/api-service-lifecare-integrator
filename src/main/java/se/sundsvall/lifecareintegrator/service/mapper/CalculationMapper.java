@@ -8,28 +8,29 @@ import generated.se.sundsvall.lifecarefc.PersonBasedCalculationDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedCalculationPersonDTO;
 import java.util.List;
 import java.util.Optional;
-import se.sundsvall.lifecareintegrator.api.model.common.PagedResponse;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Calculation;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationExpense;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationIncome;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationPerson;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedCalculationResponse;
 
 import static java.util.Collections.emptyList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toPagingMetaData;
 
 public final class CalculationMapper {
 
 	private CalculationMapper() {}
 
-	public static PagedResponse<Calculation> toCalculations(final ApiPaginationCompositePersonBasedCalculationDTO composite) {
+	public static PagedCalculationResponse toCalculations(final ApiPaginationCompositePersonBasedCalculationDTO composite) {
 		return Optional.ofNullable(composite)
-			.map(source -> PagedResponse.<Calculation>create()
-				.withPage(source.getPageNumber())
-				.withPageSize(source.getPageSize())
-				.withTotalPages(source.getTotalNumberOfPages())
-				.withTotalRecords(source.getTotalNumberOfRecords())
-				.withResults(toCalculationList(source.getResult())))
-			.orElseGet(() -> PagedResponse.<Calculation>create().withResults(emptyList()));
+			.map(source -> {
+				final var calculations = toCalculationList(source.getResult());
+				return PagedCalculationResponse.create()
+					.withCalculations(calculations)
+					.withMetaData(toPagingMetaData(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords(), calculations.size()));
+			})
+			.orElseGet(() -> PagedCalculationResponse.create().withCalculations(emptyList()));
 	}
 
 	public static Calculation toCalculation(final PersonBasedCalculationDTO calculation) {

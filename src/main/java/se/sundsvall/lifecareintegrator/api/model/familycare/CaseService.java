@@ -46,8 +46,8 @@ public class CaseService {
 	@Schema(description = "The name of the co-applicant", examples = "David Davidsson")
 	private String coApplicant;
 
-	@Schema(description = "Names of the persons the service concerns", examples = "[\"Anna Andersson\"]")
-	private List<String> persons;
+	@Schema(description = "The persons the service concerns")
+	private List<RelatedPerson> persons;
 
 	public static CaseService create() {
 		return new CaseService();
@@ -196,15 +196,15 @@ public class CaseService {
 		return this;
 	}
 
-	public List<String> getPersons() {
+	public List<RelatedPerson> getPersons() {
 		return persons;
 	}
 
-	public void setPersons(final List<String> persons) {
+	public void setPersons(final List<RelatedPerson> persons) {
 		this.persons = persons;
 	}
 
-	public CaseService withPersons(final List<String> persons) {
+	public CaseService withPersons(final List<RelatedPerson> persons) {
 		this.persons = persons;
 		return this;
 	}

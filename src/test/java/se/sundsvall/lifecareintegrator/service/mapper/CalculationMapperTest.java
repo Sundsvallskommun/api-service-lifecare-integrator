@@ -25,11 +25,8 @@ class CalculationMapperTest {
 
 		// Assert
 		assertThat(result).isNotNull();
-		assertThat(result.getResults()).isEmpty();
-		assertThat(result.getPage()).isNull();
-		assertThat(result.getPageSize()).isNull();
-		assertThat(result.getTotalPages()).isNull();
-		assertThat(result.getTotalRecords()).isNull();
+		assertThat(result.getCalculations()).isEmpty();
+		assertThat(result.getMetaData()).isNull();
 	}
 
 	@Test
@@ -142,12 +139,13 @@ class CalculationMapperTest {
 		final var result = CalculationMapper.toCalculations(composite);
 
 		// Assert
-		assertThat(result.getPage()).isEqualTo(1);
-		assertThat(result.getPageSize()).isEqualTo(10);
-		assertThat(result.getTotalPages()).isEqualTo(3);
-		assertThat(result.getTotalRecords()).isEqualTo(25);
-		assertThat(result.getResults()).hasSize(1);
-		assertThat(result.getResults().getFirst().getId()).isEqualTo(1);
-		assertThat(result.getResults().getFirst().getNorm()).isEqualTo("Riksnorm 2026");
+		assertThat(result.getMetaData().getPage()).isEqualTo(1);
+		assertThat(result.getMetaData().getLimit()).isEqualTo(10);
+		assertThat(result.getMetaData().getCount()).isEqualTo(1);
+		assertThat(result.getMetaData().getTotalPages()).isEqualTo(3);
+		assertThat(result.getMetaData().getTotalRecords()).isEqualTo(25L);
+		assertThat(result.getCalculations()).hasSize(1);
+		assertThat(result.getCalculations().getFirst().getId()).isEqualTo(1);
+		assertThat(result.getCalculations().getFirst().getNorm()).isEqualTo("Riksnorm 2026");
 	}
 }

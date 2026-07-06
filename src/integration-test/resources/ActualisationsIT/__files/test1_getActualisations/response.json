@@ -1,7 +1,5 @@
 {
-	"page": 1,
-	"pageSize": 20,
-	"results": [
+	"actualisations": [
 		{
 			"caseworker": "Handläggare",
 			"date": "2025-04-01",
@@ -14,6 +12,11 @@
 			"type": "Ansökan"
 		}
 	],
-	"totalPages": 1,
-	"totalRecords": 1
+	"_meta": {
+		"page": 1,
+		"limit": 20,
+		"count": 1,
+		"totalPages": 1,
+		"totalRecords": 1
+	}
 }

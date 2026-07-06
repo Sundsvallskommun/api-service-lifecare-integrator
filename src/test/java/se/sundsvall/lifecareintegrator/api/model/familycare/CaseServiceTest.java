@@ -47,7 +47,7 @@ class CaseServiceTest {
 		final var decisionId = 34567;
 		final var applicant = "Cecilia Cedersson";
 		final var coApplicant = "David Davidsson";
-		final var persons = List.of("Anna Andersson");
+		final var persons = List.of(RelatedPerson.create().withName("Anna Andersson").withCoApplicant(false));
 
 		// Act
 		final var result = CaseService.create()

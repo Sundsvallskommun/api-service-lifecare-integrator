@@ -1,21 +1,31 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
+import java.util.List;
+import java.util.Random;
 import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import se.sundsvall.dept44.models.api.paging.PagingMetaData;
 
 import static com.google.code.beanmatchers.BeanMatchers.hasValidBeanConstructor;
 import static com.google.code.beanmatchers.BeanMatchers.hasValidBeanEquals;
 import static com.google.code.beanmatchers.BeanMatchers.hasValidBeanHashCode;
 import static com.google.code.beanmatchers.BeanMatchers.hasValidBeanToString;
 import static com.google.code.beanmatchers.BeanMatchers.hasValidGettersAndSetters;
+import static com.google.code.beanmatchers.BeanMatchers.registerValueGenerator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 
-class DecisionPersonTest {
+class PagedPaymentResponseTest {
+
+	@BeforeAll
+	static void setup() {
+		registerValueGenerator(() -> PagingMetaData.create().withPage(new Random().nextInt(1, 1000)), PagingMetaData.class);
+	}
 
 	@Test
 	void testBean() {
-		MatcherAssert.assertThat(DecisionPerson.class, allOf(
+		MatcherAssert.assertThat(PagedPaymentResponse.class, allOf(
 			hasValidBeanConstructor(),
 			hasValidGettersAndSetters(),
 			hasValidBeanHashCode(),
@@ -26,22 +36,27 @@ class DecisionPersonTest {
 	@Test
 	void testBuilderMethods() {
 		// Arrange
-		final var name = "Kalle Karlsson";
-		final var coApplicant = false;
+		final var payments = List.of(Payment.create());
+		final var metaData = PagingMetaData.create()
+			.withPage(1)
+			.withLimit(20)
+			.withCount(1)
+			.withTotalPages(1)
+			.withTotalRecords(1L);
 
 		// Act
-		final var result = DecisionPerson.create()
-			.withName(name)
-			.withCoApplicant(coApplicant);
+		final var result = PagedPaymentResponse.create()
+			.withPayments(payments)
+			.withMetaData(metaData);
 
 		// Assert
-		assertThat(result.getName()).isEqualTo(name);
-		assertThat(result.getCoApplicant()).isEqualTo(coApplicant);
 		assertThat(result).hasNoNullFieldsOrProperties();
+		assertThat(result.getPayments()).isEqualTo(payments);
+		assertThat(result.getMetaData()).isEqualTo(metaData);
 	}
 
 	@Test
 	void testNoDirtOnCreatedBean() {
-		assertThat(DecisionPerson.create()).hasAllNullFieldsOrProperties();
+		assertThat(PagedPaymentResponse.create()).hasAllNullFieldsOrProperties();
 	}
 }

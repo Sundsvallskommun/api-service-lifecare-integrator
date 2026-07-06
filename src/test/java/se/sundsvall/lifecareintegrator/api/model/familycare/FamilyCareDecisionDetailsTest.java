@@ -33,7 +33,7 @@ class FamilyCareDecisionDetailsTest {
 		final var coApplicant = "Berit Bengtsson";
 		final var reasonCoApplicant = "Bifall";
 		final var connectedApplication = 1112;
-		final var persons = List.of(DecisionPerson.create());
+		final var persons = List.of(RelatedPerson.create().withName("Berit Bengtsson").withCoApplicant(true));
 
 		// Act
 		final var result = FamilyCareDecisionDetails.create()

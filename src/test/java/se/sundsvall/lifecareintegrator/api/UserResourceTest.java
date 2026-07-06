@@ -12,7 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.lifecareintegrator.Application;
-import se.sundsvall.lifecareintegrator.api.model.familycare.CaseworkerUser;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Caseworker;
 import se.sundsvall.lifecareintegrator.service.FamilyCareService;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +37,7 @@ class UserResourceTest {
 	@Test
 	void getUsers() {
 		// Mock
-		final var users = List.of(CaseworkerUser.create());
+		final var users = List.of(Caseworker.create());
 		when(familyCareServiceMock.getUsers(100, null, null, null)).thenReturn(users);
 
 		// Call
@@ -45,7 +45,7 @@ class UserResourceTest {
 			.uri(builder -> builder.path(PATH).queryParam("limit", 100).build(Map.of("municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
-			.expectBody(new ParameterizedTypeReference<List<CaseworkerUser>>() {})
+			.expectBody(new ParameterizedTypeReference<List<Caseworker>>() {})
 			.returnResult()
 			.getResponseBody();
 
@@ -62,7 +62,7 @@ class UserResourceTest {
 		final var modifiedBefore = OffsetDateTime.parse("2026-06-30T00:00:00Z");
 
 		// Mock
-		final var users = List.of(CaseworkerUser.create());
+		final var users = List.of(Caseworker.create());
 		when(familyCareServiceMock.getUsers(100, offset, modifiedAfter, modifiedBefore)).thenReturn(users);
 
 		// Call
@@ -75,7 +75,7 @@ class UserResourceTest {
 				.build(Map.of("municipalityId", MUNICIPALITY_ID)))
 			.exchange()
 			.expectStatus().isOk()
-			.expectBody(new ParameterizedTypeReference<List<CaseworkerUser>>() {})
+			.expectBody(new ParameterizedTypeReference<List<Caseworker>>() {})
 			.returnResult()
 			.getResponseBody();
 

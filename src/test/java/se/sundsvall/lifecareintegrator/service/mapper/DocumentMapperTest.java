@@ -17,11 +17,8 @@ class DocumentMapperTest {
 
 		// Assert
 		assertThat(result).isNotNull();
-		assertThat(result.getResults()).isEmpty();
-		assertThat(result.getPage()).isNull();
-		assertThat(result.getPageSize()).isNull();
-		assertThat(result.getTotalPages()).isNull();
-		assertThat(result.getTotalRecords()).isNull();
+		assertThat(result.getDocuments()).isEmpty();
+		assertThat(result.getMetaData()).isNull();
 	}
 
 	@Test
@@ -44,12 +41,13 @@ class DocumentMapperTest {
 		final var result = DocumentMapper.toDocuments(composite);
 
 		// Assert
-		assertThat(result.getPage()).isEqualTo(1);
-		assertThat(result.getPageSize()).isEqualTo(10);
-		assertThat(result.getTotalPages()).isEqualTo(2);
-		assertThat(result.getTotalRecords()).isEqualTo(15);
+		assertThat(result.getMetaData().getPage()).isEqualTo(1);
+		assertThat(result.getMetaData().getLimit()).isEqualTo(10);
+		assertThat(result.getMetaData().getCount()).isEqualTo(1);
+		assertThat(result.getMetaData().getTotalPages()).isEqualTo(2);
+		assertThat(result.getMetaData().getTotalRecords()).isEqualTo(15L);
 
-		final var document = result.getResults().getFirst();
+		final var document = result.getDocuments().getFirst();
 		assertThat(document.getId()).isEqualTo("doc-1");
 		assertThat(document.getTitle()).isEqualTo("Ansökan om försörjningsstöd");
 		assertThat(document.getDate()).isEqualTo(LocalDate.parse("2026-05-01"));
@@ -67,6 +65,6 @@ class DocumentMapperTest {
 		final var result = DocumentMapper.toDocuments(composite);
 
 		// Assert
-		assertThat(result.getResults().getFirst().getDate()).isNull();
+		assertThat(result.getDocuments().getFirst().getDate()).isNull();
 	}
 }

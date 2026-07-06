@@ -26,7 +26,7 @@ public class FamilyCareDecisionDetails {
 	private Integer connectedApplication;
 
 	@Schema(description = "The persons the decision concerns")
-	private List<DecisionPerson> persons;
+	private List<RelatedPerson> persons;
 
 	public static FamilyCareDecisionDetails create() {
 		return new FamilyCareDecisionDetails();
@@ -110,15 +110,15 @@ public class FamilyCareDecisionDetails {
 		return this;
 	}
 
-	public List<DecisionPerson> getPersons() {
+	public List<RelatedPerson> getPersons() {
 		return persons;
 	}
 
-	public void setPersons(final List<DecisionPerson> persons) {
+	public void setPersons(final List<RelatedPerson> persons) {
 		this.persons = persons;
 	}
 
-	public FamilyCareDecisionDetails withPersons(final List<DecisionPerson> persons) {
+	public FamilyCareDecisionDetails withPersons(final List<RelatedPerson> persons) {
 		this.persons = persons;
 		return this;
 	}

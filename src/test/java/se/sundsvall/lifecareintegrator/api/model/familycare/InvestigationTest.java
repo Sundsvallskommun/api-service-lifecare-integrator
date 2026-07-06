@@ -45,7 +45,7 @@ class InvestigationTest {
 		final var dossierType = "Vuxen";
 		final var applicant = "Bengt Bengtsson";
 		final var coApplicant = "Cecilia Cedersson";
-		final var persons = List.of(InvestigationPerson.create());
+		final var persons = List.of(RelatedPerson.create().withName("Anna Andersson").withCoApplicant(false));
 
 		// Act
 		final var result = Investigation.create()

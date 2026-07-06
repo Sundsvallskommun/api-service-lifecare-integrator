@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
-import se.sundsvall.lifecareintegrator.api.model.familycare.CaseworkerUser;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Caseworker;
 import se.sundsvall.lifecareintegrator.service.FamilyCareService;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
@@ -53,7 +53,7 @@ class UserResource {
 	@Operation(description = "Get the family care caseworkers (users)", responses = {
 		@ApiResponse(responseCode = "200", description = "Successful operation", useReturnTypeSchema = true)
 	})
-	ResponseEntity<List<CaseworkerUser>> getUsers(
+	ResponseEntity<List<Caseworker>> getUsers(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "limit", description = "The maximum number of users to return", example = "100") @NotNull @Positive @Max(1000) @RequestParam final Integer limit,
 		@Parameter(name = "offset", description = "The starting point within the result set", example = "0") @RequestParam(required = false) final Integer offset,

@@ -1,7 +1,5 @@
 {
-	"page": 1,
-	"pageSize": 20,
-	"results": [
+	"investigations": [
 		{
 			"applicant": "Anna Andersson",
 			"caseworker": "Utredare",
@@ -18,6 +16,11 @@
 			"type": "Utredning"
 		}
 	],
-	"totalPages": 1,
-	"totalRecords": 1
+	"_meta": {
+		"page": 1,
+		"limit": 20,
+		"count": 1,
+		"totalPages": 1,
+		"totalRecords": 1
+	}
 }

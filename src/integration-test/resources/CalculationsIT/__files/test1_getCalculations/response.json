@@ -1,7 +1,5 @@
 {
-	"page": 1,
-	"pageSize": 20,
-	"results": [
+	"calculations": [
 		{
 			"balance": -2000.0,
 			"expenseSum": 3000.0,
@@ -35,6 +33,11 @@
 			"totalSum": -2000.0
 		}
 	],
-	"totalPages": 1,
-	"totalRecords": 1
+	"_meta": {
+		"page": 1,
+		"limit": 20,
+		"count": 1,
+		"totalPages": 1,
+		"totalRecords": 1
+	}
 }

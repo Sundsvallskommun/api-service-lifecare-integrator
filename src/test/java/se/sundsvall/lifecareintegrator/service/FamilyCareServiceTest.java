@@ -24,6 +24,7 @@ import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationPersonRequest;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationRequest;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateCalculationRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PeriodParameters;
 import se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcIntegration;
 import se.sundsvall.lifecareintegrator.integration.party.PartyIntegration;
 
@@ -103,6 +104,13 @@ class FamilyCareServiceTest {
 		// Parameter values
 		final var from = LocalDate.parse("2026-01-01");
 		final var to = LocalDate.parse("2026-06-30");
+		final var parameters = new PeriodParameters();
+		parameters.setPartyId(PARTY_ID);
+		parameters.setFrom(from);
+		parameters.setTo(to);
+		parameters.setLimit(20);
+		parameters.setPage(1);
+		parameters.setAscending(true);
 
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
@@ -110,26 +118,30 @@ class FamilyCareServiceTest {
 			.thenReturn(new ApiPaginationCompositePersonBasedAktualiseringDTO().pageNumber(1).result(List.of(new PersonBasedAktualiseringDTO().id(1))));
 
 		// Act
-		final var result = familyCareService.getActualisations(MUNICIPALITY_ID, PARTY_ID, from, to, 1, 20, true);
+		final var result = familyCareService.getActualisations(MUNICIPALITY_ID, parameters);
 
 		// Verify: the resolved person number (not partyId) is forwarded
-		assertThat(result.getResults()).hasSize(1);
+		assertThat(result.getActualisations()).hasSize(1);
 		verify(lifecareFcIntegrationMock).getActualisations(PERSON_NUMBER, from, to, 20, 1, true);
 	}
 
 	@Test
 	void getActualisationsUsesDefaultWindowWhenDatesMissing() {
+		// Parameter values: no dates or ascending set — page/limit default to 1/100
+		final var parameters = new PeriodParameters();
+		parameters.setPartyId(PARTY_ID);
+
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
 		when(lifecareFcIntegrationMock.getActualisations(any(), any(), any(), any(), any(), any()))
 			.thenReturn(new ApiPaginationCompositePersonBasedAktualiseringDTO());
 
 		// Act
-		familyCareService.getActualisations(MUNICIPALITY_ID, PARTY_ID, null, null, null, null, null);
+		familyCareService.getActualisations(MUNICIPALITY_ID, parameters);
 
-		// Verify: default 10-year lookback window
+		// Verify: default 10-year lookback window, default paging (page 1, limit 100)
 		final var today = LocalDate.now(ZoneId.of("Europe/Stockholm"));
-		verify(lifecareFcIntegrationMock).getActualisations(PERSON_NUMBER, today.minusYears(10), today, null, null, null);
+		verify(lifecareFcIntegrationMock).getActualisations(PERSON_NUMBER, today.minusYears(10), today, 100, 1, null);
 	}
 
 	@Test

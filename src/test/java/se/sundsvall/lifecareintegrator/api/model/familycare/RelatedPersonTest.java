@@ -11,11 +11,11 @@ import static com.google.code.beanmatchers.BeanMatchers.hasValidGettersAndSetter
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 
-class InvestigationPersonTest {
+class RelatedPersonTest {
 
 	@Test
 	void testBean() {
-		MatcherAssert.assertThat(InvestigationPerson.class, allOf(
+		MatcherAssert.assertThat(RelatedPerson.class, allOf(
 			hasValidBeanConstructor(),
 			hasValidGettersAndSetters(),
 			hasValidBeanHashCode(),
@@ -30,7 +30,7 @@ class InvestigationPersonTest {
 		final var coApplicant = false;
 
 		// Act
-		final var result = InvestigationPerson.create()
+		final var result = RelatedPerson.create()
 			.withName(name)
 			.withCoApplicant(coApplicant);
 
@@ -42,6 +42,6 @@ class InvestigationPersonTest {
 
 	@Test
 	void testNoDirtOnCreatedBean() {
-		assertThat(InvestigationPerson.create()).hasAllNullFieldsOrProperties();
+		assertThat(RelatedPerson.create()).hasAllNullFieldsOrProperties();
 	}
 }

@@ -7,22 +7,30 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "1.0"
 servers:
-- url: http://localhost:61256
+- url: http://localhost:56054
   description: Generated server url
 tags:
-- name: Case data
-  description: Person-scoped case-data reads from the Lifecare family care system
+- name: Investigations
+  description: Investigation reads from the Lifecare family care system
+- name: Executions
+  description: Execution reads from the Lifecare family care system
 - name: Actualisations
   description: Actualisation (case intake) resource for the Lifecare family care system
+- name: Resource allocations
+  description: Resource allocation reads from the Lifecare family care system
 - name: Person
   description: Person master data and contacts from Lifecare family care
 - name: Decisions
   description: "Unified decision resource, merging the Lifecare elderly care (SoL\
     \ + LSS) and family care decision sources"
+- name: Payments
+  description: Payment reads from the Lifecare family care system
 - name: Calculations
   description: Calculation (normberäkning) resource for the Lifecare family care system
 - name: Documents
   description: Documents stored for a person in the Lifecare family care system
+- name: Services
+  description: Service reads from the Lifecare family care system
 - name: Users
   description: Caseworker (user) lookup in the Lifecare family care system
 paths:
@@ -46,23 +54,38 @@ paths:
         required: true
         schema:
           type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+          description: Party id of the person
+          examples:
+          - 81471222-5798-11e9-ae24-57fa13b361e1
       - name: from
         in: query
-        description: Start of the period
+        description: Start of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2025-01-01
+          description: Start of the period (inclusive)
+          examples:
+          - 2025-01-01
       - name: to
         in: query
-        description: End of the period
+        description: End of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2026-12-31
+          description: End of the period (inclusive)
+          examples:
+          - 2026-12-31
+      - name: ascending
+        in: query
+        description: Sort order by date
+        required: false
+        schema:
+          type: boolean
+          description: Sort order by date
+          examples:
+          - "true"
       - name: page
         in: query
         description: Page number
@@ -70,32 +93,30 @@ paths:
         schema:
           type: integer
           format: int32
-          exclusiveMinimum: 0
-        example: 1
-      - name: pageSize
+          default: 1
+          description: Page number
+          examples:
+          - 1
+          minimum: 1
+      - name: limit
         in: query
-        description: Page size
+        description: Result size per page. Maximum allowed value is dynamically configured
         required: false
         schema:
           type: integer
           format: int32
-          exclusiveMinimum: 0
-          maximum: 1000
-        example: 20
-      - name: ascending
-        in: query
-        description: Sort order
-        required: false
-        schema:
-          type: boolean
-        example: true
+          description: Result size per page. Maximum allowed value is dynamically
+            configured
+          examples:
+          - 15
+          minimum: 1
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PagedResponseCalculation"
+                $ref: "#/components/schemas/PagedCalculationResponse"
         "404":
           description: Not found
           content:
@@ -184,23 +205,38 @@ paths:
         required: true
         schema:
           type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+          description: Party id of the person
+          examples:
+          - 81471222-5798-11e9-ae24-57fa13b361e1
       - name: from
         in: query
-        description: Start of the period
+        description: Start of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2025-01-01
+          description: Start of the period (inclusive)
+          examples:
+          - 2025-01-01
       - name: to
         in: query
-        description: End of the period
+        description: End of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2026-12-31
+          description: End of the period (inclusive)
+          examples:
+          - 2026-12-31
+      - name: ascending
+        in: query
+        description: Sort order by date
+        required: false
+        schema:
+          type: boolean
+          description: Sort order by date
+          examples:
+          - "true"
       - name: page
         in: query
         description: Page number
@@ -208,32 +244,30 @@ paths:
         schema:
           type: integer
           format: int32
-          exclusiveMinimum: 0
-        example: 1
-      - name: pageSize
+          default: 1
+          description: Page number
+          examples:
+          - 1
+          minimum: 1
+      - name: limit
         in: query
-        description: Page size
+        description: Result size per page. Maximum allowed value is dynamically configured
         required: false
         schema:
           type: integer
           format: int32
-          exclusiveMinimum: 0
-          maximum: 1000
-        example: 20
-      - name: ascending
-        in: query
-        description: Sort order
-        required: false
-        schema:
-          type: boolean
-        example: true
+          description: Result size per page. Maximum allowed value is dynamically
+            configured
+          examples:
+          - 15
+          minimum: 1
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PagedResponseActualisation"
+                $ref: "#/components/schemas/PagedActualisationResponse"
         "404":
           description: Not found
           content:
@@ -429,7 +463,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/CaseworkerUser"
+                  $ref: "#/components/schemas/Caseworker"
         "400":
           description: Bad request
           content:
@@ -447,7 +481,7 @@ paths:
   /{municipalityId}/services:
     get:
       tags:
-      - Case data
+      - Services
       description: Get the services registered on a person in the given period
       operationId: getServices
       parameters:
@@ -464,23 +498,38 @@ paths:
         required: true
         schema:
           type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+          description: Party id of the person
+          examples:
+          - 81471222-5798-11e9-ae24-57fa13b361e1
       - name: from
         in: query
-        description: Start of the period
+        description: Start of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2025-01-01
+          description: Start of the period (inclusive)
+          examples:
+          - 2025-01-01
       - name: to
         in: query
-        description: End of the period
+        description: End of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2026-12-31
+          description: End of the period (inclusive)
+          examples:
+          - 2026-12-31
+      - name: ascending
+        in: query
+        description: Sort order by date
+        required: false
+        schema:
+          type: boolean
+          description: Sort order by date
+          examples:
+          - "true"
       - name: page
         in: query
         description: Page number
@@ -488,32 +537,30 @@ paths:
         schema:
           type: integer
           format: int32
-          exclusiveMinimum: 0
-        example: 1
-      - name: pageSize
+          default: 1
+          description: Page number
+          examples:
+          - 1
+          minimum: 1
+      - name: limit
         in: query
-        description: Page size
+        description: Result size per page. Maximum allowed value is dynamically configured
         required: false
         schema:
           type: integer
           format: int32
-          exclusiveMinimum: 0
-          maximum: 1000
-        example: 20
-      - name: ascending
-        in: query
-        description: Sort order
-        required: false
-        schema:
-          type: boolean
-        example: true
+          description: Result size per page. Maximum allowed value is dynamically
+            configured
+          examples:
+          - 15
+          minimum: 1
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PagedResponseCaseService"
+                $ref: "#/components/schemas/PagedServiceResponse"
         "404":
           description: Not found
           content:
@@ -537,7 +584,7 @@ paths:
   /{municipalityId}/resource-allocations:
     get:
       tags:
-      - Case data
+      - Resource allocations
       description: Get the resource allocations registered on a person in the given
         period
       operationId: getResourceAllocations
@@ -555,23 +602,38 @@ paths:
         required: true
         schema:
           type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+          description: Party id of the person
+          examples:
+          - 81471222-5798-11e9-ae24-57fa13b361e1
       - name: from
         in: query
-        description: Start of the period
+        description: Start of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2025-01-01
+          description: Start of the period (inclusive)
+          examples:
+          - 2025-01-01
       - name: to
         in: query
-        description: End of the period
+        description: End of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2026-12-31
+          description: End of the period (inclusive)
+          examples:
+          - 2026-12-31
+      - name: ascending
+        in: query
+        description: Sort order by date
+        required: false
+        schema:
+          type: boolean
+          description: Sort order by date
+          examples:
+          - "true"
       - name: page
         in: query
         description: Page number
@@ -579,32 +641,30 @@ paths:
         schema:
           type: integer
           format: int32
-          exclusiveMinimum: 0
-        example: 1
-      - name: pageSize
+          default: 1
+          description: Page number
+          examples:
+          - 1
+          minimum: 1
+      - name: limit
         in: query
-        description: Page size
+        description: Result size per page. Maximum allowed value is dynamically configured
         required: false
         schema:
           type: integer
           format: int32
-          exclusiveMinimum: 0
-          maximum: 1000
-        example: 20
-      - name: ascending
-        in: query
-        description: Sort order
-        required: false
-        schema:
-          type: boolean
-        example: true
+          description: Result size per page. Maximum allowed value is dynamically
+            configured
+          examples:
+          - 15
+          minimum: 1
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PagedResponseResourceAllocation"
+                $ref: "#/components/schemas/PagedResourceAllocationResponse"
         "404":
           description: Not found
           content:
@@ -676,7 +736,7 @@ paths:
   /{municipalityId}/payments:
     get:
       tags:
-      - Case data
+      - Payments
       description: Get the payments registered on a person in the given period
       operationId: getPayments
       parameters:
@@ -693,23 +753,38 @@ paths:
         required: true
         schema:
           type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+          description: Party id of the person
+          examples:
+          - 81471222-5798-11e9-ae24-57fa13b361e1
       - name: from
         in: query
-        description: Start of the period
+        description: Start of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2025-01-01
+          description: Start of the period (inclusive)
+          examples:
+          - 2025-01-01
       - name: to
         in: query
-        description: End of the period
+        description: End of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2026-12-31
+          description: End of the period (inclusive)
+          examples:
+          - 2026-12-31
+      - name: ascending
+        in: query
+        description: Sort order by date
+        required: false
+        schema:
+          type: boolean
+          description: Sort order by date
+          examples:
+          - "true"
       - name: page
         in: query
         description: Page number
@@ -717,32 +792,30 @@ paths:
         schema:
           type: integer
           format: int32
-          exclusiveMinimum: 0
-        example: 1
-      - name: pageSize
+          default: 1
+          description: Page number
+          examples:
+          - 1
+          minimum: 1
+      - name: limit
         in: query
-        description: Page size
+        description: Result size per page. Maximum allowed value is dynamically configured
         required: false
         schema:
           type: integer
           format: int32
-          exclusiveMinimum: 0
-          maximum: 1000
-        example: 20
-      - name: ascending
-        in: query
-        description: Sort order
-        required: false
-        schema:
-          type: boolean
-        example: true
+          description: Result size per page. Maximum allowed value is dynamically
+            configured
+          examples:
+          - 15
+          minimum: 1
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PagedResponsePayment"
+                $ref: "#/components/schemas/PagedPaymentResponse"
         "404":
           description: Not found
           content:
@@ -766,7 +839,7 @@ paths:
   /{municipalityId}/investigations:
     get:
       tags:
-      - Case data
+      - Investigations
       description: Get the investigations registered on a person in the given period
       operationId: getInvestigations
       parameters:
@@ -783,23 +856,38 @@ paths:
         required: true
         schema:
           type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+          description: Party id of the person
+          examples:
+          - 81471222-5798-11e9-ae24-57fa13b361e1
       - name: from
         in: query
-        description: Start of the period
+        description: Start of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2025-01-01
+          description: Start of the period (inclusive)
+          examples:
+          - 2025-01-01
       - name: to
         in: query
-        description: End of the period
+        description: End of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2026-12-31
+          description: End of the period (inclusive)
+          examples:
+          - 2026-12-31
+      - name: ascending
+        in: query
+        description: Sort order by date
+        required: false
+        schema:
+          type: boolean
+          description: Sort order by date
+          examples:
+          - "true"
       - name: page
         in: query
         description: Page number
@@ -807,32 +895,30 @@ paths:
         schema:
           type: integer
           format: int32
-          exclusiveMinimum: 0
-        example: 1
-      - name: pageSize
+          default: 1
+          description: Page number
+          examples:
+          - 1
+          minimum: 1
+      - name: limit
         in: query
-        description: Page size
+        description: Result size per page. Maximum allowed value is dynamically configured
         required: false
         schema:
           type: integer
           format: int32
-          exclusiveMinimum: 0
-          maximum: 1000
-        example: 20
-      - name: ascending
-        in: query
-        description: Sort order
-        required: false
-        schema:
-          type: boolean
-        example: true
+          description: Result size per page. Maximum allowed value is dynamically
+            configured
+          examples:
+          - 15
+          minimum: 1
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PagedResponseInvestigation"
+                $ref: "#/components/schemas/PagedInvestigationResponse"
         "404":
           description: Not found
           content:
@@ -856,7 +942,7 @@ paths:
   /{municipalityId}/executions:
     get:
       tags:
-      - Case data
+      - Executions
       description: Get the executions registered on a person in the given period
       operationId: getExecutions
       parameters:
@@ -873,23 +959,38 @@ paths:
         required: true
         schema:
           type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+          description: Party id of the person
+          examples:
+          - 81471222-5798-11e9-ae24-57fa13b361e1
       - name: from
         in: query
-        description: Start of the period
+        description: Start of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2025-01-01
+          description: Start of the period (inclusive)
+          examples:
+          - 2025-01-01
       - name: to
         in: query
-        description: End of the period
+        description: End of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2026-12-31
+          description: End of the period (inclusive)
+          examples:
+          - 2026-12-31
+      - name: ascending
+        in: query
+        description: Sort order by date
+        required: false
+        schema:
+          type: boolean
+          description: Sort order by date
+          examples:
+          - "true"
       - name: page
         in: query
         description: Page number
@@ -897,32 +998,30 @@ paths:
         schema:
           type: integer
           format: int32
-          exclusiveMinimum: 0
-        example: 1
-      - name: pageSize
+          default: 1
+          description: Page number
+          examples:
+          - 1
+          minimum: 1
+      - name: limit
         in: query
-        description: Page size
+        description: Result size per page. Maximum allowed value is dynamically configured
         required: false
         schema:
           type: integer
           format: int32
-          exclusiveMinimum: 0
-          maximum: 1000
-        example: 20
-      - name: ascending
-        in: query
-        description: Sort order
-        required: false
-        schema:
-          type: boolean
-        example: true
+          description: Result size per page. Maximum allowed value is dynamically
+            configured
+          examples:
+          - 15
+          minimum: 1
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PagedResponseExecution"
+                $ref: "#/components/schemas/PagedExecutionResponse"
         "404":
           description: Not found
           content:
@@ -964,56 +1063,69 @@ paths:
         required: true
         schema:
           type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
+          description: Party id of the person
+          examples:
+          - 81471222-5798-11e9-ae24-57fa13b361e1
       - name: from
         in: query
-        description: Only include documents dated on or after this date
+        description: Start of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2025-01-01
+          description: Start of the period (inclusive)
+          examples:
+          - 2025-01-01
       - name: to
         in: query
-        description: Only include documents dated on or before this date
+        description: End of the period (inclusive)
         required: false
         schema:
           type: string
           format: date
-        example: 2026-12-31
-      - name: page
-        in: query
-        description: The page to fetch (one-based)
-        required: false
-        schema:
-          type: integer
-          format: int32
-          exclusiveMinimum: 0
-        example: 1
-      - name: pageSize
-        in: query
-        description: The number of records per page
-        required: false
-        schema:
-          type: integer
-          format: int32
-          exclusiveMinimum: 0
-          maximum: 1000
-        example: 20
+          description: End of the period (inclusive)
+          examples:
+          - 2026-12-31
       - name: ascending
         in: query
-        description: Whether to sort ascending
+        description: Sort order by date
         required: false
         schema:
           type: boolean
-        example: true
+          description: Sort order by date
+          examples:
+          - "true"
+      - name: page
+        in: query
+        description: Page number
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+          description: Page number
+          examples:
+          - 1
+          minimum: 1
+      - name: limit
+        in: query
+        description: Result size per page. Maximum allowed value is dynamically configured
+        required: false
+        schema:
+          type: integer
+          format: int32
+          description: Result size per page. Maximum allowed value is dynamically
+            configured
+          examples:
+          - 15
+          minimum: 1
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PagedResponseDocumentMetadata"
+                $ref: "#/components/schemas/PagedDocumentResponse"
         "404":
           description: Not found
           content:
@@ -1671,7 +1783,7 @@ components:
       - date
       - partyId
       - typeId
-    CaseworkerUser:
+    Caseworker:
       type: object
       description: A caseworker user account in the Lifecare family care system
       properties:
@@ -1793,79 +1905,88 @@ components:
           - David Davidsson
         persons:
           type: array
-          description: Names of the persons the service concerns
-          examples:
-          - - Anna Andersson
+          description: The persons the service concerns
           items:
-            type: string
-    PagedResponseCaseService:
+            $ref: "#/components/schemas/RelatedPerson"
+    PagedServiceResponse:
       type: object
-      description: "Paged response wrapper, mirroring the pagination of the underlying\
-        \ Lifecare family care API"
+      description: A paged list of services from the Lifecare family care system
       properties:
-        page:
-          type: integer
-          format: int32
-          description: The current page (one-based)
-          examples:
-          - 1
-        pageSize:
-          type: integer
-          format: int32
-          description: The number of records per page
-          examples:
-          - 20
-        totalPages:
-          type: integer
-          format: int32
-          description: The total number of pages
-          examples:
-          - 5
-        totalRecords:
-          type: integer
-          format: int32
-          description: The total number of records
-          examples:
-          - 98
-        results:
+        services:
           type: array
-          description: The records on the current page
+          description: The services on this page
           items:
             $ref: "#/components/schemas/CaseService"
-    PagedResponseResourceAllocation:
+        _meta:
+          $ref: "#/components/schemas/PagingMetaData"
+          readOnly: true
+    PagingMetaData:
       type: object
-      description: "Paged response wrapper, mirroring the pagination of the underlying\
-        \ Lifecare family care API"
+      description: PagingMetaData model
       properties:
         page:
           type: integer
           format: int32
-          description: The current page (one-based)
+          description: Current page
           examples:
-          - 1
-        pageSize:
+          - 5
+          readOnly: true
+        limit:
           type: integer
           format: int32
-          description: The number of records per page
+          description: Displayed objects per page
           examples:
           - 20
+          readOnly: true
+        count:
+          type: integer
+          format: int32
+          description: Displayed objects on current page
+          examples:
+          - 13
+          readOnly: true
+        totalRecords:
+          type: integer
+          format: int64
+          description: Total amount of hits based on provided search parameters
+          examples:
+          - 98
+          readOnly: true
         totalPages:
           type: integer
           format: int32
-          description: The total number of pages
+          description: Total amount of pages based on provided search parameters
           examples:
-          - 5
-        totalRecords:
-          type: integer
-          format: int32
-          description: The total number of records
+          - 23
+          readOnly: true
+    RelatedPerson:
+      type: object
+      description: A person related to a family care case
+      properties:
+        name:
+          type: string
+          description: The name of the person
           examples:
-          - 98
-        results:
+          - Anna Andersson
+        coApplicant:
+          type: boolean
+          description: Whether the person is a co-applicant. Null when the source
+            does not state a role
+          examples:
+          - "false"
+    PagedResourceAllocationResponse:
+      type: object
+      description: A paged list of resource allocations from the Lifecare family care
+        system
+      properties:
+        resourceAllocations:
           type: array
-          description: The records on the current page
+          description: The resource allocations on this page
           items:
             $ref: "#/components/schemas/ResourceAllocation"
+        _meta:
+          $ref: "#/components/schemas/PagingMetaData"
+          readOnly: true
     ResourceAllocation:
       type: object
       description: A resource allocation from the Lifecare family care system
@@ -1980,40 +2101,18 @@ components:
           description: Whether the person has protected registration
           examples:
           - "false"
-    PagedResponsePayment:
+    PagedPaymentResponse:
       type: object
-      description: "Paged response wrapper, mirroring the pagination of the underlying\
-        \ Lifecare family care API"
+      description: A paged list of payments from the Lifecare family care system
       properties:
-        page:
-          type: integer
-          format: int32
-          description: The current page (one-based)
-          examples:
-          - 1
-        pageSize:
-          type: integer
-          format: int32
-          description: The number of records per page
-          examples:
-          - 20
-        totalPages:
-          type: integer
-          format: int32
-          description: The total number of pages
-          examples:
-          - 5
-        totalRecords:
-          type: integer
-          format: int32
-          description: The total number of records
-          examples:
-          - 98
-        results:
+        payments:
           type: array
-          description: The records on the current page
+          description: The payments on this page
           items:
             $ref: "#/components/schemas/Payment"
+        _meta:
+          $ref: "#/components/schemas/PagingMetaData"
+          readOnly: true
     Payment:
       type: object
       description: A payment from the Lifecare family care system
@@ -2121,11 +2220,9 @@ components:
           - 2026-05
         persons:
           type: array
-          description: Names of the persons the payment concerns
-          examples:
-          - - Anna Andersson
+          description: The persons the payment concerns
           items:
-            type: string
+            $ref: "#/components/schemas/RelatedPerson"
     Investigation:
       type: object
       description: An investigation from the Lifecare family care system
@@ -2182,55 +2279,19 @@ components:
           type: array
           description: The persons included in the investigation
           items:
-            $ref: "#/components/schemas/InvestigationPerson"
-    InvestigationPerson:
+            $ref: "#/components/schemas/RelatedPerson"
+    PagedInvestigationResponse:
       type: object
-      description: A person included in an investigation
+      description: A paged list of investigations from the Lifecare family care system
       properties:
-        name:
-          type: string
-          description: The name of the person
-          examples:
-          - Anna Andersson
-        coApplicant:
-          type: boolean
-          description: Whether the person is a co-applicant
-          examples:
-          - "false"
-    PagedResponseInvestigation:
-      type: object
-      description: "Paged response wrapper, mirroring the pagination of the underlying\
-        \ Lifecare family care API"
-      properties:
-        page:
-          type: integer
-          format: int32
-          description: The current page (one-based)
-          examples:
-          - 1
-        pageSize:
-          type: integer
-          format: int32
-          description: The number of records per page
-          examples:
-          - 20
-        totalPages:
-          type: integer
-          format: int32
-          description: The total number of pages
-          examples:
-          - 5
-        totalRecords:
-          type: integer
-          format: int32
-          description: The total number of records
-          examples:
-          - 98
-        results:
+        investigations:
           type: array
-          description: The records on the current page
+          description: The investigations on this page
           items:
             $ref: "#/components/schemas/Investigation"
+        _meta:
+          $ref: "#/components/schemas/PagingMetaData"
+          readOnly: true
     Execution:
       type: object
       description: An execution (verkställighet) from the Lifecare family care system
@@ -2273,40 +2334,18 @@ components:
           description: The dossier type
           examples:
           - Vuxen
-    PagedResponseExecution:
+    PagedExecutionResponse:
       type: object
-      description: "Paged response wrapper, mirroring the pagination of the underlying\
-        \ Lifecare family care API"
+      description: A paged list of executions from the Lifecare family care system
       properties:
-        page:
-          type: integer
-          format: int32
-          description: The current page (one-based)
-          examples:
-          - 1
-        pageSize:
-          type: integer
-          format: int32
-          description: The number of records per page
-          examples:
-          - 20
-        totalPages:
-          type: integer
-          format: int32
-          description: The total number of pages
-          examples:
-          - 5
-        totalRecords:
-          type: integer
-          format: int32
-          description: The total number of records
-          examples:
-          - 98
-        results:
+        executions:
           type: array
-          description: The records on the current page
+          description: The executions on this page
           items:
             $ref: "#/components/schemas/Execution"
+        _meta:
+          $ref: "#/components/schemas/PagingMetaData"
+          readOnly: true
     DocumentMetadata:
       type: object
       description: Metadata for a document stored in the Lifecare family care system.
@@ -2338,40 +2377,18 @@ components:
           description: The type of the document owner
           examples:
           - Person
-    PagedResponseDocumentMetadata:
+    PagedDocumentResponse:
       type: object
-      description: "Paged response wrapper, mirroring the pagination of the underlying\
-        \ Lifecare family care API"
+      description: A paged list of documents from the Lifecare family care system
       properties:
-        page:
-          type: integer
-          format: int32
-          description: The current page (one-based)
-          examples:
-          - 1
-        pageSize:
-          type: integer
-          format: int32
-          description: The number of records per page
-          examples:
-          - 20
-        totalPages:
-          type: integer
-          format: int32
-          description: The total number of pages
-          examples:
-          - 5
-        totalRecords:
-          type: integer
-          format: int32
-          description: The total number of records
-          examples:
-          - 98
-        results:
+        documents:
           type: array
-          description: The records on the current page
+          description: The documents on this page
           items:
             $ref: "#/components/schemas/DocumentMetadata"
+        _meta:
+          $ref: "#/components/schemas/PagingMetaData"
+          readOnly: true
     Decision:
       type: object
       description: "A decision from one of the Lifecare systems, re-modelled to a\
@@ -2449,20 +2466,6 @@ components:
           type: "null"
           $ref: "#/components/schemas/FamilyCareDecisionDetails"
           description: Details only present for FAMILY_CARE decisions
-    DecisionPerson:
-      type: object
-      description: A person a decision concerns
-      properties:
-        name:
-          type: string
-          description: Name of the person
-          examples:
-          - Kalle Karlsson
-        coApplicant:
-          type: boolean
-          description: Whether the person is a co-applicant
-          examples:
-          - "false"
     DecisionsResponse:
       type: object
       description: "The merged decisions from all Lifecare sources, with per-source\
@@ -2681,7 +2684,7 @@ components:
           type: array
           description: The persons the decision concerns
           items:
-            $ref: "#/components/schemas/DecisionPerson"
+            $ref: "#/components/schemas/RelatedPerson"
     SourceStatus:
       type: object
       description: The fetch status for one decision source. When a source is UNAVAILABLE
@@ -2982,40 +2985,18 @@ components:
           description: The date any deviation is valid to
           examples:
           - 2026-05-31
-    PagedResponseCalculation:
+    PagedCalculationResponse:
       type: object
-      description: "Paged response wrapper, mirroring the pagination of the underlying\
-        \ Lifecare family care API"
+      description: A paged list of calculations from the Lifecare family care system
       properties:
-        page:
-          type: integer
-          format: int32
-          description: The current page (one-based)
-          examples:
-          - 1
-        pageSize:
-          type: integer
-          format: int32
-          description: The number of records per page
-          examples:
-          - 20
-        totalPages:
-          type: integer
-          format: int32
-          description: The total number of pages
-          examples:
-          - 5
-        totalRecords:
-          type: integer
-          format: int32
-          description: The total number of records
-          examples:
-          - 98
-        results:
+        calculations:
           type: array
-          description: The records on the current page
+          description: The calculations on this page
           items:
             $ref: "#/components/schemas/Calculation"
+        _meta:
+          $ref: "#/components/schemas/PagingMetaData"
+          readOnly: true
     ActualisationReference:
       type: object
       description: An existing actualisation that a calculation can be linked to
@@ -3279,40 +3260,18 @@ components:
           description: The id of the decision connected to the actualisation
           examples:
           - 1011
-    PagedResponseActualisation:
+    PagedActualisationResponse:
       type: object
-      description: "Paged response wrapper, mirroring the pagination of the underlying\
-        \ Lifecare family care API"
+      description: A paged list of actualisations from the Lifecare family care system
       properties:
-        page:
-          type: integer
-          format: int32
-          description: The current page (one-based)
-          examples:
-          - 1
-        pageSize:
-          type: integer
-          format: int32
-          description: The number of records per page
-          examples:
-          - 20
-        totalPages:
-          type: integer
-          format: int32
-          description: The total number of pages
-          examples:
-          - 5
-        totalRecords:
-          type: integer
-          format: int32
-          description: The total number of records
-          examples:
-          - 98
-        results:
+        actualisations:
           type: array
-          description: The records on the current page
+          description: The actualisations on this page
           items:
             $ref: "#/components/schemas/Actualisation"
+        _meta:
+          $ref: "#/components/schemas/PagingMetaData"
+          readOnly: true
     ActualisationProposal:
       type: object
       description: A proposal with the valid values needed to create an actualisation

@@ -4,25 +4,26 @@ import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedAktual
 import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringDTO;
 import java.util.List;
 import java.util.Optional;
-import se.sundsvall.lifecareintegrator.api.model.common.PagedResponse;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Actualisation;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedActualisationResponse;
 
 import static java.util.Collections.emptyList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toPagingMetaData;
 
 public final class ActualisationMapper {
 
 	private ActualisationMapper() {}
 
-	public static PagedResponse<Actualisation> toActualisations(final ApiPaginationCompositePersonBasedAktualiseringDTO composite) {
+	public static PagedActualisationResponse toActualisations(final ApiPaginationCompositePersonBasedAktualiseringDTO composite) {
 		return Optional.ofNullable(composite)
-			.map(source -> PagedResponse.<Actualisation>create()
-				.withPage(source.getPageNumber())
-				.withPageSize(source.getPageSize())
-				.withTotalPages(source.getTotalNumberOfPages())
-				.withTotalRecords(source.getTotalNumberOfRecords())
-				.withResults(toActualisationList(source.getResult())))
-			.orElseGet(() -> PagedResponse.<Actualisation>create().withResults(emptyList()));
+			.map(source -> {
+				final var actualisations = toActualisationList(source.getResult());
+				return PagedActualisationResponse.create()
+					.withActualisations(actualisations)
+					.withMetaData(toPagingMetaData(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords(), actualisations.size()));
+			})
+			.orElseGet(() -> PagedActualisationResponse.create().withActualisations(emptyList()));
 	}
 
 	public static Actualisation toActualisation(final PersonBasedAktualiseringDTO actualisation) {

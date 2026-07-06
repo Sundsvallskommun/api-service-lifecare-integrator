@@ -15,74 +15,88 @@ import generated.se.sundsvall.lifecarefc.PersonBasedServiceDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedServicePersonDTO;
 import java.util.List;
 import java.util.Optional;
-import se.sundsvall.lifecareintegrator.api.model.common.PagedResponse;
+import java.util.function.Function;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CaseService;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Execution;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Investigation;
-import se.sundsvall.lifecareintegrator.api.model.familycare.InvestigationPerson;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedExecutionResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedInvestigationResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedPaymentResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedResourceAllocationResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.PagedServiceResponse;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Payment;
+import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
 import se.sundsvall.lifecareintegrator.api.model.familycare.ResourceAllocation;
 
 import static java.util.Collections.emptyList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toPagingMetaData;
 
 /**
  * Maps the paginated Lifecare family care case data composites (payments, investigations, services, executions and
- * resource allocations) to the public paged models. Vendor person ids (personnummer) are intentionally dropped and
+ * resource allocations) to the public paged responses. Vendor person ids (personnummer) are intentionally dropped and
  * never exposed in the public models.
  */
 public final class CaseDataMapper {
 
 	private CaseDataMapper() {}
 
-	public static PagedResponse<Payment> toPayments(final ApiPaginationCompositePersonBasedPaymentDTO composite) {
+	public static PagedPaymentResponse toPayments(final ApiPaginationCompositePersonBasedPaymentDTO composite) {
 		return Optional.ofNullable(composite)
-			.map(source -> CaseDataMapper.<Payment>toPagedResponse(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords())
-				.withResults(toMappedList(source.getResult(), CaseDataMapper::toPayment)))
-			.orElseGet(CaseDataMapper::toEmptyPagedResponse);
+			.map(source -> {
+				final var payments = toMappedList(source.getResult(), CaseDataMapper::toPayment);
+				return PagedPaymentResponse.create()
+					.withPayments(payments)
+					.withMetaData(toPagingMetaData(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords(), payments.size()));
+			})
+			.orElseGet(() -> PagedPaymentResponse.create().withPayments(emptyList()));
 	}
 
-	public static PagedResponse<Investigation> toInvestigations(final ApiPaginationCompositePersonBasedInvestigationDTO composite) {
+	public static PagedInvestigationResponse toInvestigations(final ApiPaginationCompositePersonBasedInvestigationDTO composite) {
 		return Optional.ofNullable(composite)
-			.map(source -> CaseDataMapper.<Investigation>toPagedResponse(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords())
-				.withResults(toMappedList(source.getResult(), CaseDataMapper::toInvestigation)))
-			.orElseGet(CaseDataMapper::toEmptyPagedResponse);
+			.map(source -> {
+				final var investigations = toMappedList(source.getResult(), CaseDataMapper::toInvestigation);
+				return PagedInvestigationResponse.create()
+					.withInvestigations(investigations)
+					.withMetaData(toPagingMetaData(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords(), investigations.size()));
+			})
+			.orElseGet(() -> PagedInvestigationResponse.create().withInvestigations(emptyList()));
 	}
 
-	public static PagedResponse<CaseService> toCaseServices(final ApiPaginationCompositePersonBasedServiceDTO composite) {
+	public static PagedServiceResponse toCaseServices(final ApiPaginationCompositePersonBasedServiceDTO composite) {
 		return Optional.ofNullable(composite)
-			.map(source -> CaseDataMapper.<CaseService>toPagedResponse(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords())
-				.withResults(toMappedList(source.getResult(), CaseDataMapper::toCaseService)))
-			.orElseGet(CaseDataMapper::toEmptyPagedResponse);
+			.map(source -> {
+				final var services = toMappedList(source.getResult(), CaseDataMapper::toCaseService);
+				return PagedServiceResponse.create()
+					.withServices(services)
+					.withMetaData(toPagingMetaData(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords(), services.size()));
+			})
+			.orElseGet(() -> PagedServiceResponse.create().withServices(emptyList()));
 	}
 
-	public static PagedResponse<Execution> toExecutions(final ApiPaginationCompositePersonBasedExecutionDTO composite) {
+	public static PagedExecutionResponse toExecutions(final ApiPaginationCompositePersonBasedExecutionDTO composite) {
 		return Optional.ofNullable(composite)
-			.map(source -> CaseDataMapper.<Execution>toPagedResponse(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords())
-				.withResults(toMappedList(source.getResult(), CaseDataMapper::toExecution)))
-			.orElseGet(CaseDataMapper::toEmptyPagedResponse);
+			.map(source -> {
+				final var executions = toMappedList(source.getResult(), CaseDataMapper::toExecution);
+				return PagedExecutionResponse.create()
+					.withExecutions(executions)
+					.withMetaData(toPagingMetaData(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords(), executions.size()));
+			})
+			.orElseGet(() -> PagedExecutionResponse.create().withExecutions(emptyList()));
 	}
 
-	public static PagedResponse<ResourceAllocation> toResourceAllocations(final ApiPaginationCompositePersonBasedResourceAllocationDTO composite) {
+	public static PagedResourceAllocationResponse toResourceAllocations(final ApiPaginationCompositePersonBasedResourceAllocationDTO composite) {
 		return Optional.ofNullable(composite)
-			.map(source -> CaseDataMapper.<ResourceAllocation>toPagedResponse(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords())
-				.withResults(toMappedList(source.getResult(), CaseDataMapper::toResourceAllocation)))
-			.orElseGet(CaseDataMapper::toEmptyPagedResponse);
+			.map(source -> {
+				final var resourceAllocations = toMappedList(source.getResult(), CaseDataMapper::toResourceAllocation);
+				return PagedResourceAllocationResponse.create()
+					.withResourceAllocations(resourceAllocations)
+					.withMetaData(toPagingMetaData(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords(), resourceAllocations.size()));
+			})
+			.orElseGet(() -> PagedResourceAllocationResponse.create().withResourceAllocations(emptyList()));
 	}
 
-	private static <T> PagedResponse<T> toPagedResponse(final Integer page, final Integer pageSize, final Integer totalPages, final Integer totalRecords) {
-		return PagedResponse.<T>create()
-			.withPage(page)
-			.withPageSize(pageSize)
-			.withTotalPages(totalPages)
-			.withTotalRecords(totalRecords);
-	}
-
-	private static <T> PagedResponse<T> toEmptyPagedResponse() {
-		return PagedResponse.<T>create().withResults(emptyList());
-	}
-
-	private static <S, T> List<T> toMappedList(final List<S> sources, final java.util.function.Function<S, T> mapper) {
+	private static <S, T> List<T> toMappedList(final List<S> sources, final Function<S, T> mapper) {
 		return Optional.ofNullable(sources)
 			.map(list -> list.stream()
 				.map(mapper)
@@ -112,16 +126,7 @@ public final class CaseDataMapper {
 				.withServiceId(source.getServiceId())
 				.withConnectedApplication(source.getConnectedApplication())
 				.withConcernedMonth(source.getConcernedMonth())
-				.withPersons(toPaymentPersonNames(source.getPaymentPersonDTOs())))
-			.orElse(null);
-	}
-
-	private static List<String> toPaymentPersonNames(final List<PersonBasedPaymentPersonDTO> persons) {
-		// Intentionally maps names only — the personId (personnummer) never leaves this service
-		return Optional.ofNullable(persons)
-			.map(list -> list.stream()
-				.map(PersonBasedPaymentPersonDTO::getName)
-				.toList())
+				.withPersons(toRelatedPersons(source.getPaymentPersonDTOs(), PersonBasedPaymentPersonDTO::getName, person -> null)))
 			.orElse(null);
 	}
 
@@ -137,23 +142,8 @@ public final class CaseDataMapper {
 				.withDossierType(source.getDossierType())
 				.withApplicant(source.getApplicant())
 				.withCoApplicant(source.getCoApplicant())
-				.withPersons(toInvestigationPersons(source.getInvestigationPersonDTOs())))
+				.withPersons(toRelatedPersons(source.getInvestigationPersonDTOs(), PersonBasedInvestigationPersonDTO::getName, PersonBasedInvestigationPersonDTO::getCoApplicant)))
 			.orElse(null);
-	}
-
-	private static List<InvestigationPerson> toInvestigationPersons(final List<PersonBasedInvestigationPersonDTO> persons) {
-		return Optional.ofNullable(persons)
-			.map(list -> list.stream()
-				.map(CaseDataMapper::toInvestigationPerson)
-				.toList())
-			.orElse(null);
-	}
-
-	private static InvestigationPerson toInvestigationPerson(final PersonBasedInvestigationPersonDTO person) {
-		// Intentionally drops the personId — personnummer never leaves this service
-		return InvestigationPerson.create()
-			.withName(person.getName())
-			.withCoApplicant(person.getCoApplicant());
 	}
 
 	private static CaseService toCaseService(final PersonBasedServiceDTO service) {
@@ -170,16 +160,7 @@ public final class CaseDataMapper {
 				.withDecisionId(source.getDecisionId())
 				.withApplicant(source.getApplicant())
 				.withCoApplicant(source.getCoApplicant())
-				.withPersons(toServicePersonNames(source.getServicePersonDTOs())))
-			.orElse(null);
-	}
-
-	private static List<String> toServicePersonNames(final List<PersonBasedServicePersonDTO> persons) {
-		// Intentionally maps names only — the personId (personnummer) never leaves this service
-		return Optional.ofNullable(persons)
-			.map(list -> list.stream()
-				.map(PersonBasedServicePersonDTO::getName)
-				.toList())
+				.withPersons(toRelatedPersons(source.getServicePersonDTOs(), PersonBasedServicePersonDTO::getName, person -> null)))
 			.orElse(null);
 	}
 
@@ -206,6 +187,20 @@ public final class CaseDataMapper {
 				.withResource(source.getResource())
 				.withResourceType(source.getResourceType())
 				.withServiceId(source.getServiceId()))
+			.orElse(null);
+	}
+
+	/**
+	 * Maps vendor case persons to the shared {@link RelatedPerson}. The name and (optional) co-applicant flag are the
+	 * only fields carried over — the vendor personId (personnummer) is intentionally dropped.
+	 */
+	private static <S> List<RelatedPerson> toRelatedPersons(final List<S> persons, final Function<S, String> nameGetter, final Function<S, Boolean> coApplicantGetter) {
+		return Optional.ofNullable(persons)
+			.map(list -> list.stream()
+				.map(person -> RelatedPerson.create()
+					.withName(nameGetter.apply(person))
+					.withCoApplicant(coApplicantGetter.apply(person)))
+				.toList())
 			.orElse(null);
 	}
 }

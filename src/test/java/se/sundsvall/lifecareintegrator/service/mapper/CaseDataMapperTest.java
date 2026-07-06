@@ -16,7 +16,7 @@ import generated.se.sundsvall.lifecarefc.PersonBasedServicePersonDTO;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import se.sundsvall.lifecareintegrator.api.model.familycare.InvestigationPerson;
+import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -27,7 +27,8 @@ class CaseDataMapperTest {
 	void toPaymentsWithNull() {
 		final var result = CaseDataMapper.toPayments(null);
 		assertThat(result).isNotNull();
-		assertThat(result.getResults()).isEmpty();
+		assertThat(result.getPayments()).isEmpty();
+		assertThat(result.getMetaData()).isNull();
 	}
 
 	@Test
@@ -64,12 +65,13 @@ class CaseDataMapperTest {
 		final var result = CaseDataMapper.toPayments(composite);
 
 		// Assert
-		assertThat(result.getPage()).isEqualTo(1);
-		assertThat(result.getPageSize()).isEqualTo(10);
-		assertThat(result.getTotalPages()).isEqualTo(2);
-		assertThat(result.getTotalRecords()).isEqualTo(15);
+		assertThat(result.getMetaData().getPage()).isEqualTo(1);
+		assertThat(result.getMetaData().getLimit()).isEqualTo(10);
+		assertThat(result.getMetaData().getCount()).isEqualTo(1);
+		assertThat(result.getMetaData().getTotalPages()).isEqualTo(2);
+		assertThat(result.getMetaData().getTotalRecords()).isEqualTo(15L);
 
-		final var payment = result.getResults().getFirst();
+		final var payment = result.getPayments().getFirst();
 		assertThat(payment.getId()).isEqualTo(1);
 		assertThat(payment.getAmount()).isEqualTo(5000.0);
 		assertThat(payment.getPaymentMethod()).isEqualTo("Bankgiro");
@@ -89,7 +91,9 @@ class CaseDataMapperTest {
 		assertThat(payment.getServiceId()).isEqualTo(3);
 		assertThat(payment.getConnectedApplication()).isEqualTo(4);
 		assertThat(payment.getConcernedMonth()).isEqualTo("2026-05");
-		assertThat(payment.getPersons()).containsExactly("Kalle Karlsson");
+		assertThat(payment.getPersons())
+			.extracting(RelatedPerson::getName, RelatedPerson::getCoApplicant)
+			.containsExactly(tuple("Kalle Karlsson", null));
 	}
 
 	@Test
@@ -99,14 +103,15 @@ class CaseDataMapperTest {
 
 		final var result = CaseDataMapper.toPayments(composite);
 
-		assertThat(result.getResults().getFirst().getPayDate()).isNull();
+		assertThat(result.getPayments().getFirst().getPayDate()).isNull();
 	}
 
 	@Test
 	void toInvestigationsWithNull() {
 		final var result = CaseDataMapper.toInvestigations(null);
 		assertThat(result).isNotNull();
-		assertThat(result.getResults()).isEmpty();
+		assertThat(result.getInvestigations()).isEmpty();
+		assertThat(result.getMetaData()).isNull();
 	}
 
 	@Test
@@ -135,12 +140,13 @@ class CaseDataMapperTest {
 		final var result = CaseDataMapper.toInvestigations(composite);
 
 		// Assert
-		assertThat(result.getPage()).isEqualTo(1);
-		assertThat(result.getPageSize()).isEqualTo(10);
-		assertThat(result.getTotalPages()).isEqualTo(2);
-		assertThat(result.getTotalRecords()).isEqualTo(15);
+		assertThat(result.getMetaData().getPage()).isEqualTo(1);
+		assertThat(result.getMetaData().getLimit()).isEqualTo(10);
+		assertThat(result.getMetaData().getCount()).isEqualTo(1);
+		assertThat(result.getMetaData().getTotalPages()).isEqualTo(2);
+		assertThat(result.getMetaData().getTotalRecords()).isEqualTo(15L);
 
-		final var investigation = result.getResults().getFirst();
+		final var investigation = result.getInvestigations().getFirst();
 		assertThat(investigation.getId()).isEqualTo(1);
 		assertThat(investigation.getType()).isEqualTo("Utredning EB");
 		assertThat(investigation.getFromDate()).isEqualTo(LocalDate.parse("2026-05-01"));
@@ -151,7 +157,7 @@ class CaseDataMapperTest {
 		assertThat(investigation.getApplicant()).isEqualTo("Kalle Karlsson");
 		assertThat(investigation.getCoApplicant()).isEqualTo("Lisa Larsson");
 		assertThat(investigation.getPersons())
-			.extracting(InvestigationPerson::getName, InvestigationPerson::getCoApplicant)
+			.extracting(RelatedPerson::getName, RelatedPerson::getCoApplicant)
 			.containsExactly(tuple("Kalle Karlsson", false), tuple("Lisa Larsson", true));
 	}
 
@@ -162,15 +168,16 @@ class CaseDataMapperTest {
 
 		final var result = CaseDataMapper.toInvestigations(composite);
 
-		assertThat(result.getResults().getFirst().getFromDate()).isNull();
-		assertThat(result.getResults().getFirst().getToDate()).isNull();
+		assertThat(result.getInvestigations().getFirst().getFromDate()).isNull();
+		assertThat(result.getInvestigations().getFirst().getToDate()).isNull();
 	}
 
 	@Test
 	void toCaseServicesWithNull() {
 		final var result = CaseDataMapper.toCaseServices(null);
 		assertThat(result).isNotNull();
-		assertThat(result.getResults()).isEmpty();
+		assertThat(result.getServices()).isEmpty();
+		assertThat(result.getMetaData()).isNull();
 	}
 
 	@Test
@@ -199,12 +206,13 @@ class CaseDataMapperTest {
 		final var result = CaseDataMapper.toCaseServices(composite);
 
 		// Assert
-		assertThat(result.getPage()).isEqualTo(1);
-		assertThat(result.getPageSize()).isEqualTo(10);
-		assertThat(result.getTotalPages()).isEqualTo(2);
-		assertThat(result.getTotalRecords()).isEqualTo(15);
+		assertThat(result.getMetaData().getPage()).isEqualTo(1);
+		assertThat(result.getMetaData().getLimit()).isEqualTo(10);
+		assertThat(result.getMetaData().getCount()).isEqualTo(1);
+		assertThat(result.getMetaData().getTotalPages()).isEqualTo(2);
+		assertThat(result.getMetaData().getTotalRecords()).isEqualTo(15L);
 
-		final var service = result.getResults().getFirst();
+		final var service = result.getServices().getFirst();
 		assertThat(service.getId()).isEqualTo(1);
 		assertThat(service.getType()).isEqualTo("Insats EB");
 		assertThat(service.getOrganization()).isEqualTo("Vuxen försörjningsstöd");
@@ -216,14 +224,17 @@ class CaseDataMapperTest {
 		assertThat(service.getDecisionId()).isEqualTo(3);
 		assertThat(service.getApplicant()).isEqualTo("Kalle Karlsson");
 		assertThat(service.getCoApplicant()).isEqualTo("Lisa Larsson");
-		assertThat(service.getPersons()).containsExactly("Kalle Karlsson");
+		assertThat(service.getPersons())
+			.extracting(RelatedPerson::getName, RelatedPerson::getCoApplicant)
+			.containsExactly(tuple("Kalle Karlsson", null));
 	}
 
 	@Test
 	void toExecutionsWithNull() {
 		final var result = CaseDataMapper.toExecutions(null);
 		assertThat(result).isNotNull();
-		assertThat(result.getResults()).isEmpty();
+		assertThat(result.getExecutions()).isEmpty();
+		assertThat(result.getMetaData()).isNull();
 	}
 
 	@Test
@@ -247,12 +258,13 @@ class CaseDataMapperTest {
 		final var result = CaseDataMapper.toExecutions(composite);
 
 		// Assert
-		assertThat(result.getPage()).isEqualTo(1);
-		assertThat(result.getPageSize()).isEqualTo(10);
-		assertThat(result.getTotalPages()).isEqualTo(2);
-		assertThat(result.getTotalRecords()).isEqualTo(15);
+		assertThat(result.getMetaData().getPage()).isEqualTo(1);
+		assertThat(result.getMetaData().getLimit()).isEqualTo(10);
+		assertThat(result.getMetaData().getCount()).isEqualTo(1);
+		assertThat(result.getMetaData().getTotalPages()).isEqualTo(2);
+		assertThat(result.getMetaData().getTotalRecords()).isEqualTo(15L);
 
-		final var execution = result.getResults().getFirst();
+		final var execution = result.getExecutions().getFirst();
 		assertThat(execution.getId()).isEqualTo(1);
 		assertThat(execution.getType()).isEqualTo("Verkställighet");
 		assertThat(execution.getFromDate()).isEqualTo(LocalDate.parse("2026-05-01"));
@@ -266,7 +278,8 @@ class CaseDataMapperTest {
 	void toResourceAllocationsWithNull() {
 		final var result = CaseDataMapper.toResourceAllocations(null);
 		assertThat(result).isNotNull();
-		assertThat(result.getResults()).isEmpty();
+		assertThat(result.getResourceAllocations()).isEmpty();
+		assertThat(result.getMetaData()).isNull();
 	}
 
 	@Test
@@ -290,12 +303,13 @@ class CaseDataMapperTest {
 		final var result = CaseDataMapper.toResourceAllocations(composite);
 
 		// Assert
-		assertThat(result.getPage()).isEqualTo(1);
-		assertThat(result.getPageSize()).isEqualTo(10);
-		assertThat(result.getTotalPages()).isEqualTo(2);
-		assertThat(result.getTotalRecords()).isEqualTo(15);
+		assertThat(result.getMetaData().getPage()).isEqualTo(1);
+		assertThat(result.getMetaData().getLimit()).isEqualTo(10);
+		assertThat(result.getMetaData().getCount()).isEqualTo(1);
+		assertThat(result.getMetaData().getTotalPages()).isEqualTo(2);
+		assertThat(result.getMetaData().getTotalRecords()).isEqualTo(15L);
 
-		final var allocation = result.getResults().getFirst();
+		final var allocation = result.getResourceAllocations().getFirst();
 		assertThat(allocation.getId()).isEqualTo(1);
 		assertThat(allocation.getStartDate()).isEqualTo(LocalDate.parse("2026-05-01"));
 		assertThat(allocation.getEndDate()).isEqualTo(LocalDate.parse("2026-05-31"));
