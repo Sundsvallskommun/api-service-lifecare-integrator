@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "1.0"
 servers:
-- url: http://localhost:56054
+- url: http://localhost:57566
   description: Generated server url
 tags:
 - name: Investigations
@@ -1459,13 +1459,11 @@ components:
           - 1
         amount:
           type: number
-          format: double
           description: The amount of the expense
           examples:
           - 5000.0
         approvedAmount:
           type: number
-          format: double
           description: The approved amount of the expense
           examples:
           - 4500.0
@@ -1489,7 +1487,6 @@ components:
           - 1
         applicantAmount:
           type: number
-          format: double
           description: The applicant's amount
           examples:
           - 5000.0
@@ -1501,7 +1498,6 @@ components:
           - 2026-05-01
         coApplicantAmount:
           type: number
-          format: double
           description: The co-applicant's amount
           examples:
           - 5000.0
@@ -2125,7 +2121,6 @@ components:
           - 12345
         amount:
           type: number
-          format: double
           description: The payment amount
           examples:
           - 5000.0
@@ -2454,7 +2449,6 @@ components:
           - Anna Andersson
         amount:
           type: number
-          format: double
           description: "The decided amount, when the decision concerns an amount"
           examples:
           - 5000.0
@@ -2624,7 +2618,6 @@ components:
           type:
           - number
           - "null"
-          format: double
           description: "LSS only: the increased hourly amount"
           examples:
           - 150.0
@@ -2632,7 +2625,6 @@ components:
           type:
           - number
           - "null"
-          format: double
           description: "LSS only: the standard amount"
           examples:
           - 300.0
@@ -2814,49 +2806,41 @@ components:
           - 2026-05-31
         incomeSum:
           type: number
-          format: double
           description: The sum of all incomes
           examples:
           - 15000.0
         expenseSum:
           type: number
-          format: double
           description: The sum of all expenses
           examples:
           - 8000.0
         specialExpenseSum:
           type: number
-          format: double
           description: The sum of all special expenses
           examples:
           - 1500.0
         normSum:
           type: number
-          format: double
           description: The norm sum
           examples:
           - 6320.0
         commonHouseholdCost:
           type: number
-          format: double
           description: The common household cost
           examples:
           - 2000.0
         familyCost:
           type: number
-          format: double
           description: The family cost
           examples:
           - 4000.0
         balance:
           type: number
-          format: double
           description: The calculation balance
           examples:
           - -2820.0
         totalSum:
           type: number
-          format: double
           description: The calculation total sum
           examples:
           - 2820.0
@@ -2915,13 +2899,11 @@ components:
           - Hyra
         appliedAmount:
           type: number
-          format: double
           description: The applied amount
           examples:
           - 8000.0
         approvedAmount:
           type: number
-          format: double
           description: The approved amount
           examples:
           - 7500.0
@@ -2936,7 +2918,6 @@ components:
           - Lön
         amountApplicant:
           type: number
-          format: double
           description: The income amount for the applicant
           examples:
           - 15000.0
@@ -2948,7 +2929,6 @@ components:
           - 2026-05-01
         amountCoApplicant:
           type: number
-          format: double
           description: The income amount for the co-applicant
           examples:
           - 12000.0
@@ -2969,7 +2949,6 @@ components:
           - Kalle Karlsson
         amount:
           type: number
-          format: double
           description: The amount for the person
           examples:
           - 3160.0

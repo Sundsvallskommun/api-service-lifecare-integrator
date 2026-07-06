@@ -29,6 +29,7 @@ import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
 import se.sundsvall.lifecareintegrator.api.model.familycare.ResourceAllocation;
 
 import static java.util.Collections.emptyList;
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toBigDecimal;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toPagingMetaData;
 
@@ -108,7 +109,7 @@ public final class CaseDataMapper {
 		return Optional.ofNullable(payment)
 			.map(source -> Payment.create()
 				.withId(source.getId())
-				.withAmount(source.getAmount())
+				.withAmount(toBigDecimal(source.getAmount()))
 				.withPaymentMethod(source.getPaymentMethod())
 				.withPayDate(toLocalDate(source.getPayDate()))
 				.withClearing(source.getClearing())

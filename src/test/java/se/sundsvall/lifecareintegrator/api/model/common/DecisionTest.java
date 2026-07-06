@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.common;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Random;
 import org.hamcrest.MatcherAssert;
@@ -46,7 +47,7 @@ class DecisionTest {
 		final var type = "type";
 		final var reason = "reason";
 		final var decisionMaker = "decisionMaker";
-		final var amount = 5000.0;
+		final var amount = BigDecimal.valueOf(5000.0);
 		final var elderlyCareDetails = ElderlyCareDecisionDetails.create();
 		final var familyCareDetails = FamilyCareDecisionDetails.create();
 

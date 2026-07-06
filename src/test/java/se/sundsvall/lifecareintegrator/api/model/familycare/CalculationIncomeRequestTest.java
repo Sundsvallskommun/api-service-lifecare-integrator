@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Random;
 import org.hamcrest.MatcherAssert;
@@ -36,9 +37,9 @@ class CalculationIncomeRequestTest {
 	void testBuilderMethods() {
 		// Arrange
 		final var typeId = 1;
-		final var applicantAmount = 5000.0;
+		final var applicantAmount = BigDecimal.valueOf(5000.0);
 		final var applicantAmountDate = LocalDate.now();
-		final var coApplicantAmount = 5000.0;
+		final var coApplicantAmount = BigDecimal.valueOf(5000.0);
 		final var coApplicantAmountDate = LocalDate.now().plusDays(1);
 		final var note = "Lön april";
 

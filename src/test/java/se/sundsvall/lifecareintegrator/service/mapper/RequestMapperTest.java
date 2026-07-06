@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -81,20 +82,20 @@ class RequestMapperTest {
 				.withDeviationToDate(LocalDate.parse("2026-05-20"))))
 			.withIncomes(List.of(CalculationIncomeRequest.create()
 				.withTypeId(11)
-				.withApplicantAmount(1000.0)
+				.withApplicantAmount(BigDecimal.valueOf(1000.0))
 				.withApplicantAmountDate(LocalDate.parse("2026-05-01"))
-				.withCoApplicantAmount(500.0)
+				.withCoApplicantAmount(BigDecimal.valueOf(500.0))
 				.withCoApplicantAmountDate(LocalDate.parse("2026-05-02"))
 				.withNote("income note")))
 			.withExpenses(List.of(CalculationExpenseRequest.create()
 				.withTypeId(21)
-				.withAmount(2000.0)
-				.withApprovedAmount(1800.0)
+				.withAmount(BigDecimal.valueOf(2000.0))
+				.withApprovedAmount(BigDecimal.valueOf(1800.0))
 				.withNote("expense note")))
 			.withSpecialExpenses(List.of(CalculationExpenseRequest.create()
 				.withTypeId(31)
-				.withAmount(300.0)
-				.withApprovedAmount(300.0)
+				.withAmount(BigDecimal.valueOf(300.0))
+				.withApprovedAmount(BigDecimal.valueOf(300.0))
 				.withNote("special note")));
 
 		// Act

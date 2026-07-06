@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.api.model.common;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -49,7 +50,7 @@ public class Decision {
 	private String decisionMaker;
 
 	@Schema(description = "The decided amount, when the decision concerns an amount", examples = "5000.0")
-	private Double amount;
+	private BigDecimal amount;
 
 	@Schema(description = "Details only present for ELDERLY_CARE decisions", nullable = true)
 	private ElderlyCareDecisionDetails elderlyCareDetails;
@@ -178,15 +179,15 @@ public class Decision {
 		return this;
 	}
 
-	public Double getAmount() {
+	public BigDecimal getAmount() {
 		return amount;
 	}
 
-	public void setAmount(final Double amount) {
+	public void setAmount(final BigDecimal amount) {
 		this.amount = amount;
 	}
 
-	public Decision withAmount(final Double amount) {
+	public Decision withAmount(final BigDecimal amount) {
 		this.amount = amount;
 		return this;
 	}

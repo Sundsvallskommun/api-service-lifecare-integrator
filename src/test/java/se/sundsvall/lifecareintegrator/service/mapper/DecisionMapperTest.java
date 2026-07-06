@@ -6,6 +6,7 @@ import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1Decis
 import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1LssDecision;
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionPersonDTO;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -68,7 +69,7 @@ class DecisionMapperTest {
 		assertThat(result.getType()).isEqualTo("Hemtjänst");
 		assertThat(result.getReason()).isEqualTo("Bifall");
 		assertThat(result.getDecisionMaker()).isEqualTo("Anna Andersson");
-		assertThat(result.getAmount()).isEqualTo(5000.0);
+		assertThat(result.getAmount()).isEqualByComparingTo(BigDecimal.valueOf(5000.0));
 		assertThat(result.getFamilyCareDetails()).isNull();
 
 		final var details = result.getElderlyCareDetails();
@@ -150,8 +151,8 @@ class DecisionMapperTest {
 		assertThat(details.getPersonCategory2()).isFalse();
 		assertThat(details.getPersonCategory3()).isFalse();
 		assertThat(details.getPersonCategory3P()).isFalse();
-		assertThat(details.getIncreasedHourlyAmount()).isEqualTo(150.0);
-		assertThat(details.getStandardAmount()).isEqualTo(300.0);
+		assertThat(details.getIncreasedHourlyAmount()).isEqualByComparingTo(BigDecimal.valueOf(150.0));
+		assertThat(details.getStandardAmount()).isEqualByComparingTo(BigDecimal.valueOf(300.0));
 		assertThat(details.getSfbCaseworker()).isEqualTo("Bo Bengtsson");
 	}
 
@@ -196,7 +197,7 @@ class DecisionMapperTest {
 		assertThat(result.getType()).isEqualTo("Ekonomiskt bistånd");
 		assertThat(result.getReason()).isEqualTo("Bifall");
 		assertThat(result.getDecisionMaker()).isEqualTo("Cecilia Carlsson");
-		assertThat(result.getAmount()).isEqualTo(9000.0);
+		assertThat(result.getAmount()).isEqualByComparingTo(BigDecimal.valueOf(9000.0));
 		assertThat(result.getElderlyCareDetails()).isNull();
 
 		final var details = result.getFamilyCareDetails();

@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.elderlycare;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
@@ -59,8 +60,8 @@ class ElderlyCareDecisionDetailsTest {
 		final var personCategory2 = false;
 		final var personCategory3 = false;
 		final var personCategory3P = false;
-		final var increasedHourlyAmount = 150.0;
-		final var standardAmount = 300.0;
+		final var increasedHourlyAmount = BigDecimal.valueOf(150.0);
+		final var standardAmount = BigDecimal.valueOf(300.0);
 		final var sfbCaseworker = "Bo Bengtsson";
 
 		// Act

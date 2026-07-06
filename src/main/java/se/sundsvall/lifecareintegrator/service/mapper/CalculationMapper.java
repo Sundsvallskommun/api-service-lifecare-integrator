@@ -15,6 +15,7 @@ import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationPerson;
 import se.sundsvall.lifecareintegrator.api.model.familycare.PagedCalculationResponse;
 
 import static java.util.Collections.emptyList;
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toBigDecimal;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toPagingMetaData;
 
@@ -40,14 +41,14 @@ public final class CalculationMapper {
 				.withNorm(source.getNorm())
 				.withFromDate(toLocalDate(source.getFromDate()))
 				.withToDate(toLocalDate(source.getToDate()))
-				.withIncomeSum(source.getIncomeSum())
-				.withExpenseSum(source.getExpenseSum())
-				.withSpecialExpenseSum(source.getSpecialExpenseSum())
-				.withNormSum(source.getNormSum())
-				.withCommonHouseholdCost(source.getCommonHouseholdCost())
-				.withFamilyCost(source.getFamilyCost())
-				.withBalance(source.getBalance())
-				.withTotalSum(source.getTotalSum())
+				.withIncomeSum(toBigDecimal(source.getIncomeSum()))
+				.withExpenseSum(toBigDecimal(source.getExpenseSum()))
+				.withSpecialExpenseSum(toBigDecimal(source.getSpecialExpenseSum()))
+				.withNormSum(toBigDecimal(source.getNormSum()))
+				.withCommonHouseholdCost(toBigDecimal(source.getCommonHouseholdCost()))
+				.withFamilyCost(toBigDecimal(source.getFamilyCost()))
+				.withBalance(toBigDecimal(source.getBalance()))
+				.withTotalSum(toBigDecimal(source.getTotalSum()))
 				.withInvestigationId(source.getInvestigationId())
 				.withServiceId(source.getServiceId())
 				.withFinalCalculation(source.getFinal())
@@ -79,7 +80,7 @@ public final class CalculationMapper {
 		// Intentionally drops the personId — personnummer never leaves this service
 		return CalculationPerson.create()
 			.withName(person.getName())
-			.withAmount(person.getAmount())
+			.withAmount(toBigDecimal(person.getAmount()))
 			.withDeviationFromDate(toLocalDate(person.getDeviationFromDate()))
 			.withDeviationToDate(toLocalDate(person.getDeviationToDate()));
 	}
@@ -95,9 +96,9 @@ public final class CalculationMapper {
 	private static CalculationIncome toCalculationIncome(final CommonCalculationIncomeDTO income) {
 		return CalculationIncome.create()
 			.withType(income.getType())
-			.withAmountApplicant(income.getAmountApplicant())
+			.withAmountApplicant(toBigDecimal(income.getAmountApplicant()))
 			.withApplicantSearchDate(toLocalDate(income.getApplicantSearchDate()))
-			.withAmountCoApplicant(income.getAmountCoApplicant())
+			.withAmountCoApplicant(toBigDecimal(income.getAmountCoApplicant()))
 			.withCoApplicantSearchDate(toLocalDate(income.getCoApplicantSearchDate()));
 	}
 
@@ -112,8 +113,8 @@ public final class CalculationMapper {
 	private static CalculationExpense toCalculationExpense(final CommonCalculationExpenseDTO expense) {
 		return CalculationExpense.create()
 			.withType(expense.getType())
-			.withAppliedAmount(expense.getAppliedAmount())
-			.withApprovedAmount(expense.getApprovedAmount());
+			.withAppliedAmount(toBigDecimal(expense.getAppliedAmount()))
+			.withApprovedAmount(toBigDecimal(expense.getApprovedAmount()));
 	}
 
 	private static List<CalculationExpense> toCalculationSpecialExpenses(final List<CommonCalculationSpecialExpenseDTO> specialExpenses) {
@@ -127,7 +128,7 @@ public final class CalculationMapper {
 	private static CalculationExpense toCalculationExpense(final CommonCalculationSpecialExpenseDTO specialExpense) {
 		return CalculationExpense.create()
 			.withType(specialExpense.getType())
-			.withAppliedAmount(specialExpense.getAppliedAmount())
-			.withApprovedAmount(specialExpense.getApprovedAmount());
+			.withAppliedAmount(toBigDecimal(specialExpense.getAppliedAmount()))
+			.withApprovedAmount(toBigDecimal(specialExpense.getApprovedAmount()));
 	}
 }

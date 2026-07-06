@@ -14,6 +14,7 @@ import se.sundsvall.lifecareintegrator.api.model.elderlycare.ElderlyCareDecision
 import se.sundsvall.lifecareintegrator.api.model.familycare.FamilyCareDecisionDetails;
 import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
 
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toBigDecimal;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toStringValue;
 
@@ -38,7 +39,7 @@ public final class DecisionMapper {
 				.withType(toText(source.getType()))
 				.withReason(toText(source.getReason()))
 				.withDecisionMaker(toFullName(source.getCaseworker()))
-				.withAmount(source.getAmount())
+				.withAmount(toBigDecimal(source.getAmount()))
 				.withElderlyCareDetails(toElderlyCareDecisionDetails(
 					source.getInvestigationId(), source.getCode(), source.getServiceCategory(), source.getHour(), source.getHourType(), source.getAmountType(),
 					source.getQuantity(), source.getQuantityType(), source.getVisit(), source.getVisitType(), source.getDay(), source.getDayType(),
@@ -59,7 +60,7 @@ public final class DecisionMapper {
 				.withType(toText(source.getType()))
 				.withReason(toText(source.getReason()))
 				.withDecisionMaker(toFullName(source.getCaseworker()))
-				.withAmount(source.getAmount())
+				.withAmount(toBigDecimal(source.getAmount()))
 				.withElderlyCareDetails(toElderlyCareDecisionDetails(
 					source.getInvestigationId(), source.getCode(), source.getServiceCategory(), source.getHour(), source.getHourType(), source.getAmountType(),
 					source.getQuantity(), source.getQuantityType(), source.getVisit(), source.getVisitType(), source.getDay(), source.getDayType(),
@@ -70,8 +71,8 @@ public final class DecisionMapper {
 					.withPersonCategory2(source.getPersonCategory2())
 					.withPersonCategory3(source.getPersonCategory3())
 					.withPersonCategory3P(source.getPersonCategory3P())
-					.withIncreasedHourlyAmount(source.getIncreasedHourlyAmount())
-					.withStandardAmount(source.getStandardAmount())
+					.withIncreasedHourlyAmount(toBigDecimal(source.getIncreasedHourlyAmount()))
+					.withStandardAmount(toBigDecimal(source.getStandardAmount()))
 					.withSfbCaseworker(toFullName(source.getSfbCaseworker()))))
 			.orElse(null);
 	}
@@ -87,7 +88,7 @@ public final class DecisionMapper {
 				.withType(source.getType())
 				.withReason(source.getReason())
 				.withDecisionMaker(source.getDecisionMaker())
-				.withAmount(source.getAmount())
+				.withAmount(toBigDecimal(source.getAmount()))
 				.withFamilyCareDetails(FamilyCareDecisionDetails.create()
 					.withInvestigationExecutionId(source.getInvestigationExecutionId())
 					.withServiceId(source.getServiceId())

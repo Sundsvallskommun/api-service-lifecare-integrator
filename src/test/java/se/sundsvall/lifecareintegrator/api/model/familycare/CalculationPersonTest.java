@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Random;
 import org.hamcrest.MatcherAssert;
@@ -36,7 +37,7 @@ class CalculationPersonTest {
 	void testBuilderMethods() {
 		// Arrange
 		final var name = "Kalle Karlsson";
-		final var amount = 3160.0;
+		final var amount = BigDecimal.valueOf(3160.0);
 		final var deviationFromDate = LocalDate.now();
 		final var deviationToDate = LocalDate.now().plusDays(30);
 

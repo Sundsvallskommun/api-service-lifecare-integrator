@@ -2,6 +2,7 @@ package se.sundsvall.lifecareintegrator.api.model.familycare;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,14 +17,14 @@ public class CalculationIncomeRequest {
 	private Integer typeId;
 
 	@Schema(description = "The applicant's amount", examples = "5000.0")
-	private Double applicantAmount;
+	private BigDecimal applicantAmount;
 
 	@Schema(description = "The date of the applicant's amount", examples = "2026-05-01")
 	@DateTimeFormat(iso = DATE)
 	private LocalDate applicantAmountDate;
 
 	@Schema(description = "The co-applicant's amount", examples = "5000.0")
-	private Double coApplicantAmount;
+	private BigDecimal coApplicantAmount;
 
 	@Schema(description = "The date of the co-applicant's amount", examples = "2026-05-01")
 	@DateTimeFormat(iso = DATE)
@@ -49,15 +50,15 @@ public class CalculationIncomeRequest {
 		return this;
 	}
 
-	public Double getApplicantAmount() {
+	public BigDecimal getApplicantAmount() {
 		return applicantAmount;
 	}
 
-	public void setApplicantAmount(final Double applicantAmount) {
+	public void setApplicantAmount(final BigDecimal applicantAmount) {
 		this.applicantAmount = applicantAmount;
 	}
 
-	public CalculationIncomeRequest withApplicantAmount(final Double applicantAmount) {
+	public CalculationIncomeRequest withApplicantAmount(final BigDecimal applicantAmount) {
 		this.applicantAmount = applicantAmount;
 		return this;
 	}
@@ -75,15 +76,15 @@ public class CalculationIncomeRequest {
 		return this;
 	}
 
-	public Double getCoApplicantAmount() {
+	public BigDecimal getCoApplicantAmount() {
 		return coApplicantAmount;
 	}
 
-	public void setCoApplicantAmount(final Double coApplicantAmount) {
+	public void setCoApplicantAmount(final BigDecimal coApplicantAmount) {
 		this.coApplicantAmount = coApplicantAmount;
 	}
 
-	public CalculationIncomeRequest withCoApplicantAmount(final Double coApplicantAmount) {
+	public CalculationIncomeRequest withCoApplicantAmount(final BigDecimal coApplicantAmount) {
 		this.coApplicantAmount = coApplicantAmount;
 		return this;
 	}

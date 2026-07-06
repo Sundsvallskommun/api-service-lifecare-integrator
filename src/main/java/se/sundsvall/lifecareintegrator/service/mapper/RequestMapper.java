@@ -15,6 +15,7 @@ import se.sundsvall.lifecareintegrator.api.model.familycare.CreateCalculationReq
 
 import static java.util.Collections.emptyList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toDateString;
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toDouble;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toOffsetDateTime;
 
 /**
@@ -64,20 +65,20 @@ public final class RequestMapper {
 					.deviationToDate(toOffsetDateTime(person.getDeviationToDate()))))
 				.calculationIncomes(mapList(source.getIncomes(), income -> new PersonBasedCalculationIncomePostDTO()
 					.id(income.getTypeId())
-					.applicantAmount(income.getApplicantAmount())
+					.applicantAmount(toDouble(income.getApplicantAmount()))
 					.applicantAmountDate(toOffsetDateTime(income.getApplicantAmountDate()))
-					.coApplicantAmount(income.getCoApplicantAmount())
+					.coApplicantAmount(toDouble(income.getCoApplicantAmount()))
 					.coApplicantAmountDate(toOffsetDateTime(income.getCoApplicantAmountDate()))
 					.note(income.getNote())))
 				.calculationExpenses(mapList(source.getExpenses(), expense -> new PersonBasedCalculationExpensePostDTO()
 					.id(expense.getTypeId())
-					.amount(expense.getAmount())
-					.approvedAmount(expense.getApprovedAmount())
+					.amount(toDouble(expense.getAmount()))
+					.approvedAmount(toDouble(expense.getApprovedAmount()))
 					.note(expense.getNote())))
 				.calculationSpecialExpenses(mapList(source.getSpecialExpenses(), specialExpense -> new PersonBasedCalculationSpecialExpensePostDTO()
 					.id(specialExpense.getTypeId())
-					.amount(specialExpense.getAmount())
-					.approvedAmount(specialExpense.getApprovedAmount())
+					.amount(toDouble(specialExpense.getAmount()))
+					.approvedAmount(toDouble(specialExpense.getApprovedAmount()))
 					.note(specialExpense.getNote()))))
 			.orElse(null);
 	}

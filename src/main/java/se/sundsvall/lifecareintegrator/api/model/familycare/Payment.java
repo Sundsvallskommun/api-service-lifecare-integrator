@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -15,7 +16,7 @@ public class Payment {
 	private Integer id;
 
 	@Schema(description = "The payment amount", examples = "5000.0")
-	private Double amount;
+	private BigDecimal amount;
 
 	@Schema(description = "The payment method", examples = "Bankkonto")
 	private String paymentMethod;
@@ -89,15 +90,15 @@ public class Payment {
 		return this;
 	}
 
-	public Double getAmount() {
+	public BigDecimal getAmount() {
 		return amount;
 	}
 
-	public void setAmount(final Double amount) {
+	public void setAmount(final BigDecimal amount) {
 		this.amount = amount;
 	}
 
-	public Payment withAmount(final Double amount) {
+	public Payment withAmount(final BigDecimal amount) {
 		this.amount = amount;
 		return this;
 	}

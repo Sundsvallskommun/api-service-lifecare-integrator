@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
+import java.math.BigDecimal;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
@@ -27,8 +28,8 @@ class CalculationExpenseTest {
 	void testBuilderMethods() {
 		// Arrange
 		final var type = "Hyra";
-		final var appliedAmount = 8000.0;
-		final var approvedAmount = 7500.0;
+		final var appliedAmount = BigDecimal.valueOf(8000.0);
+		final var approvedAmount = BigDecimal.valueOf(7500.0);
 
 		// Act
 		final var result = CalculationExpense.create()

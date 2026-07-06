@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,7 +15,7 @@ public class CalculationPerson {
 	private String name;
 
 	@Schema(description = "The amount for the person", examples = "3160.0")
-	private Double amount;
+	private BigDecimal amount;
 
 	@Schema(description = "The date any deviation is valid from", examples = "2026-05-01")
 	@DateTimeFormat(iso = DATE)
@@ -41,15 +42,15 @@ public class CalculationPerson {
 		return this;
 	}
 
-	public Double getAmount() {
+	public BigDecimal getAmount() {
 		return amount;
 	}
 
-	public void setAmount(final Double amount) {
+	public void setAmount(final BigDecimal amount) {
 		this.amount = amount;
 	}
 
-	public CalculationPerson withAmount(final Double amount) {
+	public CalculationPerson withAmount(final BigDecimal amount) {
 		this.amount = amount;
 		return this;
 	}

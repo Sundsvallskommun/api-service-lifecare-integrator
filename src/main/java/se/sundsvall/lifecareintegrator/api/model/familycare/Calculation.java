@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -26,28 +27,28 @@ public class Calculation {
 	private LocalDate toDate;
 
 	@Schema(description = "The sum of all incomes", examples = "15000.0")
-	private Double incomeSum;
+	private BigDecimal incomeSum;
 
 	@Schema(description = "The sum of all expenses", examples = "8000.0")
-	private Double expenseSum;
+	private BigDecimal expenseSum;
 
 	@Schema(description = "The sum of all special expenses", examples = "1500.0")
-	private Double specialExpenseSum;
+	private BigDecimal specialExpenseSum;
 
 	@Schema(description = "The norm sum", examples = "6320.0")
-	private Double normSum;
+	private BigDecimal normSum;
 
 	@Schema(description = "The common household cost", examples = "2000.0")
-	private Double commonHouseholdCost;
+	private BigDecimal commonHouseholdCost;
 
 	@Schema(description = "The family cost", examples = "4000.0")
-	private Double familyCost;
+	private BigDecimal familyCost;
 
 	@Schema(description = "The calculation balance", examples = "-2820.0")
-	private Double balance;
+	private BigDecimal balance;
 
 	@Schema(description = "The calculation total sum", examples = "2820.0")
-	private Double totalSum;
+	private BigDecimal totalSum;
 
 	@Schema(description = "The id of the investigation connected to the calculation", examples = "456")
 	private Integer investigationId;
@@ -129,106 +130,106 @@ public class Calculation {
 		return this;
 	}
 
-	public Double getIncomeSum() {
+	public BigDecimal getIncomeSum() {
 		return incomeSum;
 	}
 
-	public void setIncomeSum(final Double incomeSum) {
+	public void setIncomeSum(final BigDecimal incomeSum) {
 		this.incomeSum = incomeSum;
 	}
 
-	public Calculation withIncomeSum(final Double incomeSum) {
+	public Calculation withIncomeSum(final BigDecimal incomeSum) {
 		this.incomeSum = incomeSum;
 		return this;
 	}
 
-	public Double getExpenseSum() {
+	public BigDecimal getExpenseSum() {
 		return expenseSum;
 	}
 
-	public void setExpenseSum(final Double expenseSum) {
+	public void setExpenseSum(final BigDecimal expenseSum) {
 		this.expenseSum = expenseSum;
 	}
 
-	public Calculation withExpenseSum(final Double expenseSum) {
+	public Calculation withExpenseSum(final BigDecimal expenseSum) {
 		this.expenseSum = expenseSum;
 		return this;
 	}
 
-	public Double getSpecialExpenseSum() {
+	public BigDecimal getSpecialExpenseSum() {
 		return specialExpenseSum;
 	}
 
-	public void setSpecialExpenseSum(final Double specialExpenseSum) {
+	public void setSpecialExpenseSum(final BigDecimal specialExpenseSum) {
 		this.specialExpenseSum = specialExpenseSum;
 	}
 
-	public Calculation withSpecialExpenseSum(final Double specialExpenseSum) {
+	public Calculation withSpecialExpenseSum(final BigDecimal specialExpenseSum) {
 		this.specialExpenseSum = specialExpenseSum;
 		return this;
 	}
 
-	public Double getNormSum() {
+	public BigDecimal getNormSum() {
 		return normSum;
 	}
 
-	public void setNormSum(final Double normSum) {
+	public void setNormSum(final BigDecimal normSum) {
 		this.normSum = normSum;
 	}
 
-	public Calculation withNormSum(final Double normSum) {
+	public Calculation withNormSum(final BigDecimal normSum) {
 		this.normSum = normSum;
 		return this;
 	}
 
-	public Double getCommonHouseholdCost() {
+	public BigDecimal getCommonHouseholdCost() {
 		return commonHouseholdCost;
 	}
 
-	public void setCommonHouseholdCost(final Double commonHouseholdCost) {
+	public void setCommonHouseholdCost(final BigDecimal commonHouseholdCost) {
 		this.commonHouseholdCost = commonHouseholdCost;
 	}
 
-	public Calculation withCommonHouseholdCost(final Double commonHouseholdCost) {
+	public Calculation withCommonHouseholdCost(final BigDecimal commonHouseholdCost) {
 		this.commonHouseholdCost = commonHouseholdCost;
 		return this;
 	}
 
-	public Double getFamilyCost() {
+	public BigDecimal getFamilyCost() {
 		return familyCost;
 	}
 
-	public void setFamilyCost(final Double familyCost) {
+	public void setFamilyCost(final BigDecimal familyCost) {
 		this.familyCost = familyCost;
 	}
 
-	public Calculation withFamilyCost(final Double familyCost) {
+	public Calculation withFamilyCost(final BigDecimal familyCost) {
 		this.familyCost = familyCost;
 		return this;
 	}
 
-	public Double getBalance() {
+	public BigDecimal getBalance() {
 		return balance;
 	}
 
-	public void setBalance(final Double balance) {
+	public void setBalance(final BigDecimal balance) {
 		this.balance = balance;
 	}
 
-	public Calculation withBalance(final Double balance) {
+	public Calculation withBalance(final BigDecimal balance) {
 		this.balance = balance;
 		return this;
 	}
 
-	public Double getTotalSum() {
+	public BigDecimal getTotalSum() {
 		return totalSum;
 	}
 
-	public void setTotalSum(final Double totalSum) {
+	public void setTotalSum(final BigDecimal totalSum) {
 		this.totalSum = totalSum;
 	}
 
-	public Calculation withTotalSum(final Double totalSum) {
+	public Calculation withTotalSum(final BigDecimal totalSum) {
 		this.totalSum = totalSum;
 		return this;
 	}

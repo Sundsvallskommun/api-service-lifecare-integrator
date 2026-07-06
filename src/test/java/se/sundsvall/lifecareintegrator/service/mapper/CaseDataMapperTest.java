@@ -13,6 +13,7 @@ import generated.se.sundsvall.lifecarefc.PersonBasedPaymentPersonDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedResourceAllocationDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedServiceDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedServicePersonDTO;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -73,7 +74,7 @@ class CaseDataMapperTest {
 
 		final var payment = result.getPayments().getFirst();
 		assertThat(payment.getId()).isEqualTo(1);
-		assertThat(payment.getAmount()).isEqualTo(5000.0);
+		assertThat(payment.getAmount()).isEqualByComparingTo(BigDecimal.valueOf(5000.0));
 		assertThat(payment.getPaymentMethod()).isEqualTo("Bankgiro");
 		assertThat(payment.getPayDate()).isEqualTo(LocalDate.parse("2026-05-01"));
 		assertThat(payment.getClearing()).isEqualTo("1234");

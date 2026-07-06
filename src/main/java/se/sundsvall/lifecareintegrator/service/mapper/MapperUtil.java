@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -69,6 +70,25 @@ final class MapperUtil {
 			.withCount(count)
 			.withTotalPages(toInt(totalPages))
 			.withTotalRecords(toLong(totalRecords));
+	}
+
+	/**
+	 * Converts a vendor monetary {@link Double} to {@link BigDecimal} (null-safe) for the public read models.
+	 */
+	static BigDecimal toBigDecimal(final Double value) {
+		return Optional.ofNullable(value)
+			.map(BigDecimal::valueOf)
+			.orElse(null);
+	}
+
+	/**
+	 * Converts a public monetary {@link BigDecimal} back to the vendor {@link Double} (null-safe) for the write-back
+	 * request bodies.
+	 */
+	static Double toDouble(final BigDecimal value) {
+		return Optional.ofNullable(value)
+			.map(BigDecimal::doubleValue)
+			.orElse(null);
 	}
 
 	private static int toInt(final Integer value) {

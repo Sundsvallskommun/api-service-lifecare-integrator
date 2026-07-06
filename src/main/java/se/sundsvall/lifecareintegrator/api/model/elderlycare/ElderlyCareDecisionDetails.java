@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.api.model.elderlycare;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -83,10 +84,10 @@ public class ElderlyCareDecisionDetails {
 	private Boolean personCategory3P;
 
 	@Schema(description = "LSS only: the increased hourly amount", examples = "150.0", nullable = true)
-	private Double increasedHourlyAmount;
+	private BigDecimal increasedHourlyAmount;
 
 	@Schema(description = "LSS only: the standard amount", examples = "300.0", nullable = true)
-	private Double standardAmount;
+	private BigDecimal standardAmount;
 
 	@Schema(description = "LSS only: name of the SFB caseworker", examples = "Bo Bengtsson", nullable = true)
 	private String sfbCaseworker;
@@ -394,28 +395,28 @@ public class ElderlyCareDecisionDetails {
 		return this;
 	}
 
-	public Double getIncreasedHourlyAmount() {
+	public BigDecimal getIncreasedHourlyAmount() {
 		return increasedHourlyAmount;
 	}
 
-	public void setIncreasedHourlyAmount(final Double increasedHourlyAmount) {
+	public void setIncreasedHourlyAmount(final BigDecimal increasedHourlyAmount) {
 		this.increasedHourlyAmount = increasedHourlyAmount;
 	}
 
-	public ElderlyCareDecisionDetails withIncreasedHourlyAmount(final Double increasedHourlyAmount) {
+	public ElderlyCareDecisionDetails withIncreasedHourlyAmount(final BigDecimal increasedHourlyAmount) {
 		this.increasedHourlyAmount = increasedHourlyAmount;
 		return this;
 	}
 
-	public Double getStandardAmount() {
+	public BigDecimal getStandardAmount() {
 		return standardAmount;
 	}
 
-	public void setStandardAmount(final Double standardAmount) {
+	public void setStandardAmount(final BigDecimal standardAmount) {
 		this.standardAmount = standardAmount;
 	}
 
-	public ElderlyCareDecisionDetails withStandardAmount(final Double standardAmount) {
+	public ElderlyCareDecisionDetails withStandardAmount(final BigDecimal standardAmount) {
 		this.standardAmount = standardAmount;
 		return this;
 	}

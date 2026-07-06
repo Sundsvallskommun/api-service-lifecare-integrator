@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
@@ -40,14 +41,14 @@ class CalculationTest {
 		final var norm = "Riksnorm";
 		final var fromDate = LocalDate.now();
 		final var toDate = LocalDate.now().plusDays(1);
-		final var incomeSum = 15000.0;
-		final var expenseSum = 8000.0;
-		final var specialExpenseSum = 1500.0;
-		final var normSum = 6320.0;
-		final var commonHouseholdCost = 2000.0;
-		final var familyCost = 4000.0;
-		final var balance = -2820.0;
-		final var totalSum = 2820.0;
+		final var incomeSum = BigDecimal.valueOf(15000.0);
+		final var expenseSum = BigDecimal.valueOf(8000.0);
+		final var specialExpenseSum = BigDecimal.valueOf(1500.0);
+		final var normSum = BigDecimal.valueOf(6320.0);
+		final var commonHouseholdCost = BigDecimal.valueOf(2000.0);
+		final var familyCost = BigDecimal.valueOf(4000.0);
+		final var balance = BigDecimal.valueOf(-2820.0);
+		final var totalSum = BigDecimal.valueOf(2820.0);
 		final var investigationId = 456;
 		final var serviceId = 789;
 		final var finalCalculation = true;

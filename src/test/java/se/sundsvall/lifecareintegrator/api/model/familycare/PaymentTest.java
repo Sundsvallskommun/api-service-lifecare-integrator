@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
@@ -37,7 +38,7 @@ class PaymentTest {
 	void testBuilderMethods() {
 		// Arrange
 		final var id = 12345;
-		final var amount = 5000.0;
+		final var amount = BigDecimal.valueOf(5000.0);
 		final var paymentMethod = "Bankkonto";
 		final var payDate = LocalDate.now();
 		final var clearing = "8420";

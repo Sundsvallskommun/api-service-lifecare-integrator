@@ -6,6 +6,7 @@ import generated.se.sundsvall.lifecarefc.CommonCalculationIncomeDTO;
 import generated.se.sundsvall.lifecarefc.CommonCalculationSpecialExpenseDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedCalculationDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedCalculationPersonDTO;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -83,14 +84,14 @@ class CalculationMapperTest {
 		assertThat(result.getNorm()).isEqualTo("Riksnorm 2026");
 		assertThat(result.getFromDate()).isEqualTo(LocalDate.parse("2026-05-01"));
 		assertThat(result.getToDate()).isEqualTo(LocalDate.parse("2026-05-31"));
-		assertThat(result.getIncomeSum()).isEqualTo(10000.0);
-		assertThat(result.getExpenseSum()).isEqualTo(8000.0);
-		assertThat(result.getSpecialExpenseSum()).isEqualTo(500.0);
-		assertThat(result.getNormSum()).isEqualTo(6000.0);
-		assertThat(result.getCommonHouseholdCost()).isEqualTo(1500.0);
-		assertThat(result.getFamilyCost()).isEqualTo(2000.0);
-		assertThat(result.getBalance()).isEqualTo(-3000.0);
-		assertThat(result.getTotalSum()).isEqualTo(11500.0);
+		assertThat(result.getIncomeSum()).isEqualByComparingTo(BigDecimal.valueOf(10000.0));
+		assertThat(result.getExpenseSum()).isEqualByComparingTo(BigDecimal.valueOf(8000.0));
+		assertThat(result.getSpecialExpenseSum()).isEqualByComparingTo(BigDecimal.valueOf(500.0));
+		assertThat(result.getNormSum()).isEqualByComparingTo(BigDecimal.valueOf(6000.0));
+		assertThat(result.getCommonHouseholdCost()).isEqualByComparingTo(BigDecimal.valueOf(1500.0));
+		assertThat(result.getFamilyCost()).isEqualByComparingTo(BigDecimal.valueOf(2000.0));
+		assertThat(result.getBalance()).isEqualByComparingTo(BigDecimal.valueOf(-3000.0));
+		assertThat(result.getTotalSum()).isEqualByComparingTo(BigDecimal.valueOf(11500.0));
 		assertThat(result.getInvestigationId()).isEqualTo(2);
 		assertThat(result.getServiceId()).isEqualTo(3);
 		assertThat(result.getFinalCalculation()).isTrue();
@@ -99,20 +100,20 @@ class CalculationMapperTest {
 		// The person id (personnummer) must never survive the mapping
 		assertThat(result.getPersons())
 			.extracting(CalculationPerson::getName, CalculationPerson::getAmount, CalculationPerson::getDeviationFromDate, CalculationPerson::getDeviationToDate)
-			.containsExactly(tuple("Kalle Karlsson", 4000.0, LocalDate.parse("2026-05-01"), LocalDate.parse("2026-05-31")));
+			.containsExactly(tuple("Kalle Karlsson", BigDecimal.valueOf(4000.0), LocalDate.parse("2026-05-01"), LocalDate.parse("2026-05-31")));
 
 		assertThat(result.getIncomes())
 			.extracting(CalculationIncome::getType, CalculationIncome::getAmountApplicant, CalculationIncome::getApplicantSearchDate,
 				CalculationIncome::getAmountCoApplicant, CalculationIncome::getCoApplicantSearchDate)
-			.containsExactly(tuple("Lön", 9000.0, LocalDate.parse("2026-05-02"), 1000.0, LocalDate.parse("2026-05-03")));
+			.containsExactly(tuple("Lön", BigDecimal.valueOf(9000.0), LocalDate.parse("2026-05-02"), BigDecimal.valueOf(1000.0), LocalDate.parse("2026-05-03")));
 
 		assertThat(result.getExpenses())
 			.extracting(CalculationExpense::getType, CalculationExpense::getAppliedAmount, CalculationExpense::getApprovedAmount)
-			.containsExactly(tuple("Hyra", 7000.0, 6500.0));
+			.containsExactly(tuple("Hyra", BigDecimal.valueOf(7000.0), BigDecimal.valueOf(6500.0)));
 
 		assertThat(result.getSpecialExpenses())
 			.extracting(CalculationExpense::getType, CalculationExpense::getAppliedAmount, CalculationExpense::getApprovedAmount)
-			.containsExactly(tuple("Tandvård", 500.0, 450.0));
+			.containsExactly(tuple("Tandvård", BigDecimal.valueOf(500.0), BigDecimal.valueOf(450.0)));
 	}
 
 	@Test

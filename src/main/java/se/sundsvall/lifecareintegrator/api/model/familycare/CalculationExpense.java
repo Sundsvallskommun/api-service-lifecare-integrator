@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @Schema(description = "An expense row in a calculation, used for both regular and special expenses")
@@ -10,10 +11,10 @@ public class CalculationExpense {
 	private String type;
 
 	@Schema(description = "The applied amount", examples = "8000.0")
-	private Double appliedAmount;
+	private BigDecimal appliedAmount;
 
 	@Schema(description = "The approved amount", examples = "7500.0")
-	private Double approvedAmount;
+	private BigDecimal approvedAmount;
 
 	public static CalculationExpense create() {
 		return new CalculationExpense();
@@ -32,28 +33,28 @@ public class CalculationExpense {
 		return this;
 	}
 
-	public Double getAppliedAmount() {
+	public BigDecimal getAppliedAmount() {
 		return appliedAmount;
 	}
 
-	public void setAppliedAmount(final Double appliedAmount) {
+	public void setAppliedAmount(final BigDecimal appliedAmount) {
 		this.appliedAmount = appliedAmount;
 	}
 
-	public CalculationExpense withAppliedAmount(final Double appliedAmount) {
+	public CalculationExpense withAppliedAmount(final BigDecimal appliedAmount) {
 		this.appliedAmount = appliedAmount;
 		return this;
 	}
 
-	public Double getApprovedAmount() {
+	public BigDecimal getApprovedAmount() {
 		return approvedAmount;
 	}
 
-	public void setApprovedAmount(final Double approvedAmount) {
+	public void setApprovedAmount(final BigDecimal approvedAmount) {
 		this.approvedAmount = approvedAmount;
 	}
 
-	public CalculationExpense withApprovedAmount(final Double approvedAmount) {
+	public CalculationExpense withApprovedAmount(final BigDecimal approvedAmount) {
 		this.approvedAmount = approvedAmount;
 		return this;
 	}
