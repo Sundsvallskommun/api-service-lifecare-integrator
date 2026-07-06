@@ -127,7 +127,7 @@ public final class CaseDataMapper {
 				.withServiceId(source.getServiceId())
 				.withConnectedApplication(source.getConnectedApplication())
 				.withConcernedMonth(source.getConcernedMonth())
-				.withPersons(toRelatedPersons(source.getPaymentPersonDTOs(), PersonBasedPaymentPersonDTO::getName, person -> null)))
+				.withPersons(toNamedPersons(source.getPaymentPersonDTOs(), PersonBasedPaymentPersonDTO::getName)))
 			.orElse(null);
 	}
 
@@ -143,7 +143,7 @@ public final class CaseDataMapper {
 				.withDossierType(source.getDossierType())
 				.withApplicant(source.getApplicant())
 				.withCoApplicant(source.getCoApplicant())
-				.withPersons(toRelatedPersons(source.getInvestigationPersonDTOs(), PersonBasedInvestigationPersonDTO::getName, PersonBasedInvestigationPersonDTO::getCoApplicant)))
+				.withPersons(toInvestigationPersons(source.getInvestigationPersonDTOs())))
 			.orElse(null);
 	}
 
@@ -161,7 +161,7 @@ public final class CaseDataMapper {
 				.withDecisionId(source.getDecisionId())
 				.withApplicant(source.getApplicant())
 				.withCoApplicant(source.getCoApplicant())
-				.withPersons(toRelatedPersons(source.getServicePersonDTOs(), PersonBasedServicePersonDTO::getName, person -> null)))
+				.withPersons(toNamedPersons(source.getServicePersonDTOs(), PersonBasedServicePersonDTO::getName)))
 			.orElse(null);
 	}
 
@@ -192,15 +192,27 @@ public final class CaseDataMapper {
 	}
 
 	/**
-	 * Maps vendor case persons to the shared {@link RelatedPerson}. The name and (optional) co-applicant flag are the
-	 * only fields carried over — the vendor personId (personnummer) is intentionally dropped.
+	 * Maps vendor case persons that carry a name only to {@link RelatedPerson} (co-applicant left null). The vendor
+	 * personId (personnummer) is intentionally dropped.
 	 */
-	private static <S> List<RelatedPerson> toRelatedPersons(final List<S> persons, final Function<S, String> nameGetter, final Function<S, Boolean> coApplicantGetter) {
+	private static <S> List<RelatedPerson> toNamedPersons(final List<S> persons, final Function<S, String> nameGetter) {
+		return Optional.ofNullable(persons)
+			.map(list -> list.stream()
+				.map(person -> RelatedPerson.create().withName(nameGetter.apply(person)))
+				.toList())
+			.orElse(null);
+	}
+
+	/**
+	 * Maps vendor investigation persons (name + co-applicant flag) to {@link RelatedPerson}. The vendor personId
+	 * (personnummer) is intentionally dropped.
+	 */
+	private static List<RelatedPerson> toInvestigationPersons(final List<PersonBasedInvestigationPersonDTO> persons) {
 		return Optional.ofNullable(persons)
 			.map(list -> list.stream()
 				.map(person -> RelatedPerson.create()
-					.withName(nameGetter.apply(person))
-					.withCoApplicant(coApplicantGetter.apply(person)))
+					.withName(person.getName())
+					.withCoApplicant(person.getCoApplicant()))
 				.toList())
 			.orElse(null);
 	}

@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
 import java.time.LocalDate;
+import java.time.Month;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,8 +12,8 @@ class PeriodParametersTest {
 	void testGettersAndSetters() {
 		// Arrange
 		final var partyId = "81471222-5798-11e9-ae24-57fa13b361e1";
-		final var from = LocalDate.of(2025, 1, 1);
-		final var to = LocalDate.of(2026, 12, 31);
+		final var from = LocalDate.of(2025, Month.JANUARY, 1);
+		final var to = LocalDate.of(2026, Month.DECEMBER, 31);
 		final var ascending = true;
 		final var page = 2;
 		final var limit = 20;
