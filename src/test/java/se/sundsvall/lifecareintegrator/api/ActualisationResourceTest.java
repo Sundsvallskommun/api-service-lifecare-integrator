@@ -14,11 +14,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.multipart.MultipartFile;
 import se.sundsvall.lifecareintegrator.Application;
-import se.sundsvall.lifecareintegrator.api.model.Actualisation;
-import se.sundsvall.lifecareintegrator.api.model.ActualisationProposal;
-import se.sundsvall.lifecareintegrator.api.model.CreateActualisationRequest;
-import se.sundsvall.lifecareintegrator.api.model.CreatedResource;
-import se.sundsvall.lifecareintegrator.api.model.PagedResponse;
+import se.sundsvall.lifecareintegrator.api.model.common.CreatedResource;
+import se.sundsvall.lifecareintegrator.api.model.common.PagedResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Actualisation;
+import se.sundsvall.lifecareintegrator.api.model.familycare.ActualisationProposal;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationRequest;
 import se.sundsvall.lifecareintegrator.service.FamilyCareService;
 
 import static org.assertj.core.api.Assertions.assertThat;

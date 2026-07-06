@@ -4,8 +4,8 @@ import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedDocume
 import generated.se.sundsvall.lifecarefc.PersonBasedDocumentDTO;
 import java.util.List;
 import java.util.Optional;
-import se.sundsvall.lifecareintegrator.api.model.DocumentMetadata;
-import se.sundsvall.lifecareintegrator.api.model.PagedResponse;
+import se.sundsvall.lifecareintegrator.api.model.common.PagedResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.DocumentMetadata;
 
 import static java.util.Collections.emptyList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;

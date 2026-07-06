@@ -29,11 +29,11 @@ import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
-import se.sundsvall.lifecareintegrator.api.model.Actualisation;
-import se.sundsvall.lifecareintegrator.api.model.ActualisationProposal;
-import se.sundsvall.lifecareintegrator.api.model.CreateActualisationRequest;
-import se.sundsvall.lifecareintegrator.api.model.CreatedResource;
-import se.sundsvall.lifecareintegrator.api.model.PagedResponse;
+import se.sundsvall.lifecareintegrator.api.model.common.CreatedResource;
+import se.sundsvall.lifecareintegrator.api.model.common.PagedResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Actualisation;
+import se.sundsvall.lifecareintegrator.api.model.familycare.ActualisationProposal;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationRequest;
 import se.sundsvall.lifecareintegrator.service.FamilyCareService;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;

@@ -3,7 +3,7 @@ package se.sundsvall.lifecareintegrator.service.mapper;
 import generated.se.sundsvall.lifecarefc.User;
 import java.util.List;
 import java.util.Optional;
-import se.sundsvall.lifecareintegrator.api.model.CaseworkerUser;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CaseworkerUser;
 
 import static java.util.Collections.emptyList;
 

@@ -16,7 +16,7 @@ import generated.se.sundsvall.lifecarefc.PersonBasedServicePersonDTO;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import se.sundsvall.lifecareintegrator.api.model.InvestigationPerson;
+import se.sundsvall.lifecareintegrator.api.model.familycare.InvestigationPerson;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;

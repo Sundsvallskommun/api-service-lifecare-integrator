@@ -5,9 +5,9 @@ import generated.se.sundsvall.lifecarefc.PersonBasedContactDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedPersonDTO;
 import java.util.List;
 import java.util.Optional;
-import se.sundsvall.lifecareintegrator.api.model.Address;
-import se.sundsvall.lifecareintegrator.api.model.Contact;
-import se.sundsvall.lifecareintegrator.api.model.Person;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Address;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Contact;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Person;
 
 import static java.util.Collections.emptyList;
 

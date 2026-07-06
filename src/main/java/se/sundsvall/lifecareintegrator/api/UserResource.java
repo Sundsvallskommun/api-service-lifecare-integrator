@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
-import se.sundsvall.lifecareintegrator.api.model.CaseworkerUser;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CaseworkerUser;
 import se.sundsvall.lifecareintegrator.service.FamilyCareService;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;

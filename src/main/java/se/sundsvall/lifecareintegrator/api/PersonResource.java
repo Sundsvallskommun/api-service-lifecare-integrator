@@ -20,8 +20,8 @@ import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
-import se.sundsvall.lifecareintegrator.api.model.Contact;
-import se.sundsvall.lifecareintegrator.api.model.Person;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Contact;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Person;
 import se.sundsvall.lifecareintegrator.service.FamilyCareService;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;

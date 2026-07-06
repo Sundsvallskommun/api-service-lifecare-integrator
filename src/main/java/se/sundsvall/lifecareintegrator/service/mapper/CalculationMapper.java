@@ -8,11 +8,11 @@ import generated.se.sundsvall.lifecarefc.PersonBasedCalculationDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedCalculationPersonDTO;
 import java.util.List;
 import java.util.Optional;
-import se.sundsvall.lifecareintegrator.api.model.Calculation;
-import se.sundsvall.lifecareintegrator.api.model.CalculationExpense;
-import se.sundsvall.lifecareintegrator.api.model.CalculationIncome;
-import se.sundsvall.lifecareintegrator.api.model.CalculationPerson;
-import se.sundsvall.lifecareintegrator.api.model.PagedResponse;
+import se.sundsvall.lifecareintegrator.api.model.common.PagedResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Calculation;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationExpense;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationIncome;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationPerson;
 
 import static java.util.Collections.emptyList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;

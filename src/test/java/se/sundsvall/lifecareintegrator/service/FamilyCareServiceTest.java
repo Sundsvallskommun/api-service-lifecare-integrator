@@ -21,9 +21,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import se.sundsvall.dept44.problem.ThrowableProblem;
-import se.sundsvall.lifecareintegrator.api.model.CalculationPersonRequest;
-import se.sundsvall.lifecareintegrator.api.model.CreateActualisationRequest;
-import se.sundsvall.lifecareintegrator.api.model.CreateCalculationRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationPersonRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CreateCalculationRequest;
 import se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcIntegration;
 import se.sundsvall.lifecareintegrator.integration.party.PartyIntegration;
 

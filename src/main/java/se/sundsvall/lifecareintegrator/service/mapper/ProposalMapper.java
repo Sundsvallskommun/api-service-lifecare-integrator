@@ -6,16 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import se.sundsvall.lifecareintegrator.api.model.ActualisationItem;
-import se.sundsvall.lifecareintegrator.api.model.ActualisationProposal;
-import se.sundsvall.lifecareintegrator.api.model.ActualisationType;
-import se.sundsvall.lifecareintegrator.api.model.AttachmentType;
-import se.sundsvall.lifecareintegrator.api.model.CalculationProposal;
-import se.sundsvall.lifecareintegrator.api.model.CodeItem;
-import se.sundsvall.lifecareintegrator.api.model.HouseholdMember;
-import se.sundsvall.lifecareintegrator.api.model.Norm;
-import se.sundsvall.lifecareintegrator.api.model.OrganizationItem;
-import se.sundsvall.lifecareintegrator.api.model.ProposalCase;
+import se.sundsvall.lifecareintegrator.api.model.common.Lookup;
+import se.sundsvall.lifecareintegrator.api.model.familycare.ActualisationProposal;
+import se.sundsvall.lifecareintegrator.api.model.familycare.ActualisationReference;
+import se.sundsvall.lifecareintegrator.api.model.familycare.ActualisationType;
+import se.sundsvall.lifecareintegrator.api.model.familycare.AttachmentType;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationProposal;
+import se.sundsvall.lifecareintegrator.api.model.familycare.HouseholdMember;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Norm;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Organization;
+import se.sundsvall.lifecareintegrator.api.model.familycare.ProposalCase;
 
 import static java.util.Collections.emptyList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
@@ -37,13 +37,13 @@ public final class ProposalMapper {
 					.withName(type.getName())
 					.withSpecifyTypeMandatory(type.getSpecifyTypeMandatory())
 					.withWorkingStatus(type.getWorkingStatus())
-					.withReasons(mapList(type.getReasons(), reason -> toCodeItem(reason.getId(), reason.getName())))
-					.withFromWho(mapList(type.getFromWho(), fromWho -> toCodeItem(fromWho.getId(), fromWho.getName())))
-					.withInvestigationTypes(mapList(type.getInvestigationTypes(), investigationType -> toCodeItem(investigationType.getId(), investigationType.getName())))
-					.withServiceTypes(mapList(type.getServiceTypes(), serviceType -> toCodeItem(serviceType.getId(), serviceType.getName())))))
-				.withSpecifyTypes(mapList(source.getSpecifyTypes(), specifyType -> toCodeItem(specifyType.getId(), specifyType.getName())))
-				.withWorkingStatus(mapList(source.getWorkingStatus(), workingStatus -> toCodeItem(workingStatus.getId(), workingStatus.getName())))
-				.withOrganizations(mapList(source.getOrganizations(), organization -> OrganizationItem.create()
+					.withReasons(mapList(type.getReasons(), reason -> toLookup(reason.getId(), reason.getName())))
+					.withFromWho(mapList(type.getFromWho(), fromWho -> toLookup(fromWho.getId(), fromWho.getName())))
+					.withInvestigationTypes(mapList(type.getInvestigationTypes(), investigationType -> toLookup(investigationType.getId(), investigationType.getName())))
+					.withServiceTypes(mapList(type.getServiceTypes(), serviceType -> toLookup(serviceType.getId(), serviceType.getName())))))
+				.withSpecifyTypes(mapList(source.getSpecifyTypes(), specifyType -> toLookup(specifyType.getId(), specifyType.getName())))
+				.withWorkingStatus(mapList(source.getWorkingStatus(), workingStatus -> toLookup(workingStatus.getId(), workingStatus.getName())))
+				.withOrganizations(mapList(source.getOrganizations(), organization -> Organization.create()
 					.withId(organization.getId())
 					.withUnitId(organization.getUnitId())
 					.withName(organization.getName())))
@@ -66,7 +66,7 @@ public final class ProposalMapper {
 				.withAttachmentTypes(mapList(source.getAttachmentTypes(), attachmentType -> AttachmentType.create()
 					.withId(attachmentType.getId())
 					.withName(attachmentType.getName())
-					.withSenderTypes(mapList(attachmentType.getSenderTypes(), senderType -> toCodeItem(senderType.getId(), senderType.getName()))))))
+					.withSenderTypes(mapList(attachmentType.getSenderTypes(), senderType -> toLookup(senderType.getId(), senderType.getName()))))))
 			.orElse(null);
 	}
 
@@ -93,20 +93,20 @@ public final class ProposalMapper {
 					.withPartyId(Optional.ofNullable(member.getPersonId()).map(partyIdsByPersonNumber::get).orElse(null))
 					.withName(member.getName())
 					.withChildFromOtherHousehold(member.getChildFromOtherHousehold())))
-				.withIncomeTypes(mapList(source.getCalculationIncomeTypes(), incomeType -> toCodeItem(incomeType.getId(), incomeType.getName())))
-				.withExpenseTypes(mapList(source.getCalculationExpenseTypes(), expenseType -> toCodeItem(expenseType.getId(), expenseType.getName())))
-				.withSpecialExpenseTypes(mapList(source.getCalculationSpecialExpenseTypes(), specialExpenseType -> toCodeItem(specialExpenseType.getId(), specialExpenseType.getName())))
+				.withIncomeTypes(mapList(source.getCalculationIncomeTypes(), incomeType -> toLookup(incomeType.getId(), incomeType.getName())))
+				.withExpenseTypes(mapList(source.getCalculationExpenseTypes(), expenseType -> toLookup(expenseType.getId(), expenseType.getName())))
+				.withSpecialExpenseTypes(mapList(source.getCalculationSpecialExpenseTypes(), specialExpenseType -> toLookup(specialExpenseType.getId(), specialExpenseType.getName())))
 				.withActualisationMandatory(source.getAktualiseringMandatory())
 				.withNumberOfFamilyMembersNotInHousehold(source.getNumberOfFamilyMembersNotInHousehold())
-				.withActualisations(mapList(source.getAktualiserings(), actualisation -> ActualisationItem.create()
+				.withActualisations(mapList(source.getAktualiserings(), actualisation -> ActualisationReference.create()
 					.withId(actualisation.getId())
 					.withType(actualisation.getType())
 					.withDate(toLocalDate(actualisation.getDate())))))
 			.orElse(null);
 	}
 
-	private static CodeItem toCodeItem(final Integer id, final String name) {
-		return CodeItem.create()
+	private static Lookup toLookup(final Integer id, final String name) {
+		return Lookup.create()
 			.withId(id)
 			.withName(name);
 	}

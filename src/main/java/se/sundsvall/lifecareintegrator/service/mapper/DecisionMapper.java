@@ -8,10 +8,10 @@ import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionPersonDTO;
 import java.util.List;
 import java.util.Optional;
-import se.sundsvall.lifecareintegrator.api.model.Decision;
-import se.sundsvall.lifecareintegrator.api.model.DecisionPerson;
-import se.sundsvall.lifecareintegrator.api.model.ElderlyCareDecisionDetails;
-import se.sundsvall.lifecareintegrator.api.model.FamilyCareDecisionDetails;
+import se.sundsvall.lifecareintegrator.api.model.common.Decision;
+import se.sundsvall.lifecareintegrator.api.model.elderlycare.ElderlyCareDecisionDetails;
+import se.sundsvall.lifecareintegrator.api.model.familycare.DecisionPerson;
+import se.sundsvall.lifecareintegrator.api.model.familycare.FamilyCareDecisionDetails;
 
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toStringValue;

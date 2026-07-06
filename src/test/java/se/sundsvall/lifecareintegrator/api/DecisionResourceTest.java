@@ -11,9 +11,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.lifecareintegrator.Application;
-import se.sundsvall.lifecareintegrator.api.model.Decision;
-import se.sundsvall.lifecareintegrator.api.model.DecisionsResponse;
-import se.sundsvall.lifecareintegrator.api.model.SourceStatus;
+import se.sundsvall.lifecareintegrator.api.model.common.Decision;
+import se.sundsvall.lifecareintegrator.api.model.common.DecisionsResponse;
+import se.sundsvall.lifecareintegrator.api.model.common.SourceStatus;
 import se.sundsvall.lifecareintegrator.service.DecisionService;
 
 import static org.assertj.core.api.Assertions.assertThat;

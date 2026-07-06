@@ -26,11 +26,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import se.sundsvall.lifecareintegrator.api.model.ActualisationItem;
-import se.sundsvall.lifecareintegrator.api.model.CodeItem;
-import se.sundsvall.lifecareintegrator.api.model.HouseholdMember;
-import se.sundsvall.lifecareintegrator.api.model.Norm;
-import se.sundsvall.lifecareintegrator.api.model.ProposalCase;
+import se.sundsvall.lifecareintegrator.api.model.common.Lookup;
+import se.sundsvall.lifecareintegrator.api.model.familycare.ActualisationReference;
+import se.sundsvall.lifecareintegrator.api.model.familycare.HouseholdMember;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Norm;
+import se.sundsvall.lifecareintegrator.api.model.familycare.ProposalCase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -73,13 +73,13 @@ class ProposalMapperTest {
 		assertThat(type.getName()).isEqualTo("Ansökan");
 		assertThat(type.getSpecifyTypeMandatory()).isTrue();
 		assertThat(type.getWorkingStatus()).isFalse();
-		assertThat(type.getReasons()).extracting(CodeItem::getId, CodeItem::getName).containsExactly(tuple(11, "Försörjningsstöd"));
-		assertThat(type.getFromWho()).extracting(CodeItem::getId, CodeItem::getName).containsExactly(tuple(12, "Egen ansökan"));
-		assertThat(type.getInvestigationTypes()).extracting(CodeItem::getId, CodeItem::getName).containsExactly(tuple(13, "Utredning EB"));
-		assertThat(type.getServiceTypes()).extracting(CodeItem::getId, CodeItem::getName).containsExactly(tuple(14, "Insats EB"));
+		assertThat(type.getReasons()).extracting(Lookup::getId, Lookup::getName).containsExactly(tuple(11, "Försörjningsstöd"));
+		assertThat(type.getFromWho()).extracting(Lookup::getId, Lookup::getName).containsExactly(tuple(12, "Egen ansökan"));
+		assertThat(type.getInvestigationTypes()).extracting(Lookup::getId, Lookup::getName).containsExactly(tuple(13, "Utredning EB"));
+		assertThat(type.getServiceTypes()).extracting(Lookup::getId, Lookup::getName).containsExactly(tuple(14, "Insats EB"));
 
-		assertThat(result.getSpecifyTypes()).extracting(CodeItem::getId, CodeItem::getName).containsExactly(tuple(2, "Specificering"));
-		assertThat(result.getWorkingStatus()).extracting(CodeItem::getId, CodeItem::getName).containsExactly(tuple(3, "Arbetslös"));
+		assertThat(result.getSpecifyTypes()).extracting(Lookup::getId, Lookup::getName).containsExactly(tuple(2, "Specificering"));
+		assertThat(result.getWorkingStatus()).extracting(Lookup::getId, Lookup::getName).containsExactly(tuple(3, "Arbetslös"));
 
 		final var organization = result.getOrganizations().getFirst();
 		assertThat(organization.getId()).isEqualTo(4);
@@ -98,7 +98,7 @@ class ProposalMapperTest {
 		final var attachmentType = result.getAttachmentTypes().getFirst();
 		assertThat(attachmentType.getId()).isEqualTo(9);
 		assertThat(attachmentType.getName()).isEqualTo("Ansökan");
-		assertThat(attachmentType.getSenderTypes()).extracting(CodeItem::getId, CodeItem::getName).containsExactly(tuple(91, "Medborgare"));
+		assertThat(attachmentType.getSenderTypes()).extracting(Lookup::getId, Lookup::getName).containsExactly(tuple(91, "Medborgare"));
 	}
 
 	@Test
@@ -144,13 +144,13 @@ class ProposalMapperTest {
 				tuple(PARTY_ID, "Kalle Karlsson", false),
 				tuple(null, "Lisa Larsson", true));
 
-		assertThat(result.getIncomeTypes()).extracting(CodeItem::getId, CodeItem::getName).containsExactly(tuple(4, "Lön"));
-		assertThat(result.getExpenseTypes()).extracting(CodeItem::getId, CodeItem::getName).containsExactly(tuple(5, "Hyra"));
-		assertThat(result.getSpecialExpenseTypes()).extracting(CodeItem::getId, CodeItem::getName).containsExactly(tuple(6, "Tandvård"));
+		assertThat(result.getIncomeTypes()).extracting(Lookup::getId, Lookup::getName).containsExactly(tuple(4, "Lön"));
+		assertThat(result.getExpenseTypes()).extracting(Lookup::getId, Lookup::getName).containsExactly(tuple(5, "Hyra"));
+		assertThat(result.getSpecialExpenseTypes()).extracting(Lookup::getId, Lookup::getName).containsExactly(tuple(6, "Tandvård"));
 		assertThat(result.getActualisationMandatory()).isTrue();
 		assertThat(result.getNumberOfFamilyMembersNotInHousehold()).isEqualTo(1);
 		assertThat(result.getActualisations())
-			.extracting(ActualisationItem::getId, ActualisationItem::getType, ActualisationItem::getDate)
+			.extracting(ActualisationReference::getId, ActualisationReference::getType, ActualisationReference::getDate)
 			.containsExactly(tuple(7, "Ansökan", LocalDate.parse("2026-03-01")));
 	}
 

@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "1.0"
 servers:
-- url: http://localhost:52036
+- url: http://localhost:61256
   description: Generated server url
 tags:
 - name: Case data
@@ -1543,10 +1543,10 @@ components:
             $ref: "#/components/schemas/Violation"
         title:
           type: string
-        detail:
-          type: string
         causeAsProblem:
           $ref: "#/components/schemas/ThrowableProblem"
+        detail:
+          type: string
         instance:
           type: string
           format: uri
@@ -3016,7 +3016,7 @@ components:
           description: The records on the current page
           items:
             $ref: "#/components/schemas/Calculation"
-    ActualisationItem:
+    ActualisationReference:
       type: object
       description: An existing actualisation that a calculation can be linked to
       properties:
@@ -3066,17 +3066,17 @@ components:
           type: array
           description: The valid income types
           items:
-            $ref: "#/components/schemas/CodeItem"
+            $ref: "#/components/schemas/Lookup"
         expenseTypes:
           type: array
           description: The valid expense types
           items:
-            $ref: "#/components/schemas/CodeItem"
+            $ref: "#/components/schemas/Lookup"
         specialExpenseTypes:
           type: array
           description: The valid special expense types
           items:
-            $ref: "#/components/schemas/CodeItem"
+            $ref: "#/components/schemas/Lookup"
         actualisationMandatory:
           type: boolean
           description: Whether a calculation must be linked to an actualisation
@@ -3093,22 +3093,7 @@ components:
           description: The existing actualisations that a calculation can be linked
             to
           items:
-            $ref: "#/components/schemas/ActualisationItem"
-    CodeItem:
-      type: object
-      description: A generic code-list entry
-      properties:
-        id:
-          type: integer
-          format: int32
-          description: The id of the code-list entry
-          examples:
-          - 1
-        name:
-          type: string
-          description: The name of the code-list entry
-          examples:
-          - Ansökan
+            $ref: "#/components/schemas/ActualisationReference"
     HouseholdMember:
       type: object
       description: A member of the household
@@ -3131,6 +3116,21 @@ components:
           description: Whether the member is a child from another household
           examples:
           - "false"
+    Lookup:
+      type: object
+      description: A lookup value from a code list
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: The id of the lookup value
+          examples:
+          - 1
+        name:
+          type: string
+          description: The display name of the lookup value
+          examples:
+          - Ansökan
     Norm:
       type: object
       description: A norm that a calculation can be based on
@@ -3327,17 +3327,17 @@ components:
           type: array
           description: The valid specify types
           items:
-            $ref: "#/components/schemas/CodeItem"
+            $ref: "#/components/schemas/Lookup"
         workingStatus:
           type: array
           description: The valid working statuses
           items:
-            $ref: "#/components/schemas/CodeItem"
+            $ref: "#/components/schemas/Lookup"
         organizations:
           type: array
           description: The valid organizations
           items:
-            $ref: "#/components/schemas/OrganizationItem"
+            $ref: "#/components/schemas/Organization"
         investigations:
           type: array
           description: The investigations that can be linked to
@@ -3384,22 +3384,22 @@ components:
           type: array
           description: The valid reasons for this actualisation type
           items:
-            $ref: "#/components/schemas/CodeItem"
+            $ref: "#/components/schemas/Lookup"
         fromWho:
           type: array
           description: The valid from-who values for this actualisation type
           items:
-            $ref: "#/components/schemas/CodeItem"
+            $ref: "#/components/schemas/Lookup"
         investigationTypes:
           type: array
           description: The valid investigation types for this actualisation type
           items:
-            $ref: "#/components/schemas/CodeItem"
+            $ref: "#/components/schemas/Lookup"
         serviceTypes:
           type: array
           description: The valid service types for this actualisation type
           items:
-            $ref: "#/components/schemas/CodeItem"
+            $ref: "#/components/schemas/Lookup"
     AttachmentType:
       type: object
       description: An attachment type with its valid sender types
@@ -3419,8 +3419,8 @@ components:
           type: array
           description: The valid sender types for this attachment type
           items:
-            $ref: "#/components/schemas/CodeItem"
-    OrganizationItem:
+            $ref: "#/components/schemas/Lookup"
+    Organization:
       type: object
       description: An organization entry
       properties:

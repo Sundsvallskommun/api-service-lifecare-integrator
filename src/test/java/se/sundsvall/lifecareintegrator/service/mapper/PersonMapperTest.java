@@ -5,7 +5,7 @@ import generated.se.sundsvall.lifecarefc.PersonBasedContactDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedPersonDTO;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import se.sundsvall.lifecareintegrator.api.model.Contact;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Contact;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;

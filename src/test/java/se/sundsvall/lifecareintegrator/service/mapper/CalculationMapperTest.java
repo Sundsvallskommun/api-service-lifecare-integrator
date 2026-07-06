@@ -9,9 +9,9 @@ import generated.se.sundsvall.lifecarefc.PersonBasedCalculationPersonDTO;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import se.sundsvall.lifecareintegrator.api.model.CalculationExpense;
-import se.sundsvall.lifecareintegrator.api.model.CalculationIncome;
-import se.sundsvall.lifecareintegrator.api.model.CalculationPerson;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationExpense;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationIncome;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationPerson;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;

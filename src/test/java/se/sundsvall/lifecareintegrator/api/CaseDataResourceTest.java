@@ -11,12 +11,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.lifecareintegrator.Application;
-import se.sundsvall.lifecareintegrator.api.model.CaseService;
-import se.sundsvall.lifecareintegrator.api.model.Execution;
-import se.sundsvall.lifecareintegrator.api.model.Investigation;
-import se.sundsvall.lifecareintegrator.api.model.PagedResponse;
-import se.sundsvall.lifecareintegrator.api.model.Payment;
-import se.sundsvall.lifecareintegrator.api.model.ResourceAllocation;
+import se.sundsvall.lifecareintegrator.api.model.common.PagedResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CaseService;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Execution;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Investigation;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Payment;
+import se.sundsvall.lifecareintegrator.api.model.familycare.ResourceAllocation;
 import se.sundsvall.lifecareintegrator.service.FamilyCareService;
 
 import static org.assertj.core.api.Assertions.assertThat;

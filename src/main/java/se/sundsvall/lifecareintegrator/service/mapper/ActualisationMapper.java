@@ -4,8 +4,8 @@ import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedAktual
 import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringDTO;
 import java.util.List;
 import java.util.Optional;
-import se.sundsvall.lifecareintegrator.api.model.Actualisation;
-import se.sundsvall.lifecareintegrator.api.model.PagedResponse;
+import se.sundsvall.lifecareintegrator.api.model.common.PagedResponse;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Actualisation;
 
 import static java.util.Collections.emptyList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;

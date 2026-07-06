@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import se.sundsvall.lifecareintegrator.api.model.CreateActualisationRequest;
-import se.sundsvall.lifecareintegrator.api.model.CreateCalculationRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CreateCalculationRequest;
 
 import static java.util.Collections.emptyList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toDateString;

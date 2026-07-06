@@ -11,8 +11,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.lifecareintegrator.Application;
-import se.sundsvall.lifecareintegrator.api.model.Contact;
-import se.sundsvall.lifecareintegrator.api.model.Person;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Contact;
+import se.sundsvall.lifecareintegrator.api.model.familycare.Person;
 import se.sundsvall.lifecareintegrator.service.FamilyCareService;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -21,7 +21,7 @@ import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
-import se.sundsvall.lifecareintegrator.api.model.DecisionsResponse;
+import se.sundsvall.lifecareintegrator.api.model.common.DecisionsResponse;
 import se.sundsvall.lifecareintegrator.service.DecisionService;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;

@@ -12,7 +12,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.lifecareintegrator.Application;
-import se.sundsvall.lifecareintegrator.api.model.CreateCalculationRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CreateCalculationRequest;
 import se.sundsvall.lifecareintegrator.service.FamilyCareService;
 
 import static org.assertj.core.api.Assertions.assertThat;

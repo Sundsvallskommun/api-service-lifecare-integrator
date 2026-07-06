@@ -6,11 +6,11 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
-import se.sundsvall.lifecareintegrator.api.model.CalculationExpenseRequest;
-import se.sundsvall.lifecareintegrator.api.model.CalculationIncomeRequest;
-import se.sundsvall.lifecareintegrator.api.model.CalculationPersonRequest;
-import se.sundsvall.lifecareintegrator.api.model.CreateActualisationRequest;
-import se.sundsvall.lifecareintegrator.api.model.CreateCalculationRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationExpenseRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationIncomeRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationPersonRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CreateCalculationRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
