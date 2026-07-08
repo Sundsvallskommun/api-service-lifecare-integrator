@@ -25,12 +25,10 @@ public final class CalculationMapper {
 
 	public static PagedCalculationResponse toCalculations(final ApiPaginationCompositePersonBasedCalculationDTO composite) {
 		return Optional.ofNullable(composite)
-			.map(source -> {
-				final var calculations = toCalculationList(source.getResult());
-				return PagedCalculationResponse.create()
-					.withCalculations(calculations)
-					.withMetaData(toPagingMetaData(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords(), calculations.size()));
-			})
+			.map(source -> toCalculationList(source.getResult()))
+			.map(calculations -> PagedCalculationResponse.create()
+				.withCalculations(calculations)
+				.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), calculations.size())))
 			.orElseGet(() -> PagedCalculationResponse.create().withCalculations(emptyList()));
 	}
 

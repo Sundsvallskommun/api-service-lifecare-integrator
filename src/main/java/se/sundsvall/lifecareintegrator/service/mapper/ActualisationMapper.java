@@ -17,12 +17,10 @@ public final class ActualisationMapper {
 
 	public static PagedActualisationResponse toActualisations(final ApiPaginationCompositePersonBasedAktualiseringDTO composite) {
 		return Optional.ofNullable(composite)
-			.map(source -> {
-				final var actualisations = toActualisationList(source.getResult());
-				return PagedActualisationResponse.create()
-					.withActualisations(actualisations)
-					.withMetaData(toPagingMetaData(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords(), actualisations.size()));
-			})
+			.map(source -> toActualisationList(source.getResult()))
+			.map(actualisations -> PagedActualisationResponse.create()
+				.withActualisations(actualisations)
+				.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), actualisations.size())))
 			.orElseGet(() -> PagedActualisationResponse.create().withActualisations(emptyList()));
 	}
 

@@ -17,12 +17,10 @@ public final class DocumentMapper {
 
 	public static PagedDocumentResponse toDocuments(final ApiPaginationCompositePersonBasedDocumentDTO documents) {
 		return Optional.ofNullable(documents)
-			.map(source -> {
-				final var documentList = toDocumentMetadataList(source.getResult());
-				return PagedDocumentResponse.create()
-					.withDocuments(documentList)
-					.withMetaData(toPagingMetaData(source.getPageNumber(), source.getPageSize(), source.getTotalNumberOfPages(), source.getTotalNumberOfRecords(), documentList.size()));
-			})
+			.map(source -> toDocumentMetadataList(source.getResult()))
+			.map(documentList -> PagedDocumentResponse.create()
+				.withDocuments(documentList)
+				.withMetaData(toPagingMetaData(documents.getPageNumber(), documents.getPageSize(), documents.getTotalNumberOfPages(), documents.getTotalNumberOfRecords(), documentList.size())))
 			.orElseGet(() -> PagedDocumentResponse.create().withDocuments(emptyList()));
 	}
 

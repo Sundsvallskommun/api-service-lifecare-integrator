@@ -40,8 +40,8 @@ import static java.util.Collections.emptyMap;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
- * All single-source family care (FC) operations. Every person-scoped operation resolves the public partyId to a
- * person number first — the person number is forwarded to FC but never exposed in the public API.
+ * All single-source family care (FC) operations. Every person-scoped operation resolves the public partyId to a person
+ * number first — the person number is forwarded to FC but never exposed in the public API.
  */
 @Service
 public class FamilyCareService {

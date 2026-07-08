@@ -1,5 +1,10 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
+import generated.se.sundsvall.lifecarefc.PersonBasedCalculationExpensePostDTO;
+import generated.se.sundsvall.lifecarefc.PersonBasedCalculationIncomePostDTO;
+import generated.se.sundsvall.lifecarefc.PersonBasedCalculationPersonPostDTO;
+import generated.se.sundsvall.lifecarefc.PersonBasedCalculationSpecialExpensePostDTO;
+import generated.se.sundsvall.lifecarefc.PostCalculationBodyRequest;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -100,45 +105,42 @@ class RequestMapperTest {
 
 		// Act
 		final var result = RequestMapper.toPostCalculationBodyRequest(request, PERSON_NUMBER, Map.of(MEMBER_PARTY_ID, MEMBER_PERSON_NUMBER));
+		final var expected = new PostCalculationBodyRequest()
+			.personId(PERSON_NUMBER)
+			.serviceId(1)
+			.investigationId(2)
+			.normId(3)
+			.aktualiseringId(4)
+			.calculationDate("2026-05-01")
+			.calculationFromDate("2026-05-01")
+			.calculationToDate("2026-05-31")
+			.hasCustomHouseholdSize(true)
+			.householdSize(3)
+			.calculationPersons(List.of(new PersonBasedCalculationPersonPostDTO()
+				.personId(MEMBER_PERSON_NUMBER)
+				.numberOfDays(30)
+				.deviationFromDate(OffsetDateTime.of(2026, 5, 10, 0, 0, 0, 0, ZoneOffset.UTC))
+				.deviationToDate(OffsetDateTime.of(2026, 5, 20, 0, 0, 0, 0, ZoneOffset.UTC))))
+			.calculationIncomes(List.of(new PersonBasedCalculationIncomePostDTO()
+				.id(11)
+				.applicantAmount(1000.0)
+				.applicantAmountDate(OffsetDateTime.of(2026, 5, 1, 0, 0, 0, 0, ZoneOffset.UTC))
+				.coApplicantAmount(500.0)
+				.coApplicantAmountDate(OffsetDateTime.of(2026, 5, 2, 0, 0, 0, 0, ZoneOffset.UTC))
+				.note("income note")))
+			.calculationExpenses(List.of(new PersonBasedCalculationExpensePostDTO()
+				.id(21)
+				.amount(2000.0)
+				.approvedAmount(1800.0)
+				.note("expense note")))
+			.calculationSpecialExpenses(List.of(new PersonBasedCalculationSpecialExpensePostDTO()
+				.id(31)
+				.amount(300.0)
+				.approvedAmount(300.0)
+				.note("special note")));
 
 		// Assert: applicant person number injected, top-level fields mapped
-		assertThat(result.getPersonId()).isEqualTo(PERSON_NUMBER);
-		assertThat(result.getServiceId()).isEqualTo(1);
-		assertThat(result.getInvestigationId()).isEqualTo(2);
-		assertThat(result.getNormId()).isEqualTo(3);
-		assertThat(result.getAktualiseringId()).isEqualTo(4);
-		assertThat(result.getCalculationDate()).isEqualTo("2026-05-01");
-		assertThat(result.getCalculationFromDate()).isEqualTo("2026-05-01");
-		assertThat(result.getCalculationToDate()).isEqualTo("2026-05-31");
-		assertThat(result.getHasCustomHouseholdSize()).isTrue();
-		assertThat(result.getHouseholdSize()).isEqualTo(3);
-
-		// The household member's partyId is swapped for the resolved person number
-		final var person = result.getCalculationPersons().getFirst();
-		assertThat(person.getPersonId()).isEqualTo(MEMBER_PERSON_NUMBER);
-		assertThat(person.getNumberOfDays()).isEqualTo(30);
-		assertThat(person.getDeviationFromDate()).isEqualTo(OffsetDateTime.of(2026, 5, 10, 0, 0, 0, 0, ZoneOffset.UTC));
-		assertThat(person.getDeviationToDate()).isEqualTo(OffsetDateTime.of(2026, 5, 20, 0, 0, 0, 0, ZoneOffset.UTC));
-
-		final var income = result.getCalculationIncomes().getFirst();
-		assertThat(income.getId()).isEqualTo(11);
-		assertThat(income.getApplicantAmount()).isEqualTo(1000.0);
-		assertThat(income.getApplicantAmountDate()).isEqualTo(OffsetDateTime.of(2026, 5, 1, 0, 0, 0, 0, ZoneOffset.UTC));
-		assertThat(income.getCoApplicantAmount()).isEqualTo(500.0);
-		assertThat(income.getCoApplicantAmountDate()).isEqualTo(OffsetDateTime.of(2026, 5, 2, 0, 0, 0, 0, ZoneOffset.UTC));
-		assertThat(income.getNote()).isEqualTo("income note");
-
-		final var expense = result.getCalculationExpenses().getFirst();
-		assertThat(expense.getId()).isEqualTo(21);
-		assertThat(expense.getAmount()).isEqualTo(2000.0);
-		assertThat(expense.getApprovedAmount()).isEqualTo(1800.0);
-		assertThat(expense.getNote()).isEqualTo("expense note");
-
-		final var specialExpense = result.getCalculationSpecialExpenses().getFirst();
-		assertThat(specialExpense.getId()).isEqualTo(31);
-		assertThat(specialExpense.getAmount()).isEqualTo(300.0);
-		assertThat(specialExpense.getApprovedAmount()).isEqualTo(300.0);
-		assertThat(specialExpense.getNote()).isEqualTo("special note");
+		assertThat(result).usingRecursiveComparison().isEqualTo(expected);
 	}
 
 	@Test

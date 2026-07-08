@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.elderlycare;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -65,7 +66,7 @@ public class ElderlyCareDecisionDetails {
 	@Schema(description = "The number of days the decision covers", examples = "184.0")
 	private Double daysOfDecision;
 
-	@Schema(description = "Ids of the orders created from the decision")
+	@ArraySchema(schema = @Schema(description = "Ids of the orders created from the decision"))
 	private List<Integer> orderIds;
 
 	@Schema(description = "Whether the decision is deleted in the source system", examples = "false")

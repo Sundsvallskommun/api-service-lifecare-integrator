@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.integration.lifecarefc.configuration;
 
 import feign.Logger;
+import feign.RequestTemplate;
 import java.util.List;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
@@ -39,13 +40,15 @@ public class LifecareFcConfiguration {
 			// Bypass 404 so a "no such resource" surfaces as NOT_FOUND (handled by LifecareFcIntegration) instead of the
 			// default BAD_GATEWAY — e.g. a person or document content that does not exist.
 			.withErrorDecoder(new ProblemErrorDecoder(CLIENT_ID, List.of(NOT_FOUND.value())))
-			.withRequestInterceptor(template -> {
-				template.query("domain", properties.domain());
-				template.query("key", properties.key());
-				template.header("X-API-Key", properties.key());
-			})
+			.withRequestInterceptor(template -> addAuthentication(template, properties))
 			.withCustomizer(builder -> builder.logLevel(Logger.Level.valueOf(properties.logLevel())))
 			.withRequestTimeoutsInSeconds(properties.connectTimeout(), properties.readTimeout())
 			.composeCustomizersToOne();
+	}
+
+	private static void addAuthentication(final RequestTemplate template, final LifecareFcProperties properties) {
+		template.query("domain", properties.domain());
+		template.query("key", properties.key());
+		template.header("X-API-Key", properties.key());
 	}
 }

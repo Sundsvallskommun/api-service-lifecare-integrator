@@ -11,7 +11,7 @@ import static com.google.code.beanmatchers.BeanMatchers.hasValidGettersAndSetter
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 
-class CodeItemTest {
+class LookupTest {
 
 	@Test
 	void testBean() {

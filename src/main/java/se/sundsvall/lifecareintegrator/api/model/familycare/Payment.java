@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -70,7 +71,7 @@ public class Payment {
 	@Schema(description = "The month the payment concerns", examples = "2026-05")
 	private String concernedMonth;
 
-	@Schema(description = "The persons the payment concerns")
+	@ArraySchema(schema = @Schema(description = "The persons the payment concerns"))
 	private List<RelatedPerson> persons;
 
 	public static Payment create() {

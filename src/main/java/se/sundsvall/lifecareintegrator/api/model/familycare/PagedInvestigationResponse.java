@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.Objects;
@@ -11,7 +12,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
 @Schema(description = "A paged list of investigations from the Lifecare family care system")
 public class PagedInvestigationResponse {
 
-	@Schema(description = "The investigations on this page")
+	@ArraySchema(schema = @Schema(description = "The investigations on this page"))
 	private List<Investigation> investigations;
 
 	@JsonProperty("_meta")

@@ -6,21 +6,19 @@ import generated.se.sundsvall.lifecarefc.PersonBasedCalculationPersonPostDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedCalculationSpecialExpensePostDTO;
 import generated.se.sundsvall.lifecarefc.PostAktualiseringsBodyRequest;
 import generated.se.sundsvall.lifecarefc.PostCalculationBodyRequest;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationRequest;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateCalculationRequest;
 
-import static java.util.Collections.emptyList;
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.mapList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toDateString;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toDouble;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toOffsetDateTime;
 
 /**
- * Maps the public create requests to the FC POST bodies. The person number is resolved by the service and injected
- * here — it is never present in the public requests.
+ * Maps the public create requests to the FC POST bodies. The person number is resolved by the service and injected here
+ * — it is never present in the public requests.
  */
 public final class RequestMapper {
 
@@ -83,11 +81,4 @@ public final class RequestMapper {
 			.orElse(null);
 	}
 
-	private static <S, T> List<T> mapList(final List<S> source, final Function<S, T> mapper) {
-		return Optional.ofNullable(source)
-			.map(list -> list.stream()
-				.map(mapper)
-				.toList())
-			.orElse(emptyList());
-	}
 }

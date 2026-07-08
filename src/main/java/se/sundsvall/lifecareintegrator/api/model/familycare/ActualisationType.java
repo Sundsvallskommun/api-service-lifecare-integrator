@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.Objects;
@@ -20,16 +21,16 @@ public class ActualisationType {
 	@Schema(description = "Whether a working status must be given for this actualisation type", examples = "false")
 	private Boolean workingStatus;
 
-	@Schema(description = "The valid reasons for this actualisation type")
+	@ArraySchema(schema = @Schema(description = "The valid reasons for this actualisation type"))
 	private List<Lookup> reasons;
 
-	@Schema(description = "The valid from-who values for this actualisation type")
+	@ArraySchema(schema = @Schema(description = "The valid from-who values for this actualisation type"))
 	private List<Lookup> fromWho;
 
-	@Schema(description = "The valid investigation types for this actualisation type")
+	@ArraySchema(schema = @Schema(description = "The valid investigation types for this actualisation type"))
 	private List<Lookup> investigationTypes;
 
-	@Schema(description = "The valid service types for this actualisation type")
+	@ArraySchema(schema = @Schema(description = "The valid service types for this actualisation type"))
 	private List<Lookup> serviceTypes;
 
 	public static ActualisationType create() {

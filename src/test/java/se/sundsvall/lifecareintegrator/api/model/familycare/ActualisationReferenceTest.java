@@ -15,7 +15,7 @@ import static com.google.code.beanmatchers.BeanMatchers.registerValueGenerator;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.allOf;
 
-class ActualisationItemTest {
+class ActualisationReferenceTest {
 
 	@BeforeAll
 	static void setup() {

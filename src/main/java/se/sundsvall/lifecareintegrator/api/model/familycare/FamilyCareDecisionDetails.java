@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +26,7 @@ public class FamilyCareDecisionDetails {
 	@Schema(description = "Id of the connected application", examples = "1112")
 	private Integer connectedApplication;
 
-	@Schema(description = "The persons the decision concerns")
+	@ArraySchema(schema = @Schema(description = "The persons the decision concerns"))
 	private List<RelatedPerson> persons;
 
 	public static FamilyCareDecisionDetails create() {

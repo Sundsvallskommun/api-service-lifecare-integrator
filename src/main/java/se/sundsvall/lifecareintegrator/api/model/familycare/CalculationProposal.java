@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.Objects;
@@ -8,25 +9,25 @@ import se.sundsvall.lifecareintegrator.api.model.common.Lookup;
 @Schema(description = "A proposal with the valid values needed to create a calculation in Lifecare FC")
 public class CalculationProposal {
 
-	@Schema(description = "The investigations that can be linked to")
+	@ArraySchema(schema = @Schema(description = "The investigations that can be linked to"))
 	private List<ProposalCase> investigations;
 
-	@Schema(description = "The services that can be linked to")
+	@ArraySchema(schema = @Schema(description = "The services that can be linked to"))
 	private List<ProposalCase> services;
 
-	@Schema(description = "The norms a calculation can be based on")
+	@ArraySchema(schema = @Schema(description = "The norms a calculation can be based on"))
 	private List<Norm> norms;
 
-	@Schema(description = "The members of the household")
+	@ArraySchema(schema = @Schema(description = "The members of the household"))
 	private List<HouseholdMember> householdMembers;
 
-	@Schema(description = "The valid income types")
+	@ArraySchema(schema = @Schema(description = "The valid income types"))
 	private List<Lookup> incomeTypes;
 
-	@Schema(description = "The valid expense types")
+	@ArraySchema(schema = @Schema(description = "The valid expense types"))
 	private List<Lookup> expenseTypes;
 
-	@Schema(description = "The valid special expense types")
+	@ArraySchema(schema = @Schema(description = "The valid special expense types"))
 	private List<Lookup> specialExpenseTypes;
 
 	@Schema(description = "Whether a calculation must be linked to an actualisation", examples = "true")
@@ -35,7 +36,7 @@ public class CalculationProposal {
 	@Schema(description = "The number of family members not in the household", examples = "0")
 	private Integer numberOfFamilyMembersNotInHousehold;
 
-	@Schema(description = "The existing actualisations that a calculation can be linked to")
+	@ArraySchema(schema = @Schema(description = "The existing actualisations that a calculation can be linked to"))
 	private List<ActualisationReference> actualisations;
 
 	public static CalculationProposal create() {

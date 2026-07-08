@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -62,16 +63,16 @@ public class Calculation {
 	@Schema(description = "The id of the application connected to the calculation", examples = "1011")
 	private Integer connectedApplication;
 
-	@Schema(description = "The persons included in the calculation")
+	@ArraySchema(schema = @Schema(description = "The persons included in the calculation"))
 	private List<CalculationPerson> persons;
 
-	@Schema(description = "The income rows of the calculation")
+	@ArraySchema(schema = @Schema(description = "The income rows of the calculation"))
 	private List<CalculationIncome> incomes;
 
-	@Schema(description = "The expense rows of the calculation")
+	@ArraySchema(schema = @Schema(description = "The expense rows of the calculation"))
 	private List<CalculationExpense> expenses;
 
-	@Schema(description = "The special expense rows of the calculation")
+	@ArraySchema(schema = @Schema(description = "The special expense rows of the calculation"))
 	private List<CalculationExpense> specialExpenses;
 
 	public static Calculation create() {

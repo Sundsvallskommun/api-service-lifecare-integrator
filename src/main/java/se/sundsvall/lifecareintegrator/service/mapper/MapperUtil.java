@@ -5,8 +5,12 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
+
+import static java.util.Collections.emptyList;
 
 /**
  * Shared mapping helpers for the vendor models: the FC API represents dates as strings (sometimes with a time part),
@@ -17,6 +21,14 @@ final class MapperUtil {
 	private static final int ISO_DATE_LENGTH = 10;
 
 	private MapperUtil() {}
+
+	static <S, T> List<T> mapList(final List<S> source, final Function<S, T> mapper) {
+		return Optional.ofNullable(source)
+			.map(list -> list.stream()
+				.map(mapper)
+				.toList())
+			.orElse(emptyList());
+	}
 
 	static LocalDate toLocalDate(final OffsetDateTime dateTime) {
 		return Optional.ofNullable(dateTime)
@@ -30,13 +42,7 @@ final class MapperUtil {
 	static LocalDate toLocalDate(final String date) {
 		return Optional.ofNullable(date)
 			.filter(value -> value.length() >= ISO_DATE_LENGTH)
-			.map(value -> {
-				try {
-					return LocalDate.parse(value.substring(0, ISO_DATE_LENGTH));
-				} catch (final DateTimeParseException e) {
-					return null;
-				}
-			})
+			.map(MapperUtil::parseLocalDate)
 			.orElse(null);
 	}
 
@@ -98,4 +104,13 @@ final class MapperUtil {
 	private static long toLong(final Integer value) {
 		return Optional.ofNullable(value).map(Integer::longValue).orElse(0L);
 	}
+
+	private static LocalDate parseLocalDate(final String value) {
+		try {
+			return LocalDate.parse(value.substring(0, ISO_DATE_LENGTH));
+		} catch (final DateTimeParseException e) {
+			return null;
+		}
+	}
+
 }

@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+import se.sundsvall.lifecareintegrator.api.model.common.Decision;
+import se.sundsvall.lifecareintegrator.api.model.elderlycare.ElderlyCareDecisionDetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,42 +60,40 @@ class DecisionMapperTest {
 
 		// Act
 		final var result = DecisionMapper.toDecision(source);
+		final var expected = Decision.create()
+			.withSource("ELDERLY_CARE")
+			.withLaw("SOL")
+			.withDecisionId("123")
+			.withDecided(LocalDate.parse("2026-05-01"))
+			.withValidFrom(LocalDate.parse("2026-05-15"))
+			.withValidTo(LocalDate.parse("2026-10-31"))
+			.withType("Hemtjänst")
+			.withReason("Bifall")
+			.withDecisionMaker("Anna Andersson")
+			.withAmount(BigDecimal.valueOf(5000.0))
+			.withElderlyCareDetails(ElderlyCareDecisionDetails.create()
+				.withInvestigationId(456)
+				.withCode("Beviljad")
+				.withServiceCategory("Städning")
+				.withHours(10.5)
+				.withHourType("Per vecka")
+				.withAmountType("Per månad")
+				.withQuantity(2.0)
+				.withQuantityType("Per dag")
+				.withVisits(3.0)
+				.withVisitType("Per vecka")
+				.withDays(5.0)
+				.withDayType("Per månad")
+				.withDecisionLevel("Delegation")
+				.withExecutionStartDate(LocalDate.parse("2026-05-15"))
+				.withExecutionEndDate(LocalDate.parse("2026-10-31"))
+				.withIterationNumber(1)
+				.withDaysOfDecision(184.0)
+				.withOrderIds(List.of(1, 2))
+				.withDeleted(false));
 
 		// Assert
-		assertThat(result.getSource()).isEqualTo("ELDERLY_CARE");
-		assertThat(result.getLaw()).isEqualTo("SOL");
-		assertThat(result.getDecisionId()).isEqualTo("123");
-		assertThat(result.getDecided()).isEqualTo(LocalDate.parse("2026-05-01"));
-		assertThat(result.getValidFrom()).isEqualTo(LocalDate.parse("2026-05-15"));
-		assertThat(result.getValidTo()).isEqualTo(LocalDate.parse("2026-10-31"));
-		assertThat(result.getType()).isEqualTo("Hemtjänst");
-		assertThat(result.getReason()).isEqualTo("Bifall");
-		assertThat(result.getDecisionMaker()).isEqualTo("Anna Andersson");
-		assertThat(result.getAmount()).isEqualByComparingTo(BigDecimal.valueOf(5000.0));
-		assertThat(result.getFamilyCareDetails()).isNull();
-
-		final var details = result.getElderlyCareDetails();
-		assertThat(details.getInvestigationId()).isEqualTo(456);
-		assertThat(details.getCode()).isEqualTo("Beviljad");
-		assertThat(details.getServiceCategory()).isEqualTo("Städning");
-		assertThat(details.getHours()).isEqualTo(10.5);
-		assertThat(details.getHourType()).isEqualTo("Per vecka");
-		assertThat(details.getAmountType()).isEqualTo("Per månad");
-		assertThat(details.getQuantity()).isEqualTo(2.0);
-		assertThat(details.getQuantityType()).isEqualTo("Per dag");
-		assertThat(details.getVisits()).isEqualTo(3.0);
-		assertThat(details.getVisitType()).isEqualTo("Per vecka");
-		assertThat(details.getDays()).isEqualTo(5.0);
-		assertThat(details.getDayType()).isEqualTo("Per månad");
-		assertThat(details.getDecisionLevel()).isEqualTo("Delegation");
-		assertThat(details.getExecutionStartDate()).isEqualTo(LocalDate.parse("2026-05-15"));
-		assertThat(details.getExecutionEndDate()).isEqualTo(LocalDate.parse("2026-10-31"));
-		assertThat(details.getIterationNumber()).isEqualTo(1);
-		assertThat(details.getDaysOfDecision()).isEqualTo(184.0);
-		assertThat(details.getOrderIds()).containsExactly(1, 2);
-		assertThat(details.getDeleted()).isFalse();
-		assertThat(details.getPersonCategory1()).isNull();
-		assertThat(details.getSfbCaseworker()).isNull();
+		assertThat(result).usingRecursiveComparison().isEqualTo(expected);
 	}
 
 	@Test

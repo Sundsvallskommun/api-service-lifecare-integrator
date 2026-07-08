@@ -3,6 +3,7 @@ package se.sundsvall.lifecareintegrator.api.model.familycare;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.Objects;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.format.annotation.DateTimeFormat;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
@@ -34,12 +35,21 @@ public class PeriodParameters extends AbstractParameterPagingBase {
 	@Schema(description = "Sort order by date", examples = "true")
 	private Boolean ascending;
 
+	public static PeriodParameters create() {
+		return new PeriodParameters();
+	}
+
 	public String getPartyId() {
 		return partyId;
 	}
 
 	public void setPartyId(final String partyId) {
 		this.partyId = partyId;
+	}
+
+	public PeriodParameters withPartyId(final String partyId) {
+		this.partyId = partyId;
+		return this;
 	}
 
 	public LocalDate getFrom() {
@@ -50,6 +60,11 @@ public class PeriodParameters extends AbstractParameterPagingBase {
 		this.from = from;
 	}
 
+	public PeriodParameters withFrom(final LocalDate from) {
+		this.from = from;
+		return this;
+	}
+
 	public LocalDate getTo() {
 		return to;
 	}
@@ -58,11 +73,48 @@ public class PeriodParameters extends AbstractParameterPagingBase {
 		this.to = to;
 	}
 
+	public PeriodParameters withTo(final LocalDate to) {
+		this.to = to;
+		return this;
+	}
+
 	public Boolean getAscending() {
 		return ascending;
 	}
 
 	public void setAscending(final Boolean ascending) {
 		this.ascending = ascending;
+	}
+
+	public PeriodParameters withAscending(final Boolean ascending) {
+		this.ascending = ascending;
+		return this;
+	}
+
+	@Override
+	public boolean equals(final Object o) {
+		if (!(o instanceof final PeriodParameters that))
+			return false;
+		if (!super.equals(o))
+			return false;
+		return Objects.equals(partyId, that.partyId) && Objects.equals(from, that.from) && Objects.equals(to, that.to) && Objects.equals(ascending, that.ascending);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(super.hashCode(), partyId, from, to, ascending);
+
+	}
+
+	@Override
+	public String toString() {
+		return "PeriodParameters{" +
+			"partyId='" + partyId + '\'' +
+			", from=" + from +
+			", to=" + to +
+			", ascending=" + ascending +
+			", page=" + page +
+			", limit=" + limit +
+			'}';
 	}
 }

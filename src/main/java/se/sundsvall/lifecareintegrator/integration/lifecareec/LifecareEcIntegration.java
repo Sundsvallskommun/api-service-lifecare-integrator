@@ -11,7 +11,8 @@ import static java.util.Collections.emptyList;
 /**
  * Wrapper around {@link LifecareEcClient}. The EC list resources are queried per person via
  * {@code q=PersonId:&lt;personNumber&gt;}. The client is configured with {@code dismiss404 = true}, so a 404 surfaces
- * as {@code null} and is normalized to an empty list here.
+ * as {@code null} and is normalized to an empty
+ * list here.
  */
 @Component
 public class LifecareEcIntegration {
@@ -26,12 +27,12 @@ public class LifecareEcIntegration {
 	}
 
 	public List<WEECIntegrationContractsDecisionV1Decision> getSolDecisions(final String personNumber) {
-		return Optional.ofNullable(lifecareEcClient.getSolDecisions(null, null, PERSON_ID_QUERY.formatted(personNumber), FETCH_LIMIT, null))
+		return Optional.ofNullable(lifecareEcClient.getSolDecisions(PERSON_ID_QUERY.formatted(personNumber), FETCH_LIMIT))
 			.orElse(emptyList());
 	}
 
 	public List<WEECIntegrationContractsDecisionV1LssDecision> getLssDecisions(final String personNumber) {
-		return Optional.ofNullable(lifecareEcClient.getLssDecisions(null, null, PERSON_ID_QUERY.formatted(personNumber), FETCH_LIMIT, null))
+		return Optional.ofNullable(lifecareEcClient.getLssDecisions(PERSON_ID_QUERY.formatted(personNumber), FETCH_LIMIT))
 			.orElse(emptyList());
 	}
 }

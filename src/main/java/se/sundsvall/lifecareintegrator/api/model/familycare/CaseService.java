@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.util.List;
@@ -46,7 +47,7 @@ public class CaseService {
 	@Schema(description = "The name of the co-applicant", examples = "David Davidsson")
 	private String coApplicant;
 
-	@Schema(description = "The persons the service concerns")
+	@ArraySchema(schema = @Schema(description = "The persons the service concerns"))
 	private List<RelatedPerson> persons;
 
 	public static CaseService create() {

@@ -33,21 +33,21 @@ class LifecareEcIntegrationTest {
 		final var decision = new WEECIntegrationContractsDecisionV1Decision().id(123);
 
 		// Mock
-		when(lifecareEcClientMock.getSolDecisions(null, null, EXPECTED_QUERY, EXPECTED_LIMIT, null)).thenReturn(List.of(decision));
+		when(lifecareEcClientMock.getSolDecisions(EXPECTED_QUERY, EXPECTED_LIMIT)).thenReturn(List.of(decision));
 
 		// Act
 		final var result = lifecareEcIntegration.getSolDecisions(PERSON_NUMBER);
 
 		// Verify
 		assertThat(result).containsExactly(decision);
-		verify(lifecareEcClientMock).getSolDecisions(null, null, EXPECTED_QUERY, EXPECTED_LIMIT, null);
+		verify(lifecareEcClientMock).getSolDecisions(EXPECTED_QUERY, EXPECTED_LIMIT);
 		verifyNoMoreInteractions(lifecareEcClientMock);
 	}
 
 	@Test
 	void getSolDecisionsWithNullResponse() {
 		// Mock
-		when(lifecareEcClientMock.getSolDecisions(null, null, EXPECTED_QUERY, EXPECTED_LIMIT, null)).thenReturn(null);
+		when(lifecareEcClientMock.getSolDecisions(EXPECTED_QUERY, EXPECTED_LIMIT)).thenReturn(null);
 
 		// Act
 		final var result = lifecareEcIntegration.getSolDecisions(PERSON_NUMBER);
@@ -62,21 +62,21 @@ class LifecareEcIntegrationTest {
 		final var decision = new WEECIntegrationContractsDecisionV1LssDecision().id(456);
 
 		// Mock
-		when(lifecareEcClientMock.getLssDecisions(null, null, EXPECTED_QUERY, EXPECTED_LIMIT, null)).thenReturn(List.of(decision));
+		when(lifecareEcClientMock.getLssDecisions(EXPECTED_QUERY, EXPECTED_LIMIT)).thenReturn(List.of(decision));
 
 		// Act
 		final var result = lifecareEcIntegration.getLssDecisions(PERSON_NUMBER);
 
 		// Verify
 		assertThat(result).containsExactly(decision);
-		verify(lifecareEcClientMock).getLssDecisions(null, null, EXPECTED_QUERY, EXPECTED_LIMIT, null);
+		verify(lifecareEcClientMock).getLssDecisions(EXPECTED_QUERY, EXPECTED_LIMIT);
 		verifyNoMoreInteractions(lifecareEcClientMock);
 	}
 
 	@Test
 	void getLssDecisionsWithNullResponse() {
 		// Mock
-		when(lifecareEcClientMock.getLssDecisions(null, null, EXPECTED_QUERY, EXPECTED_LIMIT, null)).thenReturn(null);
+		when(lifecareEcClientMock.getLssDecisions(EXPECTED_QUERY, EXPECTED_LIMIT)).thenReturn(null);
 
 		// Act
 		final var result = lifecareEcIntegration.getLssDecisions(PERSON_NUMBER);

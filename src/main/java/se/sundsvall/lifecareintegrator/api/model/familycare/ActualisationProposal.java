@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.Objects;
@@ -8,25 +9,25 @@ import se.sundsvall.lifecareintegrator.api.model.common.Lookup;
 @Schema(description = "A proposal with the valid values needed to create an actualisation in Lifecare FC")
 public class ActualisationProposal {
 
-	@Schema(description = "The valid actualisation types")
+	@ArraySchema(schema = @Schema(description = "The valid actualisation types"))
 	private List<ActualisationType> actualisationTypes;
 
-	@Schema(description = "The valid specify types")
+	@ArraySchema(schema = @Schema(description = "The valid specify types"))
 	private List<Lookup> specifyTypes;
 
-	@Schema(description = "The valid working statuses")
+	@ArraySchema(schema = @Schema(description = "The valid working statuses"))
 	private List<Lookup> workingStatus;
 
-	@Schema(description = "The valid organizations")
+	@ArraySchema(schema = @Schema(description = "The valid organizations"))
 	private List<Organization> organizations;
 
-	@Schema(description = "The investigations that can be linked to")
+	@ArraySchema(schema = @Schema(description = "The investigations that can be linked to"))
 	private List<ProposalCase> investigations;
 
-	@Schema(description = "The services that can be linked to")
+	@ArraySchema(schema = @Schema(description = "The services that can be linked to"))
 	private List<ProposalCase> services;
 
-	@Schema(description = "The valid attachment types")
+	@ArraySchema(schema = @Schema(description = "The valid attachment types"))
 	private List<AttachmentType> attachmentTypes;
 
 	public static ActualisationProposal create() {

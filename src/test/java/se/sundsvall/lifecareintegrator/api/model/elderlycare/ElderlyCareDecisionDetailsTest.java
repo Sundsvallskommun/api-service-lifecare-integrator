@@ -92,35 +92,36 @@ class ElderlyCareDecisionDetailsTest {
 			.withIncreasedHourlyAmount(increasedHourlyAmount)
 			.withStandardAmount(standardAmount)
 			.withSfbCaseworker(sfbCaseworker);
+		final var expected = new ElderlyCareDecisionDetails();
+		expected.setInvestigationId(investigationId);
+		expected.setCode(code);
+		expected.setServiceCategory(serviceCategory);
+		expected.setHours(hours);
+		expected.setHourType(hourType);
+		expected.setAmountType(amountType);
+		expected.setQuantity(quantity);
+		expected.setQuantityType(quantityType);
+		expected.setVisits(visits);
+		expected.setVisitType(visitType);
+		expected.setDays(days);
+		expected.setDayType(dayType);
+		expected.setDecisionLevel(decisionLevel);
+		expected.setExecutionStartDate(executionStartDate);
+		expected.setExecutionEndDate(executionEndDate);
+		expected.setIterationNumber(iterationNumber);
+		expected.setDaysOfDecision(daysOfDecision);
+		expected.setOrderIds(orderIds);
+		expected.setDeleted(deleted);
+		expected.setPersonCategory1(personCategory1);
+		expected.setPersonCategory2(personCategory2);
+		expected.setPersonCategory3(personCategory3);
+		expected.setPersonCategory3P(personCategory3P);
+		expected.setIncreasedHourlyAmount(increasedHourlyAmount);
+		expected.setStandardAmount(standardAmount);
+		expected.setSfbCaseworker(sfbCaseworker);
 
 		// Assert
-		assertThat(result.getInvestigationId()).isEqualTo(investigationId);
-		assertThat(result.getCode()).isEqualTo(code);
-		assertThat(result.getServiceCategory()).isEqualTo(serviceCategory);
-		assertThat(result.getHours()).isEqualTo(hours);
-		assertThat(result.getHourType()).isEqualTo(hourType);
-		assertThat(result.getAmountType()).isEqualTo(amountType);
-		assertThat(result.getQuantity()).isEqualTo(quantity);
-		assertThat(result.getQuantityType()).isEqualTo(quantityType);
-		assertThat(result.getVisits()).isEqualTo(visits);
-		assertThat(result.getVisitType()).isEqualTo(visitType);
-		assertThat(result.getDays()).isEqualTo(days);
-		assertThat(result.getDayType()).isEqualTo(dayType);
-		assertThat(result.getDecisionLevel()).isEqualTo(decisionLevel);
-		assertThat(result.getExecutionStartDate()).isEqualTo(executionStartDate);
-		assertThat(result.getExecutionEndDate()).isEqualTo(executionEndDate);
-		assertThat(result.getIterationNumber()).isEqualTo(iterationNumber);
-		assertThat(result.getDaysOfDecision()).isEqualTo(daysOfDecision);
-		assertThat(result.getOrderIds()).isEqualTo(orderIds);
-		assertThat(result.getDeleted()).isEqualTo(deleted);
-		assertThat(result.getPersonCategory1()).isEqualTo(personCategory1);
-		assertThat(result.getPersonCategory2()).isEqualTo(personCategory2);
-		assertThat(result.getPersonCategory3()).isEqualTo(personCategory3);
-		assertThat(result.getPersonCategory3P()).isEqualTo(personCategory3P);
-		assertThat(result.getIncreasedHourlyAmount()).isEqualTo(increasedHourlyAmount);
-		assertThat(result.getStandardAmount()).isEqualTo(standardAmount);
-		assertThat(result.getSfbCaseworker()).isEqualTo(sfbCaseworker);
-		assertThat(result).hasNoNullFieldsOrProperties();
+		assertThat(result).usingRecursiveComparison().isEqualTo(expected);
 	}
 
 	@Test

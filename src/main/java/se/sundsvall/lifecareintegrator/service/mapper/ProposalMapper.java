@@ -2,10 +2,8 @@ package se.sundsvall.lifecareintegrator.service.mapper;
 
 import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringProposalDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedCalculationProposalDTO;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import se.sundsvall.lifecareintegrator.api.model.common.Lookup;
 import se.sundsvall.lifecareintegrator.api.model.familycare.ActualisationProposal;
 import se.sundsvall.lifecareintegrator.api.model.familycare.ActualisationReference;
@@ -17,7 +15,7 @@ import se.sundsvall.lifecareintegrator.api.model.familycare.Norm;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Organization;
 import se.sundsvall.lifecareintegrator.api.model.familycare.ProposalCase;
 
-import static java.util.Collections.emptyList;
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.mapList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
 
 /**
@@ -111,11 +109,4 @@ public final class ProposalMapper {
 			.withName(name);
 	}
 
-	private static <S, T> List<T> mapList(final List<S> source, final Function<S, T> mapper) {
-		return Optional.ofNullable(source)
-			.map(list -> list.stream()
-				.map(mapper)
-				.toList())
-			.orElse(emptyList());
-	}
 }

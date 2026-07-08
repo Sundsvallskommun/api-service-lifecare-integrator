@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -53,16 +54,16 @@ public class CreateCalculationRequest {
 	@Schema(description = "The size of the household", examples = "4")
 	private Integer householdSize;
 
-	@Schema(description = "The persons included in the calculation")
+	@ArraySchema(schema = @Schema(description = "The persons included in the calculation"))
 	private List<@Valid CalculationPersonRequest> persons;
 
-	@Schema(description = "The incomes included in the calculation")
+	@ArraySchema(schema = @Schema(description = "The incomes included in the calculation"))
 	private List<@Valid CalculationIncomeRequest> incomes;
 
-	@Schema(description = "The expenses included in the calculation")
+	@ArraySchema(schema = @Schema(description = "The expenses included in the calculation"))
 	private List<@Valid CalculationExpenseRequest> expenses;
 
-	@Schema(description = "The special expenses included in the calculation")
+	@ArraySchema(schema = @Schema(description = "The special expenses included in the calculation"))
 	private List<@Valid CalculationExpenseRequest> specialExpenses;
 
 	public static CreateCalculationRequest create() {

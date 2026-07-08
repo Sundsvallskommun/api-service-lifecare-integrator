@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.familycare;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.Objects;
@@ -14,7 +15,7 @@ public class AttachmentType {
 	@Schema(description = "The name of the attachment type", examples = "Ansökan")
 	private String name;
 
-	@Schema(description = "The valid sender types for this attachment type")
+	@ArraySchema(schema = @Schema(description = "The valid sender types for this attachment type"))
 	private List<Lookup> senderTypes;
 
 	public static AttachmentType create() {

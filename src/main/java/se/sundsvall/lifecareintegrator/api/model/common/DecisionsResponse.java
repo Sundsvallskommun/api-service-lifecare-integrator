@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api.model.common;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.Objects;
@@ -7,10 +8,10 @@ import java.util.Objects;
 @Schema(description = "The merged decisions from all Lifecare sources, with per-source fetch status")
 public class DecisionsResponse {
 
-	@Schema(description = "The merged decisions, sorted by decision date (most recent first)")
+	@ArraySchema(schema = @Schema(description = "The merged decisions, sorted by decision date (most recent first)"))
 	private List<Decision> decisions;
 
-	@Schema(description = "The fetch status per decision source")
+	@ArraySchema(schema = @Schema(description = "The fetch status per decision source"))
 	private List<SourceStatus> sources;
 
 	public static DecisionsResponse create() {
