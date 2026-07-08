@@ -1,0 +1,33 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-fc/apifc/v1/Contacts",
+		"queryParameters": {
+			"personId": {
+				"equalTo": "199001011234"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": [
+			{
+				"Id": 55,
+				"Name": "Bertil Berg",
+				"EmploymentTitle": "Kontaktperson",
+				"OrganizationName": "Kommunen",
+				"Phone": "060-123456",
+				"Email": "bertil@example.com",
+				"TypeOfContact": "Anhörig",
+				"Address": {
+					"StreetAddress": "Lillgatan 2",
+					"PostalCode": "85102",
+					"PostalAddress": "Sundsvall"
+				}
+			}
+		],
+		"status": 200
+	}
+}

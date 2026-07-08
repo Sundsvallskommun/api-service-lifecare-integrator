@@ -1,0 +1,63 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-fc/apifc/v1/Calculations/Proposals",
+		"queryParameters": {
+			"personId": {
+				"equalTo": "199001011234"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"Investigations": [],
+			"Services": [],
+			"Norms": [
+				{
+					"Id": 1,
+					"Name": "Riksnorm",
+					"FromDate": "2025-01-01T00:00:00Z",
+					"ToDate": "2025-12-31T00:00:00Z"
+				}
+			],
+			"HouseholdMembers": [
+				{
+					"PersonId": "199203034567",
+					"Name": "Barn Andersson",
+					"ChildFromOtherHousehold": false
+				}
+			],
+			"CalculationIncomeTypes": [
+				{
+					"Id": 10,
+					"Name": "Lön"
+				}
+			],
+			"CalculationExpenseTypes": [
+				{
+					"Id": 20,
+					"Name": "Hyra"
+				}
+			],
+			"CalculationSpecialExpenseTypes": [
+				{
+					"Id": 30,
+					"Name": "Medicin"
+				}
+			],
+			"AktualiseringMandatory": false,
+			"NumberOfFamilyMembersNotInHousehold": 0,
+			"Aktualiserings": [
+				{
+					"Id": 40,
+					"Type": "Ansökan",
+					"Date": "2025-04-01T00:00:00Z"
+				}
+			]
+		},
+		"status": 200
+	}
+}

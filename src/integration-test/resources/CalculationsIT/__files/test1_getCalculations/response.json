@@ -1,0 +1,43 @@
+{
+	"calculations": [
+		{
+			"balance": -2000.0,
+			"expenseSum": 3000.0,
+			"expenses": [
+				{
+					"appliedAmount": 3000.0,
+					"approvedAmount": 3000.0,
+					"type": "Hyra"
+				}
+			],
+			"finalCalculation": true,
+			"fromDate": "2025-05-01",
+			"id": 1301,
+			"incomeSum": 5000.0,
+			"incomes": [
+				{
+					"amountApplicant": 5000.0,
+					"type": "Lön"
+				}
+			],
+			"norm": "Riksnorm",
+			"normSum": 8000.0,
+			"persons": [
+				{
+					"amount": 8000.0,
+					"name": "Anna Andersson"
+				}
+			],
+			"specialExpenses": [],
+			"toDate": "2025-05-31",
+			"totalSum": -2000.0
+		}
+	],
+	"_meta": {
+		"page": 1,
+		"limit": 20,
+		"count": 1,
+		"totalPages": 1,
+		"totalRecords": 1
+	}
+}

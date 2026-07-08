@@ -1,0 +1,26 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-fc/apifc/v1/Persons",
+		"queryParameters": {
+			"personId": {
+				"equalTo": "199001011234"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"PersonId": "199001011234",
+			"CustomerNumber": 100,
+			"Name": "Anna Andersson",
+			"StreetAddress": "Storgatan 1",
+			"PostalCode": "85101",
+			"PostalAddress": "Sundsvall",
+			"Email": "anna@example.com"
+		},
+		"status": 200
+	}
+}

@@ -1,0 +1,25 @@
+{
+	"services": [
+		{
+			"applicant": "Anna Andersson",
+			"caseworker": "Handläggare",
+			"endDate": "2025-12-31",
+			"id": 901,
+			"organization": "IFO",
+			"persons": [
+				{
+					"name": "Anna Andersson"
+				}
+			],
+			"startDate": "2025-01-01",
+			"type": "Insats"
+		}
+	],
+	"_meta": {
+		"page": 1,
+		"limit": 20,
+		"count": 1,
+		"totalPages": 1,
+		"totalRecords": 1
+	}
+}

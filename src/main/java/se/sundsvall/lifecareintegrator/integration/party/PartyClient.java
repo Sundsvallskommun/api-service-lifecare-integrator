@@ -24,4 +24,9 @@ public interface PartyClient {
 		@PathVariable final String municipalityId,
 		@RequestBody final List<String> partyIds);
 
+	@PostMapping(path = "/{municipalityId}/PRIVATE/partyIds", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+	Map<String, String> getPartyIds(
+		@PathVariable final String municipalityId,
+		@RequestBody final List<String> personNumbers);
+
 }

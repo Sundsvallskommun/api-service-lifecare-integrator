@@ -1,0 +1,57 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-fc/apifc/v1/Calculations",
+		"queryParameters": {
+			"personId": {
+				"equalTo": "199001011234"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"PageNumber": 1,
+			"PageSize": 20,
+			"TotalNumberOfPages": 1,
+			"TotalNumberOfRecords": 1,
+			"Result": [
+				{
+					"Id": 1301,
+					"Norm": "Riksnorm",
+					"FromDate": "2025-05-01T00:00:00Z",
+					"ToDate": "2025-05-31T00:00:00Z",
+					"IncomeSum": 5000.0,
+					"ExpenseSum": 3000.0,
+					"NormSum": 8000.0,
+					"Balance": -2000.0,
+					"TotalSum": -2000.0,
+					"Final": true,
+					"CalculationPersonDTOs": [
+						{
+							"Name": "Anna Andersson",
+							"Amount": 8000.0,
+							"PersonId": "199001011234"
+						}
+					],
+					"CalculationIncomesDTOs": [
+						{
+							"Type": "Lön",
+							"AmountApplicant": 5000.0
+						}
+					],
+					"CalculationExpensesDTOs": [
+						{
+							"Type": "Hyra",
+							"AppliedAmount": 3000.0,
+							"ApprovedAmount": 3000.0
+						}
+					]
+				}
+			]
+		},
+		"status": 200
+	}
+}

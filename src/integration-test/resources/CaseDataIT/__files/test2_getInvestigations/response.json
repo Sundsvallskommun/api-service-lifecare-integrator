@@ -1,0 +1,26 @@
+{
+	"investigations": [
+		{
+			"applicant": "Anna Andersson",
+			"caseworker": "Utredare",
+			"fromDate": "2025-01-01",
+			"id": 801,
+			"organization": "IFO",
+			"persons": [
+				{
+					"coApplicant": false,
+					"name": "Anna Andersson"
+				}
+			],
+			"toDate": "2025-06-30",
+			"type": "Utredning"
+		}
+	],
+	"_meta": {
+		"page": 1,
+		"limit": 20,
+		"count": 1,
+		"totalPages": 1,
+		"totalRecords": 1
+	}
+}

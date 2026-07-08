@@ -1,0 +1,18 @@
+{
+	"documents": [
+		{
+			"date": "2025-06-01",
+			"documentType": "Beslut",
+			"id": "12345",
+			"ownerType": "Person",
+			"title": "Beslutsdokument"
+		}
+	],
+	"_meta": {
+		"page": 1,
+		"limit": 20,
+		"count": 1,
+		"totalPages": 1,
+		"totalRecords": 1
+	}
+}

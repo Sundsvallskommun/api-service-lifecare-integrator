@@ -3,4 +3,28 @@
 #========================================
 logging:
   level:
-    root: DEBUG
+    root: INFO
+spring:
+  main:
+    banner-mode: 'off'
+  security:
+    oauth2:
+      client:
+        provider:
+          party:
+            token-uri: http://localhost:${wiremock.server.port}/token
+        registration:
+          party:
+            client-id: the-client-id
+            client-secret: the-client-secret
+integration:
+  lifecare-ec:
+    url: http://localhost:${wiremock.server.port}/lifecare-ec
+    domain: it-domain
+    key: it-key
+  lifecare-fc:
+    url: http://localhost:${wiremock.server.port}/lifecare-fc
+    domain: it-domain
+    key: it-key
+  party:
+    url: http://localhost:${wiremock.server.port}/party

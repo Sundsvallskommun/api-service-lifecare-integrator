@@ -1,0 +1,40 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-fc/apifc/v1/Services",
+		"queryParameters": {
+			"personId": {
+				"equalTo": "199001011234"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"PageNumber": 1,
+			"PageSize": 20,
+			"TotalNumberOfPages": 1,
+			"TotalNumberOfRecords": 1,
+			"Result": [
+				{
+					"Id": 901,
+					"Type": "Insats",
+					"Organization": "IFO",
+					"StartDate": "2025-01-01T00:00:00Z",
+					"EndDate": "2025-12-31T00:00:00Z",
+					"Caseworker": "Handläggare",
+					"Applicant": "Anna Andersson",
+					"ServicePersonDTOs": [
+						{
+							"Name": "Anna Andersson",
+							"PersonId": "199001011234"
+						}
+					]
+				}
+			]
+		},
+		"status": 200
+	}
+}

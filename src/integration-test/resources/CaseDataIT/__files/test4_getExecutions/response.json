@@ -1,0 +1,20 @@
+{
+	"executions": [
+		{
+			"caseworker": "Handläggare",
+			"dossierType": "Akt",
+			"fromDate": "2025-02-01",
+			"id": 1001,
+			"organization": "IFO",
+			"toDate": "2025-08-31",
+			"type": "Verkställighet"
+		}
+	],
+	"_meta": {
+		"page": 1,
+		"limit": 20,
+		"count": 1,
+		"totalPages": 1,
+		"totalRecords": 1
+	}
+}

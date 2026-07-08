@@ -36,11 +36,8 @@ public interface LifecareEcClient {
 	 */
 	@GetMapping(path = "/api/v1/sol_decisions", produces = APPLICATION_JSON_VALUE)
 	List<WEECIntegrationContractsDecisionV1Decision> getSolDecisions(
-		@RequestParam(value = "gt", required = false) final String gt,
-		@RequestParam(value = "lt", required = false) final String lt,
 		@RequestParam(value = "q", required = false) final String q,
-		@RequestParam(value = "limit", required = false) final Integer limit,
-		@RequestParam(value = "offset", required = false) final Integer offset);
+		@RequestParam(value = "limit", required = false) final Integer limit);
 
 	/**
 	 * Read a single SoL decision by its Lifecare id.
@@ -63,11 +60,8 @@ public interface LifecareEcClient {
 	 */
 	@GetMapping(path = "/api/v1/lss_decisions", produces = APPLICATION_JSON_VALUE)
 	List<WEECIntegrationContractsDecisionV1LssDecision> getLssDecisions(
-		@RequestParam(value = "gt", required = false) final String gt,
-		@RequestParam(value = "lt", required = false) final String lt,
 		@RequestParam(value = "q", required = false) final String q,
-		@RequestParam(value = "limit", required = false) final Integer limit,
-		@RequestParam(value = "offset", required = false) final Integer offset);
+		@RequestParam(value = "limit", required = false) final Integer limit);
 
 	/**
 	 * Read a single LSS decision by its Lifecare id.

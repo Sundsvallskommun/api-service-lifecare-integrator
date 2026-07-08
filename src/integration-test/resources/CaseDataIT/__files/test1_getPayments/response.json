@@ -1,0 +1,23 @@
+{
+	"payments": [
+		{
+			"amount": 1500.0,
+			"id": 701,
+			"name": "Anna Andersson",
+			"payDate": "2025-05-10",
+			"paymentMethod": "Bankgiro",
+			"persons": [
+				{
+					"name": "Anna Andersson"
+				}
+			]
+		}
+	],
+	"_meta": {
+		"page": 1,
+		"limit": 20,
+		"count": 1,
+		"totalPages": 1,
+		"totalRecords": 1
+	}
+}

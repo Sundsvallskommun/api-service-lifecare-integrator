@@ -1,0 +1,41 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-fc/apifc/v1/Investigations",
+		"queryParameters": {
+			"personId": {
+				"equalTo": "199001011234"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"PageNumber": 1,
+			"PageSize": 20,
+			"TotalNumberOfPages": 1,
+			"TotalNumberOfRecords": 1,
+			"Result": [
+				{
+					"Id": 801,
+					"Type": "Utredning",
+					"FromDate": "2025-01-01T00:00:00Z",
+					"ToDate": "2025-06-30T00:00:00Z",
+					"Caseworker": "Utredare",
+					"Organization": "IFO",
+					"Applicant": "Anna Andersson",
+					"InvestigationPersonDTOs": [
+						{
+							"Name": "Anna Andersson",
+							"CoApplicant": false,
+							"PersonId": "199001011234"
+						}
+					]
+				}
+			]
+		},
+		"status": 200
+	}
+}

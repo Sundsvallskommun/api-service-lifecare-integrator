@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.integration.lifecareec.configuration;
 
 import feign.Logger;
+import feign.RequestTemplate;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -34,13 +35,15 @@ public class LifecareEcConfiguration {
 	FeignBuilderCustomizer feignBuilderCustomizer(final LifecareEcProperties properties) {
 		return FeignMultiCustomizer.create()
 			.withErrorDecoder(new ProblemErrorDecoder(CLIENT_ID))
-			.withRequestInterceptor(template -> {
-				template.query("domain", properties.domain());
-				template.query("key", properties.key());
-				template.header("X-API-Key", properties.key());
-			})
+			.withRequestInterceptor(template -> addAuthentication(template, properties))
 			.withCustomizer(builder -> builder.logLevel(Logger.Level.valueOf(properties.logLevel())))
 			.withRequestTimeoutsInSeconds(properties.connectTimeout(), properties.readTimeout())
 			.composeCustomizersToOne();
+	}
+
+	private static void addAuthentication(final RequestTemplate template, final LifecareEcProperties properties) {
+		template.query("domain", properties.domain());
+		template.query("key", properties.key());
+		template.header("X-API-Key", properties.key());
 	}
 }

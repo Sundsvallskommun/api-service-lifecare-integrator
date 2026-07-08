@@ -1,0 +1,34 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-fc/apifc/v1/ResourceAllocations",
+		"queryParameters": {
+			"personId": {
+				"equalTo": "199001011234"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"PageNumber": 1,
+			"PageSize": 20,
+			"TotalNumberOfPages": 1,
+			"TotalNumberOfRecords": 1,
+			"Result": [
+				{
+					"Id": 1101,
+					"StartDate": "2025-03-01T00:00:00Z",
+					"EndDate": "2025-09-30T00:00:00Z",
+					"Percent": 50.0,
+					"Resource": "Personal",
+					"ResourceType": "Typ",
+					"ServiceId": 901
+				}
+			]
+		},
+		"status": 200
+	}
+}

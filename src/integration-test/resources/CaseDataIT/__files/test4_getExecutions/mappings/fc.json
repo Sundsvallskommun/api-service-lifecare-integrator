@@ -1,0 +1,34 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-fc/apifc/v1/Executions",
+		"queryParameters": {
+			"personId": {
+				"equalTo": "199001011234"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"PageNumber": 1,
+			"PageSize": 20,
+			"TotalNumberOfPages": 1,
+			"TotalNumberOfRecords": 1,
+			"Result": [
+				{
+					"Id": 1001,
+					"Type": "Verkställighet",
+					"FromDate": "2025-02-01T00:00:00Z",
+					"ToDate": "2025-08-31T00:00:00Z",
+					"Caseworker": "Handläggare",
+					"Organization": "IFO",
+					"DossierType": "Akt"
+				}
+			]
+		},
+		"status": 200
+	}
+}

@@ -1,0 +1,22 @@
+{
+	"actualisations": [
+		{
+			"caseworker": "Handläggare",
+			"date": "2025-04-01",
+			"fromWho": "Klient",
+			"id": 1201,
+			"name": "Ansökan om bistånd",
+			"organization": "IFO",
+			"reason": "Behov",
+			"status": "Öppen",
+			"type": "Ansökan"
+		}
+	],
+	"_meta": {
+		"page": 1,
+		"limit": 20,
+		"count": 1,
+		"totalPages": 1,
+		"totalRecords": 1
+	}
+}

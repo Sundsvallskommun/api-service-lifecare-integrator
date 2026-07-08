@@ -1,0 +1,38 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-fc/apifc/v1/Payments",
+		"queryParameters": {
+			"personId": {
+				"equalTo": "199001011234"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"PageNumber": 1,
+			"PageSize": 20,
+			"TotalNumberOfPages": 1,
+			"TotalNumberOfRecords": 1,
+			"Result": [
+				{
+					"Id": 701,
+					"Amount": 1500.0,
+					"PaymentMethod": "Bankgiro",
+					"PayDate": "2025-05-10T00:00:00Z",
+					"Name": "Anna Andersson",
+					"PaymentPersonDTOs": [
+						{
+							"Name": "Anna Andersson",
+							"PersonId": "199001011234"
+						}
+					]
+				}
+			]
+		},
+		"status": 200
+	}
+}
