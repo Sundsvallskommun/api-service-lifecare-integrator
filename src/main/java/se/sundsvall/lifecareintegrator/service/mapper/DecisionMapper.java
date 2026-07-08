@@ -6,7 +6,6 @@ import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1Decis
 import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1LssDecision;
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionPersonDTO;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
@@ -40,11 +39,7 @@ public final class DecisionMapper {
 				.withReason(toText(source.getReason()))
 				.withDecisionMaker(toFullName(source.getCaseworker()))
 				.withAmount(toBigDecimal(source.getAmount()))
-				.withElderlyCareDetails(toElderlyCareDecisionDetails(
-					source.getInvestigationId(), source.getCode(), source.getServiceCategory(), source.getHour(), source.getHourType(), source.getAmountType(),
-					source.getQuantity(), source.getQuantityType(), source.getVisit(), source.getVisitType(), source.getDay(), source.getDayType(),
-					source.getDecisionLevel(), source.getExecutionStartDate(), source.getExecutionEndDate(), source.getIterationNumber(), source.getDaysOfDecision(),
-					source.getOrderIds(), source.getDeleted())))
+				.withElderlyCareDetails(toElderlyCareDecisionDetails(source)))
 			.orElse(null);
 	}
 
@@ -61,11 +56,7 @@ public final class DecisionMapper {
 				.withReason(toText(source.getReason()))
 				.withDecisionMaker(toFullName(source.getCaseworker()))
 				.withAmount(toBigDecimal(source.getAmount()))
-				.withElderlyCareDetails(toElderlyCareDecisionDetails(
-					source.getInvestigationId(), source.getCode(), source.getServiceCategory(), source.getHour(), source.getHourType(), source.getAmountType(),
-					source.getQuantity(), source.getQuantityType(), source.getVisit(), source.getVisitType(), source.getDay(), source.getDayType(),
-					source.getDecisionLevel(), source.getExecutionStartDate(), source.getExecutionEndDate(), source.getIterationNumber(), source.getDaysOfDecision(),
-					source.getOrderIds(), source.getDeleted())
+				.withElderlyCareDetails(toElderlyCareDecisionDetails(toBaseDecision(source))
 					// LSS-only fields on top of the shared elderly-care details
 					.withPersonCategory1(source.getPersonCategory1())
 					.withPersonCategory2(source.getPersonCategory2())
@@ -101,35 +92,57 @@ public final class DecisionMapper {
 	}
 
 	/**
-	 * Builds the elderly-care details shared by SoL and LSS decisions (the two vendor types have no common supertype, so
-	 * the shared field wiring lives here). LSS decisions add their extra fields onto the returned object.
+	 * Builds the elderly-care details shared by SoL and LSS decisions. An LSS decision is a base decision plus extra
+	 * fields; it is adapted to the base type via {@link #toBaseDecision} so this single mapper serves both.
 	 */
-	private static ElderlyCareDecisionDetails toElderlyCareDecisionDetails(final Integer investigationId, final WEECIntegrationContractsCommonV1CodeText code,
-		final WEECIntegrationContractsCommonV1CodeText serviceCategory, final Double hours, final WEECIntegrationContractsCommonV1CodeText hourType,
-		final WEECIntegrationContractsCommonV1CodeText amountType, final Double quantity, final WEECIntegrationContractsCommonV1CodeText quantityType,
-		final Double visits, final WEECIntegrationContractsCommonV1CodeText visitType, final Double days, final WEECIntegrationContractsCommonV1CodeText dayType,
-		final WEECIntegrationContractsCommonV1CodeText decisionLevel, final OffsetDateTime executionStartDate, final OffsetDateTime executionEndDate,
-		final Integer iterationNumber, final Double daysOfDecision, final List<Integer> orderIds, final Boolean deleted) {
+	private static ElderlyCareDecisionDetails toElderlyCareDecisionDetails(final WEECIntegrationContractsDecisionV1Decision source) {
 		return ElderlyCareDecisionDetails.create()
-			.withInvestigationId(investigationId)
-			.withCode(toText(code))
-			.withServiceCategory(toText(serviceCategory))
-			.withHours(hours)
-			.withHourType(toText(hourType))
-			.withAmountType(toText(amountType))
-			.withQuantity(quantity)
-			.withQuantityType(toText(quantityType))
-			.withVisits(visits)
-			.withVisitType(toText(visitType))
-			.withDays(days)
-			.withDayType(toText(dayType))
-			.withDecisionLevel(toText(decisionLevel))
-			.withExecutionStartDate(toLocalDate(executionStartDate))
-			.withExecutionEndDate(toLocalDate(executionEndDate))
-			.withIterationNumber(iterationNumber)
-			.withDaysOfDecision(daysOfDecision)
-			.withOrderIds(orderIds)
-			.withDeleted(deleted);
+			.withInvestigationId(source.getInvestigationId())
+			.withCode(toText(source.getCode()))
+			.withServiceCategory(toText(source.getServiceCategory()))
+			.withHours(source.getHour())
+			.withHourType(toText(source.getHourType()))
+			.withAmountType(toText(source.getAmountType()))
+			.withQuantity(source.getQuantity())
+			.withQuantityType(toText(source.getQuantityType()))
+			.withVisits(source.getVisit())
+			.withVisitType(toText(source.getVisitType()))
+			.withDays(source.getDay())
+			.withDayType(toText(source.getDayType()))
+			.withDecisionLevel(toText(source.getDecisionLevel()))
+			.withExecutionStartDate(toLocalDate(source.getExecutionStartDate()))
+			.withExecutionEndDate(toLocalDate(source.getExecutionEndDate()))
+			.withIterationNumber(source.getIterationNumber())
+			.withDaysOfDecision(source.getDaysOfDecision())
+			.withOrderIds(source.getOrderIds())
+			.withDeleted(source.getDeleted());
+	}
+
+	/**
+	 * Adapts an LSS decision to the base decision type by copying the fields the two share, so the base
+	 * {@link #toElderlyCareDecisionDetails} mapper can be reused. The LSS-only fields are handled by the caller.
+	 */
+	private static WEECIntegrationContractsDecisionV1Decision toBaseDecision(final WEECIntegrationContractsDecisionV1LssDecision lss) {
+		return new WEECIntegrationContractsDecisionV1Decision()
+			.investigationId(lss.getInvestigationId())
+			.code(lss.getCode())
+			.serviceCategory(lss.getServiceCategory())
+			.hour(lss.getHour())
+			.hourType(lss.getHourType())
+			.amountType(lss.getAmountType())
+			.quantity(lss.getQuantity())
+			.quantityType(lss.getQuantityType())
+			.visit(lss.getVisit())
+			.visitType(lss.getVisitType())
+			.day(lss.getDay())
+			.dayType(lss.getDayType())
+			.decisionLevel(lss.getDecisionLevel())
+			.executionStartDate(lss.getExecutionStartDate())
+			.executionEndDate(lss.getExecutionEndDate())
+			.iterationNumber(lss.getIterationNumber())
+			.daysOfDecision(lss.getDaysOfDecision())
+			.orderIds(lss.getOrderIds())
+			.deleted(lss.getDeleted());
 	}
 
 	private static List<RelatedPerson> toRelatedPersons(final List<PersonBasedDecisionPersonDTO> persons) {
