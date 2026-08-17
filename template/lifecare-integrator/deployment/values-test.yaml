@@ -1,5 +1,0 @@
-spring-boot-chart:
-  spring:
-    profile: "test"
-    secrets:
-      mountEnabled: true

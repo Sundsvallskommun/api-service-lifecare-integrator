@@ -1,3 +1,0 @@
-{{ include "uf-spring-boot.configmap.boilerplate" . }}
-data:
-{{ include "uf-spring-boot.profile.config.files" . }}
