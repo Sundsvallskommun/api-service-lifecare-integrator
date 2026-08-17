@@ -1,0 +1,9 @@
+spring-boot-pipeline:
+  applicationName: lifecare-integrator
+  imageRepository: evil.sundsvall.se/utvecklingsfabriken
+  namespace: api-fabriken
+
+  github:
+    url: git@github.com:Sundsvallskommun/api-service-lifecare-integrator.git
+  gitlab:
+    url: git@gitlab.sundsvall.se:argocd/api-services/lifecare-integrator.git

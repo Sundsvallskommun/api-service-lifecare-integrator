@@ -1,0 +1,5 @@
+spring-boot-chart:
+  spring:
+    profile: "production"
+    secrets:
+      mountEnabled: true

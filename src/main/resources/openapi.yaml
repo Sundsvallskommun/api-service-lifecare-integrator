@@ -85,7 +85,7 @@ paths:
             type: boolean
             description: Sort order by date
             examples:
-              - "true"
+              - true
         - name: page
           in: query
           description: Page number
@@ -236,7 +236,7 @@ paths:
             type: boolean
             description: Sort order by date
             examples:
-              - "true"
+              - true
         - name: page
           in: query
           description: Page number
@@ -529,7 +529,7 @@ paths:
             type: boolean
             description: Sort order by date
             examples:
-              - "true"
+              - true
         - name: page
           in: query
           description: Page number
@@ -633,7 +633,7 @@ paths:
             type: boolean
             description: Sort order by date
             examples:
-              - "true"
+              - true
         - name: page
           in: query
           description: Page number
@@ -784,7 +784,7 @@ paths:
             type: boolean
             description: Sort order by date
             examples:
-              - "true"
+              - true
         - name: page
           in: query
           description: Page number
@@ -887,7 +887,7 @@ paths:
             type: boolean
             description: Sort order by date
             examples:
-              - "true"
+              - true
         - name: page
           in: query
           description: Page number
@@ -990,7 +990,7 @@ paths:
             type: boolean
             description: Sort order by date
             examples:
-              - "true"
+              - true
         - name: page
           in: query
           description: Page number
@@ -1094,7 +1094,7 @@ paths:
             type: boolean
             description: Sort order by date
             examples:
-              - "true"
+              - true
         - name: page
           in: query
           description: Page number
@@ -1603,7 +1603,7 @@ components:
           type: boolean
           description: Whether a custom household size is used
           examples:
-            - "false"
+            - false
         householdSize:
           type: integer
           format: int32
@@ -1834,7 +1834,7 @@ components:
           type: boolean
           description: Whether the user account is disabled
           examples:
-            - "false"
+            - false
     CaseService:
       type: object
       description: A service (insats) from the Lifecare family care system
@@ -1969,7 +1969,7 @@ components:
           description: Whether the person is a co-applicant. Null when the source
             does not state a role
           examples:
-            - "false"
+            - false
     PagedResourceAllocationResponse:
       type: object
       description: A paged list of resource allocations from the Lifecare family care
@@ -2086,17 +2086,17 @@ components:
           type: boolean
           description: Whether the person's address is protected
           examples:
-            - "false"
+            - false
         secretPhone:
           type: boolean
           description: Whether the person's phone number is secret
           examples:
-            - "false"
+            - false
         protectedRegistration:
           type: boolean
           description: Whether the person has protected registration
           examples:
-            - "false"
+            - false
     PagedPaymentResponse:
       type: object
       description: A paged list of payments from the Lifecare family care system
@@ -2585,35 +2585,35 @@ components:
           type: boolean
           description: Whether the decision is deleted in the source system
           examples:
-            - "false"
+            - false
         personCategory1:
           type:
             - boolean
             - "null"
           description: "LSS only: whether the person belongs to person category 1"
           examples:
-            - "true"
+            - true
         personCategory2:
           type:
             - boolean
             - "null"
           description: "LSS only: whether the person belongs to person category 2"
           examples:
-            - "false"
+            - false
         personCategory3:
           type:
             - boolean
             - "null"
           description: "LSS only: whether the person belongs to person category 3"
           examples:
-            - "false"
+            - false
         personCategory3P:
           type:
             - boolean
             - "null"
           description: "LSS only: whether the person belongs to person category 3P"
           examples:
-            - "false"
+            - false
         increasedHourlyAmount:
           type:
             - number
@@ -2860,7 +2860,7 @@ components:
           type: boolean
           description: Whether the calculation is final
           examples:
-            - "true"
+            - true
         connectedApplication:
           type: integer
           format: int32
@@ -3041,7 +3041,7 @@ components:
           type: boolean
           description: Whether a calculation must be linked to an actualisation
           examples:
-            - "true"
+            - true
         numberOfFamilyMembersNotInHousehold:
           type: integer
           format: int32
@@ -3075,7 +3075,7 @@ components:
           type: boolean
           description: Whether the member is a child from another household
           examples:
-            - "false"
+            - false
     Lookup:
       type: object
       description: A lookup value from a code list
@@ -3311,13 +3311,13 @@ components:
           description: Whether a specify type must be given for this actualisation
             type
           examples:
-            - "true"
+            - true
         workingStatus:
           type: boolean
           description: Whether a working status must be given for this actualisation
             type
           examples:
-            - "false"
+            - false
         reasons:
           type: array
           items:
