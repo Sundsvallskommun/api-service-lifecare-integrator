@@ -10,14 +10,17 @@ import static java.util.Collections.emptyList;
 
 /**
  * Wrapper around {@link LifecareEcClient}. The EC list resources are queried per person via
- * {@code q=PersonId:&lt;personNumber&gt;}. The client is configured with {@code dismiss404 = true}, so a 404 surfaces
+ * {@code q=PersonId='&lt;personNumber&gt;'}. EC's {@code q} grammar is {@code Field='Value'} — the single quotes are
+ * mandatory and the unquoted {@code PersonId:&lt;pnr&gt;} form is rejected with
+ * {@code 400 "Invalid query format"} (verified 2026-08-20). The client is configured with {@code dismiss404 = true}, so
+ * a 404 surfaces
  * as {@code null} and is normalized to an empty
  * list here.
  */
 @Component
 public class LifecareEcIntegration {
 
-	static final String PERSON_ID_QUERY = "PersonId:%s";
+	static final String PERSON_ID_QUERY = "PersonId='%s'";
 	static final int FETCH_LIMIT = 1000;
 
 	private final LifecareEcClient lifecareEcClient;

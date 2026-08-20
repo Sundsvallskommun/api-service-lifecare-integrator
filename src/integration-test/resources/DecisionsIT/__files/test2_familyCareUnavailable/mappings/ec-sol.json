@@ -4,7 +4,7 @@
 		"urlPath": "/lifecare-ec/api/v1/sol_decisions",
 		"queryParameters": {
 			"q": {
-				"equalTo": "PersonId:199001011234"
+				"equalTo": "PersonId='199001011234'"
 			}
 		}
 	},

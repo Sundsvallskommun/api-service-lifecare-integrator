@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 class LifecareEcIntegrationTest {
 
 	private static final String PERSON_NUMBER = "199001011234";
-	private static final String EXPECTED_QUERY = "PersonId:" + PERSON_NUMBER;
+	private static final String EXPECTED_QUERY = "PersonId='" + PERSON_NUMBER + "'";
 	private static final int EXPECTED_LIMIT = 1000;
 
 	@Mock

@@ -18,18 +18,18 @@ import static se.sundsvall.lifecareintegrator.integration.lifecareec.configurati
  * to the Mina Sidor decision facade: SoL and LSS decisions only (read-only). The mandatory {@code domain} + {@code key}
  * auth (and the
  * {@code X-API-Key} header) are added globally by {@link LifecareEcConfiguration}, so they are not part of these method
- * signatures. Citizen lookup is done by the caller as {@code q=PersonId:YYYYMMDDXXXX}.
+ * signatures. Citizen lookup is done by the caller as {@code q=PersonId='YYYYMMDDXXXX'}.
  */
 @FeignClient(name = CLIENT_ID, url = "${integration.lifecare-ec.url}", configuration = LifecareEcConfiguration.class, dismiss404 = true)
 @CircuitBreaker(name = CLIENT_ID)
 public interface LifecareEcClient {
 
 	/**
-	 * List SoL decisions, filtered by the {@code q} query (e.g. {@code PersonId:YYYYMMDDXXXX}).
+	 * List SoL decisions, filtered by the {@code q} query (e.g. {@code PersonId='YYYYMMDDXXXX'}).
 	 *
 	 * @param  gt     greater-than delta filter (UTC datetime, optional)
 	 * @param  lt     less-than delta filter (UTC datetime, optional)
-	 * @param  q      query filter, e.g. {@code PersonId:YYYYMMDDXXXX}
+	 * @param  q      query filter, e.g. {@code PersonId='YYYYMMDDXXXX'}
 	 * @param  limit  page size (optional)
 	 * @param  offset offset into the result (optional)
 	 * @return        the SoL decisions
@@ -49,11 +49,11 @@ public interface LifecareEcClient {
 	WEECIntegrationContractsDecisionV1Decision getSolDecision(@PathVariable final String id);
 
 	/**
-	 * List LSS decisions, filtered by the {@code q} query (e.g. {@code PersonId:YYYYMMDDXXXX}).
+	 * List LSS decisions, filtered by the {@code q} query (e.g. {@code PersonId='YYYYMMDDXXXX'}).
 	 *
 	 * @param  gt     greater-than delta filter (UTC datetime, optional)
 	 * @param  lt     less-than delta filter (UTC datetime, optional)
-	 * @param  q      query filter, e.g. {@code PersonId:YYYYMMDDXXXX}
+	 * @param  q      query filter, e.g. {@code PersonId='YYYYMMDDXXXX'}
 	 * @param  limit  page size (optional)
 	 * @param  offset offset into the result (optional)
 	 * @return        the LSS decisions

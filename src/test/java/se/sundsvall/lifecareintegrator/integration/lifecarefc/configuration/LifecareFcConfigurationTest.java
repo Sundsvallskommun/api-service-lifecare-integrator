@@ -63,6 +63,28 @@ class LifecareFcConfigurationTest {
 			assertThat(template.queries().get("domain")).containsExactly("the-domain");
 			assertThat(template.queries().get("key")).containsExactly("the-key");
 			assertThat(template.headers().get("X-API-Key")).containsExactly("the-key");
+
+			// Feign re-applies the interceptors to the same template on every retry attempt — the auth
+			// parameters must not accumulate.
+			interceptorCaptor.getValue().apply(template);
+
+			assertThat(template.queries().get("domain")).containsExactly("the-domain");
+			assertThat(template.queries().get("key")).containsExactly("the-key");
 		}
+	}
+
+	@Test
+	void testKeyForPicksTheUserKeyForTheUsersDirectory() {
+		when(propertiesMock.userKeyOrDefault()).thenReturn("the-user-key");
+
+		assertThat(LifecareFcConfiguration.keyFor("/apifc/v1/Users/GetUsers", propertiesMock)).isEqualTo("the-user-key");
+	}
+
+	@Test
+	void testKeyForPicksTheMainKeyForEverythingElse() {
+		when(propertiesMock.key()).thenReturn("the-key");
+
+		assertThat(LifecareFcConfiguration.keyFor("/apifc/v1/Persons", propertiesMock)).isEqualTo("the-key");
+		assertThat(LifecareFcConfiguration.keyFor(null, propertiesMock)).isEqualTo("the-key");
 	}
 }
