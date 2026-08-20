@@ -42,8 +42,19 @@ public class LifecareEcConfiguration {
 	}
 
 	private static void addAuthentication(final RequestTemplate template, final LifecareEcProperties properties) {
-		template.query("domain", properties.domain());
-		template.query("key", properties.key());
+		queryOnce(template, "domain", properties.domain());
+		queryOnce(template, "key", properties.key());
 		template.header("X-API-Key", properties.key());
+	}
+
+	/**
+	 * Add a query parameter unless the template already carries it. Feign re-applies the request interceptors to the
+	 * <em>same</em> template on every retry attempt and {@link RequestTemplate#query(String, String...)} appends, so
+	 * without this a retried request would go out with {@code domain} and {@code key} repeated once per attempt.
+	 */
+	private static void queryOnce(final RequestTemplate template, final String name, final String value) {
+		if (!template.queries().containsKey(name)) {
+			template.query(name, value);
+		}
 	}
 }

@@ -29,10 +29,15 @@ integration:
     url: override-me
     domain: override-me
     key: override-me
+  # Lifecare FamilyCare (FC) — WESE.FC.Api.FC. Auth is domain + key. The /Users/* directory is licensed to a
+  # SEPARATE consumer ("Användarinformation IFO") from the person-based case APIs ("API IFO Personbaserade"):
+  # verified 2026-08-20, each key is 401 on the other's endpoints. Set user-key to that second key where the
+  # split applies; leave it unset (mocks, single-consumer tenants) and key is used for every call.
   lifecare-fc:
     url: override-me
     domain: override-me
     key: override-me
+    # user-key: override-me
 
 resilience4j:
   circuitbreaker:

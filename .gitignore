@@ -54,3 +54,8 @@ hs_err_pid*
 # Spring
 application-default.*
 
+
+# Local-only working dirs — these were accidentally committed once (see e5a6402) and removed again.
+# Deployment templates and Postman collections stay local; keep tools/ itself usable (e.g. tools/db_scripts).
+template/
+tools/postman/

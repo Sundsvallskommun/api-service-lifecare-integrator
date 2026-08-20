@@ -11,14 +11,22 @@ import se.sundsvall.dept44.configuration.feign.FeignConfiguration;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
 import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 
+import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
- * Builds the {@link se.sundsvall.caremanagement.lifecare.integration.LifecareFcClient} customizer. FC authenticates
+ * Builds the {@link se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcClient} customizer. FC
+ * authenticates
  * with a {@code domain} + {@code key}, both required as query parameters; the spec also accepts the key as an
  * {@code X-API-Key} header, so we
  * send both. The header is harmless where ignored and lets us drop the query-string key once Tieto confirms header auth
  * fleet-wide.
+ *
+ * <p>
+ * The key is chosen per request: FC licences the {@code Users/*} directory to its own consumer, separate from the
+ * person-based case APIs, so requests into {@code /Users} are authenticated with
+ * {@link LifecareFcProperties#userKeyOrDefault()} and everything else with {@link LifecareFcProperties#key()}. Where no
+ * separate user key is configured both resolve to the same key.
  *
  * <p>
  * Feign logging is forced to {@link Logger.Level#NONE}, overriding the dept44 default of {@code FULL}. FC reads carry
@@ -34,6 +42,9 @@ public class LifecareFcConfiguration {
 
 	public static final String CLIENT_ID = "lifecare-fc";
 
+	/** The path segment marking the separately licensed FC user directory ({@code /apifc/v1/Users/*}). */
+	static final String USERS_PATH_SEGMENT = "/Users";
+
 	@Bean
 	FeignBuilderCustomizer feignBuilderCustomizer(final LifecareFcProperties properties) {
 		return FeignMultiCustomizer.create()
@@ -47,8 +58,29 @@ public class LifecareFcConfiguration {
 	}
 
 	private static void addAuthentication(final RequestTemplate template, final LifecareFcProperties properties) {
-		template.query("domain", properties.domain());
-		template.query("key", properties.key());
-		template.header("X-API-Key", properties.key());
+		final var key = keyFor(template.path(), properties);
+
+		queryOnce(template, "domain", properties.domain());
+		queryOnce(template, "key", key);
+		template.header("X-API-Key", key);
+	}
+
+	/**
+	 * Add a query parameter unless the template already carries it. Feign re-applies the request interceptors to the
+	 * <em>same</em> template on every retry attempt and {@link RequestTemplate#query(String, String...)} appends, so
+	 * without this a retried request would go out with {@code domain} and {@code key} repeated once per attempt.
+	 */
+	private static void queryOnce(final RequestTemplate template, final String name, final String value) {
+		if (!template.queries().containsKey(name)) {
+			template.query(name, value);
+		}
+	}
+
+	/** The licence key the given request path is authenticated with — see the class documentation. */
+	static String keyFor(final String path, final LifecareFcProperties properties) {
+		if (ofNullable(path).orElse("").contains(USERS_PATH_SEGMENT)) {
+			return properties.userKeyOrDefault();
+		}
+		return properties.key();
 	}
 }
