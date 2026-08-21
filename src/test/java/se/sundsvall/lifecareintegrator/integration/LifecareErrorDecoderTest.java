@@ -47,6 +47,49 @@ class LifecareErrorDecoderTest {
 	}
 
 	@Test
+	void loggingTheBodyDoesNotConsumeItForTheDecoder() {
+		// The snippet is logged from the same body the decoder then parses; if reading it were destructive the message
+		// would come back empty — which is the whole failure this class exists to prevent.
+		final var problem = new LifecareErrorDecoder("lifecare-ec")
+			.decode("LifecareEcClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY));
+
+		assertThat(problem.getMessage()).contains("Invalid query format");
+	}
+
+	@Test
+	void anUnbufferedBodyIsLeftUnreadRatherThanConsumed() throws IOException {
+		// withRepeatableBody gives up on an unreadable body; the snippet must not spend its single pass.
+		final var unbuffered = oneShotResponse(400, PROBLEM_BODY);
+
+		assertThat(LifecareErrorDecoder.bodySnippet(unbuffered)).isEqualTo("<unbuffered>");
+		assertThat(read(unbuffered.body())).isEqualTo(PROBLEM_BODY);
+	}
+
+	@Test
+	void bodySnippetReportsAbsentAndEmptyBodies() {
+		final var bodiless = Response.builder().status(401).request(request()).build();
+		assertThat(LifecareErrorDecoder.bodySnippet(bodiless)).isEqualTo("<none>");
+
+		final var empty = Response.builder().status(400).request(request()).body("   ", UTF_8).build();
+		assertThat(LifecareErrorDecoder.bodySnippet(empty)).isEqualTo("<empty>");
+	}
+
+	@Test
+	void bodySnippetRedactsAndCapsWhatItLogs() {
+		final var long_ = Response.builder()
+			.status(400)
+			.request(request())
+			.body("{\"Message\":\"no such person 19900101TF03\"}" + "x".repeat(3000), UTF_8)
+			.build();
+
+		assertThat(LifecareErrorDecoder.bodySnippet(long_))
+			.doesNotContain("19900101TF03")
+			.contains("[REDACTED-PNR]")
+			.endsWith("…(truncated)")
+			.hasSizeLessThan(2100);
+	}
+
+	@Test
 	void bufferedBodyCanBeReadMoreThanOnce() throws IOException {
 		final var buffered = withRepeatableBody(oneShotResponse(400, PROBLEM_BODY)).body();
 

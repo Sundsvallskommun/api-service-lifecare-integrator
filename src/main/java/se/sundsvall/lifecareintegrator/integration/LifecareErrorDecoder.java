@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static se.sundsvall.lifecareintegrator.util.LogSanitizer.redact;
 
 /**
@@ -31,6 +32,17 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 
 	private static final Logger LOG = LoggerFactory.getLogger(LifecareErrorDecoder.class);
 
+	/** Enough for any Lifecare error payload; a cap in case a gateway answers with an HTML page instead. */
+	private static final int MAX_BODY_CHARACTERS = 2000;
+
+	private static final String TRUNCATION_MARKER = "…(truncated)";
+
+	private static final String NO_BODY = "<none>";
+
+	private static final String EMPTY_BODY = "<empty>";
+
+	private static final String UNBUFFERED_BODY = "<unbuffered>";
+
 	private final String integration;
 
 	public LifecareErrorDecoder(final String integrationName) {
@@ -47,10 +59,45 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 	public Exception decode(final String methodKey, final Response response) {
 		final var buffered = withRepeatableBody(response);
 
-		LOG.warn("{} responded {} to {} {}", integration, buffered.status(),
-			buffered.request().httpMethod(), redact(buffered.request().url()));
+		LOG.warn("{} responded {} to {} {} with body: {}", integration, buffered.status(),
+			buffered.request().httpMethod(), redact(buffered.request().url()), bodySnippet(buffered));
 
 		return super.decode(methodKey, buffered);
+	}
+
+	/**
+	 * The error body as text, redacted and capped.
+	 *
+	 * <p>
+	 * dept44 maps the body onto RFC 9457's {@code title}/{@code detail}. Lifecare does not answer in RFC 9457: its error
+	 * JSON parses cleanly but into all-null fields, so the explanation is silently dropped and the message degrades to
+	 * bare {@code {status=400 Bad Request}}. Logging the body verbatim is the only way to see what Lifecare actually
+	 * said.
+	 *
+	 * <p>
+	 * Only a buffered body is read. Reading an unbuffered one here would consume the single available pass and leave
+	 * nothing for the decoder that follows.
+	 */
+	static String bodySnippet(final Response response) {
+		final var body = response.body();
+		if (body == null) {
+			return NO_BODY;
+		}
+		if (!body.isRepeatable()) {
+			return UNBUFFERED_BODY;
+		}
+
+		try {
+			final var content = new String(body.asInputStream().readAllBytes(), UTF_8);
+			if (content.isBlank()) {
+				return EMPTY_BODY;
+			}
+			return redact(content.length() > MAX_BODY_CHARACTERS
+				? content.substring(0, MAX_BODY_CHARACTERS) + TRUNCATION_MARKER
+				: content);
+		} catch (final IOException e) {
+			return "<unreadable: %s>".formatted(redact(e.getMessage()));
+		}
 	}
 
 	/**
