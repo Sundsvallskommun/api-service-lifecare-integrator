@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.integration.lifecareec.configuration;
 
+import feign.Client;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
 import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
+import se.sundsvall.dept44.security.Truststore;
+import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -27,6 +30,12 @@ class LifecareEcConfigurationTest {
 
 	@Mock
 	private FeignBuilderCustomizer feignBuilderCustomizerMock;
+
+	@Mock
+	private Truststore truststoreMock;
+
+	@Mock
+	private Client clientMock;
 
 	@Mock
 	private LifecareEcProperties propertiesMock;
@@ -63,6 +72,17 @@ class LifecareEcConfigurationTest {
 			assertThat(template.queries().get("domain")).containsExactly("the-domain");
 			assertThat(template.queries().get("key")).containsExactly("the-key");
 			assertThat(template.headers().get("X-API-Key")).containsExactly("the-key");
+		}
+	}
+
+	@Test
+	void testOkHttpClientIsPinnedToHttp11() {
+		final var configuration = new LifecareEcConfiguration();
+
+		try (final MockedStatic<LifecareOkHttpClientFactory> factoryMock = Mockito.mockStatic(LifecareOkHttpClientFactory.class)) {
+			factoryMock.when(() -> LifecareOkHttpClientFactory.http11Client(truststoreMock)).thenReturn(clientMock);
+
+			assertThat(configuration.okHttpClient(truststoreMock)).isSameAs(clientMock);
 		}
 	}
 }

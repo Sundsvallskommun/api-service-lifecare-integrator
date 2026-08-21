@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.integration.lifecareec.configuration;
 
+import feign.Client;
 import feign.Logger;
 import feign.RequestTemplate;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -9,6 +10,8 @@ import org.springframework.context.annotation.Import;
 import se.sundsvall.dept44.configuration.feign.FeignConfiguration;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
 import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
+import se.sundsvall.dept44.security.Truststore;
+import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
 
 /**
  * Builds the {@link se.sundsvall.lifecareintegrator.integration.lifecareec.LifecareEcClient} customizer. EC
@@ -30,6 +33,15 @@ import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 public class LifecareEcConfiguration {
 
 	public static final String CLIENT_ID = "lifecare-ec";
+
+	/**
+	 * Overrides the dept44 {@code okHttpClient} bean for this Feign client only, pinning the connection to HTTP/1.1 —
+	 * see {@link LifecareOkHttpClientFactory} for why Lifecare's IIS requires it.
+	 */
+	@Bean
+	Client okHttpClient(final Truststore truststore) {
+		return LifecareOkHttpClientFactory.http11Client(truststore);
+	}
 
 	@Bean
 	FeignBuilderCustomizer feignBuilderCustomizer(final LifecareEcProperties properties) {

@@ -22,6 +22,7 @@ import static se.sundsvall.lifecareintegrator.service.mapper.DecisionMapper.LAW_
 import static se.sundsvall.lifecareintegrator.service.mapper.DecisionMapper.LAW_SOL;
 import static se.sundsvall.lifecareintegrator.service.mapper.DecisionMapper.SOURCE_ELDERLY_CARE;
 import static se.sundsvall.lifecareintegrator.service.mapper.DecisionMapper.SOURCE_FAMILY_CARE;
+import static se.sundsvall.lifecareintegrator.util.LogSanitizer.describe;
 
 /**
  * The unified decision read: gathers decisions from the three Lifecare decision sources (EC SoL, EC LSS and FC) and
@@ -83,7 +84,10 @@ public class DecisionService {
 		try {
 			return new SourceResult(source, law, fetcher.get(), true);
 		} catch (final Exception e) {
-			LOG.warn("Decision source {} ({}) is unavailable", source, law, e);
+			// Described rather than logged as a throwable: a Feign failure carries the request URL in its message, and
+			// that URL holds the API key and the personnummer. See LogSanitizer. The stack trace is dropped with it —
+			// it is Feign plumbing, and the cause chain in the description is what identifies the failure.
+			LOG.warn("Decision source {} ({}) is unavailable: {}", source, law, describe(e));
 			return new SourceResult(source, law, List.of(), false);
 		}
 	}

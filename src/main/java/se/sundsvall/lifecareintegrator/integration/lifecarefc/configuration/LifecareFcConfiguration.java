@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.integration.lifecarefc.configuration;
 
+import feign.Client;
 import feign.Logger;
 import feign.RequestTemplate;
 import java.util.List;
@@ -10,6 +11,8 @@ import org.springframework.context.annotation.Import;
 import se.sundsvall.dept44.configuration.feign.FeignConfiguration;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
 import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
+import se.sundsvall.dept44.security.Truststore;
+import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
 
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -44,6 +47,15 @@ public class LifecareFcConfiguration {
 
 	/** The path segment marking the separately licensed FC user directory ({@code /apifc/v1/Users/*}). */
 	static final String USERS_PATH_SEGMENT = "/Users";
+
+	/**
+	 * Overrides the dept44 {@code okHttpClient} bean for this Feign client only, pinning the connection to HTTP/1.1 —
+	 * see {@link LifecareOkHttpClientFactory} for why Lifecare's IIS requires it.
+	 */
+	@Bean
+	Client okHttpClient(final Truststore truststore) {
+		return LifecareOkHttpClientFactory.http11Client(truststore);
+	}
 
 	@Bean
 	FeignBuilderCustomizer feignBuilderCustomizer(final LifecareFcProperties properties) {
