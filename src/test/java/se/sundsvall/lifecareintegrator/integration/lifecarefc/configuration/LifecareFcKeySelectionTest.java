@@ -46,7 +46,7 @@ class LifecareFcKeySelectionTest {
 		final var client = clientCapturing(requestedUrl, interceptor());
 
 		assertThatThrownBy(() -> client.getUsers(100, null, null, null)).isInstanceOf(SentinelException.class);
-		assertThat(requestedUrl.get()).contains("key=the-user-key", "X-API-Key");
+		assertThat(requestedUrl.get()).contains("key=the-user-key");
 
 		assertThatThrownBy(() -> client.getPerson("199001011234")).isInstanceOf(SentinelException.class);
 		assertThat(requestedUrl.get()).contains("key=the-key").doesNotContain("the-user-key");

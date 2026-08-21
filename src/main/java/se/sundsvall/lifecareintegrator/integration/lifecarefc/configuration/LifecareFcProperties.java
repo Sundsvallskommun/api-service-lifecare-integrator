@@ -11,7 +11,7 @@ import static java.util.Optional.ofNullable;
 /**
  * Configuration for the Tieto/Lifecare FamilyCare (FC) integration. {@code url} is the FC base path (host +
  * {@code /WESE.FC.Api.FC}); {@code domain} and {@code key} are the FC tenant id and API key applied as query parameters
- * / {@code X-API-Key} header by
+ * by
  * {@link LifecareFcConfiguration}. The keys are sensitive — keep them in a secret, never in committed config, and out
  * of request logging.
  *

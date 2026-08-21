@@ -71,7 +71,8 @@ class LifecareEcConfigurationTest {
 
 			assertThat(template.queries().get("domain")).containsExactly("the-domain");
 			assertThat(template.queries().get("key")).containsExactly("the-key");
-			assertThat(template.headers().get("X-API-Key")).containsExactly("the-key");
+			// Auth is query parameters only — an unconfirmed credential header is not sent. See the configuration javadoc.
+			assertThat(template.headers()).doesNotContainKey("X-API-Key");
 		}
 	}
 

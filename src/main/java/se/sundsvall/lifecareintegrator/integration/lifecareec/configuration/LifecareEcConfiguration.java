@@ -9,16 +9,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import se.sundsvall.dept44.configuration.feign.FeignConfiguration;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
-import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 import se.sundsvall.dept44.security.Truststore;
+import se.sundsvall.lifecareintegrator.integration.LifecareErrorDecoder;
 import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
 
 /**
  * Builds the {@link se.sundsvall.lifecareintegrator.integration.lifecareec.LifecareEcClient} customizer. EC
- * authenticates with a {@code domain} + {@code key}, both required as query parameters; the gateway also accepts the
- * key as an {@code X-API-Key}
- * header, so we send both. The header is harmless where ignored and lets us drop the query-string key once header auth
- * is confirmed.
+ * authenticates with a {@code domain} + {@code key}, both required as query parameters.
+ *
+ * <p>
+ * An {@code X-API-Key} header carrying the same key used to be sent alongside them, on the assumption that the gateway
+ * accepted it and would let us drop the query-string key later. That was never confirmed, and the working Postman call
+ * sends no such header — so it is gone. Do not reintroduce it without a response from Tieto: an unexpected credential
+ * header is a plausible cause of a 4xx that says nothing useful.
  *
  * <p>
  * Feign logging is forced to {@link feign.Logger.Level#NONE}, overriding the dept44 default of {@code FULL}. EC reads
@@ -46,7 +49,7 @@ public class LifecareEcConfiguration {
 	@Bean
 	FeignBuilderCustomizer feignBuilderCustomizer(final LifecareEcProperties properties) {
 		return FeignMultiCustomizer.create()
-			.withErrorDecoder(new ProblemErrorDecoder(CLIENT_ID))
+			.withErrorDecoder(new LifecareErrorDecoder(CLIENT_ID))
 			.withRequestInterceptor(template -> addAuthentication(template, properties))
 			.withCustomizer(builder -> builder.logLevel(Logger.Level.valueOf(properties.logLevel())))
 			.withRequestTimeoutsInSeconds(properties.connectTimeout(), properties.readTimeout())
@@ -56,7 +59,6 @@ public class LifecareEcConfiguration {
 	private static void addAuthentication(final RequestTemplate template, final LifecareEcProperties properties) {
 		queryOnce(template, "domain", properties.domain());
 		queryOnce(template, "key", properties.key());
-		template.header("X-API-Key", properties.key());
 	}
 
 	/**

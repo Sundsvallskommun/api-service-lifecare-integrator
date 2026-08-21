@@ -15,20 +15,34 @@ class LogSanitizerTest {
 		?q=PersonId%3D%2719900101TF03%27&limit=1000&domain=SundsvallVoO_PLUS&key=Gb4zOQpndCXz3XQ%2b7PFGlgvY""";
 
 	@Test
-	void redactRemovesKeyAndPersonFilter() {
+	void redactRemovesTheKeyAndThePersonNumberButKeepsTheFilterGrammar() {
 		final var redacted = redact(FEIGN_MESSAGE);
 
 		assertThat(redacted)
 			.doesNotContain("19900101TF03", "Gb4zOQpndCXz3XQ")
-			.contains("?q=[REDACTED]", "&key=[REDACTED]")
-			// Everything else is kept — the failure reason, the endpoint and the non-secret parameters.
+			.contains("&key=[REDACTED]")
+			// The q filter's shape is the diagnostic — only the personnummer inside it goes.
+			.contains("?q=PersonId%3D%27[REDACTED-PNR]%27")
+			// Everything else is kept: the failure reason, the endpoint and the non-secret parameters.
 			.contains("HTTP_1_1_REQUIRED", "/api/v1/lss_decisions", "&limit=1000", "&domain=SundsvallVoO_PLUS");
 	}
 
 	@Test
+	void redactCatchesPersonNumbersInEveryShapeLifecareUses() {
+		assertThat(redact("plain 199001011234, hyphenated 19900101-1234, encoded 19900101%2D1234, test 19900101TF03"))
+			.isEqualTo("plain [REDACTED-PNR], hyphenated [REDACTED-PNR], encoded [REDACTED-PNR], test [REDACTED-PNR]");
+	}
+
+	@Test
+	void redactLeavesNumbersThatAreNotPersonNumbersAlone() {
+		assertThat(redact("limit=1000, id 167927, year 2026, offset 19900101"))
+			.isEqualTo("limit=1000, id 167927, year 2026, offset 19900101");
+	}
+
+	@Test
 	void redactIsCaseInsensitiveAndHandlesRepeatedParameters() {
-		assertThat(redact("...?Q=PersonId%3A1&KEY=secret&other=kept&key=secret2"))
-			.isEqualTo("...?Q=[REDACTED]&KEY=[REDACTED]&other=kept&key=[REDACTED]");
+		assertThat(redact("...?q=PersonId%3A19900101TF03&KEY=secret&other=kept&key=secret2"))
+			.isEqualTo("...?q=PersonId%3A[REDACTED-PNR]&KEY=[REDACTED]&other=kept&key=[REDACTED]");
 	}
 
 	@Test

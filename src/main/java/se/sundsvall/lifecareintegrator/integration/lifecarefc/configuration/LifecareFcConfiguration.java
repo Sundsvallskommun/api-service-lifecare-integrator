@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import se.sundsvall.dept44.configuration.feign.FeignConfiguration;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
-import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 import se.sundsvall.dept44.security.Truststore;
+import se.sundsvall.lifecareintegrator.integration.LifecareErrorDecoder;
 import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
 
 import static java.util.Optional.ofNullable;
@@ -19,11 +19,9 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
  * Builds the {@link se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcClient} customizer. FC
- * authenticates
- * with a {@code domain} + {@code key}, both required as query parameters; the spec also accepts the key as an
- * {@code X-API-Key} header, so we
- * send both. The header is harmless where ignored and lets us drop the query-string key once Tieto confirms header auth
- * fleet-wide.
+ * authenticates with a {@code domain} + {@code key}, both required as query parameters. An unconfirmed
+ * {@code X-API-Key} header used to be sent alongside them; it was removed with the EC one — see
+ * {@link se.sundsvall.lifecareintegrator.integration.lifecareec.configuration.LifecareEcConfiguration}.
  *
  * <p>
  * The key is chosen per request: FC licences the {@code Users/*} directory to its own consumer, separate from the
@@ -62,7 +60,7 @@ public class LifecareFcConfiguration {
 		return FeignMultiCustomizer.create()
 			// Bypass 404 so a "no such resource" surfaces as NOT_FOUND (handled by LifecareFcIntegration) instead of the
 			// default BAD_GATEWAY — e.g. a person or document content that does not exist.
-			.withErrorDecoder(new ProblemErrorDecoder(CLIENT_ID, List.of(NOT_FOUND.value())))
+			.withErrorDecoder(new LifecareErrorDecoder(CLIENT_ID, List.of(NOT_FOUND.value())))
 			.withRequestInterceptor(template -> addAuthentication(template, properties))
 			.withCustomizer(builder -> builder.logLevel(Logger.Level.valueOf(properties.logLevel())))
 			.withRequestTimeoutsInSeconds(properties.connectTimeout(), properties.readTimeout())
@@ -74,7 +72,6 @@ public class LifecareFcConfiguration {
 
 		queryOnce(template, "domain", properties.domain());
 		queryOnce(template, "key", key);
-		template.header("X-API-Key", key);
 	}
 
 	/**
