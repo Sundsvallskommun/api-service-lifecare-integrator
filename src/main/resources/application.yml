@@ -23,8 +23,9 @@ spring:
 # Integrations
 #========================================
 integration:
-  # Lifecare Welfare API Services / Elderly care (EC) — WE.EC.Integration.Host. Auth is domain + key, both as query
-  # parameters; the key is a secret — override per environment, never commit it.
+  # Lifecare Welfare API Services / Elderly care (EC) — WE.EC.Integration.Host. Auth is domain + key as query
+  # parameters plus an X-API-Key header (EC needs the header: without it every read is a bodiless 403).
+  # The key is a secret — override per environment, never commit it.
   lifecare-ec:
     url: override-me
     domain: override-me

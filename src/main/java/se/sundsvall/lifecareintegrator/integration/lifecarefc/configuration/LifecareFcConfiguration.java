@@ -19,8 +19,9 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
  * Builds the {@link se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcClient} customizer. FC
- * authenticates with a {@code domain} + {@code key}, both required as query parameters. An unconfirmed
- * {@code X-API-Key} header used to be sent alongside them; it was removed with the EC one — see
+ * authenticates with a {@code domain} + {@code key}, both required as query parameters, and the same key is repeated
+ * in an {@code X-API-Key} header — which the FC spec explicitly asks for ("the key should be sent as an X-API-Key in
+ * the header for better security"). Removing it changed nothing for FC, but it demonstrably matters for EC; see
  * {@link se.sundsvall.lifecareintegrator.integration.lifecareec.configuration.LifecareEcConfiguration}.
  *
  * <p>
@@ -72,6 +73,7 @@ public class LifecareFcConfiguration {
 
 		queryOnce(template, "domain", properties.domain());
 		queryOnce(template, "key", key);
+		template.header("X-API-Key", key);
 	}
 
 	/**

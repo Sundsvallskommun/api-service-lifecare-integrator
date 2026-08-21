@@ -15,13 +15,15 @@ import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
 
 /**
  * Builds the {@link se.sundsvall.lifecareintegrator.integration.lifecareec.LifecareEcClient} customizer. EC
- * authenticates with a {@code domain} + {@code key}, both required as query parameters.
+ * authenticates with a {@code domain} + {@code key}, both required as query parameters, and the same key is repeated
+ * in an {@code X-API-Key} header.
  *
  * <p>
- * An {@code X-API-Key} header carrying the same key used to be sent alongside them, on the assumption that the gateway
- * accepted it and would let us drop the query-string key later. That was never confirmed, and the working Postman call
- * sends no such header — so it is gone. Do not reintroduce it without a response from Tieto: an unexpected credential
- * header is a plausible cause of a 4xx that says nothing useful.
+ * The header is not in the EC spec and a working Postman call does not send it, so it was removed once as speculative.
+ * That is wrong, and the removal is what proved it: with the header EC answers {@code 400} <em>and returns an error
+ * body</em>; without it EC answers {@code 403} with no body at all (verified 2026-08-21, both against the same key and
+ * the same query). EC reads the header. Keep sending it — a bodied 400 is a conversation, a bodiless 403 is a closed
+ * door.
  *
  * <p>
  * Feign logging is forced to {@link feign.Logger.Level#NONE}, overriding the dept44 default of {@code FULL}. EC reads
@@ -59,6 +61,7 @@ public class LifecareEcConfiguration {
 	private static void addAuthentication(final RequestTemplate template, final LifecareEcProperties properties) {
 		queryOnce(template, "domain", properties.domain());
 		queryOnce(template, "key", properties.key());
+		template.header("X-API-Key", properties.key());
 	}
 
 	/**

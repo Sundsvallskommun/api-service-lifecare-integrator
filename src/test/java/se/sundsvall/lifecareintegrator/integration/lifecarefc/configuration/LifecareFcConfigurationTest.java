@@ -71,8 +71,8 @@ class LifecareFcConfigurationTest {
 
 			assertThat(template.queries().get("domain")).containsExactly("the-domain");
 			assertThat(template.queries().get("key")).containsExactly("the-key");
-			// Auth is query parameters only — an unconfirmed credential header is not sent. See the configuration javadoc.
-			assertThat(template.headers()).doesNotContainKey("X-API-Key");
+			// The header is not decoration: without it EC answers 403 with an empty body instead of a bodied 400.
+			assertThat(template.headers().get("X-API-Key")).containsExactly("the-key");
 
 			// Feign re-applies the interceptors to the same template on every retry attempt — the auth
 			// parameters must not accumulate.
