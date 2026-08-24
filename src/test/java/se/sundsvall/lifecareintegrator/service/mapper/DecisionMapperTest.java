@@ -8,7 +8,7 @@ import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionPersonDTO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,9 +21,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DecisionMapperTest {
 
-	private static final OffsetDateTime DECISION_DATE = OffsetDateTime.parse("2026-05-01T00:00:00Z");
-	private static final OffsetDateTime FROM_DATE = OffsetDateTime.parse("2026-05-15T00:00:00Z");
-	private static final OffsetDateTime TO_DATE = OffsetDateTime.parse("2026-10-31T00:00:00Z");
+	private static final LocalDateTime DECISION_DATE = LocalDateTime.parse("2026-05-01T00:00:00");
+	private static final LocalDateTime FROM_DATE = LocalDateTime.parse("2026-05-15T00:00:00");
+	private static final LocalDateTime TO_DATE = LocalDateTime.parse("2026-10-31T00:00:00");
 
 	@Test
 	void toDecisionFromSolDecision() {

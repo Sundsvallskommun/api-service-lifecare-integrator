@@ -4,7 +4,7 @@ import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1Decis
 import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1LssDecision;
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -54,9 +54,9 @@ class DecisionServiceTest {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
 		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of(
-			new WEECIntegrationContractsDecisionV1Decision().id(1).date(OffsetDateTime.parse("2026-01-01T00:00:00Z"))));
+			new WEECIntegrationContractsDecisionV1Decision().id(1).date(LocalDateTime.parse("2026-01-01T00:00:00"))));
 		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(
-			new WEECIntegrationContractsDecisionV1LssDecision().id(2).date(OffsetDateTime.parse("2026-03-01T00:00:00Z"))));
+			new WEECIntegrationContractsDecisionV1LssDecision().id(2).date(LocalDateTime.parse("2026-03-01T00:00:00"))));
 		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
 			new PersonBasedDecisionDTO().id(3).date("2026-02-01")));
 
@@ -93,18 +93,18 @@ class DecisionServiceTest {
 		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of(
 			// Ends before the window — filtered out
 			new WEECIntegrationContractsDecisionV1Decision().id(1)
-				.fromDate(OffsetDateTime.parse("2020-01-01T00:00:00Z"))
-				.toDate(OffsetDateTime.parse("2020-12-31T00:00:00Z")),
+				.fromDate(LocalDateTime.parse("2020-01-01T00:00:00"))
+				.toDate(LocalDateTime.parse("2020-12-31T00:00:00")),
 			// Overlaps the window — kept
 			new WEECIntegrationContractsDecisionV1Decision().id(2)
-				.fromDate(OffsetDateTime.parse("2025-06-01T00:00:00Z"))
-				.toDate(OffsetDateTime.parse("2026-01-15T00:00:00Z")),
+				.fromDate(LocalDateTime.parse("2025-06-01T00:00:00"))
+				.toDate(LocalDateTime.parse("2026-01-15T00:00:00")),
 			// Open-ended — kept
 			new WEECIntegrationContractsDecisionV1Decision().id(3)
-				.fromDate(OffsetDateTime.parse("2026-02-01T00:00:00Z")),
+				.fromDate(LocalDateTime.parse("2026-02-01T00:00:00")),
 			// Starts after the window — filtered out
 			new WEECIntegrationContractsDecisionV1Decision().id(4)
-				.fromDate(OffsetDateTime.parse("2026-08-01T00:00:00Z"))));
+				.fromDate(LocalDateTime.parse("2026-08-01T00:00:00"))));
 		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of());
 		when(lifecareFcIntegrationMock.getAllDecisions(PERSON_NUMBER, from, to)).thenReturn(List.of());
 

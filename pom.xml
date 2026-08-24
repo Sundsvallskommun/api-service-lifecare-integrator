@@ -73,7 +73,8 @@
 								<useSpringBoot4>true</useSpringBoot4>
 								<useJackson3>true</useJackson3>
 								<sourceFolder>models</sourceFolder>
-								<dateLibrary>java8</dateLibrary>
+								<!-- EC sends zone-less local date-times ("2024-02-07T00:00:00"); java8 would generate OffsetDateTime and fail to parse them -->
+								<dateLibrary>java8-localdatetime</dateLibrary>
 								<apiPackage>generated</apiPackage>
 								<modelPackage>generated.se.sundsvall.lifecareec</modelPackage>
 								<openApiNullable>false</openApiNullable>

@@ -1,0 +1,239 @@
+[
+	{
+		"PersonCategory1": true,
+		"PersonCategory2": false,
+		"PersonCategory3": false,
+		"PersonCategory3P": false,
+		"IncreasedHourlyAmount": 0.0,
+		"StandardAmount": 258.0,
+		"SfbCaseworker": null,
+		"PersonCategoryId": 0,
+		"Law": 3,
+		"Id": 167961,
+		"InvestigationId": 156305,
+		"PersonId": "19900101TF03",
+		"Code": {
+			"Code": 165,
+			"Text": "LSS Bifall Daglig verksamhet 9 § p 10"
+		},
+		"Type": {
+			"Code": 2,
+			"Text": "Beslut att verkställa"
+		},
+		"Date": "2024-02-07T00:00:00",
+		"FromDate": "2024-02-07T00:00:00",
+		"ToDate": "9999-12-31T23:59:59.9999999",
+		"Reason": {
+			"Code": 0,
+			"Text": ""
+		},
+		"Caseworker": {
+			"Id": "LOHE",
+			"FirstName": "Helsinger",
+			"LastName": "Lotta",
+			"FullName": "Helsinger Lotta",
+			"Types": null,
+			"OrganizationUnit": {
+				"Id": "1.S1",
+				"Name": "BISTÅNDSHANDLÄGGARE LSS"
+			}
+		},
+		"ServiceCategory": {
+			"Code": 31,
+			"Text": "LSS Daglig verksamhet 9 § p 10"
+		},
+		"Hour": 0.0,
+		"HourType": {
+			"Code": 3,
+			"Text": null
+		},
+		"Amount": 0.0,
+		"AmountType": {
+			"Code": 0,
+			"Text": null
+		},
+		"Quantity": 0.0,
+		"QuantityType": {
+			"Code": 2,
+			"Text": null
+		},
+		"Visit": 0.0,
+		"VisitType": {
+			"Code": 0,
+			"Text": null
+		},
+		"DecisionLevel": {
+			"Code": 0,
+			"Text": ""
+		},
+		"Day": 0.0,
+		"DayType": {
+			"Code": 0,
+			"Text": null
+		},
+		"ExecutionStartDate": "2024-02-07T00:00:00",
+		"ExecutionEndDate": "9999-12-31T23:59:59.9999999",
+		"IterationNumber": -1,
+		"DaysOfDecision": 0.0,
+		"OrderIds": [
+			139927
+		],
+		"Deleted": false
+	},
+	{
+		"PersonCategory1": true,
+		"IncreasedHourlyAmount": 0.0,
+		"StandardAmount": 258.0,
+		"SfbCaseworker": null,
+		"PersonCategoryId": 0,
+		"Law": 3,
+		"Id": 167990,
+		"InvestigationId": 156366,
+		"PersonId": "19900101TF03",
+		"Code": {
+			"Code": 173,
+			"Text": "LSS Bifall Personlig assistans 9 § p 2"
+		},
+		"Type": {
+			"Code": 2,
+			"Text": "Beslut att verkställa"
+		},
+		"Date": "2024-04-09T00:00:00",
+		"FromDate": "2024-04-09T00:00:00",
+		"ToDate": "9999-12-31T23:59:59.9999999",
+		"Reason": {
+			"Code": 0,
+			"Text": ""
+		},
+		"Caseworker": {
+			"Id": "AIHG",
+			"FirstName": "Hofling",
+			"LastName": "Anneli",
+			"FullName": "Hofling Anneli",
+			"Types": null,
+			"OrganizationUnit": {
+				"Id": "1.S1",
+				"Name": "BISTÅNDSHANDLÄGGARE LSS"
+			}
+		},
+		"ServiceCategory": {
+			"Code": 36,
+			"Text": "LSS Personlig assistans"
+		},
+		"Hour": 1040.0,
+		"HourType": {
+			"Code": 2,
+			"Text": "Year"
+		},
+		"Amount": 0.0,
+		"AmountType": {
+			"Code": 0,
+			"Text": null
+		},
+		"Quantity": 0.0,
+		"QuantityType": {
+			"Code": 0,
+			"Text": null
+		},
+		"Visit": 0.0,
+		"VisitType": {
+			"Code": 0,
+			"Text": null
+		},
+		"DecisionLevel": {
+			"Code": 0,
+			"Text": ""
+		},
+		"Day": 0.0,
+		"DayType": {
+			"Code": 0,
+			"Text": null
+		},
+		"ExecutionStartDate": "2024-04-09T00:00:00",
+		"ExecutionEndDate": "9999-12-31T23:59:59.9999999",
+		"IterationNumber": -1,
+		"DaysOfDecision": 0.0,
+		"OrderIds": [
+			139964
+		],
+		"Deleted": false
+	},
+	{
+		"PersonCategory1": true,
+		"IncreasedHourlyAmount": 0.0,
+		"StandardAmount": 258.0,
+		"SfbCaseworker": null,
+		"PersonCategoryId": 6,
+		"Law": 3,
+		"Id": 168156,
+		"InvestigationId": 156634,
+		"PersonId": "19900101TF03",
+		"Code": {
+			"Code": 165,
+			"Text": "LSS Bifall Daglig verksamhet 9 § p 10"
+		},
+		"Type": {
+			"Code": 2,
+			"Text": "Beslut att verkställa"
+		},
+		"Date": "2026-05-26T00:00:00",
+		"FromDate": "2026-05-26T00:00:00",
+		"ToDate": "9999-12-31T23:59:59.9999999",
+		"Reason": {
+			"Code": 0,
+			"Text": ""
+		},
+		"Caseworker": {
+			"Id": "UTB041",
+			"FirstName": "Lena",
+			"LastName": "LC Utbildning",
+			"FullName": "Lena LC Utbildning",
+			"Types": null,
+			"OrganizationUnit": {
+				"Id": "1.S102",
+				"Name": "Handläggare 02"
+			}
+		},
+		"ServiceCategory": {
+			"Code": 31,
+			"Text": "LSS Daglig verksamhet 9 § p 10"
+		},
+		"Hour": 0.0,
+		"HourType": {
+			"Code": 0,
+			"Text": null
+		},
+		"Amount": 0.0,
+		"AmountType": {
+			"Code": 0,
+			"Text": null
+		},
+		"Quantity": 0.0,
+		"QuantityType": {
+			"Code": 0,
+			"Text": null
+		},
+		"Visit": 0.0,
+		"VisitType": {
+			"Code": 0,
+			"Text": null
+		},
+		"DecisionLevel": {
+			"Code": 0,
+			"Text": ""
+		},
+		"Day": 0.0,
+		"DayType": {
+			"Code": 0,
+			"Text": null
+		},
+		"ExecutionStartDate": "0001-01-01T00:00:00",
+		"ExecutionEndDate": "0001-01-01T00:00:00",
+		"IterationNumber": 0,
+		"DaysOfDecision": 0.0,
+		"OrderIds": [
+			140140
+		],
+		"Deleted": false
+	}
+]

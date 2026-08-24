@@ -2,6 +2,7 @@ package se.sundsvall.lifecareintegrator.service.mapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
@@ -14,7 +15,9 @@ import static java.util.Collections.emptyList;
 
 /**
  * Shared mapping helpers for the vendor models: the FC API represents dates as strings (sometimes with a time part),
- * the EC API as OffsetDateTime.
+ * the EC API as LocalDateTime — EC sends its date-times without a zone offset ({@code "2024-02-07T00:00:00"}), so the
+ * EC models are generated with {@code dateLibrary=java8-localdatetime}. FC request models still take OffsetDateTime,
+ * which is what {@link #toOffsetDateTime(LocalDate)} is for.
  */
 final class MapperUtil {
 
@@ -30,9 +33,9 @@ final class MapperUtil {
 			.orElse(emptyList());
 	}
 
-	static LocalDate toLocalDate(final OffsetDateTime dateTime) {
+	static LocalDate toLocalDate(final LocalDateTime dateTime) {
 		return Optional.ofNullable(dateTime)
-			.map(OffsetDateTime::toLocalDate)
+			.map(LocalDateTime::toLocalDate)
 			.orElse(null);
 	}
 
