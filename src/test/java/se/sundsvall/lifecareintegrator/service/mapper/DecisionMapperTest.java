@@ -20,6 +20,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
 import se.sundsvall.lifecareintegrator.api.model.elderlycare.ElderlyCareDecisionDetails;
 
+import static java.time.Month.FEBRUARY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DecisionMapperTest {
@@ -284,7 +285,7 @@ class DecisionMapperTest {
 			.id(1)
 			.fromDate(LocalDateTime.parse("2024-02-07T00:00:00")), NO_NAMES);
 
-		assertThat(decision.getValidFrom()).isEqualTo(LocalDate.of(2024, 2, 7));
+		assertThat(decision.getValidFrom()).isEqualTo(LocalDate.of(2024, FEBRUARY, 7));
 	}
 
 	@Test

@@ -11,6 +11,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
 
+import static java.time.Month.DECEMBER;
+import static java.time.Month.JANUARY;
 import static java.util.Collections.emptyList;
 
 /**
@@ -26,13 +28,13 @@ final class MapperUtil {
 	/**
 	 * The EC date part meaning "not set" — a decision that has not been scheduled carries year 1 rather than null.
 	 */
-	private static final LocalDate NOT_SET = LocalDate.of(1, 1, 1);
+	private static final LocalDate NOT_SET = LocalDate.of(1, JANUARY, 1);
 
 	/**
 	 * The EC date part meaning "no end date" — {@code 9999-12-31T23:59:59.9999999} is how EC spells "gäller tills
 	 * vidare".
 	 */
-	private static final LocalDate NO_END_DATE = LocalDate.of(9999, 12, 31);
+	private static final LocalDate NO_END_DATE = LocalDate.of(9999, DECEMBER, 31);
 
 	private MapperUtil() {}
 

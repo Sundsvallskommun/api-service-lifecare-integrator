@@ -17,6 +17,9 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.time.Month.APRIL;
+import static java.time.Month.FEBRUARY;
+import static java.time.Month.MAY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -82,10 +85,10 @@ class LifecareEcDecisionDeserializationTest {
 		// which must not be presented to the citizen as a municipal LSS decision. Both sentinel dates resolve to null.
 		assertThat(decisions).extracting("decisionId", "law", "decisionMaker", "validFrom", "validTo")
 			.containsExactly(
-				tuple("167961", "LSS", "Helsinger Lotta", LocalDate.of(2024, 2, 7), null),
-				tuple("167990", "LSS", "Hofling Anneli", LocalDate.of(2024, 4, 9), null),
-				tuple("168156", "LSS", "Lena LC Utbildning", LocalDate.of(2026, 5, 26), null),
-				tuple("168030", "SFB", "Försäkringskassan", LocalDate.of(2024, 5, 2), null));
+				tuple("167961", "LSS", "Helsinger Lotta", LocalDate.of(2024, FEBRUARY, 7), null),
+				tuple("167990", "LSS", "Hofling Anneli", LocalDate.of(2024, APRIL, 9), null),
+				tuple("168156", "LSS", "Lena LC Utbildning", LocalDate.of(2026, MAY, 26), null),
+				tuple("168030", "SFB", "Försäkringskassan", LocalDate.of(2024, MAY, 2), null));
 	}
 
 	@Test
