@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Import;
 import se.sundsvall.dept44.configuration.feign.FeignConfiguration;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
 import se.sundsvall.dept44.security.Truststore;
+import se.sundsvall.lifecareintegrator.integration.LifecareApiKey;
 import se.sundsvall.lifecareintegrator.integration.LifecareErrorDecoder;
 import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
 
@@ -19,9 +20,9 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
  * Builds the {@link se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcClient} customizer. FC
- * authenticates with a {@code domain} + {@code key}, both required as query parameters, and the same key is repeated
- * in an {@code X-API-Key} header — which the FC spec explicitly asks for ("the key should be sent as an X-API-Key in
- * the header for better security"). Removing it changed nothing for FC, but it demonstrably matters for EC; see
+ * authenticates with a {@code domain} + {@code key}, both as query parameters — and the key travels there and
+ * nowhere else. The FC spec suggests an {@code X-API-Key} header "for better security", but EC rejects a second
+ * carrier outright and the two APIs share a gateway, so FC is kept on the same single-carrier scheme; see
  * {@link se.sundsvall.lifecareintegrator.integration.lifecareec.configuration.LifecareEcConfiguration}.
  *
  * <p>
@@ -72,8 +73,7 @@ public class LifecareFcConfiguration {
 		final var key = keyFor(template.path(), properties);
 
 		queryOnce(template, "domain", properties.domain());
-		queryOnce(template, "key", key);
-		template.header("X-API-Key", key);
+		queryOnce(template, "key", LifecareApiKey.forQuery(key));
 	}
 
 	/**

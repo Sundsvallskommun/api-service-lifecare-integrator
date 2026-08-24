@@ -16,8 +16,8 @@ import static se.sundsvall.lifecareintegrator.integration.lifecareec.configurati
 /**
  * Feign contract for the Lifecare Welfare API Services / Elderly care (EC) API ({@code WE.EC.Integration.Host}). Scoped
  * to the Mina Sidor decision facade: SoL and LSS decisions only (read-only). The mandatory {@code domain} + {@code key}
- * auth (and the {@code X-API-Key} header) is added globally by {@link LifecareEcConfiguration}, so it is not part of
- * these method signatures. Citizen lookup is done by the caller as {@code q=PersonId='YYYYMMDDXXXX'}.
+ * auth is added globally by {@link LifecareEcConfiguration}, so it is not part of these method signatures. Citizen
+ * lookup is done by the caller as {@code q=PersonId='YYYYMMDDXXXX'}.
  */
 @FeignClient(name = CLIENT_ID, url = "${integration.lifecare-ec.url}", configuration = LifecareEcConfiguration.class, dismiss404 = true)
 @CircuitBreaker(name = CLIENT_ID)

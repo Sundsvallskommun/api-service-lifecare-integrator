@@ -10,28 +10,22 @@ import org.springframework.context.annotation.Import;
 import se.sundsvall.dept44.configuration.feign.FeignConfiguration;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
 import se.sundsvall.dept44.security.Truststore;
+import se.sundsvall.lifecareintegrator.integration.LifecareApiKey;
 import se.sundsvall.lifecareintegrator.integration.LifecareErrorDecoder;
 import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
 
 /**
  * Builds the {@link se.sundsvall.lifecareintegrator.integration.lifecareec.LifecareEcClient} customizer. EC
- * authenticates with a {@code domain} + {@code key}, both required as query parameters, and the same key is repeated
- * in an {@code X-API-Key} header.
+ * authenticates with a {@code domain} + {@code key}, both as query parameters — and the key travels there and
+ * nowhere else.
  *
  * <p>
- * The header is not in the EC spec and a working Postman call does not send it, so it was removed once as speculative.
- * That is wrong, and the removal is what proved it: with the header EC answers {@code 400} <em>and returns an error
- * body</em>; without it EC answers {@code 403} with no body at all (verified 2026-08-21, both against the same key and
- * the same query). EC reads the header. Keep sending it — a bodied 400 is a conversation, a bodiless 403 is a closed
- * door.
- *
- * <p>
- * Feign logging is forced to {@link feign.Logger.Level#NONE}, overriding the dept44 default of {@code FULL}. EC reads
- * carry the citizen's {@code personId} and the {@code key} secret as query parameters and return care/execution
- * payloads as bodies; at any
- * level above {@code NONE} Feign would log the request URL (personnummer + secret) and/or the bodies as soon as the
- * client logger is raised to {@code DEBUG}. Pinning it to {@code NONE} keeps that impossible regardless of the
- * configured log level.
+ * An {@code X-API-Key} header carrying the same key was sent alongside them for a while. EC rejects that: it compares
+ * every carrier it can find and fails the request when they disagree, which they must, since the query copy is
+ * URL-decoded on arrival and the header copy is not. The rejection is
+ * {@code 400 "Invalid argument: key. Ambiguous API key, different keys either in the HTTP header (Authorization) or in
+ * the HTTP header (X-API-Key) or in the URL query string (key)."} (verified 2026-08-24). The working Postman call sends
+ * the query parameter only. Do not add a second carrier back.
  */
 @Import(FeignConfiguration.class)
 @EnableConfigurationProperties(LifecareEcProperties.class)
@@ -60,8 +54,7 @@ public class LifecareEcConfiguration {
 
 	private static void addAuthentication(final RequestTemplate template, final LifecareEcProperties properties) {
 		queryOnce(template, "domain", properties.domain());
-		queryOnce(template, "key", properties.key());
-		template.header("X-API-Key", properties.key());
+		queryOnce(template, "key", LifecareApiKey.forQuery(properties.key()));
 	}
 
 	/**
