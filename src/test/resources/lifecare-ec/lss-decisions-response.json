@@ -235,5 +235,93 @@
 			140140
 		],
 		"Deleted": false
+	},
+	{
+		"PersonCategory1": true,
+		"IncreasedHourlyAmount": 0.0,
+		"StandardAmount": 258.0,
+		"SfbCaseworker": {
+			"Id": "LOHE",
+			"FirstName": "",
+			"LastName": "",
+			"FullName": "",
+			"Types": null,
+			"OrganizationUnit": {
+				"Id": "1.S",
+				"Name": "Sundsvalls Kommun"
+			}
+		},
+		"PersonCategoryId": 0,
+		"Law": 7,
+		"Id": 168030,
+		"InvestigationId": 156385,
+		"PersonId": "19700101TF02",
+		"Code": {
+			"Code": 175,
+			"Text": "SFB Bifall Assistansersättning"
+		},
+		"Type": {
+			"Code": 2,
+			"Text": "Beslut att verkställa"
+		},
+		"Date": "2024-05-30T00:00:00",
+		"FromDate": "2024-05-02T00:00:00",
+		"ToDate": "9999-12-31T23:59:59.9999999",
+		"Reason": {
+			"Code": 0,
+			"Text": ""
+		},
+		"Caseworker": {
+			"Id": "FÖRSKASSAN",
+			"FirstName": "Försäkringskassan",
+			"LastName": "",
+			"FullName": "Försäkringskassan",
+			"Types": null,
+			"OrganizationUnit": {
+				"Id": "1.S",
+				"Name": "Sundsvalls Kommun"
+			}
+		},
+		"ServiceCategory": {
+			"Code": 37,
+			"Text": "SFB Assistansersättning"
+		},
+		"Hour": 8000.0,
+		"HourType": {
+			"Code": 2,
+			"Text": "Year"
+		},
+		"Amount": 0.0,
+		"AmountType": {
+			"Code": 0,
+			"Text": null
+		},
+		"Quantity": 0.0,
+		"QuantityType": {
+			"Code": 0,
+			"Text": null
+		},
+		"Visit": 0.0,
+		"VisitType": {
+			"Code": 0,
+			"Text": null
+		},
+		"DecisionLevel": {
+			"Code": 0,
+			"Text": ""
+		},
+		"Day": 0.0,
+		"DayType": {
+			"Code": 0,
+			"Text": null
+		},
+		"ExecutionStartDate": "2024-05-02T00:00:00",
+		"ExecutionEndDate": "9999-12-31T23:59:59.9999999",
+		"IterationNumber": -1,
+		"DaysOfDecision": 0.0,
+		"OrderIds": [
+			140010
+		],
+		"Deleted": false
 	}
 ]

@@ -9,13 +9,12 @@ import org.springframework.stereotype.Component;
 import static java.util.Collections.emptyList;
 
 /**
- * Wrapper around {@link LifecareEcClient}. The EC list resources are queried per person via
- * {@code q=PersonId='&lt;personNumber&gt;'}. EC's {@code q} grammar is {@code Field='Value'} — the single quotes are
- * mandatory and the unquoted {@code PersonId:&lt;pnr&gt;} form is rejected with
- * {@code 400 "Invalid query format"} (verified 2026-08-20). The client is configured with {@code dismiss404 = true}, so
- * a 404 surfaces
- * as {@code null} and is normalized to an empty
- * list here.
+ * Wrapper around {@link LifecareEcClient}, querying the EC list resources per person and normalizing a dismissed 404
+ * to an empty list.
+ *
+ * <p>
+ * EC's {@code q} grammar is {@code Field='Value'}: the single quotes are mandatory, and the unquoted form is rejected
+ * with {@code 400 "Invalid query format"}.
  */
 @Component
 public class LifecareEcIntegration {

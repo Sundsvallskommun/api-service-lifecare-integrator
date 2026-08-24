@@ -2,6 +2,8 @@ package se.sundsvall.lifecareintegrator.util;
 
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.lifecareintegrator.util.LogSanitizer.describe;
@@ -78,5 +80,56 @@ class LogSanitizerTest {
 		public synchronized Throwable getCause() {
 			return this;
 		}
+	}
+
+	@Test
+	void dept44MasksTheCategoriesItCovers() {
+		// Delegated to PiiMasker rather than reimplemented: ten-digit personnummer, phone numbers and e-mail.
+		assertThat(redact("pnr 900101-1234, tel 070-123 45 67, mail john.doe@example.com"))
+			.doesNotContain("900101-1234", "070-123 45 67", "john.doe@")
+			.contains("j***@example.com");
+	}
+
+	@Test
+	void aPartyIdIsLeftReadable() {
+		// A partyId is already opaque — it cannot be resolved to a person without API access — so masking it would
+		// cost traceability and buy nothing. PiiMasker.maskUuid is deliberately not applied.
+		assertThat(redact("partyId 81471222-5798-11e9-ae24-57fa13b361e1 failed"))
+			.contains("81471222-5798-11e9-ae24-57fa13b361e1");
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {
+		"199001011234",       // twelve digits — dept44 8.0.9's pattern has no century-prefix group
+		"19900101-1234",      // and the hyphen does not help
+		"19900101TF03",       // the test population's letter suffix, which \d{4} cannot match
+	})
+	void theFormsDept44LetsThroughAreStillCovered(final String personNumber) {
+		assertThat(redact("person " + personNumber + " failed"))
+			.doesNotContain(personNumber)
+			.contains("[REDACTED-PNR]");
+	}
+
+	@Test
+	void aPercentEncodedPersonNumberIsCovered() {
+		// dept44's word boundaries cannot fire between the hex digits of the surrounding escapes.
+		assertThat(redact("?q=PersonId%3D%27199001011234%27"))
+			.doesNotContain("199001011234")
+			.contains("[REDACTED-PNR]");
+	}
+
+	@Test
+	void controlCharactersCannotForgeALogLine() {
+		assertThat(redact("body\r\n2026-01-01 ERROR forged line"))
+			.doesNotContain("\r", "\n")
+			.contains("body  2026-01-01 ERROR forged line");
+	}
+
+	@Test
+	void swedishTextAndPercentEscapesSurvive() {
+		// Both are why dept44's sanitizeForLogging is not used here — it strips non-ASCII and every '%'.
+		assertThat(redact("Öx Bifall Äldreboende ?q=PersonId%3D%27x%27"))
+			.contains("Öx Bifall Äldreboende")
+			.contains("%3D", "%27");
 	}
 }

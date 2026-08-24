@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.integration;
 
+import feign.RequestTemplate;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.regex.Pattern;
@@ -7,38 +8,54 @@ import java.util.regex.Pattern;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * Renders the Lifecare API key for the query string, the one and only place it is sent.
+ * The Lifecare query-string authentication scheme: {@code domain} and {@code key}, and nothing else.
  *
  * <p>
- * Lifecare keys are base64, so they contain {@code +}, {@code /} and {@code =}, and they are handed out in both a
- * percent-encoded form ({@code …U%2beJwc…}, which is what a Postman collection stores) and a decoded one
- * ({@code …U+eJwc…}). Getting that wrong is silent: a raw {@code +} in a query string is decoded by the server as a
- * <em>space</em>, and Feign passes it through untouched (verified 2026-08-21), so the key arrives corrupted with
- * nothing to say so. Either configured form is accepted here and leaves as the same correctly encoded value.
+ * The key must not travel in a header as well — Lifecare compares every carrier it finds and rejects the request when
+ * they disagree, which they must, since a query value is URL-decoded on arrival and a header value is not.
  *
  * <p>
- * The key must not also travel in an {@code X-API-Key} or {@code Authorization} header. EC compares every carrier it
- * finds and rejects the request outright when they disagree — and they cannot agree, because the query copy is
- * URL-decoded on arrival and the header copy is not:
- * {@code 400 "Invalid argument: key. Ambiguous API key, different keys either in the HTTP header (Authorization) or in
- * the HTTP header (X-API-Key) or in the URL query string (key)."} (verified 2026-08-24). One carrier, no ambiguity.
+ * Keys are base64 and are handed out in both a percent-encoded and a decoded form. Either is accepted here and leaves
+ * as the same encoded value: a raw {@code +} in a query string is decoded server-side as a <em>space</em>, and Feign
+ * does not encode it, so the decoded form would otherwise arrive corrupted with nothing to say so.
  */
 public final class LifecareApiKey {
 
+	private static final String DOMAIN_PARAMETER = "domain";
+
+	private static final String KEY_PARAMETER = "key";
+
 	/**
-	 * A percent-encoded triplet — how we tell an already-encoded key from a decoded one. Base64 never contains {@code %}.
+	 * A percent-encoded triplet — how an already-encoded key is told from a decoded one. Base64 never contains {@code %}.
 	 */
 	private static final Pattern PERCENT_ENCODED = Pattern.compile("%[0-9A-Fa-f]{2}");
 
 	private LifecareApiKey() {}
 
 	/**
+	 * Add the {@code domain} and {@code key} query parameters to a request, unless they are already there.
+	 *
+	 * <p>
+	 * Feign re-applies request interceptors to the <em>same</em> template on every retry attempt and
+	 * {@link RequestTemplate#query(String, String...)} appends, so without the guard a retried request would carry both
+	 * parameters once per attempt.
+	 *
+	 * @param template the request being built
+	 * @param domain   the Lifecare tenant id
+	 * @param key      the API key, in either the encoded or the decoded form
+	 */
+	public static void applyTo(final RequestTemplate template, final String domain, final String key) {
+		queryOnce(template, DOMAIN_PARAMETER, domain);
+		queryOnce(template, KEY_PARAMETER, forQuery(key));
+	}
+
+	/**
 	 * The key percent-encoded for carriage in a query string, so the server decodes it back to the real secret.
 	 *
-	 * @param  key the configured key, in either the encoded or the decoded form
+	 * @param  key the configured key, in either form
 	 * @return     the key safe to place in a query string
 	 */
-	public static String forQuery(final String key) {
+	static String forQuery(final String key) {
 		if (key == null) {
 			return null;
 		}
@@ -53,5 +70,11 @@ public final class LifecareApiKey {
 		}
 		// Guard the '+' first: URLDecoder would read it as a space.
 		return URLDecoder.decode(key.replace("+", "%2B"), UTF_8);
+	}
+
+	private static void queryOnce(final RequestTemplate template, final String name, final String value) {
+		if (!template.queries().containsKey(name)) {
+			template.query(name, value);
+		}
 	}
 }

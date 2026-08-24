@@ -23,6 +23,17 @@ final class MapperUtil {
 
 	private static final int ISO_DATE_LENGTH = 10;
 
+	/**
+	 * The EC date part meaning "not set" — a decision that has not been scheduled carries year 1 rather than null.
+	 */
+	private static final LocalDate NOT_SET = LocalDate.of(1, 1, 1);
+
+	/**
+	 * The EC date part meaning "no end date" — {@code 9999-12-31T23:59:59.9999999} is how EC spells "gäller tills
+	 * vidare".
+	 */
+	private static final LocalDate NO_END_DATE = LocalDate.of(9999, 12, 31);
+
 	private MapperUtil() {}
 
 	static <S, T> List<T> mapList(final List<S> source, final Function<S, T> mapper) {
@@ -33,9 +44,19 @@ final class MapperUtil {
 			.orElse(emptyList());
 	}
 
+	/**
+	 * The date part of an EC date-time, with both of EC's sentinels resolved to {@code null}.
+	 *
+	 * <p>
+	 * Neither sentinel is a date: {@code 0001-01-01} means the value was never set and {@code 9999-12-31} means there is
+	 * no end. Passed through, they reach the citizen as year 1 and year 9999. Absent is what both of them mean, and it is
+	 * also what the decision window filter already treats as unbounded.
+	 */
 	static LocalDate toLocalDate(final LocalDateTime dateTime) {
 		return Optional.ofNullable(dateTime)
 			.map(LocalDateTime::toLocalDate)
+			.filter(date -> !NOT_SET.equals(date))
+			.filter(date -> !NO_END_DATE.equals(date))
 			.orElse(null);
 	}
 

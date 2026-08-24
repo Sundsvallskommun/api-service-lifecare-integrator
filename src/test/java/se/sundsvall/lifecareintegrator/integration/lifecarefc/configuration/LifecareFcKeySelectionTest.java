@@ -19,6 +19,7 @@ import se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,10 +41,40 @@ class LifecareFcKeySelectionTest {
 	@Mock
 	private LifecareFcProperties propertiesMock;
 
+	/**
+	 * The whole encoding scheme rests on Feign leaving an existing percent-escape alone. A plain alphanumeric key never
+	 * exercises that, so this uses a base64-shaped one: {@code +} must reach the wire as {@code %2B} — never raw, which
+	 * the server would decode as a space, and never {@code %252B}, which is a double encoding.
+	 */
+	@Test
+	void aBase64KeyReachesTheWirePercentEncodedExactlyOnce() {
+		final var requestedUrl = new AtomicReference<String>();
+		final var client = clientCapturing(requestedUrl, interceptor("B3zXYTywcGodU+eJwc7ZJut8IcVXV/abc=", "the-user-key"));
+
+		assertThatThrownBy(() -> client.getPerson("199001011234")).isInstanceOf(SentinelException.class);
+
+		assertThat(requestedUrl.get())
+			.contains("key=B3zXYTywcGodU%2BeJwc7ZJut8IcVXV%2Fabc%3D")
+			.doesNotContain("%252B");
+	}
+
+	@Test
+	void anAlreadyEncodedKeyIsNotEncodedAgain() {
+		final var requestedUrl = new AtomicReference<String>();
+		final var client = clientCapturing(requestedUrl, interceptor("B3zXYTywcGodU%2beJwc7ZJut8IcVXV%2fabc%3d", "the-user-key"));
+
+		assertThatThrownBy(() -> client.getPerson("199001011234")).isInstanceOf(SentinelException.class);
+
+		// Either configured form must arrive as the same bytes.
+		assertThat(requestedUrl.get())
+			.contains("key=B3zXYTywcGodU%2BeJwc7ZJut8IcVXV%2Fabc%3D")
+			.doesNotContain("%252");
+	}
+
 	@Test
 	void usersGoOutWithTheUserKeyAndPersonBasedReadsWithTheMainKey() {
 		final var requestedUrl = new AtomicReference<String>();
-		final var client = clientCapturing(requestedUrl, interceptor());
+		final var client = clientCapturing(requestedUrl, interceptor("the-key", "the-user-key"));
 
 		assertThatThrownBy(() -> client.getUsers(100, null, null, null)).isInstanceOf(SentinelException.class);
 		assertThat(requestedUrl.get()).contains("key=the-user-key");
@@ -53,10 +84,10 @@ class LifecareFcKeySelectionTest {
 	}
 
 	/** The interceptor the configuration builds, captured from the customizer. */
-	private RequestInterceptor interceptor() {
+	private RequestInterceptor interceptor(final String key, final String userKey) {
 		when(propertiesMock.domain()).thenReturn("the-domain");
-		when(propertiesMock.key()).thenReturn("the-key");
-		when(propertiesMock.userKeyOrDefault()).thenReturn("the-user-key");
+		when(propertiesMock.key()).thenReturn(key);
+		lenient().when(propertiesMock.userKeyOrDefault()).thenReturn(userKey);
 		when(propertiesMock.connectTimeout()).thenReturn(1);
 		when(propertiesMock.readTimeout()).thenReturn(2);
 		when(feignMultiCustomizerSpy.composeCustomizersToOne()).thenReturn(feignBuilderCustomizerMock);

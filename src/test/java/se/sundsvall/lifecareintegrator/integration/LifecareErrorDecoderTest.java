@@ -1,5 +1,9 @@
 package se.sundsvall.lifecareintegrator.integration;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import feign.Request;
 import feign.RequestTemplate;
 import feign.Response;
@@ -12,6 +16,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 import se.sundsvall.dept44.exception.ClientProblem;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -20,6 +25,8 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static se.sundsvall.lifecareintegrator.integration.LifecareErrorDecoder.withRepeatableBody;
 
 class LifecareErrorDecoderTest {
+
+	private static final String TRUNCATION_MARKER = "…(truncated)";
 
 	private static final String PROBLEM_BODY = """
 		{"title":"Invalid query format","status":400,"detail":"unsupported filter"}""";
@@ -72,6 +79,21 @@ class LifecareErrorDecoderTest {
 
 		final var empty = Response.builder().status(400).request(request()).body("   ", UTF_8).build();
 		assertThat(LifecareErrorDecoder.bodySnippet(empty)).isEqualTo("<empty>");
+	}
+
+	@Test
+	void aPersonNumberOnTheCapBoundaryIsRedactedNotTruncated() {
+		// Redaction runs before capping. The other order would cut the number into a fragment the pattern no longer
+		// matches, leaving its leading digits in the log.
+		final var onTheBoundary = "x".repeat(1995) + "199001011234" + "y".repeat(100);
+		final var body = Response.builder().status(400).request(request()).body(onTheBoundary, UTF_8).build();
+
+		// The placeholder is what the cap clips ("[REDACTED-PNR]" → "[REDA"), since it lands at the cut. The marker is
+		// appended afterwards and always survives. What matters is that no digit of the number does.
+		assertThat(LifecareErrorDecoder.bodySnippet(body))
+			.doesNotContain("199001011234")
+			.doesNotContain("19900")
+			.endsWith(TRUNCATION_MARKER);
 	}
 
 	@Test
@@ -176,6 +198,65 @@ class LifecareErrorDecoderTest {
 		@Override
 		public void close() {
 			// nothing to release
+		}
+	}
+
+	@Test
+	void anUnexpectedStatusWarnsWithTheRequestButNotTheBody() {
+		final var logged = capturingLogs(Level.WARN, () -> new LifecareErrorDecoder("lifecare-ec")
+			.decode("LifecareEcClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY)));
+
+		assertThat(logged).singleElement().satisfies(event -> {
+			assertThat(event.getLevel()).isEqualTo(Level.WARN);
+			assertThat(event.getFormattedMessage())
+				.contains("lifecare-ec responded 400 to GET")
+				.contains("key=[REDACTED]", "[REDACTED-PNR]")
+				// The body is vendor-controlled and only ever written at DEBUG.
+				.doesNotContain("Invalid query format");
+		});
+	}
+
+	@Test
+	void aBypassedStatusDoesNotWarnAtAll() {
+		// NOT_FOUND is an outcome the caller handles, not a failure worth a warning. Captured at DEBUG so the
+		// assertion rests on the level of what was logged rather than on the test configuration hiding it.
+		final var logged = capturingLogs(Level.DEBUG, () -> new LifecareErrorDecoder("lifecare-fc", List.of(NOT_FOUND.value()))
+			.decode("LifecareFcClient#getPerson(String)", oneShotResponse(404, PROBLEM_BODY)));
+
+		assertThat(logged).isNotEmpty().noneMatch(event -> event.getLevel() == Level.WARN);
+	}
+
+	@Test
+	void theBodyIsWrittenOnlyWhenDebugIsOn() {
+		final var logged = capturingLogs(Level.DEBUG, () -> new LifecareErrorDecoder("lifecare-ec")
+			.decode("LifecareEcClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY)));
+
+		// Also covers the deferred argument: with DEBUG off the supplier is never invoked, so this is the only path
+		// that exercises it from logFailure.
+		assertThat(logged)
+			.filteredOn(event -> event.getLevel() == Level.DEBUG)
+			.singleElement()
+			.satisfies(event -> assertThat(event.getFormattedMessage()).contains("Invalid query format"));
+	}
+
+	/**
+	 * Runs the action with the decoder's logger pinned to the given level and an appender attached, returning
+	 * everything that reached it. The appender does no filtering of its own — the level is what decides.
+	 */
+	private static List<ILoggingEvent> capturingLogs(final Level level, final Runnable action) {
+		final var logger = (Logger) LoggerFactory.getLogger(LifecareErrorDecoder.class);
+		final var originalLevel = logger.getLevel();
+		final var appender = new ListAppender<ILoggingEvent>();
+		appender.start();
+		logger.addAppender(appender);
+		logger.setLevel(level);
+
+		try {
+			action.run();
+			return List.copyOf(appender.list);
+		} finally {
+			logger.setLevel(originalLevel);
+			logger.detachAppender(appender);
 		}
 	}
 }

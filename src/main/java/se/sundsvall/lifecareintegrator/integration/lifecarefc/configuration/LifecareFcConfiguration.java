@@ -19,25 +19,18 @@ import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
- * Builds the {@link se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcClient} customizer. FC
- * authenticates with a {@code domain} + {@code key}, both as query parameters — and the key travels there and
- * nowhere else. The FC spec suggests an {@code X-API-Key} header "for better security", but EC rejects a second
- * carrier outright and the two APIs share a gateway, so FC is kept on the same single-carrier scheme; see
- * {@link se.sundsvall.lifecareintegrator.integration.lifecareec.configuration.LifecareEcConfiguration}.
+ * Builds the {@link se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcClient} customizer: query-string
+ * authentication with a per-request key, HTTP/1.1, and Feign logging off.
  *
  * <p>
- * The key is chosen per request: FC licences the {@code Users/*} directory to its own consumer, separate from the
- * person-based case APIs, so requests into {@code /Users} are authenticated with
- * {@link LifecareFcProperties#userKeyOrDefault()} and everything else with {@link LifecareFcProperties#key()}. Where no
- * separate user key is configured both resolve to the same key.
+ * FC licences the {@code Users/*} directory to a different consumer from the person-based case APIs, so requests into
+ * {@code /Users} are authenticated with {@link LifecareFcProperties#userKeyOrDefault()} and everything else with
+ * {@link LifecareFcProperties#key()}. Authentication is applied by {@link LifecareApiKey}.
  *
  * <p>
- * Feign logging is forced to {@link Logger.Level#NONE}, overriding the dept44 default of {@code FULL}. FC reads carry
- * the applicant's {@code personId} and the {@code key} secret as query parameters and return income/calculation
- * payloads as bodies; at any
- * level above {@code NONE} Feign would log the request URL (personnummer + secret) and/or the bodies as soon as the
- * client logger is raised to {@code DEBUG}. Pinning it to {@code NONE} keeps that impossible regardless of the
- * configured log level.
+ * Feign logging is pinned to {@link Logger.Level#NONE}, overriding the dept44 default of {@code FULL}: FC request URLs
+ * carry the personnummer and the API key, so any higher level would log both as soon as the client logger reached
+ * {@code DEBUG}.
  */
 @Import(FeignConfiguration.class)
 @EnableConfigurationProperties(LifecareFcProperties.class)
@@ -72,19 +65,7 @@ public class LifecareFcConfiguration {
 	private static void addAuthentication(final RequestTemplate template, final LifecareFcProperties properties) {
 		final var key = keyFor(template.path(), properties);
 
-		queryOnce(template, "domain", properties.domain());
-		queryOnce(template, "key", LifecareApiKey.forQuery(key));
-	}
-
-	/**
-	 * Add a query parameter unless the template already carries it. Feign re-applies the request interceptors to the
-	 * <em>same</em> template on every retry attempt and {@link RequestTemplate#query(String, String...)} appends, so
-	 * without this a retried request would go out with {@code domain} and {@code key} repeated once per attempt.
-	 */
-	private static void queryOnce(final RequestTemplate template, final String name, final String value) {
-		if (!template.queries().containsKey(name)) {
-			template.query(name, value);
-		}
+		LifecareApiKey.applyTo(template, properties.domain(), key);
 	}
 
 	/** The licence key the given request path is authenticated with — see the class documentation. */

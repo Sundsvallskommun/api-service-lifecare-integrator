@@ -1,7 +1,9 @@
 package se.sundsvall.lifecareintegrator.integration;
 
+import java.net.URLDecoder;
 import org.junit.jupiter.api.Test;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.lifecareintegrator.integration.LifecareApiKey.forQuery;
 
@@ -25,7 +27,7 @@ class LifecareApiKeyTest {
 
 	@Test
 	void theEncodedValueRoundTripsToTheRealSecret() {
-		assertThat(java.net.URLDecoder.decode(forQuery(ENCODED), java.nio.charset.StandardCharsets.UTF_8))
+		assertThat(URLDecoder.decode(forQuery(ENCODED), UTF_8))
 			.isEqualTo(DECODED);
 	}
 

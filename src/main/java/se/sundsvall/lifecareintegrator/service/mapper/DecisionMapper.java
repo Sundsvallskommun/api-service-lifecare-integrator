@@ -8,11 +8,13 @@ import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionPersonDTO;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
 import se.sundsvall.lifecareintegrator.api.model.elderlycare.ElderlyCareDecisionDetails;
 import se.sundsvall.lifecareintegrator.api.model.familycare.FamilyCareDecisionDetails;
 import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
 
+import static java.util.function.Predicate.not;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toBigDecimal;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toStringValue;
@@ -23,10 +25,18 @@ public final class DecisionMapper {
 	public static final String SOURCE_FAMILY_CARE = "FAMILY_CARE";
 	public static final String LAW_SOL = "SOL";
 	public static final String LAW_LSS = "LSS";
+	public static final String LAW_SFB = "SFB";
+
+	/** The {@code Law} code EC uses for Socialförsäkringsbalken; everything else on this endpoint is LSS. */
+	private static final int LAW_CODE_SFB = 7;
 
 	private DecisionMapper() {}
 
-	public static Decision toDecision(final WEECIntegrationContractsDecisionV1Decision decision) {
+	/**
+	 * @param caseworkerNames resolves a Lifecare caseworker id to a display name, for the cases where EC sends a
+	 *                        caseworker without one. Returns null when the id cannot be resolved.
+	 */
+	public static Decision toDecision(final WEECIntegrationContractsDecisionV1Decision decision, final Function<String, Optional<String>> caseworkerNames) {
 		return Optional.ofNullable(decision)
 			.map(source -> Decision.create()
 				.withSource(SOURCE_ELDERLY_CARE)
@@ -37,24 +47,28 @@ public final class DecisionMapper {
 				.withValidTo(toLocalDate(source.getToDate()))
 				.withType(toText(source.getType()))
 				.withReason(toText(source.getReason()))
-				.withDecisionMaker(toFullName(source.getCaseworker()))
+				.withDecisionMaker(toFullName(source.getCaseworker(), caseworkerNames))
 				.withAmount(toBigDecimal(source.getAmount()))
 				.withElderlyCareDetails(toElderlyCareDecisionDetails(source)))
 			.orElse(null);
 	}
 
-	public static Decision toDecision(final WEECIntegrationContractsDecisionV1LssDecision decision) {
+	/**
+	 * @param caseworkerNames resolves a Lifecare caseworker id to a display name — see the SoL overload. The SFB
+	 *                        caseworker is the usual reason it is needed.
+	 */
+	public static Decision toDecision(final WEECIntegrationContractsDecisionV1LssDecision decision, final Function<String, Optional<String>> caseworkerNames) {
 		return Optional.ofNullable(decision)
 			.map(source -> Decision.create()
 				.withSource(SOURCE_ELDERLY_CARE)
-				.withLaw(LAW_LSS)
+				.withLaw(toLaw(source.getLaw()))
 				.withDecisionId(toStringValue(source.getId()))
 				.withDecided(toLocalDate(source.getDate()))
 				.withValidFrom(toLocalDate(source.getFromDate()))
 				.withValidTo(toLocalDate(source.getToDate()))
 				.withType(toText(source.getType()))
 				.withReason(toText(source.getReason()))
-				.withDecisionMaker(toFullName(source.getCaseworker()))
+				.withDecisionMaker(toFullName(source.getCaseworker(), caseworkerNames))
 				.withAmount(toBigDecimal(source.getAmount()))
 				.withElderlyCareDetails(toElderlyCareDecisionDetails(toBaseDecision(source))
 					// LSS-only fields on top of the shared elderly-care details
@@ -64,7 +78,7 @@ public final class DecisionMapper {
 					.withPersonCategory3P(source.getPersonCategory3P())
 					.withIncreasedHourlyAmount(toBigDecimal(source.getIncreasedHourlyAmount()))
 					.withStandardAmount(toBigDecimal(source.getStandardAmount()))
-					.withSfbCaseworker(toFullName(source.getSfbCaseworker()))))
+					.withSfbCaseworker(toFullName(source.getSfbCaseworker(), caseworkerNames))))
 			.orElse(null);
 	}
 
@@ -162,9 +176,36 @@ public final class DecisionMapper {
 			.orElse(null);
 	}
 
-	private static String toFullName(final WEECIntegrationContractsCommonV1Caseworker caseworker) {
+	/**
+	 * The legal basis of a decision read from {@code lss_decisions}. The endpoint serves two: {@code 3} is LSS, and
+	 * {@code 7} is SFB — assistansersättning, decided by Försäkringskassan rather than the municipality. Anything else,
+	 * including a missing code, falls back to LSS, which is what the endpoint is.
+	 */
+	private static String toLaw(final Integer lawCode) {
+		return Optional.ofNullable(lawCode)
+			.filter(code -> code == LAW_CODE_SFB)
+			.map(_ -> LAW_SFB)
+			.orElse(LAW_LSS);
+	}
+
+	/**
+	 * The caseworker's full name, or null when there is none to show. EC sends the SFB caseworker as an object carrying
+	 * only an id, with the name fields empty — a blank name must be left out rather than published as an empty string.
+	 */
+	private static String toFullName(final WEECIntegrationContractsCommonV1Caseworker caseworker, final Function<String, Optional<String>> caseworkerNames) {
 		return Optional.ofNullable(caseworker)
-			.map(WEECIntegrationContractsCommonV1Caseworker::getFullName)
+			.map(source -> Optional.ofNullable(source.getFullName())
+				.filter(not(String::isBlank))
+				.orElseGet(() -> resolveName(source.getId(), caseworkerNames)))
+			.filter(not(String::isBlank))
+			.orElse(null);
+	}
+
+	/** The name behind a caseworker id, or null when there is no id or it resolves to nothing. */
+	private static String resolveName(final String loginName, final Function<String, Optional<String>> caseworkerNames) {
+		return Optional.ofNullable(loginName)
+			.filter(not(String::isBlank))
+			.flatMap(caseworkerNames)
 			.orElse(null);
 	}
 }

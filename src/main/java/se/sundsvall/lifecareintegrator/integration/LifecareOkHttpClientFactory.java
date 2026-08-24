@@ -12,12 +12,8 @@ import se.sundsvall.dept44.security.Truststore;
  * pinned to HTTP/1.1.
  *
  * <p>
- * Lifecare is served by IIS, whose TLS ALPN advertises {@code h2}, so OkHttp negotiates HTTP/2 by default. IIS then
- * resets any stream it cannot serve over HTTP/2 — connection-bound features such as Windows authentication and
- * client-certificate renegotiation have no HTTP/2 equivalent — with the {@code HTTP_1_1_REQUIRED} error code, which is
- * the server asking the client to redo the request over HTTP/1.1. OkHttp does not downgrade on its own; it surfaces
- * {@code StreamResetException: stream was reset: HTTP_1_1_REQUIRED}, which Feign wraps in a {@code RetryableException}
- * and the call fails. Negotiating HTTP/1.1 up front avoids the reset entirely.
+ * The pin is required, not a preference: Lifecare's IIS advertises {@code h2} over ALPN but resets any stream it
+ * cannot serve over HTTP/2 with {@code HTTP_1_1_REQUIRED}, and OkHttp does not downgrade on its own.
  */
 public final class LifecareOkHttpClientFactory {
 

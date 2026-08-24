@@ -2,8 +2,12 @@ package se.sundsvall.lifecareintegrator.service;
 
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +15,7 @@ import org.springframework.stereotype.Service;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
 import se.sundsvall.lifecareintegrator.api.model.common.DecisionsResponse;
 import se.sundsvall.lifecareintegrator.api.model.common.SourceStatus;
+import se.sundsvall.lifecareintegrator.integration.employee.EmployeeIntegration;
 import se.sundsvall.lifecareintegrator.integration.lifecareec.LifecareEcIntegration;
 import se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcIntegration;
 import se.sundsvall.lifecareintegrator.integration.party.PartyIntegration;
@@ -37,14 +42,17 @@ public class DecisionService {
 	private final PartyIntegration partyIntegration;
 	private final LifecareEcIntegration lifecareEcIntegration;
 	private final LifecareFcIntegration lifecareFcIntegration;
+	private final EmployeeIntegration employeeIntegration;
 
 	public DecisionService(
 		final PartyIntegration partyIntegration,
 		final LifecareEcIntegration lifecareEcIntegration,
-		final LifecareFcIntegration lifecareFcIntegration) {
+		final LifecareFcIntegration lifecareFcIntegration,
+		final EmployeeIntegration employeeIntegration) {
 		this.partyIntegration = partyIntegration;
 		this.lifecareEcIntegration = lifecareEcIntegration;
 		this.lifecareFcIntegration = lifecareFcIntegration;
+		this.employeeIntegration = employeeIntegration;
 	}
 
 	public DecisionsResponse getDecisions(final String municipalityId, final String partyId, final LocalDate from, final LocalDate to) {
@@ -53,16 +61,17 @@ public class DecisionService {
 		final var window = DateWindow.of(from, to);
 
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
+		final var caseworkerNames = caseworkerNameResolver(municipalityId);
 
 		final var results = List.of(
 			fetchSource(SOURCE_ELDERLY_CARE, LAW_SOL,
 				() -> lifecareEcIntegration.getSolDecisions(personNumber).stream()
-					.map(DecisionMapper::toDecision)
+					.map(decision -> DecisionMapper.toDecision(decision, caseworkerNames))
 					.filter(decision -> overlapsWindow(decision, from, to))
 					.toList()),
 			fetchSource(SOURCE_ELDERLY_CARE, LAW_LSS,
 				() -> lifecareEcIntegration.getLssDecisions(personNumber).stream()
-					.map(DecisionMapper::toDecision)
+					.map(decision -> DecisionMapper.toDecision(decision, caseworkerNames))
 					.filter(decision -> overlapsWindow(decision, from, to))
 					.toList()),
 			fetchSource(SOURCE_FAMILY_CARE, null,
@@ -78,6 +87,18 @@ public class DecisionService {
 			.withSources(results.stream()
 				.map(SourceResult::toSourceStatus)
 				.toList());
+	}
+
+	/**
+	 * A caseworker-id-to-name resolver for one request, memoizing every lookup — including the misses, which are the
+	 * common case for ids that are not employees at all. Lifecare repeats the same handful of caseworkers across a
+	 * person's decisions, so without this a name would be fetched once per decision. Confined to a single request
+	 * thread, so the plain map is enough.
+	 */
+	private Function<String, Optional<String>> caseworkerNameResolver(final String municipalityId) {
+		final Map<String, Optional<String>> resolved = new HashMap<>();
+
+		return loginName -> resolved.computeIfAbsent(loginName, id -> employeeIntegration.getFullName(municipalityId, id));
 	}
 
 	private SourceResult fetchSource(final String source, final String law, final Supplier<List<Decision>> fetcher) {

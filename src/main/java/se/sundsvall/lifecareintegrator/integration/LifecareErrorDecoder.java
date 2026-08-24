@@ -11,22 +11,16 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static se.sundsvall.lifecareintegrator.util.LogSanitizer.redact;
 
 /**
- * The dept44 {@link ProblemErrorDecoder}, with the error response body buffered before it is handed over, and the
- * failed request logged.
+ * The dept44 {@link ProblemErrorDecoder} with the error body buffered first, and the failed request logged.
  *
  * <p>
- * dept44's {@code AbstractErrorDecoder.extractMessage} reads the body twice — once to test it for blankness, then again
- * in {@code extractErrorMessage}. An OkHttp response body is not repeatable, so the second read returns nothing:
- * Jackson fails with {@code No content to map due to end-of-input}, a full stack trace is logged as "Something went
- * wrong when extracting error-message", and the real error is replaced with {@code title=Unknown error}. Every
- * explanation Lifecare sends with a 4xx is lost exactly when it is needed. Rebuilding the response over a
- * {@code byte[]}
- * body makes it repeatable, so both reads see the same content. Remove this once dept44 reads the body once.
+ * dept44's {@code AbstractErrorDecoder} reads the response body twice, and an OkHttp body is not repeatable, so the
+ * second read comes back empty and Lifecare's explanation is replaced by {@code title=Unknown error}. Buffering over a
+ * {@code byte[]} makes both reads see the same content; this class can go once dept44 reads the body once.
  *
  * <p>
- * The request line is logged alongside the status because the response body alone does not say what we sent, and the
- * shape of the {@code q} filter is what most EC failures turn on. It goes through {@link
- * se.sundsvall.lifecareintegrator.util.LogSanitizer} first — the URL carries the API key and a personnummer.
+ * The request line is logged with the status because the body alone does not say what was sent. It passes through
+ * {@link se.sundsvall.lifecareintegrator.util.LogSanitizer} first — the URL carries the API key and a personnummer.
  */
 public class LifecareErrorDecoder extends ProblemErrorDecoder {
 
@@ -44,25 +38,63 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 	private static final String UNBUFFERED_BODY = "<unbuffered>";
 
 	private final String integration;
+	private final List<Integer> expectedStatuses;
 
 	public LifecareErrorDecoder(final String integrationName) {
-		super(integrationName);
-		this.integration = integrationName;
+		this(integrationName, List.of());
 	}
 
+	/**
+	 * @param bypassResponseCodes statuses propagated as themselves rather than as BAD_GATEWAY. They are expected
+	 *                            outcomes the caller handles — an FC document that does not exist, say — so they are
+	 *                            logged at DEBUG rather than WARN.
+	 */
 	public LifecareErrorDecoder(final String integrationName, final List<Integer> bypassResponseCodes) {
 		super(integrationName, bypassResponseCodes);
 		this.integration = integrationName;
+		this.expectedStatuses = List.copyOf(bypassResponseCodes);
 	}
 
 	@Override
 	public Exception decode(final String methodKey, final Response response) {
 		final var buffered = withRepeatableBody(response);
 
-		LOG.warn("{} responded {} to {} {} with body: {}", integration, buffered.status(),
-			buffered.request().httpMethod(), redact(buffered.request().url()), bodySnippet(buffered));
+		logFailure(buffered);
 
 		return super.decode(methodKey, buffered);
+	}
+
+	/**
+	 * Logs the failed request, and the body only at DEBUG.
+	 *
+	 * <p>
+	 * The request line is safe to log at WARN — every parameter in it is ours, and the two sensitive ones are redacted.
+	 * The body is not: it is vendor-controlled and may carry personal data beyond what redaction anticipates, so it is
+	 * written only when someone turns diagnostics on. A bypassed status is an outcome the caller handles rather than a
+	 * failure, so it does not warn at all.
+	 */
+	private void logFailure(final Response response) {
+		final var request = "%s %s".formatted(response.request().httpMethod(), redact(response.request().url()));
+
+		if (expectedStatuses.contains(response.status())) {
+			LOG.debug("{} responded {} to {}", integration, response.status(), request);
+			return;
+		}
+
+		LOG.warn("{} responded {} to {}", integration, response.status(), request);
+		// Deferred, not just unwritten: building the snippet reads the whole body and runs it through several regex
+		// passes, which is exactly the cost moving it to DEBUG was meant to stop paying on every error in production.
+		LOG.atDebug()
+			.addArgument(integration)
+			.addArgument(() -> bodySnippet(response))
+			.log("{} response body was: {}");
+	}
+
+	private static String capped(final String content) {
+		if (content.length() <= MAX_BODY_CHARACTERS) {
+			return content;
+		}
+		return content.substring(0, MAX_BODY_CHARACTERS) + TRUNCATION_MARKER;
 	}
 
 	/**
@@ -92,9 +124,7 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 			if (content.isBlank()) {
 				return EMPTY_BODY;
 			}
-			return redact(content.length() > MAX_BODY_CHARACTERS
-				? content.substring(0, MAX_BODY_CHARACTERS) + TRUNCATION_MARKER
-				: content);
+			return capped(redact(content));
 		} catch (final IOException e) {
 			return "<unreadable: %s>".formatted(redact(e.getMessage()));
 		}
