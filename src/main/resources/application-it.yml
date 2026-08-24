@@ -11,9 +11,14 @@ spring:
     oauth2:
       client:
         provider:
+          employee:
+            token-uri: http://localhost:${wiremock.server.port}/token
           party:
             token-uri: http://localhost:${wiremock.server.port}/token
         registration:
+          employee:
+            client-id: the-client-id
+            client-secret: the-client-secret
           party:
             client-id: the-client-id
             client-secret: the-client-secret
@@ -26,5 +31,7 @@ integration:
     url: http://localhost:${wiremock.server.port}/lifecare-fc
     domain: it-domain
     key: it-key
+  employee:
+    url: http://localhost:${wiremock.server.port}/employee
   party:
     url: http://localhost:${wiremock.server.port}/party

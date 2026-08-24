@@ -2,6 +2,7 @@ package se.sundsvall.lifecareintegrator.service.mapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
@@ -10,15 +11,30 @@ import java.util.Optional;
 import java.util.function.Function;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
 
+import static java.time.Month.DECEMBER;
+import static java.time.Month.JANUARY;
 import static java.util.Collections.emptyList;
 
 /**
  * Shared mapping helpers for the vendor models: the FC API represents dates as strings (sometimes with a time part),
- * the EC API as OffsetDateTime.
+ * the EC API as LocalDateTime — EC sends its date-times without a zone offset ({@code "2024-02-07T00:00:00"}), so the
+ * EC models are generated with {@code dateLibrary=java8-localdatetime}. FC request models still take OffsetDateTime,
+ * which is what {@link #toOffsetDateTime(LocalDate)} is for.
  */
 final class MapperUtil {
 
 	private static final int ISO_DATE_LENGTH = 10;
+
+	/**
+	 * The EC date part meaning "not set" — a decision that has not been scheduled carries year 1 rather than null.
+	 */
+	private static final LocalDate NOT_SET = LocalDate.of(1, JANUARY, 1);
+
+	/**
+	 * The EC date part meaning "no end date" — {@code 9999-12-31T23:59:59.9999999} is how EC spells "gäller tills
+	 * vidare".
+	 */
+	private static final LocalDate NO_END_DATE = LocalDate.of(9999, DECEMBER, 31);
 
 	private MapperUtil() {}
 
@@ -30,9 +46,19 @@ final class MapperUtil {
 			.orElse(emptyList());
 	}
 
-	static LocalDate toLocalDate(final OffsetDateTime dateTime) {
+	/**
+	 * The date part of an EC date-time, with both of EC's sentinels resolved to {@code null}.
+	 *
+	 * <p>
+	 * Neither sentinel is a date: {@code 0001-01-01} means the value was never set and {@code 9999-12-31} means there is
+	 * no end. Passed through, they reach the citizen as year 1 and year 9999. Absent is what both of them mean, and it is
+	 * also what the decision window filter already treats as unbounded.
+	 */
+	static LocalDate toLocalDate(final LocalDateTime dateTime) {
 		return Optional.ofNullable(dateTime)
-			.map(OffsetDateTime::toLocalDate)
+			.map(LocalDateTime::toLocalDate)
+			.filter(date -> !NOT_SET.equals(date))
+			.filter(date -> !NO_END_DATE.equals(date))
 			.orElse(null);
 	}
 

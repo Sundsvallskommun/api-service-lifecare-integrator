@@ -2402,11 +2402,14 @@ components:
           type:
             - string
             - "null"
-          description: The law the decision is made under. Only present for ELDERLY_CARE
-            decisions
+          description: "The law this decision is made under. Only present for ELDERLY_CARE\
+            \ decisions. SFB decisions (assistansersättning, decided by Försäkringskassan)\
+            \ are delivered by the LSS source, so a decision's law is not always the\
+            \ law of the source that carried it."
           enum:
             - SOL
             - LSS
+            - SFB
           examples:
             - SOL
         decisionId:
@@ -2695,7 +2698,9 @@ components:
           type:
             - string
             - "null"
-          description: The law the source covers. Only present for ELDERLY_CARE sources
+          description: "The law the source covers, identifying which fetch this status\
+            \ belongs to. Only present for ELDERLY_CARE sources. The LSS source also\
+            \ delivers SFB decisions."
           enum:
             - SOL
             - LSS

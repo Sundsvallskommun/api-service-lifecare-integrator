@@ -18,17 +18,26 @@ spring:
           party:
             authorization-grant-type: client_credentials
             provider: party
+          employee:
+            authorization-grant-type: client_credentials
+            provider: employee
 
 #========================================
 # Integrations
 #========================================
 integration:
-  # Lifecare Welfare API Services / Elderly care (EC) — WE.EC.Integration.Host. Auth is domain + key (query params /
-  # X-API-Key header); the key is a secret — override per environment, never commit it.
+  # Lifecare Welfare API Services / Elderly care (EC) — WE.EC.Integration.Host. Auth is domain + key as query
+  # parameters, and the key goes nowhere else — EC rejects the request if it finds the key in a header too.
+  # Either the percent-encoded or the decoded form of the key works. The key is a secret: override per
+  # environment, never commit it.
   lifecare-ec:
     url: override-me
     domain: override-me
     key: override-me
+  # api-service-employee — puts a name to a Lifecare caseworker id. Only consulted when Lifecare sends a caseworker
+  # without one, and never allowed to fail a decision read.
+  employee:
+    url: override-me
   # Lifecare FamilyCare (FC) — WESE.FC.Api.FC. Auth is domain + key. The /Users/* directory is licensed to a
   # SEPARATE consumer ("Användarinformation IFO") from the person-based case APIs ("API IFO Personbaserade"):
   # verified 2026-08-20, each key is 401 on the other's endpoints. Set user-key to that second key where the
@@ -45,4 +54,6 @@ resilience4j:
       lifecare-ec:
         ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
       lifecare-fc:
+        ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
+      employee:
         ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem

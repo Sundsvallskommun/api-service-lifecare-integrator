@@ -13,6 +13,8 @@ integration:
     url: http://lifecarefc.url
     domain: junit-domain
     key: junit-key
+  employee:
+    url: http://employee.local
   party:
     url: http://party.local
     connect-timeout: 10
@@ -24,9 +26,14 @@ spring:
     oauth2:
       client:
         provider:
+          employee:
+            token-uri: http://token.url
           party:
             token-uri: http://token.url
         registration:
+          employee:
+            client-id: the-client-id
+            client-secret: the-client-secret
           party:
             client-id: the-client-id
             client-secret: the-client-secret

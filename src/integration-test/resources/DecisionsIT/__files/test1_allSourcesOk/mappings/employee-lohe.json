@@ -1,0 +1,15 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/employee/2281/portalpersondata/personal/LOHE"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"fullname": "Lotta Helsinger"
+		},
+		"status": 200
+	}
+}

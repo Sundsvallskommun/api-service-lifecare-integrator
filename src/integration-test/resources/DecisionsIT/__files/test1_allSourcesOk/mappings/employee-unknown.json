@@ -1,0 +1,9 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/employee/2281/portalpersondata/personal/OKAND"
+	},
+	"response": {
+		"status": 404
+	}
+}

@@ -1,12 +1,14 @@
 package se.sundsvall.lifecareintegrator.service;
 
+import generated.se.sundsvall.lifecareec.WEECIntegrationContractsCommonV1Caseworker;
 import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1Decision;
 import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1LssDecision;
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,6 +18,7 @@ import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
 import se.sundsvall.lifecareintegrator.api.model.common.SourceStatus;
+import se.sundsvall.lifecareintegrator.integration.employee.EmployeeIntegration;
 import se.sundsvall.lifecareintegrator.integration.lifecareec.LifecareEcIntegration;
 import se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcIntegration;
 import se.sundsvall.lifecareintegrator.integration.party.PartyIntegration;
@@ -24,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -46,6 +50,9 @@ class DecisionServiceTest {
 	@Mock
 	private LifecareFcIntegration lifecareFcIntegrationMock;
 
+	@Mock
+	private EmployeeIntegration employeeIntegrationMock;
+
 	@InjectMocks
 	private DecisionService decisionService;
 
@@ -54,9 +61,9 @@ class DecisionServiceTest {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
 		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of(
-			new WEECIntegrationContractsDecisionV1Decision().id(1).date(OffsetDateTime.parse("2026-01-01T00:00:00Z"))));
+			new WEECIntegrationContractsDecisionV1Decision().id(1).date(LocalDateTime.parse("2026-01-01T00:00:00"))));
 		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(
-			new WEECIntegrationContractsDecisionV1LssDecision().id(2).date(OffsetDateTime.parse("2026-03-01T00:00:00Z"))));
+			new WEECIntegrationContractsDecisionV1LssDecision().id(2).date(LocalDateTime.parse("2026-03-01T00:00:00"))));
 		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
 			new PersonBasedDecisionDTO().id(3).date("2026-02-01")));
 
@@ -93,18 +100,18 @@ class DecisionServiceTest {
 		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of(
 			// Ends before the window — filtered out
 			new WEECIntegrationContractsDecisionV1Decision().id(1)
-				.fromDate(OffsetDateTime.parse("2020-01-01T00:00:00Z"))
-				.toDate(OffsetDateTime.parse("2020-12-31T00:00:00Z")),
+				.fromDate(LocalDateTime.parse("2020-01-01T00:00:00"))
+				.toDate(LocalDateTime.parse("2020-12-31T00:00:00")),
 			// Overlaps the window — kept
 			new WEECIntegrationContractsDecisionV1Decision().id(2)
-				.fromDate(OffsetDateTime.parse("2025-06-01T00:00:00Z"))
-				.toDate(OffsetDateTime.parse("2026-01-15T00:00:00Z")),
+				.fromDate(LocalDateTime.parse("2025-06-01T00:00:00"))
+				.toDate(LocalDateTime.parse("2026-01-15T00:00:00")),
 			// Open-ended — kept
 			new WEECIntegrationContractsDecisionV1Decision().id(3)
-				.fromDate(OffsetDateTime.parse("2026-02-01T00:00:00Z")),
+				.fromDate(LocalDateTime.parse("2026-02-01T00:00:00")),
 			// Starts after the window — filtered out
 			new WEECIntegrationContractsDecisionV1Decision().id(4)
-				.fromDate(OffsetDateTime.parse("2026-08-01T00:00:00Z"))));
+				.fromDate(LocalDateTime.parse("2026-08-01T00:00:00"))));
 		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of());
 		when(lifecareFcIntegrationMock.getAllDecisions(PERSON_NUMBER, from, to)).thenReturn(List.of());
 
@@ -203,5 +210,65 @@ class DecisionServiceTest {
 		assertThat(result.getDecisions())
 			.extracting(Decision::getDecisionId)
 			.containsExactly("2", "1");
+	}
+
+	@Test
+	void aCaseworkerWithoutANameIsResolvedOnceAndReusedAcrossDecisions() {
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of());
+		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(
+			lssDecisionWithBlankSfbCaseworker(1), lssDecisionWithBlankSfbCaseworker(2)));
+		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of());
+		when(employeeIntegrationMock.getFullName(MUNICIPALITY_ID, "LOHE")).thenReturn(Optional.of("Lotta Helsinger"));
+
+		final var response = decisionService.getDecisions(MUNICIPALITY_ID, PARTY_ID, null, null);
+
+		assertThat(response.getDecisions())
+			.extracting(decision -> decision.getElderlyCareDetails().getSfbCaseworker())
+			.containsExactly("Lotta Helsinger", "Lotta Helsinger");
+
+		// Two decisions, one lookup: Lifecare repeats the same caseworker across a person's decisions.
+		verify(employeeIntegrationMock, times(1)).getFullName(MUNICIPALITY_ID, "LOHE");
+	}
+
+	@Test
+	void anUnresolvableCaseworkerLeavesTheNameOutRatherThanBlank() {
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of());
+		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(lssDecisionWithBlankSfbCaseworker(1)));
+		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of());
+		when(employeeIntegrationMock.getFullName(MUNICIPALITY_ID, "LOHE")).thenReturn(Optional.empty());
+
+		final var response = decisionService.getDecisions(MUNICIPALITY_ID, PARTY_ID, null, null);
+
+		assertThat(response.getDecisions()).singleElement()
+			.satisfies(decision -> assertThat(decision.getElderlyCareDetails().getSfbCaseworker()).isNull());
+		// The source stays OK — a missing caseworker name is not a failed decision read.
+		assertThat(response.getSources()).extracting(SourceStatus::getStatus).contains("OK");
+	}
+
+	@Test
+	void theLawComesFromTheDecisionRatherThanTheEndpoint() {
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of());
+		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(
+			new WEECIntegrationContractsDecisionV1LssDecision().id(1).law(3),
+			new WEECIntegrationContractsDecisionV1LssDecision().id(2).law(7)));
+		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of());
+
+		final var response = decisionService.getDecisions(MUNICIPALITY_ID, PARTY_ID, null, null);
+
+		assertThat(response.getDecisions()).extracting(Decision::getDecisionId, Decision::getLaw)
+			.containsExactlyInAnyOrder(tuple("1", "LSS"), tuple("2", "SFB"));
+
+		// The source still reports the fetch it was: SFB decisions arrive through the LSS read.
+		assertThat(response.getSources()).extracting(SourceStatus::getLaw).containsExactly("SOL", "LSS", null);
+	}
+
+	private static WEECIntegrationContractsDecisionV1LssDecision lssDecisionWithBlankSfbCaseworker(final int id) {
+		return new WEECIntegrationContractsDecisionV1LssDecision()
+			.id(id)
+			.law(7)
+			.sfbCaseworker(new WEECIntegrationContractsCommonV1Caseworker().id("LOHE").fullName(""));
 	}
 }

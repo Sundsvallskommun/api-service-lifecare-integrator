@@ -20,8 +20,11 @@ public class Decision {
 	})
 	private String source;
 
-	@Schema(description = "The law the decision is made under. Only present for ELDERLY_CARE decisions", examples = "SOL", allowableValues = {
-		"SOL", "LSS"
+	@Schema(description = """
+		The law this decision is made under. Only present for ELDERLY_CARE decisions. SFB decisions \
+		(assistansersättning, decided by Försäkringskassan) are delivered by the LSS source, so a decision's law is \
+		not always the law of the source that carried it.""", examples = "SOL", allowableValues = {
+		"SOL", "LSS", "SFB"
 	}, nullable = true)
 	private String law;
 

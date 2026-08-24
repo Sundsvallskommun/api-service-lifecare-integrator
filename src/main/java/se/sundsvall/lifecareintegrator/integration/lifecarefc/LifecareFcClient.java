@@ -39,9 +39,8 @@ import static se.sundsvall.lifecareintegrator.integration.lifecarefc.configurati
  * investigations,
  * services, executions, resource allocations), the write-back (create actualization plus calculation), and the two
  * proposal lookups that supply the code lists those POST bodies reference. The mandatory {@code domain} + {@code key}
- * auth (and the
- * {@code X-API-Key} header) are added globally by {@link LifecareFcConfiguration}, so they are not part of these method
- * signatures. The list reads share {@code startDate}/{@code endDate} (required) and optional
+ * auth is added globally by {@link LifecareFcConfiguration}, so it is not part of these method signatures. The list
+ * reads share {@code startDate}/{@code endDate} (required) and optional
  * {@code pageSize}/{@code pageNr}/{@code ascending} pagination. Full API documented in
  * vof-ekonomiskt-bistand/architecture/lifecare-fc-api.md.
  */

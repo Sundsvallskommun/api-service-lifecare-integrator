@@ -10,17 +10,14 @@ import static java.util.Optional.ofNullable;
 
 /**
  * Configuration for the Tieto/Lifecare FamilyCare (FC) integration. {@code url} is the FC base path (host +
- * {@code /WESE.FC.Api.FC}); {@code domain} and {@code key} are the FC tenant id and API key applied as query parameters
- * / {@code X-API-Key} header by
- * {@link LifecareFcConfiguration}. The keys are sensitive — keep them in a secret, never in committed config, and out
- * of request logging.
+ * {@code /WESE.FC.Api.FC}); {@code domain} and {@code key} are the FC tenant id and API key applied as query
+ * parameters by {@link LifecareFcConfiguration}. The keys are secrets — keep them out of committed config and out of
+ * request logging.
  *
  * <p>
  * FC licences its APIs per consumer, and the {@code Users/*} directory is a different licence from the person-based
- * case APIs (in Sundsvall: "Användarinformation IFO" versus "API IFO Personbaserade" — verified 2026-08-20, the person
- * key is 401 on {@code /Users/GetUsers} and the user key is 401 on everything else). {@code userKey} carries that
- * second licence key and is optional — where one consumer covers both surfaces, and in mocked environments, leave it
- * unset and {@code key} is used for every call.
+ * case APIs — each key is 401 on the other's endpoints. {@code userKey} carries that second licence key and is
+ * optional: leave it unset where one consumer covers both surfaces, and {@code key} is used for every call.
  */
 @Validated
 @ConfigurationProperties(prefix = "integration.lifecare-fc")

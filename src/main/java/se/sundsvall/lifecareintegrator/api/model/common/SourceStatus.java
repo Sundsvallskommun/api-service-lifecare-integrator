@@ -16,7 +16,9 @@ public class SourceStatus {
 	})
 	private String source;
 
-	@Schema(description = "The law the source covers. Only present for ELDERLY_CARE sources", examples = "SOL", allowableValues = {
+	@Schema(description = """
+		The law the source covers, identifying which fetch this status belongs to. Only present for ELDERLY_CARE \
+		sources. The LSS source also delivers SFB decisions.""", examples = "SOL", allowableValues = {
 		"SOL", "LSS"
 	}, nullable = true)
 	private String law;
