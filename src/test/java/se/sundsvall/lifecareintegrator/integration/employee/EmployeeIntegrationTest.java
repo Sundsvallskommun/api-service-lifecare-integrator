@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.integration.employee;
 
 import generated.se.sundsvall.employee.PortalPersonData;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,16 +32,16 @@ class EmployeeIntegrationTest {
 	void resolvesTheFullNameForALoginName() {
 		when(propertiesMock.domain()).thenReturn("personal");
 		when(employeeClientMock.getPortalPersonData(MUNICIPALITY_ID, "personal", LOGIN_NAME))
-			.thenReturn(new PortalPersonData().fullname("Lotta Helsinger"));
+			.thenReturn(Optional.of(new PortalPersonData().fullname("Lotta Helsinger")));
 
 		assertThat(employeeIntegration.getFullName(MUNICIPALITY_ID, LOGIN_NAME)).contains("Lotta Helsinger");
 	}
 
 	@Test
 	void anUnknownLoginNameYieldsNothing() {
-		// dismiss404 turns "no such employee" into a null body — the common case for ids like FÖRSKASSAN.
+		// dismiss404 turns "no such employee" into an empty Optional — the common case for ids like FÖRSKASSAN.
 		when(propertiesMock.domain()).thenReturn("personal");
-		when(employeeClientMock.getPortalPersonData(any(), any(), any())).thenReturn(null);
+		when(employeeClientMock.getPortalPersonData(any(), any(), any())).thenReturn(Optional.empty());
 
 		assertThat(employeeIntegration.getFullName(MUNICIPALITY_ID, "FÖRSKASSAN")).isEmpty();
 	}
@@ -48,7 +49,7 @@ class EmployeeIntegrationTest {
 	@Test
 	void aBlankFullNameYieldsNothingRatherThanAnEmptyString() {
 		when(propertiesMock.domain()).thenReturn("personal");
-		when(employeeClientMock.getPortalPersonData(any(), any(), any())).thenReturn(new PortalPersonData().fullname("  "));
+		when(employeeClientMock.getPortalPersonData(any(), any(), any())).thenReturn(Optional.of(new PortalPersonData().fullname("  ")));
 
 		assertThat(employeeIntegration.getFullName(MUNICIPALITY_ID, LOGIN_NAME)).isEmpty();
 	}

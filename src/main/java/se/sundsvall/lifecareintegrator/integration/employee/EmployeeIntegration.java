@@ -40,7 +40,7 @@ public class EmployeeIntegration {
 	 */
 	public Optional<String> getFullName(final String municipalityId, final String loginName) {
 		try {
-			return Optional.ofNullable(employeeClient.getPortalPersonData(municipalityId, properties.domain(), loginName))
+			return employeeClient.getPortalPersonData(municipalityId, properties.domain(), loginName)
 				.map(PortalPersonData::getFullname)
 				.filter(not(String::isBlank));
 		} catch (final Exception e) {

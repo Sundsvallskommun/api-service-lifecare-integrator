@@ -2,6 +2,7 @@ package se.sundsvall.lifecareintegrator.integration.employee;
 
 import generated.se.sundsvall.employee.PortalPersonData;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import java.util.Optional;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,10 +25,11 @@ public interface EmployeeClient {
 	 * @param  municipalityId the municipality id
 	 * @param  domain         the employee directory the login name belongs to
 	 * @param  loginName      the login name, i.e. the Lifecare caseworker id
-	 * @return                the person data, or null when no such login name exists
+	 * @return                the person data, or empty when no such login name exists — {@code dismiss404} turns the
+	 *                        404 into a normal decode, which dept44's {@code OptionalDecoder} resolves to empty
 	 */
 	@GetMapping(path = "/{municipalityId}/portalpersondata/{domain}/{loginName}", produces = APPLICATION_JSON_VALUE)
-	PortalPersonData getPortalPersonData(
+	Optional<PortalPersonData> getPortalPersonData(
 		@PathVariable final String municipalityId,
 		@PathVariable final String domain,
 		@PathVariable final String loginName);
