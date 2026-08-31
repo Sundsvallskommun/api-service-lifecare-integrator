@@ -15,13 +15,15 @@ import static java.util.Optional.ofNullable;
  *
  * <p>
  * The two supplements are the API key, which is a secret rather than PII and so outside {@code PiiMasker}'s scope, and
- * three personnummer forms it lets through. Against dept44 8.0.9, whose pattern is {@code \b\d{6}[-+]?\d{4}\b}:
- * the twelve-digit form Lifecare uses, hyphenated or not, since the pattern has no century-prefix group; any
- * personnummer inside a percent-encoded query value, where the {@code \b} anchors cannot fire between hex digits; and
- * the letter-suffixed form the test population uses ({@code 19900101TF03}), which {@code \d{4}} cannot match.
+ * two personnummer forms it lets through. Against dept44 8.0.10, whose pattern is
+ * {@code \b\d{6}(?:\d{2})?[-+]?\d{4}\b}: any personnummer inside a percent-encoded query value, where the {@code \b}
+ * anchors cannot fire between hex digits; and the letter-suffixed form the test population uses
+ * ({@code 19900101TF03}), which {@code \d{4}} cannot match.
  *
  * <p>
- * Later dept44 versions add the century prefix, which closes the first of those; the other two remain.
+ * The century-prefix group dept44 gained in 8.0.10 also makes its pattern match the first two groups of an all-digit
+ * UUID ({@code 81471222-5798-…} is eight digits, a hyphen and four digits), so the masks are applied around UUIDs
+ * rather than across them — see {@link #maskPiiOutsideUuids(String)}.
  *
  * <p>
  * Anything derived from a Lifecare request or response must pass through here — Feign builds its exception messages
@@ -43,6 +45,13 @@ public final class LogSanitizer {
 	private static final String REDACTED_PARAM_VALUE = "$1[REDACTED]";
 
 	private static final String REDACTED_PERSON_NUMBER = "[REDACTED-PNR]";
+
+	/**
+	 * A UUID, kept readable while the PII masks are applied around it. The {@code \b} anchors keep a UUID-shaped run
+	 * inside a longer hex token from matching.
+	 */
+	private static final Pattern UUID_PATTERN = Pattern.compile(
+		"\\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\b");
 
 	/**
 	 * Control characters, replaced with a space so a vendor-controlled body cannot forge log lines with CR/LF.
@@ -74,13 +83,32 @@ public final class LogSanitizer {
 		return ofNullable(message)
 			.map(text -> CONTROL_CHARACTER.matcher(text).replaceAll(" "))
 			.map(text -> SENSITIVE_QUERY_PARAM.matcher(text).replaceAll(REDACTED_PARAM_VALUE))
-			.map(text -> PERSON_NUMBER.matcher(text).replaceAll(REDACTED_PERSON_NUMBER))
-			// PiiMasker.maskPii applies phone before personal so one mask cannot bite into the other's match; the same
-			// order is kept here.
-			.map(PiiMasker::maskPhoneNumber)
-			.map(PiiMasker::maskPersonalNumber)
-			.map(PiiMasker::maskEmail)
+			.map(LogSanitizer::maskPiiOutsideUuids)
 			.orElse(null);
+	}
+
+	/**
+	 * Applies the PII masks to the stretches between UUIDs, leaving the UUIDs themselves readable. A partyId is already
+	 * an opaque identifier, but dept44 8.0.10's twelve-digit personnummer shape matches the first two groups of an
+	 * all-digit UUID, so masking segment by segment is what keeps it whole.
+	 */
+	private static String maskPiiOutsideUuids(final String text) {
+		final var masked = new StringBuilder();
+		final var uuids = UUID_PATTERN.matcher(text);
+		var position = 0;
+		while (uuids.find()) {
+			masked.append(maskPii(text.substring(position, uuids.start())))
+				.append(uuids.group());
+			position = uuids.end();
+		}
+		return masked.append(maskPii(text.substring(position))).toString();
+	}
+
+	private static String maskPii(final String text) {
+		final var withoutPersonNumbers = PERSON_NUMBER.matcher(text).replaceAll(REDACTED_PERSON_NUMBER);
+		// PiiMasker.maskPii applies phone before personal so one mask cannot bite into the other's match; the same
+		// order is kept here.
+		return PiiMasker.maskEmail(PiiMasker.maskPersonalNumber(PiiMasker.maskPhoneNumber(withoutPersonNumbers)));
 	}
 
 	/**
