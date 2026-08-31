@@ -93,16 +93,25 @@ class LogSanitizerTest {
 	@Test
 	void aPartyIdIsLeftReadable() {
 		// A partyId is already opaque — it cannot be resolved to a person without API access — so masking it would
-		// cost traceability and buy nothing. PiiMasker.maskUuid is deliberately not applied.
+		// cost traceability and buy nothing. PiiMasker.maskUuid is deliberately not applied, and dept44 8.0.10's
+		// twelve-digit personnummer shape (which matches the UUID's first two groups) is kept away from it.
 		assertThat(redact("partyId 81471222-5798-11e9-ae24-57fa13b361e1 failed"))
 			.contains("81471222-5798-11e9-ae24-57fa13b361e1");
 	}
 
+	@Test
+	void aPersonNumberNextToAPartyIdIsStillMasked() {
+		// The UUID carve-out must not shield the text around it.
+		assertThat(redact("partyId 81471222-5798-11e9-ae24-57fa13b361e1 pnr 900101-1234 mail john.doe@example.com"))
+			.contains("81471222-5798-11e9-ae24-57fa13b361e1")
+			.doesNotContain("900101-1234", "john.doe@");
+	}
+
 	@ParameterizedTest
 	@ValueSource(strings = {
-		"199001011234",       // twelve digits — dept44 8.0.9's pattern has no century-prefix group
-		"19900101-1234",      // and the hyphen does not help
-		"19900101TF03",       // the test population's letter suffix, which \d{4} cannot match
+		"199001011234",       // twelve digits — caught by this sanitizer before dept44 8.0.10's pattern sees it
+		"19900101-1234",      // likewise the hyphenated form
+		"19900101TF03",       // the test population's letter suffix, which dept44's \d{4} cannot match
 	})
 	void theFormsDept44LetsThroughAreStillCovered(final String personNumber) {
 		assertThat(redact("person " + personNumber + " failed"))
