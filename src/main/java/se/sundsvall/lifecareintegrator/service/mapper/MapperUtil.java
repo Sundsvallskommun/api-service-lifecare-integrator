@@ -78,12 +78,6 @@ final class MapperUtil {
 			.orElse(null);
 	}
 
-	static String toDateString(final LocalDate date) {
-		return Optional.ofNullable(date)
-			.map(LocalDate::toString)
-			.orElse(null);
-	}
-
 	static OffsetDateTime toOffsetDateTime(final LocalDate date) {
 		return Optional.ofNullable(date)
 			.map(LocalDate::atStartOfDay)

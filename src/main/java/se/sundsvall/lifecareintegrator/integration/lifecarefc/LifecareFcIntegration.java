@@ -28,10 +28,14 @@ import se.sundsvall.dept44.problem.ThrowableProblem;
 
 import static java.util.Collections.emptyList;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static se.sundsvall.lifecareintegrator.integration.lifecarefc.FamilyCareDates.atUtc;
+import static se.sundsvall.lifecareintegrator.integration.lifecarefc.FamilyCareDates.endOfDay;
+import static se.sundsvall.lifecareintegrator.integration.lifecarefc.FamilyCareDates.startOfDay;
 
 /**
  * Wrapper around {@link LifecareFcClient}. Normalizes the FC quirks: 404 on single-resource reads becomes
- * {@link Optional#empty()}, the date-window reads take {@link LocalDate} instead of raw strings, and the unified
+ * {@link Optional#empty()}, the date-window reads take {@link LocalDate} instead of the RFC 3339 date-times FC insists
+ * on (see {@link FamilyCareDates}), and the unified
  * decision fetch pages through all result pages.
  */
 @Component
@@ -63,7 +67,7 @@ public class LifecareFcIntegration {
 		var page = 1;
 		Integer totalPages;
 		do {
-			final var result = lifecareFcClient.getDecisions(personNumber, toDateString(startDate), toDateString(endDate), DECISION_PAGE_SIZE, page, null);
+			final var result = lifecareFcClient.getDecisions(personNumber, startOfDay(startDate), endOfDay(endDate), DECISION_PAGE_SIZE, page, null);
 			if (result == null) {
 				break;
 			}
@@ -76,42 +80,42 @@ public class LifecareFcIntegration {
 
 	public ApiPaginationCompositePersonBasedAktualiseringDTO getActualisations(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getActualisation(personNumber, toDateString(startDate), toDateString(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getActualisation(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedCalculationDTO getCalculations(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getCalculations(personNumber, toDateString(startDate), toDateString(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getCalculations(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedPaymentDTO getPayments(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getPayments(personNumber, toDateString(startDate), toDateString(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getPayments(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedInvestigationDTO getInvestigations(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getInvestigations(personNumber, toDateString(startDate), toDateString(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getInvestigations(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedServiceDTO getServices(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getServices(personNumber, toDateString(startDate), toDateString(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getServices(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedExecutionDTO getExecutions(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getExecutions(personNumber, toDateString(startDate), toDateString(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getExecutions(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedResourceAllocationDTO getResourceAllocations(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getResourceAllocations(personNumber, toDateString(startDate), toDateString(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getResourceAllocations(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedDocumentDTO getDocuments(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getDocuments(personNumber, toDateString(startDate), toDateString(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getDocuments(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
 	}
 
 	public Optional<byte[]> getDocumentContent(final String documentId) {
@@ -119,7 +123,7 @@ public class LifecareFcIntegration {
 	}
 
 	public List<User> getUsers(final Integer limit, final Integer offset, final OffsetDateTime modifiedAfter, final OffsetDateTime modifiedBefore) {
-		return Optional.ofNullable(lifecareFcClient.getUsers(limit, offset, toDateTimeString(modifiedAfter), toDateTimeString(modifiedBefore)))
+		return Optional.ofNullable(lifecareFcClient.getUsers(limit, offset, atUtc(modifiedAfter), atUtc(modifiedBefore)))
 			.orElse(emptyList());
 	}
 
@@ -153,17 +157,5 @@ public class LifecareFcIntegration {
 			}
 			throw e;
 		}
-	}
-
-	private static String toDateString(final LocalDate date) {
-		return Optional.ofNullable(date)
-			.map(LocalDate::toString)
-			.orElse(null);
-	}
-
-	private static String toDateTimeString(final OffsetDateTime dateTime) {
-		return Optional.ofNullable(dateTime)
-			.map(OffsetDateTime::toString)
-			.orElse(null);
 	}
 }

@@ -48,7 +48,7 @@ class RequestMapperTest {
 
 		// Assert: the person number is injected, never sourced from the public request
 		assertThat(result.getPersonId()).isEqualTo(PERSON_NUMBER);
-		assertThat(result.getDate()).isEqualTo("2026-05-01");
+		assertThat(result.getDate()).isEqualTo("2026-05-01T00:00:00");
 		assertThat(result.getType()).isEqualTo(1);
 		assertThat(result.getFromWho()).isEqualTo(2);
 		assertThat(result.getReason()).isEqualTo(3);
@@ -111,9 +111,9 @@ class RequestMapperTest {
 			.investigationId(2)
 			.normId(3)
 			.aktualiseringId(4)
-			.calculationDate("2026-05-01")
-			.calculationFromDate("2026-05-01")
-			.calculationToDate("2026-05-31")
+			.calculationDate("2026-05-01T00:00:00")
+			.calculationFromDate("2026-05-01T00:00:00")
+			.calculationToDate("2026-05-31T00:00:00")
 			.hasCustomHouseholdSize(true)
 			.householdSize(3)
 			.calculationPersons(List.of(new PersonBasedCalculationPersonPostDTO()

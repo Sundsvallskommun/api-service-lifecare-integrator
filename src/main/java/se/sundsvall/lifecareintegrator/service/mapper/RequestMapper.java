@@ -11,14 +11,15 @@ import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationRequest;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateCalculationRequest;
 
+import static se.sundsvall.lifecareintegrator.integration.lifecarefc.FamilyCareDates.startOfDay;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.mapList;
-import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toDateString;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toDouble;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toOffsetDateTime;
 
 /**
  * Maps the public create requests to the FC POST bodies. The person number is resolved by the service and injected here
- * — it is never present in the public requests.
+ * — it is never present in the public requests. The string-typed date fields are rendered by
+ * {@link se.sundsvall.lifecareintegrator.integration.lifecarefc.FamilyCareDates}: FC rejects a bare date.
  */
 public final class RequestMapper {
 
@@ -28,7 +29,7 @@ public final class RequestMapper {
 		return Optional.ofNullable(request)
 			.map(source -> new PostAktualiseringsBodyRequest()
 				.personId(personNumber)
-				.date(toDateString(source.getDate()))
+				.date(startOfDay(source.getDate()))
 				.type(source.getTypeId())
 				.fromWho(source.getFromWhoId())
 				.reason(source.getReasonId())
@@ -51,9 +52,9 @@ public final class RequestMapper {
 				.investigationId(source.getInvestigationId())
 				.normId(source.getNormId())
 				.aktualiseringId(source.getActualisationId())
-				.calculationDate(toDateString(source.getCalculationDate()))
-				.calculationFromDate(toDateString(source.getCalculationFromDate()))
-				.calculationToDate(toDateString(source.getCalculationToDate()))
+				.calculationDate(startOfDay(source.getCalculationDate()))
+				.calculationFromDate(startOfDay(source.getCalculationFromDate()))
+				.calculationToDate(startOfDay(source.getCalculationToDate()))
 				.hasCustomHouseholdSize(source.getHasCustomHouseholdSize())
 				.householdSize(source.getHouseholdSize())
 				.calculationPersons(mapList(source.getPersons(), person -> new PersonBasedCalculationPersonPostDTO()
