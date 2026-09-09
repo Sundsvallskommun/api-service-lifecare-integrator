@@ -1,0 +1,9 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/lifecare-ec/api/v1/lss_decisions/9999"
+	},
+	"response": {
+		"status": 404
+	}
+}

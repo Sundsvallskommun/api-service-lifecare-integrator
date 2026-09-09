@@ -1,0 +1,15 @@
+{
+	"amount": 1000.0,
+	"decided": "2025-02-01",
+	"decisionId": "1001",
+	"decisionMaker": "Sol Handläggare",
+	"elderlyCareDetails": {
+		"orderIds": []
+	},
+	"law": "SOL",
+	"reason": "Behov",
+	"source": "ELDERLY_CARE",
+	"type": "Hemtjänst",
+	"validFrom": "2025-02-01",
+	"validTo": "2026-01-31"
+}

@@ -1262,6 +1262,89 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/decisions/{decisionId}:
+    get:
+      tags:
+        - Decisions
+      description: "Get a single decision for a person. A decisionId is only unique\
+        \ within its source system, so the source (and, for ELDERLY_CARE, the law)\
+        \ must be given along with it — pass back the source, law and decisionId of\
+        \ an item from the decision list. SFB decisions are served by the LSS source,\
+        \ so law LSS and SFB address the same ids. A decision that does not belong\
+        \ to the person is reported as not found. Unlike the list, a source that cannot\
+        \ be reached fails the request."
+      operationId: getDecision
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: decisionId
+          in: path
+          description: The decision id in the source system
+          required: true
+          schema:
+            type: string
+            pattern: ^\d+$
+          example: 12345
+        - name: partyId
+          in: query
+          description: Party id of the person the decision must belong to
+          required: true
+          schema:
+            type: string
+          example: 81471222-5798-11e9-ae24-57fa13b361e1
+        - name: source
+          in: query
+          description: The source system the decision originates from
+          required: true
+          schema:
+            type: string
+          example: ELDERLY_CARE
+        - name: law
+          in: query
+          description: "The law of the decision. Required for ELDERLY_CARE, not applicable\
+            \ for FAMILY_CARE"
+          required: false
+          schema:
+            type: string
+          example: SOL
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Decision"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/contacts:
     get:
       tags:
