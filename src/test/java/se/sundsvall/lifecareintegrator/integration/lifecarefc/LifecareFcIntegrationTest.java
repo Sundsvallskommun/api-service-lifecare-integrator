@@ -30,6 +30,8 @@ class LifecareFcIntegrationTest {
 	private static final String DOCUMENT_ID = "12345";
 	private static final LocalDate START_DATE = LocalDate.of(2016, Month.JULY, 1);
 	private static final LocalDate END_DATE = LocalDate.of(2026, Month.JULY, 1);
+	private static final String START = "2016-07-01T00:00:00";
+	private static final String END = "2026-07-01T23:59:59";
 
 	@Mock
 	private LifecareFcClient lifecareFcClientMock;
@@ -113,7 +115,7 @@ class LifecareFcIntegrationTest {
 		final var decision = new PersonBasedDecisionDTO().id(1);
 
 		// Mock
-		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 100, 1, null))
+		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START, END, 100, 1, null))
 			.thenReturn(new ApiPaginationCompositePersonBasedDecisionDTO().totalNumberOfPages(1).result(List.of(decision)));
 
 		// Act
@@ -121,7 +123,7 @@ class LifecareFcIntegrationTest {
 
 		// Verify
 		assertThat(result).containsExactly(decision);
-		verify(lifecareFcClientMock).getDecisions(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 100, 1, null);
+		verify(lifecareFcClientMock).getDecisions(PERSON_NUMBER, START, END, 100, 1, null);
 		verifyNoMoreInteractions(lifecareFcClientMock);
 	}
 
@@ -132,9 +134,9 @@ class LifecareFcIntegrationTest {
 		final var secondPageDecision = new PersonBasedDecisionDTO().id(2);
 
 		// Mock
-		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 100, 1, null))
+		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START, END, 100, 1, null))
 			.thenReturn(new ApiPaginationCompositePersonBasedDecisionDTO().totalNumberOfPages(2).result(List.of(firstPageDecision)));
-		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 100, 2, null))
+		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START, END, 100, 2, null))
 			.thenReturn(new ApiPaginationCompositePersonBasedDecisionDTO().totalNumberOfPages(2).result(List.of(secondPageDecision)));
 
 		// Act
@@ -142,15 +144,15 @@ class LifecareFcIntegrationTest {
 
 		// Verify
 		assertThat(result).containsExactly(firstPageDecision, secondPageDecision);
-		verify(lifecareFcClientMock).getDecisions(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 100, 1, null);
-		verify(lifecareFcClientMock).getDecisions(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 100, 2, null);
+		verify(lifecareFcClientMock).getDecisions(PERSON_NUMBER, START, END, 100, 1, null);
+		verify(lifecareFcClientMock).getDecisions(PERSON_NUMBER, START, END, 100, 2, null);
 		verifyNoMoreInteractions(lifecareFcClientMock);
 	}
 
 	@Test
 	void getAllDecisionsWithNullResponse() {
 		// Mock
-		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 100, 1, null)).thenReturn(null);
+		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START, END, 100, 1, null)).thenReturn(null);
 
 		// Act
 		final var result = lifecareFcIntegration.getAllDecisions(PERSON_NUMBER, START_DATE, END_DATE);
@@ -165,14 +167,14 @@ class LifecareFcIntegrationTest {
 		final var composite = new ApiPaginationCompositePersonBasedPaymentDTO().pageNumber(2);
 
 		// Mock
-		when(lifecareFcClientMock.getPayments(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 15, 2, true)).thenReturn(composite);
+		when(lifecareFcClientMock.getPayments(PERSON_NUMBER, START, END, 15, 2, true)).thenReturn(composite);
 
 		// Act
 		final var result = lifecareFcIntegration.getPayments(PERSON_NUMBER, START_DATE, END_DATE, 15, 2, true);
 
 		// Verify
 		assertThat(result).isSameAs(composite);
-		verify(lifecareFcClientMock).getPayments(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 15, 2, true);
+		verify(lifecareFcClientMock).getPayments(PERSON_NUMBER, START, END, 15, 2, true);
 		verifyNoMoreInteractions(lifecareFcClientMock);
 	}
 
@@ -203,19 +205,19 @@ class LifecareFcIntegrationTest {
 	@Test
 	void periodReadsDelegateWithFormattedDates() {
 		// Mock — each period read forwards the formatted window to the client
-		when(lifecareFcClientMock.getActualisation(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 10, 1, true))
+		when(lifecareFcClientMock.getActualisation(PERSON_NUMBER, START, END, 10, 1, true))
 			.thenReturn(new generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedAktualiseringDTO());
-		when(lifecareFcClientMock.getCalculations(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 10, 1, true))
+		when(lifecareFcClientMock.getCalculations(PERSON_NUMBER, START, END, 10, 1, true))
 			.thenReturn(new generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedCalculationDTO());
-		when(lifecareFcClientMock.getInvestigations(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 10, 1, true))
+		when(lifecareFcClientMock.getInvestigations(PERSON_NUMBER, START, END, 10, 1, true))
 			.thenReturn(new generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedInvestigationDTO());
-		when(lifecareFcClientMock.getServices(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 10, 1, true))
+		when(lifecareFcClientMock.getServices(PERSON_NUMBER, START, END, 10, 1, true))
 			.thenReturn(new generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedServiceDTO());
-		when(lifecareFcClientMock.getExecutions(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 10, 1, true))
+		when(lifecareFcClientMock.getExecutions(PERSON_NUMBER, START, END, 10, 1, true))
 			.thenReturn(new generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedExecutionDTO());
-		when(lifecareFcClientMock.getResourceAllocations(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 10, 1, true))
+		when(lifecareFcClientMock.getResourceAllocations(PERSON_NUMBER, START, END, 10, 1, true))
 			.thenReturn(new generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedResourceAllocationDTO());
-		when(lifecareFcClientMock.getDocuments(PERSON_NUMBER, START_DATE.toString(), END_DATE.toString(), 10, 1, true))
+		when(lifecareFcClientMock.getDocuments(PERSON_NUMBER, START, END, 10, 1, true))
 			.thenReturn(new generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedDocumentDTO());
 
 		// Act + Verify
@@ -256,17 +258,17 @@ class LifecareFcIntegrationTest {
 	@Test
 	void getUsersDelegatesWithFormattedTimestamps() {
 		// Parameter values
-		final var modifiedAfter = OffsetDateTime.parse("2026-01-01T00:00:00Z");
+		final var modifiedAfter = OffsetDateTime.parse("2026-01-01T02:00:00+02:00");
 
 		// Mock
-		when(lifecareFcClientMock.getUsers(50, 10, modifiedAfter.toString(), null)).thenReturn(List.of());
+		when(lifecareFcClientMock.getUsers(50, 10, "2026-01-01T00:00:00", null)).thenReturn(List.of());
 
 		// Act
 		final var result = lifecareFcIntegration.getUsers(50, 10, modifiedAfter, null);
 
 		// Verify
 		assertThat(result).isEmpty();
-		verify(lifecareFcClientMock).getUsers(50, 10, modifiedAfter.toString(), null);
+		verify(lifecareFcClientMock).getUsers(50, 10, "2026-01-01T00:00:00", null);
 		verifyNoMoreInteractions(lifecareFcClientMock);
 	}
 }
