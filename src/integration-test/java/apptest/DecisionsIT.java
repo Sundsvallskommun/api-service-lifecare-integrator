@@ -12,10 +12,9 @@ import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.lifecareintegrator.Application;
 
 /**
- * End-to-end tests for the unified decisions endpoint, which fans out to the three Lifecare decision sources (EC SoL,
- * EC LSS and FC) in parallel and merges the results. The decode runs on the {@code MDC_EXECUTOR} async pool;
- * {@code MDCTaskDecorator} propagates the request context so the request-scoped Feign message converters resolve, which
- * keeps the merged result deterministic. Assertions are strict apart from array order.
+ * End-to-end tests for the decision endpoints. The list reads the three Lifecare decision sources (EC SoL, EC LSS and
+ * FC) one after the other and merges the results; the single-decision read addresses one source by (source, law,
+ * decisionId) and checks the decision belongs to the party. Assertions are strict apart from array order.
  */
 @WireMockAppTestSuite(files = "classpath:/DecisionsIT/", classes = Application.class)
 class DecisionsIT extends AbstractAppTest {
@@ -59,6 +58,60 @@ class DecisionsIT extends AbstractAppTest {
 	void test3_partyNotFound() {
 		setupCall()
 			.withServicePath("/2281/decisions?partyId=" + PARTY_ID)
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(NOT_FOUND)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+
+	/**
+	 * A SoL decision read by id from EC. The decision carries the party's personnummer, so it is published.
+	 */
+	@Test
+	void test4_elderlyCareSolById() {
+		setupCall()
+			.withServicePath("/2281/decisions/1001?partyId=" + PARTY_ID + "&source=ELDERLY_CARE&law=SOL")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+
+	/**
+	 * FC has no by-id read: the party's decisions are listed over the default window and the one with the id is
+	 * picked out.
+	 */
+	@Test
+	void test5_familyCareById() {
+		setupCall()
+			.withServicePath("/2281/decisions/3003?partyId=" + PARTY_ID + "&source=FAMILY_CARE")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+
+	/**
+	 * EC serves any decision by id — here it belongs to another person, so the request fails with 404 rather than
+	 * publishing it (or confirming it exists with a 403).
+	 */
+	@Test
+	void test6_elderlyCareByIdWrongPerson() {
+		setupCall()
+			.withServicePath("/2281/decisions/1001?partyId=" + PARTY_ID + "&source=ELDERLY_CARE&law=SOL")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(NOT_FOUND)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+
+	/**
+	 * EC answers 404 on the LSS by-id read — the Feign client dismisses it and the request fails with 404.
+	 */
+	@Test
+	void test7_elderlyCareLssByIdNotFound() {
+		setupCall()
+			.withServicePath("/2281/decisions/9999?partyId=" + PARTY_ID + "&source=ELDERLY_CARE&law=LSS")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(NOT_FOUND)
 			.withExpectedResponse(RESPONSE_FILE)

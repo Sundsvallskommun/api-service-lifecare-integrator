@@ -30,6 +30,8 @@ class DecisionResourceFailureTest {
 	private static final String INVALID_MUNICIPALITY_ID = "bad-municipality-id";
 	private static final String INVALID_PARTY_ID = "not-a-valid-uuid";
 	private static final String PATH = "/{municipalityId}/decisions";
+	private static final String BY_ID_PATH = "/{municipalityId}/decisions/{decisionId}";
+	private static final String DECISION_ID = "12345";
 
 	@MockitoBean
 	private DecisionService decisionServiceMock;
@@ -114,6 +116,168 @@ class DecisionResourceFailureTest {
 		// Verification
 		assertThat(response).isNotNull();
 		assertThat(response.getStatus()).isEqualTo(BAD_REQUEST);
+
+		verifyNoInteractions(decisionServiceMock);
+	}
+
+	@Test
+	void getDecisionWithInvalidMunicipalityId() {
+		// Call
+		final var response = webTestClient.get()
+			.uri(builder -> builder.path(BY_ID_PATH)
+				.queryParam("partyId", PARTY_ID)
+				.queryParam("source", "ELDERLY_CARE")
+				.queryParam("law", "SOL")
+				.build(Map.of("municipalityId", INVALID_MUNICIPALITY_ID, "decisionId", DECISION_ID)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		// Verification
+		assertThat(response).isNotNull();
+		assertThat(response.getTitle()).isEqualTo("Constraint Violation");
+		assertThat(response.getStatus()).isEqualTo(BAD_REQUEST);
+		assertThat(response.getViolations())
+			.extracting(Violation::field, Violation::message)
+			.containsExactly(tuple("getDecision.municipalityId", "not a valid municipality ID"));
+
+		verifyNoInteractions(decisionServiceMock);
+	}
+
+	@Test
+	void getDecisionWithInvalidPartyId() {
+		// Call
+		final var response = webTestClient.get()
+			.uri(builder -> builder.path(BY_ID_PATH)
+				.queryParam("partyId", INVALID_PARTY_ID)
+				.queryParam("source", "ELDERLY_CARE")
+				.queryParam("law", "SOL")
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "decisionId", DECISION_ID)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		// Verification
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::field, Violation::message)
+			.containsExactly(tuple("getDecision.partyId", "not a valid UUID"));
+
+		verifyNoInteractions(decisionServiceMock);
+	}
+
+	@Test
+	void getDecisionWithMissingPartyId() {
+		// Call
+		final var response = webTestClient.get()
+			.uri(builder -> builder.path(BY_ID_PATH)
+				.queryParam("source", "ELDERLY_CARE")
+				.queryParam("law", "SOL")
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "decisionId", DECISION_ID)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(Problem.class)
+			.returnResult()
+			.getResponseBody();
+
+		// Verification
+		assertThat(response).isNotNull();
+		assertThat(response.getStatus()).isEqualTo(BAD_REQUEST);
+
+		verifyNoInteractions(decisionServiceMock);
+	}
+
+	@Test
+	void getDecisionWithMissingSource() {
+		// Call
+		final var response = webTestClient.get()
+			.uri(builder -> builder.path(BY_ID_PATH)
+				.queryParam("partyId", PARTY_ID)
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "decisionId", DECISION_ID)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(Problem.class)
+			.returnResult()
+			.getResponseBody();
+
+		// Verification
+		assertThat(response).isNotNull();
+		assertThat(response.getStatus()).isEqualTo(BAD_REQUEST);
+
+		verifyNoInteractions(decisionServiceMock);
+	}
+
+	@Test
+	void getDecisionWithInvalidSource() {
+		// Call
+		final var response = webTestClient.get()
+			.uri(builder -> builder.path(BY_ID_PATH)
+				.queryParam("partyId", PARTY_ID)
+				.queryParam("source", "UNKNOWN_CARE")
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "decisionId", DECISION_ID)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		// Verification
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::field, Violation::message)
+			.containsExactly(tuple("getDecision.source", "must be one of: [ELDERLY_CARE, FAMILY_CARE]"));
+
+		verifyNoInteractions(decisionServiceMock);
+	}
+
+	@Test
+	void getDecisionWithInvalidLaw() {
+		// Call
+		final var response = webTestClient.get()
+			.uri(builder -> builder.path(BY_ID_PATH)
+				.queryParam("partyId", PARTY_ID)
+				.queryParam("source", "ELDERLY_CARE")
+				.queryParam("law", "HSL")
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "decisionId", DECISION_ID)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		// Verification
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::field, Violation::message)
+			.containsExactly(tuple("getDecision.law", "must be one of: [SOL, LSS, SFB]"));
+
+		verifyNoInteractions(decisionServiceMock);
+	}
+
+	@Test
+	void getDecisionWithNonNumericDecisionId() {
+		// Call
+		final var response = webTestClient.get()
+			.uri(builder -> builder.path(BY_ID_PATH)
+				.queryParam("partyId", PARTY_ID)
+				.queryParam("source", "ELDERLY_CARE")
+				.queryParam("law", "SOL")
+				.build(Map.of("municipalityId", MUNICIPALITY_ID, "decisionId", "not-a-number")))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		// Verification
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::field, Violation::message)
+			.containsExactly(tuple("getDecision.decisionId", "must be a numeric decision id"));
 
 		verifyNoInteractions(decisionServiceMock);
 	}

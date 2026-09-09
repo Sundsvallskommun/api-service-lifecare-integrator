@@ -30,6 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -40,6 +41,8 @@ class DecisionServiceTest {
 	private static final String MUNICIPALITY_ID = "2281";
 	private static final String PARTY_ID = "81471222-5798-11e9-ae24-57fa13b361e1";
 	private static final String PERSON_NUMBER = "199001011234";
+	private static final String OTHER_PERSON_NUMBER = "198001011234";
+	private static final String DECISION_ID = "1001";
 
 	@Mock
 	private PartyIntegration partyIntegrationMock;
@@ -270,5 +273,210 @@ class DecisionServiceTest {
 			.id(id)
 			.law(7)
 			.sfbCaseworker(new WEECIntegrationContractsCommonV1Caseworker().id("LOHE").fullName(""));
+	}
+
+	@Test
+	void getDecisionFromElderlyCareSol() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareEcIntegrationMock.getSolDecision(DECISION_ID)).thenReturn(Optional.of(
+			new WEECIntegrationContractsDecisionV1Decision().id(1001).personId(PERSON_NUMBER).date(LocalDateTime.parse("2026-01-01T00:00:00"))));
+
+		// Act
+		final var result = decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "ELDERLY_CARE", "SOL");
+
+		// Verify
+		assertThat(result.getSource()).isEqualTo("ELDERLY_CARE");
+		assertThat(result.getLaw()).isEqualTo("SOL");
+		assertThat(result.getDecisionId()).isEqualTo(DECISION_ID);
+		assertThat(result.getDecided()).isEqualTo(LocalDate.parse("2026-01-01"));
+		verify(lifecareEcIntegrationMock).getSolDecision(DECISION_ID);
+		verifyNoMoreInteractions(lifecareEcIntegrationMock);
+		verifyNoInteractions(lifecareFcIntegrationMock);
+	}
+
+	@Test
+	void getDecisionFromElderlyCareLss() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareEcIntegrationMock.getLssDecision(DECISION_ID)).thenReturn(Optional.of(
+			new WEECIntegrationContractsDecisionV1LssDecision().id(1001).personId(PERSON_NUMBER).law(3)));
+
+		// Act
+		final var result = decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "ELDERLY_CARE", "LSS");
+
+		// Verify
+		assertThat(result.getSource()).isEqualTo("ELDERLY_CARE");
+		assertThat(result.getLaw()).isEqualTo("LSS");
+		assertThat(result.getDecisionId()).isEqualTo(DECISION_ID);
+		verify(lifecareEcIntegrationMock).getLssDecision(DECISION_ID);
+		verifyNoMoreInteractions(lifecareEcIntegrationMock);
+		verifyNoInteractions(lifecareFcIntegrationMock);
+	}
+
+	@Test
+	void getDecisionWithLawSfbIsServedByTheLssSource() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareEcIntegrationMock.getLssDecision(DECISION_ID)).thenReturn(Optional.of(
+			new WEECIntegrationContractsDecisionV1LssDecision().id(1001).personId(PERSON_NUMBER).law(7)));
+
+		// Act
+		final var result = decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "ELDERLY_CARE", "SFB");
+
+		// Verify: the law is the decision's own, as on the list
+		assertThat(result.getLaw()).isEqualTo("SFB");
+		verify(lifecareEcIntegrationMock).getLssDecision(DECISION_ID);
+		verifyNoMoreInteractions(lifecareEcIntegrationMock);
+	}
+
+	@Test
+	void getDecisionFromElderlyCareResolvesTheCaseworkerName() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareEcIntegrationMock.getLssDecision(DECISION_ID)).thenReturn(Optional.of(
+			lssDecisionWithBlankSfbCaseworker(1001).personId(PERSON_NUMBER)));
+		when(employeeIntegrationMock.getFullName(MUNICIPALITY_ID, "LOHE")).thenReturn(Optional.of("Lotta Helsinger"));
+
+		// Act
+		final var result = decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "ELDERLY_CARE", "SFB");
+
+		// Verify
+		assertThat(result.getElderlyCareDetails().getSfbCaseworker()).isEqualTo("Lotta Helsinger");
+		verify(employeeIntegrationMock).getFullName(MUNICIPALITY_ID, "LOHE");
+	}
+
+	@Test
+	void getDecisionFromFamilyCare() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
+			new PersonBasedDecisionDTO().id(1000).date("2026-01-01"),
+			new PersonBasedDecisionDTO().id(1001).date("2026-02-01")));
+
+		// Act
+		final var result = decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "FAMILY_CARE", null);
+
+		// Verify: the party's decisions are listed over the default window and the one with the id picked out
+		assertThat(result.getSource()).isEqualTo("FAMILY_CARE");
+		assertThat(result.getLaw()).isNull();
+		assertThat(result.getDecisionId()).isEqualTo(DECISION_ID);
+		assertThat(result.getDecided()).isEqualTo(LocalDate.parse("2026-02-01"));
+		final var today = LocalDate.now(ZoneId.of("Europe/Stockholm"));
+		verify(lifecareFcIntegrationMock).getAllDecisions(PERSON_NUMBER, today.minusYears(10), today);
+		verifyNoInteractions(lifecareEcIntegrationMock, employeeIntegrationMock);
+	}
+
+	@Test
+	void getDecisionFromFamilyCareNotFound() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
+			new PersonBasedDecisionDTO().id(1000)));
+
+		// Act
+		final var exception = assertThrows(ThrowableProblem.class,
+			() -> decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "FAMILY_CARE", null));
+
+		// Verify
+		assertThat(exception.getStatus()).isEqualTo(NOT_FOUND);
+		assertThat(exception.getDetail()).isEqualTo("No decision with id '1001' found in source FAMILY_CARE for partyId '" + PARTY_ID + "'");
+	}
+
+	@Test
+	void getDecisionFromElderlyCareNotFound() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareEcIntegrationMock.getSolDecision(DECISION_ID)).thenReturn(Optional.empty());
+
+		// Act
+		final var exception = assertThrows(ThrowableProblem.class,
+			() -> decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "ELDERLY_CARE", "SOL"));
+
+		// Verify
+		assertThat(exception.getStatus()).isEqualTo(NOT_FOUND);
+		assertThat(exception.getDetail()).isEqualTo("No decision with id '1001' found in source ELDERLY_CARE (SOL) for partyId '" + PARTY_ID + "'");
+	}
+
+	@Test
+	void getDecisionBelongingToAnotherPersonIsNotFound() {
+		// Mock: EC serves any decision by id — one that belongs to someone else must not be published
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareEcIntegrationMock.getSolDecision(DECISION_ID)).thenReturn(Optional.of(
+			new WEECIntegrationContractsDecisionV1Decision().id(1001).personId(OTHER_PERSON_NUMBER)));
+
+		// Act
+		final var exception = assertThrows(ThrowableProblem.class,
+			() -> decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "ELDERLY_CARE", "SOL"));
+
+		// Verify
+		assertThat(exception.getStatus()).isEqualTo(NOT_FOUND);
+	}
+
+	@Test
+	void getDecisionWithoutPersonOnTheDecisionIsNotFound() {
+		// Mock: no PersonId on the decision means ownership cannot be established — never publish on a guess
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareEcIntegrationMock.getLssDecision(DECISION_ID)).thenReturn(Optional.of(
+			new WEECIntegrationContractsDecisionV1LssDecision().id(1001)));
+
+		// Act
+		final var exception = assertThrows(ThrowableProblem.class,
+			() -> decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "ELDERLY_CARE", "LSS"));
+
+		// Verify
+		assertThat(exception.getStatus()).isEqualTo(NOT_FOUND);
+	}
+
+	@Test
+	void getDecisionFromElderlyCareWithoutLaw() {
+		// Act
+		final var exception = assertThrows(ThrowableProblem.class,
+			() -> decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "ELDERLY_CARE", null));
+
+		// Verify
+		assertThat(exception.getStatus()).isEqualTo(BAD_REQUEST);
+		assertThat(exception.getDetail()).isEqualTo("'law' is required when 'source' is ELDERLY_CARE");
+		verifyNoInteractions(partyIntegrationMock, lifecareEcIntegrationMock, lifecareFcIntegrationMock);
+	}
+
+	@Test
+	void getDecisionFromFamilyCareWithLaw() {
+		// Act
+		final var exception = assertThrows(ThrowableProblem.class,
+			() -> decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "FAMILY_CARE", "SOL"));
+
+		// Verify
+		assertThat(exception.getStatus()).isEqualTo(BAD_REQUEST);
+		assertThat(exception.getDetail()).isEqualTo("'law' is not applicable when 'source' is FAMILY_CARE");
+		verifyNoInteractions(partyIntegrationMock, lifecareEcIntegrationMock, lifecareFcIntegrationMock);
+	}
+
+	@Test
+	void getDecisionWithUnknownPartyId() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenThrow(Problem.valueOf(NOT_FOUND, "No person number found"));
+
+		// Act
+		final var exception = assertThrows(ThrowableProblem.class,
+			() -> decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "FAMILY_CARE", null));
+
+		// Verify
+		assertThat(exception.getStatus()).isEqualTo(NOT_FOUND);
+		verifyNoInteractions(lifecareEcIntegrationMock, lifecareFcIntegrationMock);
+	}
+
+	@Test
+	void getDecisionWithFailingSourceFailsTheRequest() {
+		// Mock: unlike the list, there is no partial result to fall back on
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenThrow(new RuntimeException("FC is down"));
+
+		// Act
+		final var exception = assertThrows(RuntimeException.class,
+			() -> decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "FAMILY_CARE", null));
+
+		// Verify
+		assertThat(exception.getMessage()).isEqualTo("FC is down");
 	}
 }

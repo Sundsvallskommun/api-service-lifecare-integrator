@@ -55,7 +55,7 @@ Access the API documentation via Swagger UI:
 
 - **Swagger UI:** [http://localhost:8080/api-docs](http://localhost:8080/api-docs)
 
-Alternatively, refer to the `openapi.yml` file located in the project's root directory for the OpenAPI specification.
+Alternatively, refer to the `src/main/resources/openapi.yaml` file for the OpenAPI specification.
 
 ## Usage
 

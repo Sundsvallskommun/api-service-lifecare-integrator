@@ -84,4 +84,62 @@ class LifecareEcIntegrationTest {
 		// Verify
 		assertThat(result).isEmpty();
 	}
+
+	@Test
+	void getSolDecision() {
+		// Parameter values
+		final var decision = new WEECIntegrationContractsDecisionV1Decision().id(123);
+
+		// Mock
+		when(lifecareEcClientMock.getSolDecision("123")).thenReturn(decision);
+
+		// Act
+		final var result = lifecareEcIntegration.getSolDecision("123");
+
+		// Verify
+		assertThat(result).contains(decision);
+		verify(lifecareEcClientMock).getSolDecision("123");
+		verifyNoMoreInteractions(lifecareEcClientMock);
+	}
+
+	@Test
+	void getSolDecisionWithNullResponse() {
+		// Mock
+		when(lifecareEcClientMock.getSolDecision("123")).thenReturn(null);
+
+		// Act
+		final var result = lifecareEcIntegration.getSolDecision("123");
+
+		// Verify
+		assertThat(result).isEmpty();
+	}
+
+	@Test
+	void getLssDecision() {
+		// Parameter values
+		final var decision = new WEECIntegrationContractsDecisionV1LssDecision().id(456);
+
+		// Mock
+		when(lifecareEcClientMock.getLssDecision("456")).thenReturn(decision);
+
+		// Act
+		final var result = lifecareEcIntegration.getLssDecision("456");
+
+		// Verify
+		assertThat(result).contains(decision);
+		verify(lifecareEcClientMock).getLssDecision("456");
+		verifyNoMoreInteractions(lifecareEcClientMock);
+	}
+
+	@Test
+	void getLssDecisionWithNullResponse() {
+		// Mock
+		when(lifecareEcClientMock.getLssDecision("456")).thenReturn(null);
+
+		// Act
+		final var result = lifecareEcIntegration.getLssDecision("456");
+
+		// Verify
+		assertThat(result).isEmpty();
+	}
 }
