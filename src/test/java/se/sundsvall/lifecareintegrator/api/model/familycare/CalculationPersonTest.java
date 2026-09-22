@@ -37,18 +37,21 @@ class CalculationPersonTest {
 	void testBuilderMethods() {
 		// Arrange
 		final var name = "Kalle Karlsson";
+		final var partyId = "6a5c3d18-1f2b-4e77-9c0a-2b3d4e5f6a7b";
 		final var amount = BigDecimal.valueOf(3160.0);
 		final var deviationFromDate = LocalDate.now();
 		final var deviationToDate = LocalDate.now().plusDays(30);
 
 		// Act
 		final var result = CalculationPerson.create()
+			.withPartyId(partyId)
 			.withName(name)
 			.withAmount(amount)
 			.withDeviationFromDate(deviationFromDate)
 			.withDeviationToDate(deviationToDate);
 
 		// Assert
+		assertThat(result.getPartyId()).isEqualTo(partyId);
 		assertThat(result.getName()).isEqualTo(name);
 		assertThat(result.getAmount()).isEqualTo(amount);
 		assertThat(result.getDeviationFromDate()).isEqualTo(deviationFromDate);
