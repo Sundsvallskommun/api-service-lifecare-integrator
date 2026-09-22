@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
 import generated.se.sundsvall.lifecarefc.User;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -9,8 +10,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class UserMapperTest {
 
-	private static final OffsetDateTime VALID_FROM = OffsetDateTime.parse("2026-01-01T00:00:00Z");
-	private static final OffsetDateTime VALID_TO = OffsetDateTime.parse("2026-12-31T00:00:00Z");
+	// FamilyCare answers with wall-clock time and no zone; this service's own API answers with an offset. Both of
+	// these fall in winter time, so Sundsvall is +01:00 — picking a summer date here would assert +02:00 instead, and
+	// reading them as UTC (which is what the code did before 2026-09-22) would shift them by exactly this hour.
+	private static final LocalDateTime FC_VALID_FROM = LocalDateTime.parse("2026-01-01T00:00:00");
+	private static final LocalDateTime FC_VALID_TO = LocalDateTime.parse("2026-12-31T00:00:00");
+	private static final OffsetDateTime VALID_FROM = OffsetDateTime.parse("2026-01-01T00:00:00+01:00");
+	private static final OffsetDateTime VALID_TO = OffsetDateTime.parse("2026-12-31T00:00:00+01:00");
 
 	@Test
 	void toCaseworkersWithNull() {
@@ -30,8 +36,8 @@ class UserMapperTest {
 			.lastName("Andersson")
 			.fullName("Anna Andersson")
 			.description("Handläggare")
-			.validFrom(VALID_FROM)
-			.validTo(VALID_TO)
+			.validFrom(FC_VALID_FROM)
+			.validTo(FC_VALID_TO)
 			.disabled(false)
 			.password("secret");
 

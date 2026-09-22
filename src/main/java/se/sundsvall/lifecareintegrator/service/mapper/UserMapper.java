@@ -6,6 +6,7 @@ import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Caseworker;
 
 import static java.util.Collections.emptyList;
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toOffsetDateTime;
 
 public final class UserMapper {
 
@@ -29,8 +30,8 @@ public final class UserMapper {
 			.withLastName(user.getLastName())
 			.withFullName(user.getFullName())
 			.withDescription(user.getDescription())
-			.withValidFrom(user.getValidFrom())
-			.withValidTo(user.getValidTo())
+			.withValidFrom(toOffsetDateTime(user.getValidFrom()))
+			.withValidTo(toOffsetDateTime(user.getValidTo()))
 			.withDisabled(user.getDisabled());
 	}
 }

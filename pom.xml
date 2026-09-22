@@ -100,7 +100,7 @@
 								<useSpringBoot4>true</useSpringBoot4>
 								<useJackson3>true</useJackson3>
 								<sourceFolder>models</sourceFolder>
-								<dateLibrary>java8</dateLibrary>
+								<dateLibrary>java8-localdatetime</dateLibrary>
 								<apiPackage>generated</apiPackage>
 								<modelPackage>generated.se.sundsvall.lifecarefc</modelPackage>
 								<openApiNullable>false</openApiNullable>
