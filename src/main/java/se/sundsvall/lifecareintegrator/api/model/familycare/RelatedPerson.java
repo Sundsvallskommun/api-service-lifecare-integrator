@@ -6,6 +6,9 @@ import java.util.Objects;
 @Schema(description = "A person related to a family care case")
 public class RelatedPerson {
 
+	@Schema(description = "The party id of the person, resolved from the identity Lifecare stores. Null when the person cannot be resolved", examples = "6a5c3d18-1f2b-4e77-9c0a-2b3d4e5f6a7b")
+	private String partyId;
+
 	@Schema(description = "The name of the person", examples = "Anna Andersson")
 	private String name;
 
@@ -14,6 +17,19 @@ public class RelatedPerson {
 
 	public static RelatedPerson create() {
 		return new RelatedPerson();
+	}
+
+	public String getPartyId() {
+		return partyId;
+	}
+
+	public void setPartyId(final String partyId) {
+		this.partyId = partyId;
+	}
+
+	public RelatedPerson withPartyId(final String partyId) {
+		this.partyId = partyId;
+		return this;
 	}
 
 	public String getName() {
@@ -48,18 +64,19 @@ public class RelatedPerson {
 			return false;
 		}
 		final RelatedPerson that = (RelatedPerson) o;
-		return Objects.equals(name, that.name) && Objects.equals(coApplicant, that.coApplicant);
+		return Objects.equals(partyId, that.partyId) && Objects.equals(name, that.name) && Objects.equals(coApplicant, that.coApplicant);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, coApplicant);
+		return Objects.hash(partyId, name, coApplicant);
 	}
 
 	@Override
 	public String toString() {
 		return "RelatedPerson{" +
-			"name='" + name + '\'' +
+			"partyId='" + partyId + '\'' +
+			", name='" + name + '\'' +
 			", coApplicant=" + coApplicant +
 			'}';
 	}

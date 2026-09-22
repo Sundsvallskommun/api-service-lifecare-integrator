@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "1.0"
 servers:
-- url: http://localhost:61388
+- url: http://localhost:63651
   description: Generated server url
 tags:
 - name: Investigations
@@ -2042,6 +2042,12 @@ components:
       type: object
       description: A person related to a family care case
       properties:
+        partyId:
+          type: string
+          description: "The party id of the person, resolved from the identity Lifecare\
+            \ stores. Null when the person cannot be resolved"
+          examples:
+          - 6a5c3d18-1f2b-4e77-9c0a-2b3d4e5f6a7b
         name:
           type: string
           description: The name of the person

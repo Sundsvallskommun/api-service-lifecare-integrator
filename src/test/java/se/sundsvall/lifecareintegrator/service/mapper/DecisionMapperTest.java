@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -24,6 +25,9 @@ import static java.time.Month.FEBRUARY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DecisionMapperTest {
+
+	/** Stands in for the batch party lookup: every personnummer resolves, prefixed so the mapping is visible. */
+	private static final UnaryOperator<String> PARTY_ID_RESOLVER = personNumber -> "party-" + personNumber;
 
 	/** No caseworker resolution — Lifecare supplies the name in every case these tests cover. */
 	private static final Function<String, Optional<String>> NO_NAMES = _ -> Optional.empty();
@@ -192,7 +196,7 @@ class DecisionMapperTest {
 				.isCoApplicant(false)));
 
 		// Act
-		final var result = DecisionMapper.toDecision(source);
+		final var result = DecisionMapper.toDecision(source, PARTY_ID_RESOLVER);
 
 		// Assert
 		assertThat(result.getSource()).isEqualTo("FAMILY_CARE");
@@ -223,7 +227,7 @@ class DecisionMapperTest {
 
 	@Test
 	void toDecisionFromFcDecisionWithNull() {
-		assertThat(DecisionMapper.toDecision((PersonBasedDecisionDTO) null)).isNull();
+		assertThat(DecisionMapper.toDecision((PersonBasedDecisionDTO) null, PARTY_ID_RESOLVER)).isNull();
 	}
 
 	@ParameterizedTest
@@ -236,7 +240,7 @@ class DecisionMapperTest {
 		final var result = DecisionMapper.toDecision(new PersonBasedDecisionDTO()
 			.date(date)
 			.fromDate(date)
-			.toDate(date));
+			.toDate(date), PARTY_ID_RESOLVER);
 
 		// Assert
 		assertThat(result.getDecided()).isNull();
