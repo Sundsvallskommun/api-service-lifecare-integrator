@@ -3,11 +3,22 @@ package se.sundsvall.lifecareintegrator.integration;
 import feign.Response;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
+import se.sundsvall.lifecareintegrator.util.LogSanitizer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
 import static se.sundsvall.lifecareintegrator.util.LogSanitizer.redact;
 
 /**
@@ -17,6 +28,13 @@ import static se.sundsvall.lifecareintegrator.util.LogSanitizer.redact;
  * dept44's {@code AbstractErrorDecoder} reads the response body twice, and an OkHttp body is not repeatable, so the
  * second read comes back empty and Lifecare's explanation is replaced by {@code title=Unknown error}. Buffering over a
  * {@code byte[]} makes both reads see the same content; this class can go once dept44 reads the body once.
+ *
+ * <p>
+ * Lifecare does not answer in RFC 9457 either. Its errors are ASP.NET's {@code {"Message": "…"}}, sometimes a bare
+ * string, and dept44 finds no {@code title}/{@code detail} in them — the explanation FamilyCare sends ("Saknar norm
+ * för angiven hushållsstorlek") would be reduced to {@code {status=400 Bad Request}} or {@code title=Unknown error}.
+ * {@link #extractErrorMessage(Response)} reads that shape and carries the message on as the problem's {@code detail},
+ * redacted and capped, so the caller sees why Lifecare refused. A body that is RFC 9457 after all is left to dept44.
  *
  * <p>
  * The request line is logged with the status because the body alone does not say what was sent. It passes through
@@ -36,6 +54,20 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 	private static final String EMPTY_BODY = "<empty>";
 
 	private static final String UNBUFFERED_BODY = "<unbuffered>";
+
+	/** A sentence or two of explanation is all a Lifecare message is; anything longer is not one. */
+	private static final int MAX_MESSAGE_CHARACTERS = 500;
+
+	private static final String ERROR_TEMPLATE = "%s error: %s";
+
+	private static final String KEY_DETAIL = "detail";
+	private static final String KEY_STATUS = "status";
+	private static final String KEY_TITLE = "title";
+
+	/** The RFC 9457 fields dept44 reads. A body carrying any of them is dept44's to decode, not ours. */
+	private static final List<String> PROBLEM_FIELDS = List.of("title", "detail", "violations");
+
+	private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
 
 	private final String integration;
 	private final List<Integer> expectedStatuses;
@@ -62,6 +94,116 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 		logFailure(buffered);
 
 		return super.decode(methodKey, buffered);
+	}
+
+	/**
+	 * The error message, with Lifecare's own explanation as its {@code detail} when the body carries one, in the same
+	 * {@code "<integration> error: {detail=…, status=…, title=…}"} form dept44 produces.
+	 *
+	 * <p>
+	 * Only the message is carried on, never the body: it is Lifecare's explanation to the API caller, whereas the rest
+	 * of the body is vendor-controlled and stays at DEBUG (see {@link #logFailure(Response)}). {@code ExceptionMessage}
+	 * and {@code StackTrace} are left out on the same grounds — they describe Lifecare's internals, not our request.
+	 */
+	@Override
+	public String extractErrorMessage(final Response response) throws IOException {
+		final var body = bodyAsString(response);
+		if (isProblem(body)) {
+			return super.extractErrorMessage(response);
+		}
+
+		final var status = HttpStatus.valueOf(response.status());
+		final var errorInfo = new TreeMap<String, Object>();
+		errorInfo.put(KEY_STATUS, status.value() + " " + status.getReasonPhrase());
+		errorInfo.put(KEY_TITLE, status.getReasonPhrase());
+		lifecareMessage(body)
+			.map(LogSanitizer::redact)
+			.map(LifecareErrorDecoder::cappedMessage)
+			.ifPresent(message -> errorInfo.put(KEY_DETAIL, message));
+
+		return ERROR_TEMPLATE.formatted(integration, errorInfo);
+	}
+
+	private static boolean isProblem(final String body) {
+		return parse(body)
+			.filter(JsonNode::isObject)
+			.filter(node -> PROBLEM_FIELDS.stream().anyMatch(node::has))
+			.isPresent();
+	}
+
+	/**
+	 * The explanation in a Lifecare error body: {@code Message} (with {@code MessageDetail} and any {@code ModelState}
+	 * validation errors appended), a bare JSON string, or plain text. An HTML page — a gateway's, not Lifecare's — has no
+	 * message worth carrying, and neither has JSON of any other shape.
+	 */
+	static Optional<String> lifecareMessage(final String body) {
+		final var json = parse(body);
+		if (json.isEmpty()) {
+			return plainText(body);
+		}
+
+		final var node = json.get();
+		if (node.isString()) {
+			return nonBlank(node.stringValue());
+		}
+		if (!node.isObject()) {
+			return empty();
+		}
+
+		return textField(node, "Message").map(message -> textField(node, "MessageDetail")
+			.map(detail -> "%s (%s)".formatted(message, detail))
+			.orElse(message))
+			.map(message -> modelState(node)
+				.map(errors -> "%s: %s".formatted(message, errors))
+				.orElse(message));
+	}
+
+	/** ASP.NET's validation errors, as {@code field: error} pairs — the same shape dept44 gives constraint violations. */
+	private static Optional<String> modelState(final JsonNode node) {
+		return ofNullable(node.get("ModelState"))
+			.filter(JsonNode::isObject)
+			.map(state -> state.properties().stream()
+				.flatMap(field -> field.getValue().valueStream()
+					.filter(JsonNode::isString)
+					.map(error -> "%s: %s".formatted(field.getKey(), error.stringValue())))
+				.collect(Collectors.joining(", ")))
+			.flatMap(LifecareErrorDecoder::nonBlank);
+	}
+
+	/** A text field, matched case-insensitively — FC and EC do not agree on casing. */
+	private static Optional<String> textField(final JsonNode node, final String name) {
+		return node.properties().stream()
+			.filter(field -> field.getKey().equalsIgnoreCase(name))
+			.map(Map.Entry::getValue)
+			.filter(JsonNode::isString)
+			.map(JsonNode::stringValue)
+			.flatMap(value -> nonBlank(value).stream())
+			.findFirst();
+	}
+
+	private static Optional<String> plainText(final String body) {
+		return nonBlank(body)
+			.map(String::strip)
+			.filter(text -> !text.startsWith("<"));
+	}
+
+	private static Optional<String> nonBlank(final String text) {
+		return ofNullable(text).filter(value -> !value.isBlank());
+	}
+
+	private static Optional<JsonNode> parse(final String body) {
+		try {
+			return ofNullable(JSON_MAPPER.readTree(body));
+		} catch (final JacksonException _) {
+			return empty();
+		}
+	}
+
+	private static String cappedMessage(final String message) {
+		if (message.length() <= MAX_MESSAGE_CHARACTERS) {
+			return message;
+		}
+		return message.substring(0, MAX_MESSAGE_CHARACTERS) + TRUNCATION_MARKER;
 	}
 
 	/**
@@ -101,10 +243,8 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 	 * The error body as text, redacted and capped.
 	 *
 	 * <p>
-	 * dept44 maps the body onto RFC 9457's {@code title}/{@code detail}. Lifecare does not answer in RFC 9457: its error
-	 * JSON parses cleanly but into all-null fields, so the explanation is silently dropped and the message degrades to
-	 * bare {@code {status=400 Bad Request}}. Logging the body verbatim is the only way to see what Lifecare actually
-	 * said.
+	 * Only Lifecare's message reaches the exception (see {@link #extractErrorMessage(Response)}); the body verbatim is
+	 * what to turn on when the message is not enough, or when Lifecare answered in a shape the decoder does not read.
 	 *
 	 * <p>
 	 * Only a buffered body is read. Reading an unbuffered one here would consume the single available pass and leave

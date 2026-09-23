@@ -15,12 +15,19 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.LoggerFactory;
 import se.sundsvall.dept44.exception.ClientProblem;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static se.sundsvall.lifecareintegrator.integration.LifecareErrorDecoder.withRepeatableBody;
 
@@ -42,6 +49,87 @@ class LifecareErrorDecoderTest {
 		assertThat(problem.getMessage())
 			.contains("Invalid query format")
 			.doesNotContain("Unknown error");
+	}
+
+	@Test
+	void carriesLifecaresOwnMessageOnAsTheDetail() {
+		// The body FamilyCare really answered create_actualisation with on 2026-09-22. dept44 finds no title or detail in
+		// it and reduces it to the bare status; the message is the whole diagnosis.
+		final var problem = new LifecareErrorDecoder("lifecare-fc")
+			.decode("LifecareFcClient#createActualisation(Actualisation)",
+				oneShotResponse(400, "{\"Message\":\"No fromWho entry with id 0 found for aktualiserings-type 0\"}"));
+
+		assertThat(problem).isInstanceOf(ClientProblem.class)
+			.hasFieldOrPropertyWithValue("status", BAD_GATEWAY);
+		assertThat(problem.getMessage())
+			.isEqualTo("Bad Gateway: lifecare-fc error: {detail=No fromWho entry with id 0 found for aktualiserings-type 0, "
+				+ "status=400 Bad Request, title=Bad Request}");
+	}
+
+	@Test
+	void aServerErrorCarriesItsMessageToo() {
+		final var problem = new LifecareErrorDecoder("lifecare-fc")
+			.decode("LifecareFcClient#commitNormberakning(Normberakning)",
+				oneShotResponse(500, "{\"Message\":\"An error has occurred.\"}"));
+
+		assertThat(problem.getMessage())
+			.isEqualTo("Bad Gateway: lifecare-fc error: {detail=An error has occurred., status=500 Internal Server Error, "
+				+ "title=Internal Server Error}");
+	}
+
+	@Test
+	void aBodyWithoutAMessageStillNamesTheStatusRatherThanUnknownError() {
+		final var problem = new LifecareErrorDecoder("lifecare-ec")
+			.decode("LifecareEcClient#getSolDecisions(String,Integer)",
+				oneShotResponse(502, "<html><body><h1>502 Bad Gateway</h1></body></html>"));
+
+		assertThat(problem.getMessage())
+			.isEqualTo("Bad Gateway: lifecare-ec error: {status=502 Bad Gateway, title=Bad Gateway}");
+	}
+
+	@Test
+	void theCarriedMessageIsRedactedAndCapped() {
+		// Unlike the body, the message leaves the service in the problem — so it passes the same sanitizer the logs do.
+		final var body = "{\"Message\":\"Ingen person 19900101TF03 hittades " + "x".repeat(600) + "\"}";
+
+		final var problem = new LifecareErrorDecoder("lifecare-fc")
+			.decode("LifecareFcClient#getPerson(String)", oneShotResponse(400, body));
+
+		assertThat(problem.getMessage())
+			.doesNotContain("19900101TF03")
+			.contains("Ingen person [REDACTED-PNR] hittades")
+			.contains(TRUNCATION_MARKER)
+			.hasSizeLessThan(650);
+	}
+
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("lifecareBodies")
+	void lifecareMessageReadsTheShapesLifecareAnswersIn(final String description, final String body, final Optional<String> expected) {
+		assertThat(LifecareErrorDecoder.lifecareMessage(body)).isEqualTo(expected);
+	}
+
+	private static Stream<Arguments> lifecareBodies() {
+		return Stream.of(
+			arguments("ASP.NET Message", "{\"Message\":\"Saknar norm för angiven hushållsstorlek\"}",
+				Optional.of("Saknar norm för angiven hushållsstorlek")),
+			arguments("lower-case message", "{\"message\":\"Invalid key\"}", Optional.of("Invalid key")),
+			arguments("with MessageDetail", "{\"Message\":\"No HTTP resource was found\",\"MessageDetail\":\"No action matched\"}",
+				Optional.of("No HTTP resource was found (No action matched)")),
+			arguments("with ModelState", """
+				{"Message":"The request is invalid.","ModelState":{"model.NumberOfDays":["Too many days","Must be positive"],"model.Norm":["Required"]}}""",
+				Optional.of("The request is invalid.: model.NumberOfDays: Too many days, model.NumberOfDays: Must be positive, model.Norm: Required")),
+			arguments("empty ModelState", "{\"Message\":\"The request is invalid.\",\"ModelState\":{}}",
+				Optional.of("The request is invalid.")),
+			arguments("internals left out", "{\"Message\":\"An error has occurred.\",\"ExceptionMessage\":\"secret\",\"StackTrace\":\"at X\"}",
+				Optional.of("An error has occurred.")),
+			arguments("bare JSON string", "\"Aktualiseringstypen saknas\"", Optional.of("Aktualiseringstypen saknas")),
+			arguments("plain text", "  Aktualiseringstypen saknas\n", Optional.of("Aktualiseringstypen saknas")),
+			arguments("HTML page", "<html><body>Bad Gateway</body></html>", Optional.empty()),
+			arguments("blank Message", "{\"Message\":\" \"}", Optional.empty()),
+			arguments("non-text Message", "{\"Message\":42}", Optional.empty()),
+			arguments("other JSON object", "{\"Code\":\"E1\"}", Optional.empty()),
+			arguments("JSON array", "[\"a\"]", Optional.empty()),
+			arguments("blank JSON string", "\"  \"", Optional.empty()));
 	}
 
 	@Test
