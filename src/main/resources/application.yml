@@ -34,6 +34,13 @@ integration:
     url: override-me
     domain: override-me
     key: override-me
+  # api-service-party — partyId <-> personnummer. Both directions are cached in memory (never logged or persisted);
+  # a partyId and its personnummer belong together for life, so the time to live only bounds how long the heap holds
+  # them. A lookup Party cannot answer is never cached.
+  party:
+    url: override-me
+    cache-time-to-live: PT15M
+    cache-maximum-size: 10000
   # api-service-employee — puts a name to a Lifecare caseworker id. Only consulted when Lifecare sends a caseworker
   # without one, and never allowed to fail a decision read.
   employee:
