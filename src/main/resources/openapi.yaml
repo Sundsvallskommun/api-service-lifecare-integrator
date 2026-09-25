@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "1.0"
 servers:
-- url: http://localhost:63651
+- url: http://localhost:64555
   description: Generated server url
 tags:
 - name: Investigations
@@ -23,6 +23,8 @@ tags:
 - name: Decisions
   description: "Unified decision resource, merging the Lifecare elderly care (SoL\
     \ + LSS) and family care decision sources"
+- name: ProfessionalWeb
+  description: Pass-through to Lifecare ProfessionalWeb for api-service-caremanagement
 - name: Payments
   description: Payment reads from the Lifecare family care system
 - name: Calculations
@@ -34,6 +36,53 @@ tags:
 - name: Users
   description: Caseworker (user) lookup in the Lifecare family care system
 paths:
+  /{municipalityId}/professional-web/exchange:
+    post:
+      tags:
+      - ProfessionalWeb
+      summary: Make one Lifecare ProfessionalWeb call through the integration account's
+        session
+      description: "For api-service-caremanagement, which cannot reach Lifecare from\
+        \ outside the municipal network. The integrator signs in as its integration\
+        \ account, keeps the session and handles Lifecare's session escalation; the\
+        \ caller decides what to call and interprets the answer. Lifecare's answer\
+        \ is returned as data with this endpoint's own status 200, whatever Lifecare\
+        \ answered, so the gateway cannot rewrite Lifecare's own codes or a PDF. Only\
+        \ api2 and RenderPdf paths are reachable."
+      operationId: exchange
+      parameters:
+      - name: municipalityId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfessionalWebExchangeRequest"
+        required: true
+      responses:
+        "200":
+          description: Lifecare answered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfessionalWebExchangeResponse"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "502":
+          description: Lifecare could not be reached or would not give a session
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/calculations:
     get:
       tags:
@@ -1529,6 +1578,161 @@ components:
         status:
           type: integer
           format: int32
+    ConstraintViolationProblem:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+        status:
+          type: integer
+          format: int32
+        violations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Violation"
+        title:
+          type: string
+        detail:
+          type: string
+        causeAsProblem:
+          $ref: "#/components/schemas/ThrowableProblem"
+        instance:
+          type: string
+          format: uri
+    ThrowableProblem:
+      type: object
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
+        causeAsProblem: {}
+    Violation:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    JsonNode:
+      type: object
+      properties:
+        nodeType:
+          type: string
+          enum:
+          - ARRAY
+          - BINARY
+          - BOOLEAN
+          - MISSING
+          - "NULL"
+          - NUMBER
+          - OBJECT
+          - POJO
+          - STRING
+        container:
+          type: boolean
+        number:
+          type: boolean
+        floatingPointNumber:
+          type: boolean
+        string:
+          type: boolean
+        integralNumber:
+          type: boolean
+        missingNode:
+          type: boolean
+        valueNode:
+          type: boolean
+        pojo:
+          type: boolean
+        short:
+          type: boolean
+        int:
+          type: boolean
+        long:
+          type: boolean
+        double:
+          type: boolean
+        bigDecimal:
+          type: boolean
+        bigInteger:
+          type: boolean
+        textual:
+          type: boolean
+          deprecated: true
+        boolean:
+          type: boolean
+        binary:
+          type: boolean
+        empty:
+          type: boolean
+        array:
+          type: boolean
+        "null":
+          type: boolean
+        object:
+          type: boolean
+        float:
+          type: boolean
+        embeddedValue:
+          type: boolean
+    ProfessionalWebExchangeRequest:
+      type: object
+      description: One Lifecare ProfessionalWeb call to make through the integration
+        account's session
+      properties:
+        method:
+          type: string
+          description: HTTP method
+          examples:
+          - GET
+          minLength: 1
+        path:
+          type: string
+          description: Path below WESE.FC.ProfessionalWeb
+          examples:
+          - api2/Calculation/GetCalculation
+          minLength: 1
+          pattern: "^(api2|RenderPdf)/[A-Za-z0-9/_.-]+$"
+        params:
+          type: object
+          additionalProperties:
+            type: string
+          description: "Query parameters, in order"
+        body:
+          $ref: "#/components/schemas/JsonNode"
+          description: JSON body for a POST or DELETE
+      required:
+      - method
+      - path
+    ProfessionalWebExchangeResponse:
+      type: object
+      description: "Lifecare's answer to one ProfessionalWeb call, whatever its status"
+      properties:
+        status:
+          type: integer
+          format: int32
+          description: "Lifecare's status, including its own codes such as 461"
+          examples:
+          - 200
+        contentType:
+          type: string
+          description: Lifecare's content type
+          examples:
+          - application/json; charset=utf-8
+        body:
+          type: string
+          description: "The raw body, base64 encoded"
     CalculationExpenseRequest:
       type: object
       description: An expense or special expense included in a calculation
@@ -1719,52 +1923,6 @@ components:
       - calculationToDate
       - normId
       - partyId
-    ConstraintViolationProblem:
-      type: object
-      properties:
-        type:
-          type: string
-          format: uri
-        status:
-          type: integer
-          format: int32
-        violations:
-          type: array
-          items:
-            $ref: "#/components/schemas/Violation"
-        title:
-          type: string
-        detail:
-          type: string
-        causeAsProblem:
-          $ref: "#/components/schemas/ThrowableProblem"
-        instance:
-          type: string
-          format: uri
-    ThrowableProblem:
-      type: object
-      properties:
-        type:
-          type: string
-          format: uri
-        title:
-          type: string
-        status:
-          type: integer
-          format: int32
-        detail:
-          type: string
-        instance:
-          type: string
-          format: uri
-        causeAsProblem: {}
-    Violation:
-      type: object
-      properties:
-        field:
-          type: string
-        message:
-          type: string
     CreatedResource:
       type: object
       description: The id of the created resource in Lifecare FC

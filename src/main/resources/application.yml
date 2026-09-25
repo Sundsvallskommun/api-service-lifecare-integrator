@@ -56,6 +56,16 @@ integration:
     domain: override-me
     key: override-me
     # user-key: override-me
+  # Lifecare ProfessionalWeb — the internal api2 surface Lifecare's own web client uses, passed through for
+  # api-service-caremanagement (POST /{municipalityId}/professional-web/exchange). Reached with a signed-in session of an
+  # integration account (SAML via MobilityGuard), not an API key. url is the Lifecare host without a module path; unset
+  # means every exchange answers 502. username/password are secrets.
+  lifecare-professionalweb:
+    url:
+    domain:
+    federation-profile:
+    username:
+    password:
 
 resilience4j:
   circuitbreaker:
