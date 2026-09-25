@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.integration.professionalweb;
 
 import java.io.IOException;
+import java.net.ProxySelector;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -71,6 +72,9 @@ public class ProfessionalWebHttp {
 	public ProfessionalWebHttp(final ProfessionalWebProperties properties, final Truststore truststore) {
 		this(HttpClient.newBuilder()
 			.followRedirects(HttpClient.Redirect.NEVER)
+			// The JDK client uses no proxy unless told to, unlike OkHttp (which the FamilyCare calls go through) and the rest of
+			// the JVM. Where egress goes through a proxy (http(s).proxyHost), leaving this out is a connect timeout.
+			.proxy(ProxySelector.getDefault())
 			// Lifecare runs on IIS, which the fleet has pinned to HTTP/1.1 elsewhere for good reason.
 			.version(HttpClient.Version.HTTP_1_1)
 			.connectTimeout(Duration.ofSeconds(properties.connectTimeout()))

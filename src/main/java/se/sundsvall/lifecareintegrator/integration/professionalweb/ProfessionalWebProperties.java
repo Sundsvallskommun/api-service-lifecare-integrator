@@ -42,7 +42,7 @@ public record ProfessionalWebProperties(
 	String username,
 	String password,
 	@DefaultValue("20m") Duration sessionTtl,
-	@DefaultValue("5") int connectTimeout,
+	@DefaultValue("10") int connectTimeout,
 	@DefaultValue("30") int readTimeout) {
 
 	/**
