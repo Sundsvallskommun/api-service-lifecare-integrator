@@ -10,6 +10,14 @@ import org.springframework.util.StringUtils;
  * talks to, reached with a signed-in session of an integration account rather than an API key.
  *
  * <p>
+ * {@code sessionCookie} is a stopgap. Signing in needs the identity provider (MobilityGuard), which not every network
+ * can reach; api2 itself only needs the Lifecare host. When it is set, the integrator uses that session (the Cookie
+ * header of a session the integration account signed in to elsewhere) instead of signing in, and keeps it alive every
+ * {@code keepAliveInterval}. It is a live credential: a secret, never logged, replaced when Lifecare stops accepting
+ * it.
+ * </p>
+ *
+ * <p>
  * {@code url} is the Lifecare host (for example {@code https://lifecare.sundsvall.se}), without a module path. Leaving
  * it unset turns the integration off: every call then answers 502 instead of the application failing to start, so
  * environments that never talk to ProfessionalWeb need none of this.
@@ -43,7 +51,9 @@ public record ProfessionalWebProperties(
 	String password,
 	@DefaultValue("20m") Duration sessionTtl,
 	@DefaultValue("10") int connectTimeout,
-	@DefaultValue("30") int readTimeout) {
+	@DefaultValue("30") int readTimeout,
+	String sessionCookie,
+	@DefaultValue("5m") Duration keepAliveInterval) {
 
 	/**
 	 * Whether this environment talks to ProfessionalWeb at all.
@@ -59,6 +69,15 @@ public record ProfessionalWebProperties(
 	 *
 	 * @return true when both username and password are set
 	 */
+	/**
+	 * Whether a signed-in session is handed in rather than established by signing in.
+	 *
+	 * @return true when a session cookie is configured
+	 */
+	public boolean hasSeededSession() {
+		return StringUtils.hasText(sessionCookie);
+	}
+
 	public boolean hasAccount() {
 		return StringUtils.hasText(username) && StringUtils.hasText(password);
 	}

@@ -149,6 +149,35 @@ public class ProfessionalWebSession {
 		setIfPresent("federationprofile", properties.federationProfile());
 	}
 
+	/**
+	 * Takes the configured session instead of signing in. Once Lifecare stops accepting it, a reset lands here again
+	 * with the same dead session and the call fails with a message saying so: nothing but a new session can help.
+	 */
+	private void useSeededSession() {
+		cookies.absorbCookieHeader(properties.sessionCookie());
+		if (!cookies.has(SIGNED_IN_COOKIE)) {
+			throw Problem.valueOf(BAD_GATEWAY, "The configured Lifecare session cookie has no " + SIGNED_IN_COOKIE + ", so it is not a signed-in session");
+		}
+		LOG.warn("Lifecare is running on a configured session instead of signing in - replace it when Lifecare stops accepting it");
+	}
+
+	/**
+	 * Keeps an established session from timing out on idle, as Lifecare's own client does with its Heartbeat. Does nothing
+	 * while no session is held: signing in (or taking the configured session) stays on demand. A failure only means the
+	 * next real call escalates as usual, so it is logged and never thrown.
+	 */
+	public void keepAlive() {
+		if (!isEstablished()) {
+			return;
+		}
+		try {
+			final var answer = http.followRedirects(properties.baseUrl() + "/" + ProfessionalWebExchange.MODULE + "/Heartbeat", cookies, null);
+			LOG.info("Lifecare keep-alive: {}", answer.describe());
+		} catch (final RuntimeException e) {
+			LOG.warn("Lifecare keep-alive failed ({})", e.getClass().getSimpleName());
+		}
+	}
+
 	private void setIfPresent(final String name, final String value) {
 		if (value != null && !value.isBlank()) {
 			cookies.set(name, value);
@@ -174,7 +203,11 @@ public class ProfessionalWebSession {
 			cookies.clear();
 			bootstrappedModules.clear();
 			seedConfiguration();
-			signIn.signIn(cookies);
+			if (properties.hasSeededSession()) {
+				useSeededSession();
+			} else {
+				signIn.signIn(cookies);
+			}
 			establishedAt = clock.instant();
 			// Names only, never values.
 			LOG.info("Lifecare session holds: {}", String.join(", ", cookies.names()));

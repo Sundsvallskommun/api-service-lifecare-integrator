@@ -66,6 +66,11 @@ integration:
     federation-profile:
     username:
     password:
+    # Stopgap while the identity provider (MobilityGuard) cannot be reached from here: the Cookie header of a session
+    # the integration account signed in to elsewhere. Used instead of signing in and kept alive every
+    # keep-alive-interval. A live credential - secret only. Unset means sign in with username/password.
+    session-cookie:
+    keep-alive-interval: 5m
 
 resilience4j:
   circuitbreaker:

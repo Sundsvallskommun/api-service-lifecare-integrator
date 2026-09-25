@@ -56,4 +56,14 @@ class ProfessionalWebCookiesTest {
 		assertThat(cookies.toHeader()).isEmpty();
 		assertThat(cookies.get("name")).isEmpty();
 	}
+
+	@Test
+	void absorbCookieHeader() {
+		final var cookies = new ProfessionalWebCookies();
+
+		cookies.absorbCookieHeader("ASP.NET_SessionId=s; LEGACY-TOKEN=a=b ;broken; IDP=x");
+
+		assertThat(cookies.names()).containsExactly("ASP.NET_SessionId", "LEGACY-TOKEN", "IDP");
+		assertThat(cookies.get("LEGACY-TOKEN")).contains("a=b");
+	}
 }

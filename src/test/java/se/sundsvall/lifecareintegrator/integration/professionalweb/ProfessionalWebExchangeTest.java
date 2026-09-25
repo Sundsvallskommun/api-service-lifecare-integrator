@@ -133,7 +133,7 @@ class ProfessionalWebExchangeTest {
 
 	@Test
 	void unconfigured() {
-		final var properties = new ProfessionalWebProperties(null, null, "a", "saml", null, null, null, Duration.ofMinutes(1), 1, 1);
+		final var properties = new ProfessionalWebProperties(null, null, "a", "saml", null, null, null, Duration.ofMinutes(1), 1, 1, null, Duration.ofMinutes(5));
 		final var http = http();
 		final var unconfigured = new ProfessionalWebExchange(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http), http);
 
@@ -187,7 +187,7 @@ class ProfessionalWebExchangeTest {
 
 	@Test
 	void unreachable() {
-		final var properties = new ProfessionalWebProperties("http://localhost:1", "d", "a", "saml", null, "u", "p", Duration.ofMinutes(1), 1, 1);
+		final var properties = new ProfessionalWebProperties("http://localhost:1", "d", "a", "saml", null, "u", "p", Duration.ofMinutes(1), 1, 1, null, Duration.ofMinutes(5));
 		final var http = http();
 		final var broken = new ProfessionalWebExchange(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http), http);
 
@@ -199,8 +199,75 @@ class ProfessionalWebExchangeTest {
 	}
 
 	private ProfessionalWebProperties properties(final String username, final String password) {
+		return seeded(username, password, null);
+	}
+
+	private ProfessionalWebProperties seeded(final String username, final String password, final String sessionCookie) {
 		return new ProfessionalWebProperties(wireMock.baseUrl() + "/", "Domain", "Actor_Professional", "saml", "Sundsvall_Intra",
-			username, password, Duration.ofMinutes(20), 1, 5);
+			username, password, Duration.ofMinutes(20), 1, 5, sessionCookie, Duration.ofMinutes(5));
+	}
+
+	private ProfessionalWebExchange seededExchange(final String sessionCookie) {
+		final var properties = seeded(null, null, sessionCookie);
+		final var http = http();
+		return new ProfessionalWebExchange(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http), http);
+	}
+
+	@Test
+	void seededSessionIsUsedWithoutSigningIn() {
+		wireMock.stubFor(get(urlPathEqualTo(API)).willReturn(okJson("{\"ok\":1}")));
+
+		final var response = seededExchange("ASP.NET_SessionId=s1; LEGACY-TOKEN=seeded").exchange("GET", "api2/Thing/Get", Map.of(), null);
+
+		assertThat(response.status()).isEqualTo(200);
+		wireMock.verify(0, getRequestedFor(urlPathEqualTo("/WE.Flow.Html")));
+		wireMock.verify(getRequestedFor(urlPathEqualTo(API))
+			.withHeader("X-LEGACY-TOKEN", equalTo("seeded"))
+			.withHeader("Cookie", containing("ASP.NET_SessionId=s1")));
+	}
+
+	@Test
+	void seededSessionWithoutLegacyToken() {
+		final var seeded = seededExchange("ASP.NET_SessionId=s1");
+
+		assertThatThrownBy(() -> seeded.exchange("GET", "api2/Thing/Get", Map.of(), null)).hasMessageContaining("not a signed-in session");
+	}
+
+	@Test
+	void deadSeededSessionIsReported() {
+		wireMock.stubFor(get(urlPathEqualTo(API)).willReturn(aResponse().withStatus(360)));
+		wireMock.stubFor(get(urlPathEqualTo("/WESE.FC.ProfessionalWeb/Heartbeat")).willReturn(ok()));
+
+		assertThatThrownBy(() -> seededExchange("LEGACY-TOKEN=dead").exchange("GET", "api2/Thing/Get", Map.of(), null))
+			.hasMessageContaining("would not accept a freshly established session");
+		wireMock.verify(0, getRequestedFor(urlPathEqualTo("/WE.Flow.Html")));
+	}
+
+	@Test
+	void keepAliveOnlyWithASession() {
+		wireMock.stubFor(get(urlPathEqualTo("/WESE.FC.ProfessionalWeb/Heartbeat")).willReturn(ok()));
+		final var properties = seeded(null, null, "LEGACY-TOKEN=seeded");
+		final var http = http();
+		final var seededSession = new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http);
+
+		seededSession.keepAlive();
+		wireMock.verify(0, getRequestedFor(urlPathEqualTo("/WESE.FC.ProfessionalWeb/Heartbeat")));
+
+		seededSession.prepare();
+		seededSession.keepAlive();
+		wireMock.verify(1, getRequestedFor(urlPathEqualTo("/WESE.FC.ProfessionalWeb/Heartbeat"))
+			.withHeader("Cookie", containing("LEGACY-TOKEN=seeded")));
+	}
+
+	@Test
+	void keepAliveFailureIsSwallowed() {
+		final var properties = new ProfessionalWebProperties("http://localhost:1", "d", "a", "saml", null, null, null, Duration.ofMinutes(1), 1, 1,
+			"LEGACY-TOKEN=x", Duration.ofMinutes(5));
+		final var http = http();
+		final var seededSession = new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http);
+		seededSession.prepare();
+
+		org.assertj.core.api.Assertions.assertThatNoException().isThrownBy(seededSession::keepAlive);
 	}
 
 	private void stubSignIn() {

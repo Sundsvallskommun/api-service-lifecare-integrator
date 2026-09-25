@@ -69,6 +69,17 @@ public class ProfessionalWebCookies {
 	}
 
 	/**
+	 * Takes in a whole Cookie request header, the shape copied out of a browser.
+	 *
+	 * @param header the header value
+	 */
+	public synchronized void absorbCookieHeader(final String header) {
+		for (final var pair : header.split(";")) {
+			splitPair(pair).ifPresent(cookie -> cookies.put(cookie.getKey(), cookie.getValue()));
+		}
+	}
+
+	/**
 	 * The Cookie request header for everything held.
 	 *
 	 * @return the header value, empty while nothing is held
