@@ -3,7 +3,9 @@ package se.sundsvall.lifecareintegrator.integration.professionalweb;
 import java.net.URI;
 import java.net.http.HttpHeaders;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -19,6 +21,33 @@ public record ProfessionalWebResponse(int status, HttpHeaders headers, byte[] bo
 
 	public ProfessionalWebResponse {
 		body = Optional.ofNullable(body).orElse(new byte[0]);
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof final ProfessionalWebResponse other)) {
+			return false;
+		}
+		return status == other.status
+			&& Objects.equals(headers, other.headers)
+			&& Arrays.equals(body, other.body)
+			&& Objects.equals(uri, other.uri);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(status, headers, Arrays.hashCode(body), uri);
+	}
+
+	@Override
+	public String toString() {
+		return "ProfessionalWebResponse[status=" + status
+			+ ", headers=" + headers
+			+ ", body.length=" + body.length
+			+ ", uri=" + uri + "]";
 	}
 
 	public boolean isSuccess() {

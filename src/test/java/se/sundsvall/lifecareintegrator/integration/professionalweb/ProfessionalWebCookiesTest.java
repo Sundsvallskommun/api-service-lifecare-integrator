@@ -1,5 +1,8 @@
 package se.sundsvall.lifecareintegrator.integration.professionalweb;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +12,7 @@ class ProfessionalWebCookiesTest {
 
 	@Test
 	void absorbSetsAndOverwrites() {
-		final var cookies = new ProfessionalWebCookies();
+		final var cookies = new ProfessionalWebCookies(Clock.systemUTC());
 
 		cookies.absorbSetCookie(List.of("ASP.NET_SessionId=abc; path=/; HttpOnly", "LEGACY-TOKEN=a=b=c; secure"));
 		cookies.absorbSetCookie(List.of("ASP.NET_SessionId=def; path=/"));
@@ -22,7 +25,7 @@ class ProfessionalWebCookiesTest {
 
 	@Test
 	void absorbHonoursDeletions() {
-		final var cookies = new ProfessionalWebCookies();
+		final var cookies = new ProfessionalWebCookies(Clock.systemUTC());
 		cookies.set("one", "1");
 		cookies.set("two", "2");
 		cookies.set("three", "3");
@@ -39,7 +42,7 @@ class ProfessionalWebCookiesTest {
 
 	@Test
 	void absorbIgnoresMalformedHeadersAndAttributes() {
-		final var cookies = new ProfessionalWebCookies();
+		final var cookies = new ProfessionalWebCookies(Clock.systemUTC());
 
 		cookies.absorbSetCookie(List.of("no-separator", "=novalue", "name=value; Max-Age=soon; expires=not a date; flag"));
 
@@ -48,7 +51,7 @@ class ProfessionalWebCookiesTest {
 
 	@Test
 	void clear() {
-		final var cookies = new ProfessionalWebCookies();
+		final var cookies = new ProfessionalWebCookies(Clock.systemUTC());
 		cookies.set("name", "value");
 
 		cookies.clear();
@@ -58,8 +61,30 @@ class ProfessionalWebCookiesTest {
 	}
 
 	@Test
+	void absorbHonoursAnExpiresDateNotYetPastTheInjectedClock() {
+		final var clock = Clock.fixed(Instant.parse("2020-06-15T00:00:00Z"), ZoneOffset.UTC);
+		final var cookies = new ProfessionalWebCookies(clock);
+		cookies.set("still-valid", "v");
+
+		cookies.absorbSetCookie(List.of("still-valid=v; expires=Wed, 01-Jul-2020 00:00:00 GMT"));
+
+		assertThat(cookies.has("still-valid")).isTrue();
+	}
+
+	@Test
+	void absorbHonoursAnExpiresDateAlreadyPastTheInjectedClock() {
+		final var clock = Clock.fixed(Instant.parse("2020-08-01T00:00:00Z"), ZoneOffset.UTC);
+		final var cookies = new ProfessionalWebCookies(clock);
+		cookies.set("expired", "v");
+
+		cookies.absorbSetCookie(List.of("expired=v; expires=Wed, 01-Jul-2020 00:00:00 GMT"));
+
+		assertThat(cookies.has("expired")).isFalse();
+	}
+
+	@Test
 	void absorbCookieHeader() {
-		final var cookies = new ProfessionalWebCookies();
+		final var cookies = new ProfessionalWebCookies(Clock.systemUTC());
 
 		cookies.absorbCookieHeader("ASP.NET_SessionId=s; LEGACY-TOKEN=a=b ;broken; IDP=x");
 

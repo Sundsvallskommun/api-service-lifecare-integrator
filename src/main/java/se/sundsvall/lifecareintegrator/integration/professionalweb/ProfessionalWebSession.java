@@ -43,7 +43,7 @@ public class ProfessionalWebSession {
 	private final ProfessionalWebSignIn signIn;
 	private final ProfessionalWebHttp http;
 	private final Clock clock;
-	private final ProfessionalWebCookies cookies = new ProfessionalWebCookies();
+	private final ProfessionalWebCookies cookies;
 	private final Set<String> bootstrappedModules = ConcurrentHashMap.newKeySet();
 	private final Object signInLock = new Object();
 	private final Object bootstrapLock = new Object();
@@ -55,6 +55,7 @@ public class ProfessionalWebSession {
 		this.signIn = signIn;
 		this.http = http;
 		this.clock = clock;
+		this.cookies = new ProfessionalWebCookies(clock);
 	}
 
 	/**
@@ -93,7 +94,7 @@ public class ProfessionalWebSession {
 				return;
 			}
 			final var artifact = http.followRedirects(properties.baseUrl() + "/" + module + "/Heartbeat", cookies, null);
-			LOG.info("Lifecare handed {} its artifact ({})", module, artifact.describe());
+			LOG.atInfo().addArgument(module).addArgument(artifact::describe).log("Lifecare handed {} its artifact ({})");
 			if (artifact.status() != 200) {
 				throw Problem.valueOf(BAD_GATEWAY, "Lifecare would not start a session for " + module + " (" + artifact.describe() + ")");
 			}
@@ -178,7 +179,7 @@ public class ProfessionalWebSession {
 		}
 		try {
 			final var answer = http.followRedirects(properties.baseUrl() + "/" + ProfessionalWebExchange.MODULE + "/Heartbeat", cookies, null);
-			LOG.info("Lifecare keep-alive: {}", answer.describe());
+			LOG.atInfo().addArgument(answer::describe).log("Lifecare keep-alive: {}");
 		} catch (final RuntimeException e) {
 			LOG.warn("Lifecare keep-alive failed ({})", e.getClass().getSimpleName());
 		}
@@ -216,7 +217,7 @@ public class ProfessionalWebSession {
 			}
 			establishedAt = clock.instant();
 			// Names only, never values.
-			LOG.info("Lifecare session holds: {}", String.join(", ", cookies.names()));
+			LOG.atInfo().addArgument(() -> String.join(", ", cookies.names())).log("Lifecare session holds: {}");
 		}
 	}
 }

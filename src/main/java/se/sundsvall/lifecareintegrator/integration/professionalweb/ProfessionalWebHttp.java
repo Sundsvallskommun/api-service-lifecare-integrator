@@ -118,7 +118,7 @@ public class ProfessionalWebHttp {
 	 */
 	public ProfessionalWebResponse followRedirects(final String startUrl, final ProfessionalWebCookies cookies, final Map<String, String> formFields) {
 		var uri = URI.create(startUrl);
-		var body = encodeForm(formFields);
+		var remainingFormFields = formFields;
 
 		for (var hop = 0; hop < MAX_REDIRECT_HOPS; hop++) {
 			final var headers = new LinkedHashMap<String, String>();
@@ -129,13 +129,15 @@ public class ProfessionalWebHttp {
 				headers.put("Cookie", cookieHeader);
 			}
 			var method = "GET";
-			if (body != null) {
+			byte[] body = null;
+			if (remainingFormFields != null) {
 				method = "POST";
 				headers.put("Content-Type", "application/x-www-form-urlencoded");
+				body = encodeForm(remainingFormFields);
 			}
 
 			final var response = send(method, uri, headers, body);
-			body = null;
+			remainingFormFields = null;
 			cookies.absorbSetCookie(response.setCookies());
 
 			final var location = response.location();
@@ -172,9 +174,6 @@ public class ProfessionalWebHttp {
 	}
 
 	static byte[] encodeForm(final Map<String, String> fields) {
-		if (fields == null) {
-			return null;
-		}
 		return fields.entrySet().stream()
 			.map(entry -> URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8) + "=" + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
 			.collect(Collectors.joining("&"))

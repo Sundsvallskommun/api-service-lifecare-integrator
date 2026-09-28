@@ -183,7 +183,7 @@ class ProfessionalWebExchangeTest {
 		final var properties = properties(null, null);
 		final var signIn = new ProfessionalWebSignIn(properties, http(properties));
 
-		assertThatThrownBy(() -> signIn.signIn(new ProfessionalWebCookies())).hasMessageContaining("No Lifecare account configured");
+		assertThatThrownBy(() -> signIn.signIn(new ProfessionalWebCookies(Clock.systemUTC()))).hasMessageContaining("No Lifecare account configured");
 	}
 
 	@Test

@@ -77,7 +77,10 @@ public class ProfessionalWebSignIn {
 			}
 
 			// Names the step without naming what is in it, so a flow that stalls says where it stalled.
-			LOG.info("Lifecare sign-in: posting {} to {}{}", describeStep(form.get()), URI.create(action).getHost(), URI.create(action).getPath());
+			if (LOG.isInfoEnabled()) {
+				final var actionUri = URI.create(action);
+				LOG.info("Lifecare sign-in: posting {} to {}{}", describeStep(form.get()), actionUri.getHost(), actionUri.getPath());
+			}
 			response = http.followRedirects(action, cookies, fields);
 		}
 

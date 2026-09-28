@@ -8,6 +8,7 @@ import generated.se.sundsvall.lifecarefc.PostCalculationBodyRequest;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -118,14 +119,14 @@ class RequestMapperTest {
 			.calculationPersons(List.of(new PersonBasedCalculationPersonPostDTO()
 				.personId(MEMBER_PERSON_NUMBER)
 				.numberOfDays(30)
-				.deviationFromDate(LocalDateTime.of(2026, 5, 10, 0, 0, 0, 0))
-				.deviationToDate(LocalDateTime.of(2026, 5, 20, 0, 0, 0, 0))))
+				.deviationFromDate(LocalDateTime.of(2026, Month.MAY, 10, 0, 0, 0, 0))
+				.deviationToDate(LocalDateTime.of(2026, Month.MAY, 20, 0, 0, 0, 0))))
 			.calculationIncomes(List.of(new PersonBasedCalculationIncomePostDTO()
 				.id(11)
 				.applicantAmount(1000.0)
-				.applicantAmountDate(LocalDateTime.of(2026, 5, 1, 0, 0, 0, 0))
+				.applicantAmountDate(LocalDateTime.of(2026, Month.MAY, 1, 0, 0, 0, 0))
 				.coApplicantAmount(500.0)
-				.coApplicantAmountDate(LocalDateTime.of(2026, 5, 2, 0, 0, 0, 0))
+				.coApplicantAmountDate(LocalDateTime.of(2026, Month.MAY, 2, 0, 0, 0, 0))
 				.note("income note")))
 			.calculationExpenses(List.of(new PersonBasedCalculationExpensePostDTO()
 				.id(21)

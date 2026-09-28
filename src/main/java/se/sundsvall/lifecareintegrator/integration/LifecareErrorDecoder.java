@@ -68,7 +68,7 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 	private static final String KEY_TITLE = "title";
 
 	/** The RFC 9457 fields dept44 reads. A body carrying any of them is dept44's to decode, not ours. */
-	private static final List<String> PROBLEM_FIELDS = List.of("title", "detail", "violations");
+	private static final List<String> PROBLEM_FIELDS = List.of(KEY_TITLE, KEY_DETAIL, "violations");
 
 	private static final JsonMapper JSON_MAPPER = JsonMapper.builder().build();
 

@@ -91,6 +91,10 @@ public record ProfessionalWebProperties(
 		if (!isConfigured()) {
 			return "";
 		}
-		return url.replaceAll("/+$", "");
+		var trimmed = url;
+		while (trimmed.endsWith("/")) {
+			trimmed = trimmed.substring(0, trimmed.length() - 1);
+		}
+		return trimmed;
 	}
 }

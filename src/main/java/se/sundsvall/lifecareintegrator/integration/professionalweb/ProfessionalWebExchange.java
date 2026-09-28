@@ -59,12 +59,12 @@ public class ProfessionalWebExchange {
 		var response = send(method, path, params, body);
 
 		if (ProfessionalWebHttp.needsSession(response)) {
-			LOG.warn("Lifecare wants a session for {} ({}) - bootstrapping it", MODULE, response.describe());
+			LOG.atWarn().addArgument(MODULE).addArgument(response::describe).log("Lifecare wants a session for {} ({}) - bootstrapping it");
 			session.bootstrapModule(MODULE);
 			response = send(method, path, params, body);
 		}
 		if (ProfessionalWebHttp.needsSession(response)) {
-			LOG.warn("Lifecare still refuses {} ({}) - signing in again", path, response.describe());
+			LOG.atWarn().addArgument(path).addArgument(response::describe).log("Lifecare still refuses {} ({}) - signing in again");
 			session.reset();
 			response = send(method, path, params, body);
 		}
@@ -72,7 +72,7 @@ public class ProfessionalWebExchange {
 			throw Problem.valueOf(BAD_GATEWAY, "Lifecare would not accept a freshly established session (" + response.describe() + ")");
 		}
 		if (!response.isSuccess()) {
-			LOG.info("Lifecare answered {} {} with {}", method, path, response.describe());
+			LOG.atInfo().addArgument(method).addArgument(path).addArgument(response::describe).log("Lifecare answered {} {} with {}");
 		}
 		return response;
 	}

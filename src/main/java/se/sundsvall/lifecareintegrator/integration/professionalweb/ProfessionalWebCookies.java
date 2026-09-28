@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.integration.professionalweb;
 
+import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -36,6 +37,15 @@ public class ProfessionalWebCookies {
 	public static final String SIGNED_IN_COOKIE = "LEGACY-TOKEN";
 
 	private final Map<String, String> cookies = new LinkedHashMap<>();
+
+	private final Clock clock;
+
+	/**
+	 * @param clock the clock to read the current time from when deciding whether a Set-Cookie has expired
+	 */
+	public ProfessionalWebCookies(final Clock clock) {
+		this.clock = clock;
+	}
 
 	/**
 	 * Sets one cookie directly, for the configuration cookies no response issues.
@@ -119,14 +129,14 @@ public class ProfessionalWebCookies {
 		return Optional.of(Map.entry(pair.substring(0, separator).trim(), pair.substring(separator + 1).trim()));
 	}
 
-	private static boolean isDeletion(final List<String> attributes) {
+	private boolean isDeletion(final List<String> attributes) {
 		return attributes.stream()
 			.map(ProfessionalWebCookies::splitPair)
 			.flatMap(Optional::stream)
 			.anyMatch(attribute -> isExpired(attribute.getKey().toLowerCase(Locale.ROOT), attribute.getValue()));
 	}
 
-	private static boolean isExpired(final String name, final String value) {
+	private boolean isExpired(final String name, final String value) {
 		if ("max-age".equals(name)) {
 			try {
 				return Long.parseLong(value) <= 0;
@@ -137,7 +147,7 @@ public class ProfessionalWebCookies {
 		if ("expires".equals(name)) {
 			try {
 				// ASP.NET writes the date with dashes (01-Jan-1970), which RFC 1123 spells with spaces.
-				return !ZonedDateTime.parse(value.replace('-', ' '), DateTimeFormatter.RFC_1123_DATE_TIME).isAfter(ZonedDateTime.now());
+				return !ZonedDateTime.parse(value.replace('-', ' '), DateTimeFormatter.RFC_1123_DATE_TIME).isAfter(ZonedDateTime.now(clock));
 			} catch (final DateTimeParseException _) {
 				return false;
 			}
