@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import se.sundsvall.dept44.problem.Problem;
 
@@ -51,12 +50,7 @@ public class ProfessionalWebSession {
 
 	private volatile Instant establishedAt;
 
-	@Autowired
-	public ProfessionalWebSession(final ProfessionalWebProperties properties, final ProfessionalWebSignIn signIn, final ProfessionalWebHttp http) {
-		this(properties, signIn, http, Clock.systemUTC());
-	}
-
-	ProfessionalWebSession(final ProfessionalWebProperties properties, final ProfessionalWebSignIn signIn, final ProfessionalWebHttp http, final Clock clock) {
+	public ProfessionalWebSession(final ProfessionalWebProperties properties, final ProfessionalWebSignIn signIn, final ProfessionalWebHttp http, final Clock clock) {
 		this.properties = properties;
 		this.signIn = signIn;
 		this.http = http;
@@ -165,9 +159,21 @@ public class ProfessionalWebSession {
 	 * Keeps an established session from timing out on idle, as Lifecare's own client does with its Heartbeat. Does nothing
 	 * while no session is held: signing in (or taking the configured session) stays on demand. A failure only means the
 	 * next real call escalates as usual, so it is logged and never thrown.
+	 *
+	 * <p>
+	 * A session already past its TTL is thrown away instead of pinged: {@link #isExpired()} is what {@link #prepare()}
+	 * checks before every real call, so pinging Heartbeat with cookies this service itself already considers stale would
+	 * only paper over the TTL rather than honour it. Resetting here means the next real call re-authenticates from
+	 * nothing, the same as if this keep-alive had never run.
+	 * </p>
 	 */
 	public void keepAlive() {
 		if (!isEstablished()) {
+			return;
+		}
+		if (isExpired()) {
+			LOG.info("Lifecare session has passed its TTL during keep-alive - resetting it instead of pinging Heartbeat");
+			reset();
 			return;
 		}
 		try {

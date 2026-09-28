@@ -28,6 +28,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -47,8 +48,8 @@ class ProfessionalWebExchangeTest {
 		wireMock = new WireMockServer(options().dynamicPort());
 		wireMock.start();
 		final var properties = properties("user", "sec ret&1");
-		final var http = http();
-		session = new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http);
+		final var http = http(properties);
+		session = new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC());
 		exchange = new ProfessionalWebExchange(properties, session, http);
 		stubSignIn();
 	}
@@ -134,8 +135,8 @@ class ProfessionalWebExchangeTest {
 	@Test
 	void unconfigured() {
 		final var properties = new ProfessionalWebProperties(null, null, "a", "saml", null, null, null, Duration.ofMinutes(1), 1, 1, null, Duration.ofMinutes(5));
-		final var http = http();
-		final var unconfigured = new ProfessionalWebExchange(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http), http);
+		final var http = http(properties);
+		final var unconfigured = new ProfessionalWebExchange(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC()), http);
 
 		assertThatThrownBy(() -> unconfigured.exchange("GET", "api2/x", Map.of(), null)).hasMessageContaining("not configured");
 	}
@@ -143,7 +144,7 @@ class ProfessionalWebExchangeTest {
 	@Test
 	void sessionPastItsTtlIsReplaced() {
 		final var properties = properties("user", "pw");
-		final var http = http();
+		final var http = http(properties);
 		final var clock = new MutableClock(Instant.parse("2026-09-25T08:00:00Z"));
 		final var timed = new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, clock);
 
@@ -180,7 +181,7 @@ class ProfessionalWebExchangeTest {
 	@Test
 	void noAccount() {
 		final var properties = properties(null, null);
-		final var signIn = new ProfessionalWebSignIn(properties, http());
+		final var signIn = new ProfessionalWebSignIn(properties, http(properties));
 
 		assertThatThrownBy(() -> signIn.signIn(new ProfessionalWebCookies())).hasMessageContaining("No Lifecare account configured");
 	}
@@ -188,14 +189,14 @@ class ProfessionalWebExchangeTest {
 	@Test
 	void unreachable() {
 		final var properties = new ProfessionalWebProperties("http://localhost:1", "d", "a", "saml", null, "u", "p", Duration.ofMinutes(1), 1, 1, null, Duration.ofMinutes(5));
-		final var http = http();
-		final var broken = new ProfessionalWebExchange(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http), http);
+		final var http = http(properties);
+		final var broken = new ProfessionalWebExchange(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC()), http);
 
 		assertThatThrownBy(() -> broken.exchange("GET", "api2/x", Map.of(), null)).hasMessageContaining("could not be reached");
 	}
 
-	private ProfessionalWebHttp http() {
-		return new ProfessionalWebHttp(HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build(), Duration.ofSeconds(5));
+	private ProfessionalWebHttp http(final ProfessionalWebProperties properties) {
+		return new ProfessionalWebHttp(HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build(), properties);
 	}
 
 	private ProfessionalWebProperties properties(final String username, final String password) {
@@ -209,8 +210,8 @@ class ProfessionalWebExchangeTest {
 
 	private ProfessionalWebExchange seededExchange(final String sessionCookie) {
 		final var properties = seeded(null, null, sessionCookie);
-		final var http = http();
-		return new ProfessionalWebExchange(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http), http);
+		final var http = http(properties);
+		return new ProfessionalWebExchange(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC()), http);
 	}
 
 	@Test
@@ -247,8 +248,8 @@ class ProfessionalWebExchangeTest {
 	void keepAliveOnlyWithASession() {
 		wireMock.stubFor(get(urlPathEqualTo("/WESE.FC.ProfessionalWeb/Heartbeat")).willReturn(ok()));
 		final var properties = seeded(null, null, "LEGACY-TOKEN=seeded");
-		final var http = http();
-		final var seededSession = new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http);
+		final var http = http(properties);
+		final var seededSession = new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC());
 
 		seededSession.keepAlive();
 		wireMock.verify(0, getRequestedFor(urlPathEqualTo("/WESE.FC.ProfessionalWeb/Heartbeat")));
@@ -260,14 +261,33 @@ class ProfessionalWebExchangeTest {
 	}
 
 	@Test
+	void keepAliveResetsAnExpiredSessionInsteadOfPingingIt() {
+		wireMock.stubFor(get(urlPathEqualTo("/WESE.FC.ProfessionalWeb/Heartbeat")).willReturn(ok()));
+		final var properties = seeded(null, null, "LEGACY-TOKEN=seeded");
+		final var http = http(properties);
+		final var clock = new MutableClock(Instant.parse("2026-09-25T08:00:00Z"));
+		final var seededSession = new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, clock);
+
+		seededSession.prepare();
+		clock.now = clock.now.plus(Duration.ofMinutes(20));
+
+		seededSession.keepAlive();
+
+		// A session already past its TTL is thrown away rather than pinged with cookies this service itself would
+		// refuse for a real call.
+		wireMock.verify(0, getRequestedFor(urlPathEqualTo("/WESE.FC.ProfessionalWeb/Heartbeat")));
+		assertThat(seededSession.isEstablished()).isFalse();
+	}
+
+	@Test
 	void keepAliveFailureIsSwallowed() {
 		final var properties = new ProfessionalWebProperties("http://localhost:1", "d", "a", "saml", null, null, null, Duration.ofMinutes(1), 1, 1,
 			"LEGACY-TOKEN=x", Duration.ofMinutes(5));
-		final var http = http();
-		final var seededSession = new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http);
+		final var http = http(properties);
+		final var seededSession = new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC());
 		seededSession.prepare();
 
-		org.assertj.core.api.Assertions.assertThatNoException().isThrownBy(seededSession::keepAlive);
+		assertThatNoException().isThrownBy(seededSession::keepAlive);
 	}
 
 	private void stubSignIn() {

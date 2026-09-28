@@ -4,10 +4,12 @@ import generated.se.sundsvall.lifecareec.WEECIntegrationContractsCommonV1Casewor
 import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1Decision;
 import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1LssDecision;
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
+import generated.se.sundsvall.lifecarefc.PersonBasedDecisionPersonDTO;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +20,7 @@ import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
 import se.sundsvall.lifecareintegrator.api.model.common.SourceStatus;
+import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
 import se.sundsvall.lifecareintegrator.integration.employee.EmployeeIntegration;
 import se.sundsvall.lifecareintegrator.integration.lifecareec.LifecareEcIntegration;
 import se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcIntegration;
@@ -43,6 +46,8 @@ class DecisionServiceTest {
 	private static final String PERSON_NUMBER = "199001011234";
 	private static final String OTHER_PERSON_NUMBER = "198001011234";
 	private static final String DECISION_ID = "1001";
+	private static final String RELATED_PERSON_NUMBER = "199505057890";
+	private static final String RELATED_PARTY_ID = "22222222-5798-11e9-ae24-57fa13b361e2";
 
 	@Mock
 	private PartyIntegration partyIntegrationMock;
@@ -90,6 +95,39 @@ class DecisionServiceTest {
 		// Default FC window: 10 years back until today
 		final var today = LocalDate.now(ZoneId.of("Europe/Stockholm"));
 		verify(lifecareFcIntegrationMock).getAllDecisions(PERSON_NUMBER, today.minusYears(10), today);
+	}
+
+	/**
+	 * A FamilyCare decision no longer carries the raw personnummer of the persons it names: the personnummer is
+	 * resolved to a partyId (in one batch call for every person on every FC decision) before the decision reaches the
+	 * caller, and the personnummer itself must never appear anywhere in the response.
+	 */
+	@Test
+	void getDecisionsResolvesFamilyCarePersonsToPartyIdsInOneBatch() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of());
+		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of());
+		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
+			new PersonBasedDecisionDTO().id(3).date("2026-02-01")
+				.decisionPersonDTOs(List.of(new PersonBasedDecisionPersonDTO()
+					.personId(RELATED_PERSON_NUMBER)
+					.name("Kalle Karlsson")
+					.isCoApplicant(false)))));
+		when(partyIntegrationMock.getPartyIds(MUNICIPALITY_ID, List.of(RELATED_PERSON_NUMBER)))
+			.thenReturn(Map.of(RELATED_PERSON_NUMBER, RELATED_PARTY_ID));
+
+		// Act
+		final var result = decisionService.getDecisions(MUNICIPALITY_ID, PARTY_ID, null, null);
+
+		// Verify: the batch call was made exactly once with the personnummer found on the decision
+		verify(partyIntegrationMock).getPartyIds(MUNICIPALITY_ID, List.of(RELATED_PERSON_NUMBER));
+
+		final var persons = result.getDecisions().getFirst().getFamilyCareDetails().getPersons();
+		assertThat(persons).extracting(RelatedPerson::getPartyId).containsExactly(RELATED_PARTY_ID);
+
+		// The personnummer itself must never survive into the response
+		assertThat(result.getDecisions().toString()).doesNotContain(RELATED_PERSON_NUMBER);
 	}
 
 	@Test
@@ -365,6 +403,30 @@ class DecisionServiceTest {
 		final var today = LocalDate.now(ZoneId.of("Europe/Stockholm"));
 		verify(lifecareFcIntegrationMock).getAllDecisions(PERSON_NUMBER, today.minusYears(10), today);
 		verifyNoInteractions(lifecareEcIntegrationMock, employeeIntegrationMock);
+	}
+
+	@Test
+	void getDecisionFromFamilyCareResolvesPersonsToPartyIdsWithoutLeakingThePersonNumber() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
+			new PersonBasedDecisionDTO().id(1001).date("2026-02-01")
+				.decisionPersonDTOs(List.of(new PersonBasedDecisionPersonDTO()
+					.personId(RELATED_PERSON_NUMBER)
+					.name("Kalle Karlsson")
+					.isCoApplicant(true)))));
+		when(partyIntegrationMock.getPartyIds(MUNICIPALITY_ID, List.of(RELATED_PERSON_NUMBER)))
+			.thenReturn(Map.of(RELATED_PERSON_NUMBER, RELATED_PARTY_ID));
+
+		// Act
+		final var result = decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "FAMILY_CARE", null);
+
+		// Verify
+		verify(partyIntegrationMock).getPartyIds(MUNICIPALITY_ID, List.of(RELATED_PERSON_NUMBER));
+		assertThat(result.getFamilyCareDetails().getPersons())
+			.extracting(RelatedPerson::getPartyId, RelatedPerson::getCoApplicant)
+			.containsExactly(tuple(RELATED_PARTY_ID, true));
+		assertThat(result.toString()).doesNotContain(RELATED_PERSON_NUMBER);
 	}
 
 	@Test

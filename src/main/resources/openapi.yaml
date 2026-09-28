@@ -1703,7 +1703,7 @@ components:
           examples:
           - api2/Calculation/GetCalculation
           minLength: 1
-          pattern: "^(api2|RenderPdf)/[A-Za-z0-9/_.-]+$"
+          pattern: "^(?!.*/\\.\\.(?:/|$))(api2|RenderPdf)/[A-Za-z0-9/_.-]+$"
         params:
           type: object
           additionalProperties:

@@ -65,11 +65,6 @@ public record ProfessionalWebProperties(
 	}
 
 	/**
-	 * Whether an integration account is configured to sign in with.
-	 *
-	 * @return true when both username and password are set
-	 */
-	/**
 	 * Whether a signed-in session is handed in rather than established by signing in.
 	 *
 	 * @return true when a session cookie is configured
@@ -78,6 +73,11 @@ public record ProfessionalWebProperties(
 		return StringUtils.hasText(sessionCookie);
 	}
 
+	/**
+	 * Whether an integration account is configured to sign in with.
+	 *
+	 * @return true when both username and password are set
+	 */
 	public boolean hasAccount() {
 		return StringUtils.hasText(username) && StringUtils.hasText(password);
 	}

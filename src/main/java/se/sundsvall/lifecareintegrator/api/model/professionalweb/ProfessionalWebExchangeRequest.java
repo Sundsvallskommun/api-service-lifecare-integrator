@@ -24,7 +24,7 @@ public record ProfessionalWebExchangeRequest(
 
 	@Schema(description = "Path below WESE.FC.ProfessionalWeb",
 		examples = "api2/Calculation/GetCalculation",
-		requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank @Pattern(regexp = "^(api2|RenderPdf)/[A-Za-z0-9/_.-]+$",
+		requiredMode = Schema.RequiredMode.REQUIRED) @NotBlank @Pattern(regexp = "^(?!.*/\\.\\.(?:/|$))(api2|RenderPdf)/[A-Za-z0-9/_.-]+$",
 			message = "must be an api2 or RenderPdf path") String path,
 
 	@Schema(description = "Query parameters, in order") LinkedHashMap<String, String> params,

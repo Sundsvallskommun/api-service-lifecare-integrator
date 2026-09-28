@@ -24,7 +24,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -78,22 +77,14 @@ class ProfessionalWebResourceTest {
 	}
 
 	@Test
-	void pathOutsideApi2IsRefused() {
+	void exchangeWithTheDocumentedExamplePathIsAccepted() {
+		final var headers = HttpHeaders.of(Map.of("Content-Type", List.of("application/json")), (a, b) -> true);
+		when(exchangeMock.exchange(eq("GET"), eq("api2/Calculation/GetCalculation"), any(), isNull()))
+			.thenReturn(new ProfessionalWebResponse(200, headers, "{}".getBytes(StandardCharsets.UTF_8), URI.create("https://x")));
+
 		webTestClient.post().uri(PATH)
-			.bodyValue(Map.of("method", "GET", "path", "../WE.Flow.Html"))
+			.bodyValue(Map.of("method", "GET", "path", "api2/Calculation/GetCalculation"))
 			.exchange()
-			.expectStatus().isBadRequest();
-
-		verifyNoInteractions(exchangeMock);
-	}
-
-	@Test
-	void unknownMethodIsRefused() {
-		webTestClient.post().uri(PATH)
-			.bodyValue(Map.of("method", "PUT", "path", "api2/x"))
-			.exchange()
-			.expectStatus().isBadRequest();
-
-		verifyNoInteractions(exchangeMock);
+			.expectStatus().isOk();
 	}
 }

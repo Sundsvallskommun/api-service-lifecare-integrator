@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import se.sundsvall.dept44.problem.Problem;
 
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 /**
  * One api2 call through the integration account's session, with Lifecare's own session escalation.
@@ -99,6 +100,7 @@ public class ProfessionalWebExchange {
 
 	private URI uri(final String path, final Map<String, String> params) {
 		final var base = properties.baseUrl() + "/" + MODULE + "/" + path.replaceAll("^/+", "");
+		requireNoEscapeFromModule(base, path);
 		if (params == null || params.isEmpty()) {
 			return URI.create(base);
 		}
@@ -106,6 +108,19 @@ public class ProfessionalWebExchange {
 			.map(entry -> encode(entry.getKey()) + "=" + encode(entry.getValue()))
 			.collect(Collectors.joining("&"));
 		return URI.create(base + "?" + query);
+	}
+
+	/**
+	 * Defense in depth alongside {@code ProfessionalWebExchangeRequest}'s own {@code @Pattern}: even if a caller reaches
+	 * this class with a path the resource layer did not validate, a {@code ..} segment must never be allowed to walk the
+	 * request out of {@link #MODULE} onto another Lifecare module such as the identity portal.
+	 */
+	private void requireNoEscapeFromModule(final String base, final String path) {
+		final var normalized = URI.create(base).normalize().getPath();
+		final var expectedPrefix = "/" + MODULE + "/";
+		if (!normalized.startsWith(expectedPrefix)) {
+			throw Problem.valueOf(BAD_REQUEST, "Refusing a ProfessionalWeb path that would leave " + MODULE + ": " + path);
+		}
 	}
 
 	private String origin() {

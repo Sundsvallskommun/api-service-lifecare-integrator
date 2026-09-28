@@ -1,7 +1,6 @@
 package se.sundsvall.lifecareintegrator.integration.professionalweb;
 
 import java.io.IOException;
-import java.net.ProxySelector;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -12,10 +11,9 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import se.sundsvall.dept44.problem.Problem;
-import se.sundsvall.dept44.security.Truststore;
 
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
@@ -68,23 +66,9 @@ public class ProfessionalWebHttp {
 	private final HttpClient client;
 	private final Duration readTimeout;
 
-	@Autowired
-	public ProfessionalWebHttp(final ProfessionalWebProperties properties, final Truststore truststore) {
-		this(HttpClient.newBuilder()
-			.followRedirects(HttpClient.Redirect.NEVER)
-			// The JDK client uses no proxy unless told to, unlike OkHttp (which the FamilyCare calls go through) and the rest of
-			// the JVM. Where egress goes through a proxy (http(s).proxyHost), leaving this out is a connect timeout.
-			.proxy(ProxySelector.getDefault())
-			// Lifecare runs on IIS, which the fleet has pinned to HTTP/1.1 elsewhere for good reason.
-			.version(HttpClient.Version.HTTP_1_1)
-			.connectTimeout(Duration.ofSeconds(properties.connectTimeout()))
-			.sslContext(truststore.getSSLContext())
-			.build(), Duration.ofSeconds(properties.readTimeout()));
-	}
-
-	ProfessionalWebHttp(final HttpClient client, final Duration readTimeout) {
+	public ProfessionalWebHttp(@Qualifier("professionalWebHttpClient") final HttpClient client, final ProfessionalWebProperties properties) {
 		this.client = client;
-		this.readTimeout = readTimeout;
+		this.readTimeout = Duration.ofSeconds(properties.readTimeout());
 	}
 
 	/**

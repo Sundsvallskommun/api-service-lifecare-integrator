@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.integration;
 
+import feign.Request;
 import feign.Response;
 import java.io.IOException;
 import java.util.List;
@@ -54,6 +55,8 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 	private static final String EMPTY_BODY = "<empty>";
 
 	private static final String UNBUFFERED_BODY = "<unbuffered>";
+
+	private static final String UNKNOWN_REQUEST = "<unknown request>";
 
 	/** A sentence or two of explanation is all a Lifecare message is; anything longer is not one. */
 	private static final int MAX_MESSAGE_CHARACTERS = 500;
@@ -216,7 +219,7 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 	 * failure, so it does not warn at all.
 	 */
 	private void logFailure(final Response response) {
-		final var request = "%s %s".formatted(response.request().httpMethod(), redact(response.request().url()));
+		final var request = describeRequest(response.request());
 
 		if (expectedStatuses.contains(response.status())) {
 			LOG.debug("{} responded {} to {}", integration, response.status(), request);
@@ -230,6 +233,19 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 			.addArgument(integration)
 			.addArgument(() -> bodySnippet(response))
 			.log("{} response body was: {}");
+	}
+
+	/**
+	 * The request line to log, without ever dereferencing a null {@link Response#request()}. Feign's own builder
+	 * enforces a non-null request on every {@code Response} it constructs, but nothing here should rely on that
+	 * invariant holding for every {@code Response} implementation that could ever reach this decoder — a null request
+	 * must degrade the log line, not throw out of {@link #logFailure(Response)}.
+	 */
+	static String describeRequest(final Request request) {
+		if (request == null) {
+			return UNKNOWN_REQUEST;
+		}
+		return "%s %s".formatted(request.httpMethod(), redact(request.url()));
 	}
 
 	private static String capped(final String content) {

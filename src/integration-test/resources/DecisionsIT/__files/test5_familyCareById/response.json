@@ -5,7 +5,13 @@
 	"decisionMaker": "Fc Handläggare",
 	"familyCareDetails": {
 		"organization": "IFO",
-		"persons": []
+		"persons": [
+			{
+				"coApplicant": false,
+				"name": "Kalle Karlsson",
+				"partyId": "33333333-5798-11e9-ae24-57fa13b361e3"
+			}
+		]
 	},
 	"reason": "Försörjningsstöd",
 	"source": "FAMILY_CARE",

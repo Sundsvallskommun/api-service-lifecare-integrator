@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import se.sundsvall.dept44.problem.Problem;
@@ -50,12 +49,7 @@ public class PartyIntegration {
 	/** One identity in one municipality — a partyId or a person number, depending on the cache it keys. */
 	private record CacheKey(String municipalityId, String id) {}
 
-	@Autowired
-	public PartyIntegration(final PartyClient partyClient, final PartyProperties properties) {
-		this(partyClient, properties, Ticker.systemTicker());
-	}
-
-	PartyIntegration(final PartyClient partyClient, final PartyProperties properties, final Ticker ticker) {
+	public PartyIntegration(final PartyClient partyClient, final PartyProperties properties, final Ticker ticker) {
 		this.partyClient = partyClient;
 		this.maxPartyIdsPerCall = max(1, properties.maxPartyIdsPerCall());
 		this.maxLegalIdsPerCall = max(1, properties.maxLegalIdsPerCall());
