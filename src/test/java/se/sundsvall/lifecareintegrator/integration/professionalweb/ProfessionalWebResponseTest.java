@@ -23,8 +23,7 @@ class ProfessionalWebResponseTest {
 		final var first = new ProfessionalWebResponse(200, headers, "hello".getBytes(StandardCharsets.UTF_8), URI_VALUE);
 		final var second = new ProfessionalWebResponse(200, headers, "hello".getBytes(StandardCharsets.UTF_8), URI_VALUE);
 
-		assertThat(first).isEqualTo(second);
-		assertThat(first.hashCode()).isEqualTo(second.hashCode());
+		assertThat(first).isEqualTo(second).hasSameHashCodeAs(second);
 	}
 
 	@Test
@@ -42,8 +41,7 @@ class ProfessionalWebResponseTest {
 
 		final var description = response.toString();
 
-		assertThat(description).contains("body.length=20");
-		assertThat(description).doesNotContain("a personnummer maybe");
+		assertThat(description).contains("body.length=20").doesNotContain("a personnummer maybe");
 	}
 
 	private static HttpHeaders headers() {
