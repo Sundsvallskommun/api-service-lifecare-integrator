@@ -9,6 +9,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -160,6 +161,12 @@ public class ProfessionalWebHttp {
 	 * new session would only hide a real permission problem behind a second failure.
 	 * </p>
 	 *
+	 * <p>
+	 * One HTML answer is not the login page: the parameter query Lifecare puts in front of a print whose template asks a
+	 * question (see {@code isParameterQuery}). It is a form the caller answers, so it is handed back like any other
+	 * answer.
+	 * </p>
+	 *
 	 * @param  response the response
 	 * @return          true when a new session is needed
 	 */
@@ -170,12 +177,35 @@ public class ProfessionalWebHttp {
 		if (response.location().filter(location -> location.contains(IDENTITY_PORTAL_PATH)).isPresent()) {
 			return true;
 		}
-		return response.contentType().contains("text/html");
+		if (!response.contentType().contains("text/html")) {
+			return false;
+		}
+		return !isParameterQuery(response);
+	}
+
+	/**
+	 * Whether an HTML answer is Lifecare's parameter query page: the "Parameterfrågor" form a print template shows when
+	 * it asks something before it renders. Recognised by the form's id and by the hidden X-LEGACY-TOKEN field that a
+	 * browser posts back with it, two things the sign-in pages do not have.
+	 */
+	private static boolean isParameterQuery(final ProfessionalWebResponse response) {
+		final var html = response.bodyAsString();
+		return html.contains("id=\"myForm\"") && html.contains("name=\"X-LEGACY-TOKEN\"");
 	}
 
 	static byte[] encodeForm(final Map<String, String> fields) {
-		return fields.entrySet().stream()
-			.map(entry -> URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8) + "=" + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8))
+		return encodeForm(List.copyOf(fields.entrySet()));
+	}
+
+	/**
+	 * Encodes form fields in the order given, so a name may occur more than once as it does in a browser form.
+	 *
+	 * @param  fields the name and value of each field
+	 * @return        the application/x-www-form-urlencoded body
+	 */
+	static byte[] encodeForm(final List<? extends Map.Entry<String, String>> fields) {
+		return fields.stream()
+			.map(field -> URLEncoder.encode(field.getKey(), StandardCharsets.UTF_8) + "=" + URLEncoder.encode(field.getValue(), StandardCharsets.UTF_8))
 			.collect(Collectors.joining("&"))
 			.getBytes(StandardCharsets.UTF_8);
 	}

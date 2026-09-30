@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -24,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -86,5 +88,49 @@ class ProfessionalWebResourceTest {
 			.bodyValue(Map.of("method", "GET", "path", "api2/Calculation/GetCalculation"))
 			.exchange()
 			.expectStatus().isOk();
+	}
+
+	@Test
+	void exchangeWithForm() {
+		final var headers = HttpHeaders.of(Map.of("Content-Type", List.of("application/pdf")), (a, b) -> true);
+		final var fields = List.of(Map.entry("51_0_2_1", "true"), Map.entry("51_0_2_1", "false"), Map.entry("X-LEGACY-TOKEN", "TOKEN"), Map.entry("empty", ""));
+		final var params = new LinkedHashMap<String, String>();
+		params.put("templateId", "t-1");
+		params.put("decisionId", "134");
+		when(exchangeMock.exchangeForm("RenderPdf/PrintDecision", params, fields))
+			.thenReturn(new ProfessionalWebResponse(200, headers, "%PDF".getBytes(StandardCharsets.UTF_8), URI.create("https://x")));
+
+		final var result = webTestClient.post().uri(PATH)
+			.bodyValue(Map.of("method", "POST", "path", "RenderPdf/PrintDecision", "params", params, "form", List.of(
+				Map.of("name", "51_0_2_1", "value", "true"),
+				Map.of("name", "51_0_2_1", "value", "false"),
+				Map.of("name", "X-LEGACY-TOKEN", "value", "TOKEN"),
+				Map.of("name", "empty", "value", ""))))
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody(ProfessionalWebExchangeResponse.class)
+			.returnResult().getResponseBody();
+
+		assertThat(result.status()).isEqualTo(200);
+		assertThat(result.contentType()).isEqualTo("application/pdf");
+		assertThat(new String(Base64.getDecoder().decode(result.body()), StandardCharsets.UTF_8)).isEqualTo("%PDF");
+		verify(exchangeMock).exchangeForm("RenderPdf/PrintDecision", params, fields);
+		verifyNoMoreInteractions(exchangeMock);
+	}
+
+	@Test
+	void exchangeWithFormAndANullBodyIsAForm() {
+		final var headers = HttpHeaders.of(Map.of(), (a, b) -> true);
+		when(exchangeMock.exchangeForm(eq("RenderPdf/PrintDecision"), isNull(), any()))
+			.thenReturn(new ProfessionalWebResponse(200, headers, new byte[0], URI.create("https://x")));
+
+		webTestClient.post().uri(PATH)
+			.contentType(MediaType.APPLICATION_JSON)
+			.bodyValue("{\"method\":\"POST\",\"path\":\"RenderPdf/PrintDecision\",\"body\":null,\"form\":[{\"name\":\"a\",\"value\":\"b\"}]}")
+			.exchange()
+			.expectStatus().isOk();
+
+		verify(exchangeMock).exchangeForm("RenderPdf/PrintDecision", null, List.of(Map.entry("a", "b")));
+		verifyNoMoreInteractions(exchangeMock);
 	}
 }

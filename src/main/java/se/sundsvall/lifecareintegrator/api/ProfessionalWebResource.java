@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.Base64;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,6 +22,7 @@ import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.lifecareintegrator.api.model.professionalweb.ProfessionalWebExchangeRequest;
 import se.sundsvall.lifecareintegrator.api.model.professionalweb.ProfessionalWebExchangeResponse;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebExchange;
+import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebResponse;
 import tools.jackson.databind.json.JsonMapper;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -49,7 +51,8 @@ class ProfessionalWebResource {
 			integrator signs in as its integration account, keeps the session and handles Lifecare's session \
 			escalation; the caller decides what to call and interprets the answer. Lifecare's answer is returned as \
 			data with this endpoint's own status 200, whatever Lifecare answered, so the gateway cannot rewrite \
-			Lifecare's own codes or a PDF. Only api2 and RenderPdf paths are reachable.""",
+			Lifecare's own codes or a PDF. Only api2 and RenderPdf paths are reachable. A POST can carry either a JSON \
+			body or the fields of a browser form, for pages that answer with a form to fill in.""",
 		responses = {
 			@ApiResponse(responseCode = "200", description = "Lifecare answered", useReturnTypeSchema = true),
 			@ApiResponse(responseCode = "400", description = "Bad request", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(oneOf = {
@@ -63,11 +66,24 @@ class ProfessionalWebResource {
 		@ValidMunicipalityId @PathVariable final String municipalityId,
 		@Valid @RequestBody final ProfessionalWebExchangeRequest request) {
 
+		final var response = call(request);
+		return ok(new ProfessionalWebExchangeResponse(response.status(), response.contentType(), Base64.getEncoder().encodeToString(response.body())));
+	}
+
+	private ProfessionalWebResponse call(final ProfessionalWebExchangeRequest request) {
+		if (request.form() != null) {
+			return callWithForm(request);
+		}
 		final var body = Optional.ofNullable(request.body())
 			.filter(node -> !node.isNull() && !node.isMissingNode())
 			.map(node -> JSON.writeValueAsString(node).getBytes(UTF_8))
 			.orElse(null);
-		final var response = exchange.exchange(request.method(), request.path(), request.params(), body);
-		return ok(new ProfessionalWebExchangeResponse(response.status(), response.contentType(), Base64.getEncoder().encodeToString(response.body())));
+		return exchange.exchange(request.method(), request.path(), request.params(), body);
+	}
+
+	private ProfessionalWebResponse callWithForm(final ProfessionalWebExchangeRequest request) {
+		final var fields = request.form().stream().<Map.Entry<String, String>>map(field -> Map.entry(field.name(), field.value()))
+			.toList();
+		return exchange.exchangeForm(request.path(), request.params(), fields);
 	}
 }

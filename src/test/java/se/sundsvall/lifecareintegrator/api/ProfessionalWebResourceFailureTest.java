@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.api;
 
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,5 +125,68 @@ class ProfessionalWebResourceFailureTest {
 			.expectStatus().isBadRequest();
 
 		verifyNoInteractions(exchangeMock);
+	}
+
+	@Test
+	void formWithMethodGetIsRefused() {
+		final var response = post(Map.of("method", "GET", "path", "RenderPdf/PrintDecision", "form", List.of(Map.of("name", "a", "value", "b"))));
+
+		assertThat(response.getViolations())
+			.extracting(Violation::field, Violation::message)
+			.containsExactly(tuple("formOnlyForPost", "form is only allowed for method POST"));
+		verifyNoInteractions(exchangeMock);
+	}
+
+	@Test
+	void formWithMethodDeleteIsRefused() {
+		final var response = post(Map.of("method", "DELETE", "path", "api2/x", "form", List.of(Map.of("name", "a", "value", "b"))));
+
+		assertThat(response.getViolations())
+			.extracting(Violation::message)
+			.containsExactly("form is only allowed for method POST");
+		verifyNoInteractions(exchangeMock);
+	}
+
+	@Test
+	void formTogetherWithBodyIsRefused() {
+		final var response = post(Map.of("method", "POST", "path", "RenderPdf/PrintDecision", "body", Map.of("a", 1), "form", List.of(Map.of("name", "a", "value", "b"))));
+
+		assertThat(response.getViolations())
+			.extracting(Violation::field, Violation::message)
+			.containsExactly(tuple("formWithoutBody", "form cannot be combined with body"));
+		verifyNoInteractions(exchangeMock);
+	}
+
+	@Test
+	void formWithBlankNameIsRefused() {
+		final var response = post(Map.of("method", "POST", "path", "RenderPdf/PrintDecision", "form", List.of(Map.of("name", " ", "value", "b"))));
+
+		assertThat(response.getViolations())
+			.extracting(Violation::field)
+			.containsExactly("form[0].name");
+		verifyNoInteractions(exchangeMock);
+	}
+
+	@Test
+	void formWithoutValueIsRefused() {
+		final var response = post(Map.of("method", "POST", "path", "RenderPdf/PrintDecision", "form", List.of(Map.of("name", "a"))));
+
+		assertThat(response.getViolations())
+			.extracting(Violation::field)
+			.containsExactly("form[0].value");
+		verifyNoInteractions(exchangeMock);
+	}
+
+	private ConstraintViolationProblem post(final Map<String, Object> request) {
+		final var problem = webTestClient.post()
+			.uri(builder -> builder.path(PATH).build(Map.of("municipalityId", VALID_MUNICIPALITY_ID)))
+			.bodyValue(request)
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+		assertThat(problem).isNotNull();
+		return problem;
 	}
 }

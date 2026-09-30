@@ -48,7 +48,9 @@ paths:
         \ caller decides what to call and interprets the answer. Lifecare's answer\
         \ is returned as data with this endpoint's own status 200, whatever Lifecare\
         \ answered, so the gateway cannot rewrite Lifecare's own codes or a PDF. Only\
-        \ api2 and RenderPdf paths are reachable."
+        \ api2 and RenderPdf paths are reachable. A POST can carry either a JSON body\
+        \ or the fields of a browser form, for pages that answer with a form to fill\
+        \ in."
       operationId: exchange
       parameters:
       - name: municipalityId
@@ -1712,9 +1714,34 @@ components:
         body:
           $ref: "#/components/schemas/JsonNode"
           description: JSON body for a POST or DELETE
+        form:
+          type: array
+          description: "Form fields for a POST sent as a browser form (application/x-www-form-urlencoded),\
+            \ in document order. A name may repeat. Only for method POST, and not\
+            \ together with body."
+          items:
+            $ref: "#/components/schemas/ProfessionalWebFormField"
       required:
       - method
       - path
+    ProfessionalWebFormField:
+      type: object
+      description: One field of a browser form
+      properties:
+        name:
+          type: string
+          description: "Field name, which may repeat across the fields of one form"
+          examples:
+          - 51_0_2_1
+          minLength: 1
+        value:
+          type: string
+          description: "Field value, empty when the field has none"
+          examples:
+          - "true"
+      required:
+      - name
+      - value
     ProfessionalWebExchangeResponse:
       type: object
       description: "Lifecare's answer to one ProfessionalWeb call, whatever its status"

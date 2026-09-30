@@ -4,7 +4,9 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,17 +58,41 @@ public class ProfessionalWebExchange {
 	 * @return        the answer
 	 */
 	public ProfessionalWebResponse exchange(final String method, final String path, final Map<String, String> params, final byte[] body) {
-		var response = send(method, path, params, body);
+		return escalating(method, path, () -> send(method, path, params, body));
+	}
+
+	/**
+	 * Posts a form the way a browser does and returns Lifecare's final answer, whatever its status. For the pages that
+	 * answer a GET with a form to fill in, such as the parameter query in front of a decision print: the caller reads the
+	 * form and posts it back to the same path and query.
+	 *
+	 * <p>
+	 * Sent with the navigation headers a browser uses for a form (no ajax headers) and with the request's own address as
+	 * Referer. The fields go out exactly as given, a token field included: it is Lifecare's own session token as the
+	 * caller read it off the page, so it is stale if the session was replaced in between.
+	 * </p>
+	 *
+	 * @param  path   the path below the module, e.g. {@code RenderPdf/PrintDecision}
+	 * @param  params query parameters, in order
+	 * @param  fields the name and value of each form field, in document order; a name may repeat
+	 * @return        the answer
+	 */
+	public ProfessionalWebResponse exchangeForm(final String path, final Map<String, String> params, final List<? extends Map.Entry<String, String>> fields) {
+		return escalating("POST", path, () -> sendForm(path, params, fields));
+	}
+
+	private ProfessionalWebResponse escalating(final String method, final String path, final Supplier<ProfessionalWebResponse> send) {
+		var response = send.get();
 
 		if (ProfessionalWebHttp.needsSession(response)) {
 			LOG.atWarn().addArgument(MODULE).addArgument(response::describe).log("Lifecare wants a session for {} ({}) - bootstrapping it");
 			session.bootstrapModule(MODULE);
-			response = send(method, path, params, body);
+			response = send.get();
 		}
 		if (ProfessionalWebHttp.needsSession(response)) {
 			LOG.atWarn().addArgument(path).addArgument(response::describe).log("Lifecare still refuses {} ({}) - signing in again");
 			session.reset();
-			response = send(method, path, params, body);
+			response = send.get();
 		}
 		if (ProfessionalWebHttp.needsSession(response)) {
 			throw Problem.valueOf(BAD_GATEWAY, "Lifecare would not accept a freshly established session (" + response.describe() + ")");
@@ -94,6 +120,21 @@ public class ProfessionalWebExchange {
 		headers.putAll(session.prepare());
 
 		final var response = http.send(method, uri(path, params), headers, bytes);
+		session.absorb(response);
+		return response;
+	}
+
+	private ProfessionalWebResponse sendForm(final String path, final Map<String, String> params, final List<? extends Map.Entry<String, String>> fields) {
+		final var uri = uri(path, params);
+		final var headers = new LinkedHashMap<String, String>();
+		headers.putAll(ProfessionalWebHttp.BROWSER_HEADERS);
+		headers.putAll(ProfessionalWebHttp.NAVIGATION_HEADERS);
+		headers.put("Origin", origin());
+		headers.put("Referer", uri.toString());
+		headers.put("Content-Type", "application/x-www-form-urlencoded");
+		headers.putAll(session.prepare());
+
+		final var response = http.send("POST", uri, headers, ProfessionalWebHttp.encodeForm(fields));
 		session.absorb(response);
 		return response;
 	}
