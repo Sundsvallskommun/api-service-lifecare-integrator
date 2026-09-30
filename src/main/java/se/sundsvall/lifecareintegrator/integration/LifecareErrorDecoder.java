@@ -248,8 +248,9 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 		return "%s %s".formatted(request.httpMethod(), redact(request.url()));
 	}
 
-	private static String capped(final String content) {
-		if (content.length() <= MAX_BODY_CHARACTERS) {
+	/** The content cut at the cap; {@link LogSanitizer#redact(String)} hands null back for null, so null stays null. */
+	static String capped(final String content) {
+		if (content == null || content.length() <= MAX_BODY_CHARACTERS) {
 			return content;
 		}
 		return content.substring(0, MAX_BODY_CHARACTERS) + TRUNCATION_MARKER;

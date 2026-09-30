@@ -357,4 +357,10 @@ class LifecareErrorDecoderTest {
 			logger.detachAppender(appender);
 		}
 	}
+
+	@Test
+	void cappedLeavesNothingAsNothing() {
+		assertThat(LifecareErrorDecoder.capped(null)).isNull();
+		assertThat(LifecareErrorDecoder.capped("kort")).isEqualTo("kort");
+	}
 }
