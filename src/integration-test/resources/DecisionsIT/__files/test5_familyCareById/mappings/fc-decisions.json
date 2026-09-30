@@ -33,7 +33,14 @@
 					"Reason": "Försörjningsstöd",
 					"DecisionMaker": "Fc Handläggare",
 					"Amount": 3000.0,
-					"Organization": "IFO"
+					"Organization": "IFO",
+					"DecisionPersonDTOs": [
+						{
+							"PersonId": "199505057890",
+							"Name": "Kalle Karlsson",
+							"IsCoApplicant": false
+						}
+					]
 				}
 			]
 		},

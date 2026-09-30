@@ -21,6 +21,8 @@ integration:
     read-timeout: 20
     max-legal-ids-per-call: 20
     max-party-ids-per-call: 30
+    cache-time-to-live: PT5M
+    cache-maximum-size: 500
 spring:
   security:
     oauth2:

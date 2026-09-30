@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.integration.party.configuration;
 
+import java.time.Duration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,5 +22,7 @@ class PartyPropertiesTest {
 		assertThat(properties.readTimeout()).isEqualTo(20);
 		assertThat(properties.maxLegalIdsPerCall()).isEqualTo(20);
 		assertThat(properties.maxPartyIdsPerCall()).isEqualTo(30);
+		assertThat(properties.cacheTimeToLive()).isEqualTo(Duration.ofMinutes(5));
+		assertThat(properties.cacheMaximumSize()).isEqualTo(500);
 	}
 }
