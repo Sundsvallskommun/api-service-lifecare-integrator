@@ -1,15 +1,15 @@
 package apptest;
 
-import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.OK;
-
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.dept44.test.AbstractAppTest;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.lifecareintegrator.Application;
+
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.OK;
 
 /**
  * End-to-end tests for the decision endpoints. The list reads the three Lifecare decision sources (EC SoL, EC LSS and
