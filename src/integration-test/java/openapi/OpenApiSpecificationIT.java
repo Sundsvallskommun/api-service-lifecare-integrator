@@ -12,8 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.util.UriComponentsBuilder;
-import se.sundsvall.lifecareintegrator.Application;
 import se.sundsvall.dept44.util.ResourceUtils;
+import se.sundsvall.lifecareintegrator.Application;
 import tools.jackson.dataformat.yaml.YAMLMapper;
 
 import static java.nio.file.Files.writeString;
