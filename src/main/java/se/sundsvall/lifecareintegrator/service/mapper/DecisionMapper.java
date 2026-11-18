@@ -7,8 +7,10 @@ import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1LssDe
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionPersonDTO;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
 import se.sundsvall.lifecareintegrator.api.model.elderlycare.ElderlyCareDecisionDetails;
 import se.sundsvall.lifecareintegrator.api.model.familycare.FamilyCareDecisionDetails;
@@ -82,7 +84,7 @@ public final class DecisionMapper {
 			.orElse(null);
 	}
 
-	public static Decision toDecision(final PersonBasedDecisionDTO decision) {
+	public static Decision toDecision(final PersonBasedDecisionDTO decision, final UnaryOperator<String> partyIdResolver) {
 		return Optional.ofNullable(decision)
 			.map(source -> Decision.create()
 				.withSource(SOURCE_FAMILY_CARE)
@@ -101,7 +103,7 @@ public final class DecisionMapper {
 					.withCoApplicant(source.getCoApplicant())
 					.withReasonCoApplicant(source.getReasonCoApplicant())
 					.withConnectedApplication(source.getConnectedApplication())
-					.withPersons(toRelatedPersons(source.getDecisionPersonDTOs()))))
+					.withPersons(toRelatedPersons(source.getDecisionPersonDTOs(), partyIdResolver))))
 			.orElse(null);
 	}
 
@@ -159,15 +161,36 @@ public final class DecisionMapper {
 			.deleted(lss.getDeleted());
 	}
 
-	private static List<RelatedPerson> toRelatedPersons(final List<PersonBasedDecisionPersonDTO> persons) {
-		// Intentionally drops the personId — personnummer never leaves this service
+	/**
+	 * The personnummer Lifecare carries on a decision person is replaced by the party id it resolves to — the
+	 * personnummer itself never leaves this service. An unresolvable person keeps a null party id rather than being
+	 * dropped, so a consumer can still see that the decision concerned someone it could not identify.
+	 */
+	private static List<RelatedPerson> toRelatedPersons(final List<PersonBasedDecisionPersonDTO> persons, final UnaryOperator<String> partyIdResolver) {
 		return Optional.ofNullable(persons)
 			.map(list -> list.stream()
 				.map(person -> RelatedPerson.create()
+					.withPartyId(partyIdResolver.apply(person.getPersonId()))
 					.withName(person.getName())
 					.withCoApplicant(person.getIsCoApplicant()))
 				.toList())
 			.orElse(null);
+	}
+
+	/**
+	 * Every personnummer appearing on the persons of these decisions, so the caller can resolve them in one batch
+	 * rather than one lookup per person.
+	 */
+	public static List<String> personNumbersOf(final List<PersonBasedDecisionDTO> decisions) {
+		return Optional.ofNullable(decisions)
+			.orElseGet(List::of).stream()
+			.map(PersonBasedDecisionDTO::getDecisionPersonDTOs)
+			.filter(Objects::nonNull)
+			.flatMap(List::stream)
+			.map(PersonBasedDecisionPersonDTO::getPersonId)
+			.filter(Objects::nonNull)
+			.distinct()
+			.toList();
 	}
 
 	private static String toText(final WEECIntegrationContractsCommonV1CodeText codeText) {

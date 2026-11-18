@@ -35,3 +35,5 @@ integration:
     url: http://localhost:${wiremock.server.port}/employee
   party:
     url: http://localhost:${wiremock.server.port}/party
+    # Off in the ITs: they share one context, and every test stubs (and verifies) its own Party calls.
+    cache-time-to-live: PT0S

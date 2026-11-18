@@ -5,6 +5,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import se.sundsvall.dept44.problem.Problem;
@@ -82,7 +83,26 @@ public class FamilyCareService {
 	public PagedCalculationResponse getCalculations(final String municipalityId, final PeriodParameters parameters) {
 		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
-		return CalculationMapper.toCalculations(lifecareFcIntegration.getCalculations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
+		final var calculations = lifecareFcIntegration.getCalculations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending());
+		return CalculationMapper.toCalculations(calculations, partyIdResolver(municipalityId, CalculationMapper.personNumbersOf(calculations)));
+	}
+
+	/**
+	 * Resolves the personnummer on a response to party ids in a single batch call, and hands back a lookup the mappers
+	 * can apply per person. Batched rather than per person because a household calculation carries one row per member,
+	 * and because the party service takes a collection anyway.
+	 *
+	 * <p>
+	 * A personnummer the party service does not know maps to {@code null} rather than failing the whole read: the rest
+	 * of the calculation is still worth returning, and a consumer can tell "unresolved" from "absent" by the name still
+	 * being there.
+	 */
+	private UnaryOperator<String> partyIdResolver(final String municipalityId, final List<String> personNumbers) {
+		if (personNumbers.isEmpty()) {
+			return personNumber -> null;
+		}
+		final var partyIds = partyIntegration.getPartyIds(municipalityId, personNumbers);
+		return partyIds::get;
 	}
 
 	public PagedPaymentResponse getPayments(final String municipalityId, final PeriodParameters parameters) {

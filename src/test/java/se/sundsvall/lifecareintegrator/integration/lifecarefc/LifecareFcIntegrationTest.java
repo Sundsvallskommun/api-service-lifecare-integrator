@@ -109,13 +109,14 @@ class LifecareFcIntegrationTest {
 		assertThat(result).isEmpty();
 	}
 
+	/** FamilyCare's first page is 0, so a single-page result is fetched once, as page 0. */
 	@Test
 	void getAllDecisionsSinglePage() {
 		// Parameter values
 		final var decision = new PersonBasedDecisionDTO().id(1);
 
 		// Mock
-		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START, END, 100, 1, null))
+		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START, END, 100, 0, null))
 			.thenReturn(new ApiPaginationCompositePersonBasedDecisionDTO().totalNumberOfPages(1).result(List.of(decision)));
 
 		// Act
@@ -123,7 +124,7 @@ class LifecareFcIntegrationTest {
 
 		// Verify
 		assertThat(result).containsExactly(decision);
-		verify(lifecareFcClientMock).getDecisions(PERSON_NUMBER, START, END, 100, 1, null);
+		verify(lifecareFcClientMock).getDecisions(PERSON_NUMBER, START, END, 100, 0, null);
 		verifyNoMoreInteractions(lifecareFcClientMock);
 	}
 
@@ -134,9 +135,9 @@ class LifecareFcIntegrationTest {
 		final var secondPageDecision = new PersonBasedDecisionDTO().id(2);
 
 		// Mock
-		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START, END, 100, 1, null))
+		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START, END, 100, 0, null))
 			.thenReturn(new ApiPaginationCompositePersonBasedDecisionDTO().totalNumberOfPages(2).result(List.of(firstPageDecision)));
-		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START, END, 100, 2, null))
+		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START, END, 100, 1, null))
 			.thenReturn(new ApiPaginationCompositePersonBasedDecisionDTO().totalNumberOfPages(2).result(List.of(secondPageDecision)));
 
 		// Act
@@ -144,15 +145,15 @@ class LifecareFcIntegrationTest {
 
 		// Verify
 		assertThat(result).containsExactly(firstPageDecision, secondPageDecision);
+		verify(lifecareFcClientMock).getDecisions(PERSON_NUMBER, START, END, 100, 0, null);
 		verify(lifecareFcClientMock).getDecisions(PERSON_NUMBER, START, END, 100, 1, null);
-		verify(lifecareFcClientMock).getDecisions(PERSON_NUMBER, START, END, 100, 2, null);
 		verifyNoMoreInteractions(lifecareFcClientMock);
 	}
 
 	@Test
 	void getAllDecisionsWithNullResponse() {
 		// Mock
-		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START, END, 100, 1, null)).thenReturn(null);
+		when(lifecareFcClientMock.getDecisions(PERSON_NUMBER, START, END, 100, 0, null)).thenReturn(null);
 
 		// Act
 		final var result = lifecareFcIntegration.getAllDecisions(PERSON_NUMBER, START_DATE, END_DATE);
@@ -167,14 +168,15 @@ class LifecareFcIntegrationTest {
 		final var composite = new ApiPaginationCompositePersonBasedPaymentDTO().pageNumber(2);
 
 		// Mock
-		when(lifecareFcClientMock.getPayments(PERSON_NUMBER, START, END, 15, 2, true)).thenReturn(composite);
+		when(lifecareFcClientMock.getPayments(PERSON_NUMBER, START, END, 15, 1, true)).thenReturn(composite);
 
 		// Act
 		final var result = lifecareFcIntegration.getPayments(PERSON_NUMBER, START_DATE, END_DATE, 15, 2, true);
 
 		// Verify
 		assertThat(result).isSameAs(composite);
-		verify(lifecareFcClientMock).getPayments(PERSON_NUMBER, START, END, 15, 2, true);
+		// Asked for page 2, so FamilyCare is asked for its page 1.
+		verify(lifecareFcClientMock).getPayments(PERSON_NUMBER, START, END, 15, 1, true);
 		verifyNoMoreInteractions(lifecareFcClientMock);
 	}
 
@@ -202,22 +204,27 @@ class LifecareFcIntegrationTest {
 		assertThat(lifecareFcIntegration.getContacts(PERSON_NUMBER)).isEmpty();
 	}
 
+	/**
+	 * Every period read is asked for page 1 — this service's first page — and must reach FamilyCare as page 0, which is
+	 * FamilyCare's. Passing the number through unchanged asked for the second page of every read and quietly returned
+	 * nothing.
+	 */
 	@Test
 	void periodReadsDelegateWithFormattedDates() {
 		// Mock — each period read forwards the formatted window to the client
-		when(lifecareFcClientMock.getActualisation(PERSON_NUMBER, START, END, 10, 1, true))
+		when(lifecareFcClientMock.getActualisation(PERSON_NUMBER, START, END, 10, 0, true))
 			.thenReturn(new generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedAktualiseringDTO());
-		when(lifecareFcClientMock.getCalculations(PERSON_NUMBER, START, END, 10, 1, true))
+		when(lifecareFcClientMock.getCalculations(PERSON_NUMBER, START, END, 10, 0, true))
 			.thenReturn(new generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedCalculationDTO());
-		when(lifecareFcClientMock.getInvestigations(PERSON_NUMBER, START, END, 10, 1, true))
+		when(lifecareFcClientMock.getInvestigations(PERSON_NUMBER, START, END, 10, 0, true))
 			.thenReturn(new generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedInvestigationDTO());
-		when(lifecareFcClientMock.getServices(PERSON_NUMBER, START, END, 10, 1, true))
+		when(lifecareFcClientMock.getServices(PERSON_NUMBER, START, END, 10, 0, true))
 			.thenReturn(new generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedServiceDTO());
-		when(lifecareFcClientMock.getExecutions(PERSON_NUMBER, START, END, 10, 1, true))
+		when(lifecareFcClientMock.getExecutions(PERSON_NUMBER, START, END, 10, 0, true))
 			.thenReturn(new generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedExecutionDTO());
-		when(lifecareFcClientMock.getResourceAllocations(PERSON_NUMBER, START, END, 10, 1, true))
+		when(lifecareFcClientMock.getResourceAllocations(PERSON_NUMBER, START, END, 10, 0, true))
 			.thenReturn(new generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedResourceAllocationDTO());
-		when(lifecareFcClientMock.getDocuments(PERSON_NUMBER, START, END, 10, 1, true))
+		when(lifecareFcClientMock.getDocuments(PERSON_NUMBER, START, END, 10, 0, true))
 			.thenReturn(new generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedDocumentDTO());
 
 		// Act + Verify

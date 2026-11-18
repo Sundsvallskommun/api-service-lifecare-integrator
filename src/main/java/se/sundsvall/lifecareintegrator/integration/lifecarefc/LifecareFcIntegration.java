@@ -43,6 +43,9 @@ public class LifecareFcIntegration {
 
 	static final int DECISION_PAGE_SIZE = 100;
 
+	/** FamilyCare's first page. Its contract: "The page number you want to retrieve. Default is 0 for the first page". */
+	static final int FIRST_PAGE = 0;
+
 	private final LifecareFcClient lifecareFcClient;
 
 	public LifecareFcIntegration(final LifecareFcClient lifecareFcClient) {
@@ -64,58 +67,58 @@ public class LifecareFcIntegration {
 	 */
 	public List<PersonBasedDecisionDTO> getAllDecisions(final String personNumber, final LocalDate startDate, final LocalDate endDate) {
 		final var decisions = new ArrayList<PersonBasedDecisionDTO>();
-		var page = 1;
+		var pageNr = FIRST_PAGE;
 		Integer totalPages;
 		do {
-			final var result = lifecareFcClient.getDecisions(personNumber, startOfDay(startDate), endOfDay(endDate), DECISION_PAGE_SIZE, page, null);
+			final var result = lifecareFcClient.getDecisions(personNumber, startOfDay(startDate), endOfDay(endDate), DECISION_PAGE_SIZE, pageNr, null);
 			if (result == null) {
 				break;
 			}
 			decisions.addAll(result.getResult());
 			totalPages = result.getTotalNumberOfPages();
-			page++;
-		} while (totalPages != null && page <= totalPages);
+			pageNr++;
+		} while (totalPages != null && pageNr < totalPages);
 		return decisions;
 	}
 
 	public ApiPaginationCompositePersonBasedAktualiseringDTO getActualisations(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getActualisation(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getActualisation(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedCalculationDTO getCalculations(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getCalculations(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getCalculations(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedPaymentDTO getPayments(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getPayments(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getPayments(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedInvestigationDTO getInvestigations(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getInvestigations(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getInvestigations(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedServiceDTO getServices(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getServices(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getServices(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedExecutionDTO getExecutions(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getExecutions(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getExecutions(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedResourceAllocationDTO getResourceAllocations(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getResourceAllocations(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getResourceAllocations(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedDocumentDTO getDocuments(final String personNumber, final LocalDate startDate, final LocalDate endDate,
 		final Integer pageSize, final Integer page, final Boolean ascending) {
-		return lifecareFcClient.getDocuments(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, page, ascending);
+		return lifecareFcClient.getDocuments(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
 	public Optional<byte[]> getDocumentContent(final String documentId) {
@@ -157,5 +160,22 @@ public class LifecareFcIntegration {
 			}
 			throw e;
 		}
+	}
+
+	/**
+	 * This service's page number as FamilyCare's {@code pageNr}.
+	 *
+	 * <p>
+	 * The two disagree on where counting starts: dept44's {@code AbstractParameterPagingBase} declares
+	 * {@code page = 1} with {@code @Min(1)}, while FamilyCare documents {@code pageNr} as "Default is 0 for the first
+	 * page". Passing ours through unchanged asked FamilyCare for the second page of every read — and since a person's
+	 * decisions, calculations and actualisations all fit on the first, every one of them came back empty, with the
+	 * source reporting OK because nothing had failed. Translating here keeps this service's own API 1-based, as the
+	 * rest of the fleet is.
+	 */
+	private static Integer toFcPageNr(final Integer page) {
+		return Optional.ofNullable(page)
+			.map(value -> Math.max(FIRST_PAGE, value - 1))
+			.orElse(null);
 	}
 }

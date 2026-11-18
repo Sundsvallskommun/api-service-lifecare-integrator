@@ -14,7 +14,7 @@ import se.sundsvall.lifecareintegrator.api.model.familycare.CreateCalculationReq
 import static se.sundsvall.lifecareintegrator.integration.lifecarefc.FamilyCareDates.startOfDay;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.mapList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toDouble;
-import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toOffsetDateTime;
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDateTime;
 
 /**
  * Maps the public create requests to the FC POST bodies. The person number is resolved by the service and injected here
@@ -60,14 +60,14 @@ public final class RequestMapper {
 				.calculationPersons(mapList(source.getPersons(), person -> new PersonBasedCalculationPersonPostDTO()
 					.personId(personNumbersByPartyId.get(person.getPartyId()))
 					.numberOfDays(person.getNumberOfDays())
-					.deviationFromDate(toOffsetDateTime(person.getDeviationFromDate()))
-					.deviationToDate(toOffsetDateTime(person.getDeviationToDate()))))
+					.deviationFromDate(toLocalDateTime(person.getDeviationFromDate()))
+					.deviationToDate(toLocalDateTime(person.getDeviationToDate()))))
 				.calculationIncomes(mapList(source.getIncomes(), income -> new PersonBasedCalculationIncomePostDTO()
 					.id(income.getTypeId())
 					.applicantAmount(toDouble(income.getApplicantAmount()))
-					.applicantAmountDate(toOffsetDateTime(income.getApplicantAmountDate()))
+					.applicantAmountDate(toLocalDateTime(income.getApplicantAmountDate()))
 					.coApplicantAmount(toDouble(income.getCoApplicantAmount()))
-					.coApplicantAmountDate(toOffsetDateTime(income.getCoApplicantAmountDate()))
+					.coApplicantAmountDate(toLocalDateTime(income.getCoApplicantAmountDate()))
 					.note(income.getNote())))
 				.calculationExpenses(mapList(source.getExpenses(), expense -> new PersonBasedCalculationExpensePostDTO()
 					.id(expense.getTypeId())

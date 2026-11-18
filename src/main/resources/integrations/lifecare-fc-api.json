@@ -3550,16 +3550,11 @@
 					"type": "boolean"
 				},
 				"LogonTypes": {
+					"description": "Deliberately widened from the vendor spec, which declares a string enum (Certificate, External, Idp, Token, Tss). GetUsers actually serves the ordinals - [1] - and the generated enum's fromValue throws on those, failing the whole response. Observed 2026-09-22. Do not narrow this back without checking a live response first.",
 					"type": "array",
 					"items": {
-						"enum": [
-							"Certificate",
-							"External",
-							"Idp",
-							"Token",
-							"Tss"
-						],
-						"type": "string"
+						"type": "integer",
+						"format": "int32"
 					}
 				},
 				"Password": {
