@@ -13,3 +13,12 @@ heading if today has none. One short sentence in English, in the imperative ("Ad
 parentheses when there is one.
 
 Read `docs/AGENTS.md` before editing anything under `docs/`.
+
+## Code conventions
+
+- Method names start with a verb that says what the method does (`getCaseworkerNames`, `collectPersonNumbers`).
+  Predicates read as a question (`lacksName`); converters start with `to` (`toDecision`).
+- Write conditionals as `if` statements or an Optional chain, not the ternary operator.
+- Let names and structure explain the code. Add a comment only for a genuinely complex case the code cannot make
+  clear on its own, such as a Lifecare quirk, and keep it short.
+
