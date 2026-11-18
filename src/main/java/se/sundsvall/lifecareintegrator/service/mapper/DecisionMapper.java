@@ -7,10 +7,10 @@ import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1LssDe
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedDecisionPersonDTO;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.UnaryOperator;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
 import se.sundsvall.lifecareintegrator.api.model.elderlycare.ElderlyCareDecisionDetails;
 import se.sundsvall.lifecareintegrator.api.model.familycare.FamilyCareDecisionDetails;
@@ -84,7 +84,7 @@ public final class DecisionMapper {
 			.orElse(null);
 	}
 
-	public static Decision toDecision(final PersonBasedDecisionDTO decision, final UnaryOperator<String> partyIdResolver) {
+	public static Decision toDecision(final PersonBasedDecisionDTO decision, final Map<String, String> partyIdsByPersonNumber) {
 		return Optional.ofNullable(decision)
 			.map(source -> Decision.create()
 				.withSource(SOURCE_FAMILY_CARE)
@@ -103,7 +103,7 @@ public final class DecisionMapper {
 					.withCoApplicant(source.getCoApplicant())
 					.withReasonCoApplicant(source.getReasonCoApplicant())
 					.withConnectedApplication(source.getConnectedApplication())
-					.withPersons(toRelatedPersons(source.getDecisionPersonDTOs(), partyIdResolver))))
+					.withPersons(toRelatedPersons(source.getDecisionPersonDTOs(), partyIdsByPersonNumber))))
 			.orElse(null);
 	}
 
@@ -166,11 +166,11 @@ public final class DecisionMapper {
 	 * personnummer itself never leaves this service. An unresolvable person keeps a null party id rather than being
 	 * dropped, so a consumer can still see that the decision concerned someone it could not identify.
 	 */
-	private static List<RelatedPerson> toRelatedPersons(final List<PersonBasedDecisionPersonDTO> persons, final UnaryOperator<String> partyIdResolver) {
+	private static List<RelatedPerson> toRelatedPersons(final List<PersonBasedDecisionPersonDTO> persons, final Map<String, String> partyIdsByPersonNumber) {
 		return Optional.ofNullable(persons)
 			.map(list -> list.stream()
 				.map(person -> RelatedPerson.create()
-					.withPartyId(partyIdResolver.apply(person.getPersonId()))
+					.withPartyId(partyIdsByPersonNumber.get(person.getPersonId()))
 					.withName(person.getName())
 					.withCoApplicant(person.getIsCoApplicant()))
 				.toList())

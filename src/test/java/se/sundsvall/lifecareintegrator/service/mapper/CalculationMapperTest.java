@@ -9,7 +9,7 @@ import generated.se.sundsvall.lifecarefc.PersonBasedCalculationPersonDTO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.function.UnaryOperator;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationExpense;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationIncome;
@@ -21,12 +21,12 @@ import static org.assertj.core.api.Assertions.tuple;
 class CalculationMapperTest {
 
 	/** Stands in for the batch party lookup: every personnummer resolves, prefixed so the mapping is visible. */
-	private static final UnaryOperator<String> PARTY_ID_RESOLVER = personNumber -> "party-" + personNumber;
+	private static final Map<String, String> PARTY_IDS = Map.of("199001011234", "party-199001011234");
 
 	@Test
 	void toCalculationsWithNull() {
 		// Act
-		final var result = CalculationMapper.toCalculations(null, PARTY_ID_RESOLVER);
+		final var result = CalculationMapper.toCalculations(null, PARTY_IDS);
 
 		// Assert
 		assertThat(result).isNotNull();
@@ -36,7 +36,7 @@ class CalculationMapperTest {
 
 	@Test
 	void toCalculationWithNull() {
-		assertThat(CalculationMapper.toCalculation(null, PARTY_ID_RESOLVER)).isNull();
+		assertThat(CalculationMapper.toCalculation(null, PARTY_IDS)).isNull();
 	}
 
 	@Test
@@ -81,7 +81,7 @@ class CalculationMapperTest {
 				.approvedAmount(450.0)));
 
 		// Act
-		final var result = CalculationMapper.toCalculation(source, PARTY_ID_RESOLVER);
+		final var result = CalculationMapper.toCalculation(source, PARTY_IDS);
 
 		// Assert
 		assertThat(result.getId()).isEqualTo(1);
@@ -123,7 +123,7 @@ class CalculationMapperTest {
 	@Test
 	void toCalculationWithUnparseableDate() {
 		// Act
-		final var result = CalculationMapper.toCalculation(new PersonBasedCalculationDTO().fromDate("garbage-date").toDate("2026"), PARTY_ID_RESOLVER);
+		final var result = CalculationMapper.toCalculation(new PersonBasedCalculationDTO().fromDate("garbage-date").toDate("2026"), PARTY_IDS);
 
 		// Assert
 		assertThat(result.getFromDate()).isNull();
@@ -141,7 +141,7 @@ class CalculationMapperTest {
 			.result(List.of(new PersonBasedCalculationDTO().id(1).norm("Riksnorm 2026")));
 
 		// Act
-		final var result = CalculationMapper.toCalculations(composite, PARTY_ID_RESOLVER);
+		final var result = CalculationMapper.toCalculations(composite, PARTY_IDS);
 
 		// Assert
 		assertThat(result.getMetaData().getPage()).isEqualTo(1);

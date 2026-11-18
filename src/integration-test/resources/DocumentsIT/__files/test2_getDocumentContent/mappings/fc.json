@@ -12,7 +12,7 @@
 		"headers": {
 			"Content-Type": "application/pdf"
 		},
-		"base64Body": "JVBERi0xLjQKMSAwIG9iajw8Pj5lbmRvYmoKdHJhaWxlcjw8Pj4KJSVFT0YK",
+		"bodyFileName": "test2_getDocumentContent/document.pdf",
 		"status": 200
 	}
 }

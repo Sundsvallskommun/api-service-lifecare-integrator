@@ -1,8 +1,11 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
 import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringProposalDTO;
+import generated.se.sundsvall.lifecarefc.PersonBasedCalculationHouseholdMemberDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedCalculationProposalDTO;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.common.Lookup;
 import se.sundsvall.lifecareintegrator.api.model.familycare.ActualisationProposal;
@@ -88,7 +91,7 @@ public final class ProposalMapper {
 					.withValidTo(toLocalDate(norm.getToDate()))))
 				// The household member person number is swapped for a partyId — unresolved members keep a null partyId
 				.withHouseholdMembers(mapList(source.getHouseholdMembers(), member -> HouseholdMember.create()
-					.withPartyId(Optional.ofNullable(member.getPersonId()).map(partyIdsByPersonNumber::get).orElse(null))
+					.withPartyId(partyIdsByPersonNumber.get(member.getPersonId()))
 					.withName(member.getName())
 					.withChildFromOtherHousehold(member.getChildFromOtherHousehold())))
 				.withIncomeTypes(mapList(source.getCalculationIncomeTypes(), incomeType -> toLookup(incomeType.getId(), incomeType.getName())))
@@ -101,6 +104,16 @@ public final class ProposalMapper {
 					.withType(actualisation.getType())
 					.withDate(toLocalDate(actualisation.getDate())))))
 			.orElse(null);
+	}
+
+	public static List<String> personNumbersOf(final PersonBasedCalculationProposalDTO proposal) {
+		return Optional.ofNullable(proposal)
+			.map(PersonBasedCalculationProposalDTO::getHouseholdMembers)
+			.orElseGet(List::of).stream()
+			.map(PersonBasedCalculationHouseholdMemberDTO::getPersonId)
+			.filter(Objects::nonNull)
+			.distinct()
+			.toList();
 	}
 
 	private static Lookup toLookup(final Integer id, final String name) {

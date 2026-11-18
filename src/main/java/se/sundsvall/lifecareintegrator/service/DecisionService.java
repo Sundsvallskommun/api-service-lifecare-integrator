@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -92,7 +91,7 @@ public class DecisionService {
 			fetchSource(SOURCE_FAMILY_CARE, null,
 				() -> {
 					final var familyCareDecisions = lifecareFcIntegration.getAllDecisions(personNumber, window.start(), window.end());
-					final var partyIds = partyIdResolver(municipalityId, DecisionMapper.personNumbersOf(familyCareDecisions));
+					final var partyIds = partyIntegration.getPartyIds(municipalityId, DecisionMapper.personNumbersOf(familyCareDecisions));
 					return familyCareDecisions.stream()
 						.map(decision -> DecisionMapper.toDecision(decision, partyIds))
 						.toList();
@@ -150,19 +149,7 @@ public class DecisionService {
 		return lifecareFcIntegration.getAllDecisions(personNumber, window.start(), window.end()).stream()
 			.filter(decision -> decisionId.equals(String.valueOf(decision.getId())))
 			.findFirst()
-			.map(decision -> DecisionMapper.toDecision(decision, partyIdResolver(municipalityId, DecisionMapper.personNumbersOf(List.of(decision)))));
-	}
-
-	/**
-	 * Resolves the personnummer on a response to party ids in one batch call, and hands back a lookup the mapper can
-	 * apply per person. A personnummer the party service does not know maps to null rather than failing the read.
-	 */
-	private UnaryOperator<String> partyIdResolver(final String municipalityId, final List<String> personNumbers) {
-		if (personNumbers.isEmpty()) {
-			return personNumber -> null;
-		}
-		final var partyIds = partyIntegration.getPartyIds(municipalityId, personNumbers);
-		return partyIds::get;
+			.map(decision -> DecisionMapper.toDecision(decision, partyIntegration.getPartyIds(municipalityId, DecisionMapper.personNumbersOf(List.of(decision)))));
 	}
 
 	private static void validateLaw(final String source, final String law) {

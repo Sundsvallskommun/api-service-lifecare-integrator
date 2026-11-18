@@ -174,4 +174,21 @@ class ProposalMapperTest {
 		assertThat(result.getSpecialExpenseTypes()).isEmpty();
 		assertThat(result.getActualisations()).isEmpty();
 	}
+
+	@Test
+	void personNumbersOf() {
+		final var proposal = new PersonBasedCalculationProposalDTO().householdMembers(List.of(
+			new PersonBasedCalculationHouseholdMemberDTO().personId("199001011234"),
+			new PersonBasedCalculationHouseholdMemberDTO().personId(null),
+			new PersonBasedCalculationHouseholdMemberDTO().personId("199001011234"),
+			new PersonBasedCalculationHouseholdMemberDTO().personId("201001011234")));
+
+		assertThat(ProposalMapper.personNumbersOf(proposal)).containsExactly("199001011234", "201001011234");
+	}
+
+	@Test
+	void personNumbersOfWithoutHouseholdMembers() {
+		assertThat(ProposalMapper.personNumbersOf(null)).isEmpty();
+		assertThat(ProposalMapper.personNumbersOf(new PersonBasedCalculationProposalDTO().householdMembers(null))).isEmpty();
+	}
 }

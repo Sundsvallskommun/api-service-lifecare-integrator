@@ -1,11 +1,9 @@
 package se.sundsvall.lifecareintegrator.service;
 
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationHouseholdMemberDTO;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.UnaryOperator;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import se.sundsvall.dept44.problem.Problem;
@@ -37,7 +35,6 @@ import se.sundsvall.lifecareintegrator.service.mapper.ProposalMapper;
 import se.sundsvall.lifecareintegrator.service.mapper.RequestMapper;
 import se.sundsvall.lifecareintegrator.service.mapper.UserMapper;
 
-import static java.util.Collections.emptyMap;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
@@ -84,25 +81,8 @@ public class FamilyCareService {
 		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
 		final var calculations = lifecareFcIntegration.getCalculations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending());
-		return CalculationMapper.toCalculations(calculations, partyIdResolver(municipalityId, CalculationMapper.personNumbersOf(calculations)));
-	}
-
-	/**
-	 * Resolves the personnummer on a response to party ids in a single batch call, and hands back a lookup the mappers
-	 * can apply per person. Batched rather than per person because a household calculation carries one row per member,
-	 * and because the party service takes a collection anyway.
-	 *
-	 * <p>
-	 * A personnummer the party service does not know maps to {@code null} rather than failing the whole read: the rest
-	 * of the calculation is still worth returning, and a consumer can tell "unresolved" from "absent" by the name still
-	 * being there.
-	 */
-	private UnaryOperator<String> partyIdResolver(final String municipalityId, final List<String> personNumbers) {
-		if (personNumbers.isEmpty()) {
-			return personNumber -> null;
-		}
-		final var partyIds = partyIntegration.getPartyIds(municipalityId, personNumbers);
-		return partyIds::get;
+		final var partyIds = partyIntegration.getPartyIds(municipalityId, CalculationMapper.personNumbersOf(calculations));
+		return CalculationMapper.toCalculations(calculations, partyIds);
 	}
 
 	public PagedPaymentResponse getPayments(final String municipalityId, final PeriodParameters parameters) {
@@ -171,16 +151,8 @@ public class FamilyCareService {
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
 		final var proposal = lifecareFcIntegration.getCalculationProposal(personNumber);
 
-		// Swap the household members' person numbers for partyIds — best effort, unresolved members keep a null partyId
-		final var partyIdsByPersonNumber = Optional.ofNullable(proposal)
-			.map(value -> partyIntegration.getPartyIds(municipalityId, value.getHouseholdMembers().stream()
-				.map(PersonBasedCalculationHouseholdMemberDTO::getPersonId)
-				.filter(Objects::nonNull)
-				.distinct()
-				.toList()))
-			.orElse(emptyMap());
-
-		return ProposalMapper.toCalculationProposal(proposal, partyIdsByPersonNumber);
+		final var partyIds = partyIntegration.getPartyIds(municipalityId, ProposalMapper.personNumbersOf(proposal));
+		return ProposalMapper.toCalculationProposal(proposal, partyIds);
 	}
 
 	public Integer createCalculation(final String municipalityId, final CreateCalculationRequest request) {
