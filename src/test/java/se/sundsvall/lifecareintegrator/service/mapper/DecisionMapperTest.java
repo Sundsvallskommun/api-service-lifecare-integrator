@@ -11,8 +11,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -29,8 +27,8 @@ class DecisionMapperTest {
 	/** Stands in for the batch party lookup: every personnummer resolves, prefixed so the mapping is visible. */
 	private static final Map<String, String> PARTY_IDS = Map.of("199001011234", "party-199001011234");
 
-	/** No caseworker resolution — Lifecare supplies the name in every case these tests cover. */
-	private static final Function<String, Optional<String>> NO_NAMES = _ -> Optional.empty();
+	/** No caseworker names — Lifecare supplies the name in every case these tests cover. */
+	private static final Map<String, String> NO_NAMES = Map.of();
 
 	private static final LocalDateTime DECISION_DATE = LocalDateTime.parse("2026-05-01T00:00:00");
 	private static final LocalDateTime FROM_DATE = LocalDateTime.parse("2026-05-15T00:00:00");
@@ -294,9 +292,7 @@ class DecisionMapperTest {
 
 	@Test
 	void aCaseworkerNameIsResolvedOnlyWhenLifecareDoesNotSupplyOne() {
-		final Function<String, Optional<String>> names = loginName -> Optional.of(loginName)
-			.filter("LOHE"::equals)
-			.map(_ -> "Lotta Helsinger");
+		final var names = Map.of("LOHE", "Lotta Helsinger");
 
 		final var supplied = DecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1LssDecision()
 			.id(1)
@@ -317,5 +313,34 @@ class DecisionMapperTest {
 			.id(4)
 			.sfbCaseworker(new WEECIntegrationContractsCommonV1Caseworker().fullName("")), names);
 		assertThat(withoutId.getElderlyCareDetails().getSfbCaseworker()).isNull();
+	}
+
+	@Test
+	void collectUnnamedSolCaseworkerIds() {
+		final var decisions = List.of(
+			new WEECIntegrationContractsDecisionV1Decision().caseworker(new WEECIntegrationContractsCommonV1Caseworker().id("LOHE").fullName("")),
+			new WEECIntegrationContractsDecisionV1Decision().caseworker(new WEECIntegrationContractsCommonV1Caseworker().id("LOHE")),
+			new WEECIntegrationContractsDecisionV1Decision().caseworker(new WEECIntegrationContractsCommonV1Caseworker().id("ANAN").fullName("Anna Andersson")),
+			new WEECIntegrationContractsDecisionV1Decision().caseworker(new WEECIntegrationContractsCommonV1Caseworker().fullName("")),
+			new WEECIntegrationContractsDecisionV1Decision().caseworker(new WEECIntegrationContractsCommonV1Caseworker().id("   ").fullName("")),
+			new WEECIntegrationContractsDecisionV1Decision().caseworker(new WEECIntegrationContractsCommonV1Caseworker().id("BEBE").fullName("  ")),
+			new WEECIntegrationContractsDecisionV1Decision());
+
+		assertThat(DecisionMapper.collectUnnamedSolCaseworkerIds(decisions)).containsExactly("LOHE", "BEBE");
+		assertThat(DecisionMapper.collectUnnamedSolCaseworkerIds(null)).isEmpty();
+	}
+
+	@Test
+	void collectUnnamedLssCaseworkerIds() {
+		final var decisions = List.of(
+			new WEECIntegrationContractsDecisionV1LssDecision()
+				.caseworker(new WEECIntegrationContractsCommonV1Caseworker().id("ANAN").fullName("Anna Andersson"))
+				.sfbCaseworker(new WEECIntegrationContractsCommonV1Caseworker().id("LOHE").fullName("")),
+			new WEECIntegrationContractsDecisionV1LssDecision()
+				.caseworker(new WEECIntegrationContractsCommonV1Caseworker().id("BEBE"))
+				.sfbCaseworker(new WEECIntegrationContractsCommonV1Caseworker().id("LOHE")));
+
+		assertThat(DecisionMapper.collectUnnamedLssCaseworkerIds(decisions)).containsExactly("LOHE", "BEBE");
+		assertThat(DecisionMapper.collectUnnamedLssCaseworkerIds(null)).isEmpty();
 	}
 }

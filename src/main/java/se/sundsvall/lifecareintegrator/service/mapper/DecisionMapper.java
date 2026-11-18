@@ -10,13 +10,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.stream.Stream;
+import org.springframework.util.StringUtils;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
 import se.sundsvall.lifecareintegrator.api.model.elderlycare.ElderlyCareDecisionDetails;
 import se.sundsvall.lifecareintegrator.api.model.familycare.FamilyCareDecisionDetails;
 import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
 
-import static java.util.function.Predicate.not;
+import static org.springframework.util.StringUtils.hasText;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toBigDecimal;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toStringValue;
@@ -35,10 +36,10 @@ public final class DecisionMapper {
 	private DecisionMapper() {}
 
 	/**
-	 * @param caseworkerNames resolves a Lifecare caseworker id to a display name, for the cases where EC sends a
-	 *                        caseworker without one. Returns null when the id cannot be resolved.
+	 * @param caseworkerNames display names by caseworker id, for the caseworkers EC sends without one — see
+	 *                        {@link #collectUnnamedSolCaseworkerIds(List)}
 	 */
-	public static Decision toDecision(final WEECIntegrationContractsDecisionV1Decision decision, final Function<String, Optional<String>> caseworkerNames) {
+	public static Decision toDecision(final WEECIntegrationContractsDecisionV1Decision decision, final Map<String, String> caseworkerNames) {
 		return Optional.ofNullable(decision)
 			.map(source -> Decision.create()
 				.withSource(SOURCE_ELDERLY_CARE)
@@ -56,10 +57,10 @@ public final class DecisionMapper {
 	}
 
 	/**
-	 * @param caseworkerNames resolves a Lifecare caseworker id to a display name — see the SoL overload. The SFB
+	 * @param caseworkerNames display names by caseworker id — see {@link #collectUnnamedLssCaseworkerIds(List)}. The SFB
 	 *                        caseworker is the usual reason it is needed.
 	 */
-	public static Decision toDecision(final WEECIntegrationContractsDecisionV1LssDecision decision, final Function<String, Optional<String>> caseworkerNames) {
+	public static Decision toDecision(final WEECIntegrationContractsDecisionV1LssDecision decision, final Map<String, String> caseworkerNames) {
 		return Optional.ofNullable(decision)
 			.map(source -> Decision.create()
 				.withSource(SOURCE_ELDERLY_CARE)
@@ -181,7 +182,7 @@ public final class DecisionMapper {
 	 * Every personnummer appearing on the persons of these decisions, so the caller can resolve them in one batch
 	 * rather than one lookup per person.
 	 */
-	public static List<String> personNumbersOf(final List<PersonBasedDecisionDTO> decisions) {
+	public static List<String> collectPersonNumbers(final List<PersonBasedDecisionDTO> decisions) {
 		return Optional.ofNullable(decisions)
 			.orElseGet(List::of).stream()
 			.map(PersonBasedDecisionDTO::getDecisionPersonDTOs)
@@ -191,6 +192,40 @@ public final class DecisionMapper {
 			.filter(Objects::nonNull)
 			.distinct()
 			.toList();
+	}
+
+	/**
+	 * The ids of the caseworkers EC sent without a name, so the caller can look the names up before mapping.
+	 */
+	public static List<String> collectUnnamedSolCaseworkerIds(final List<WEECIntegrationContractsDecisionV1Decision> decisions) {
+		return Optional.ofNullable(decisions)
+			.orElseGet(List::of).stream()
+			.map(WEECIntegrationContractsDecisionV1Decision::getCaseworker)
+			.filter(Objects::nonNull)
+			.filter(DecisionMapper::lacksName)
+			.map(WEECIntegrationContractsCommonV1Caseworker::getId)
+			.filter(StringUtils::hasText)
+			.distinct()
+			.toList();
+	}
+
+	/**
+	 * As {@link #collectUnnamedSolCaseworkerIds(List)}, for both the caseworker and the SFB caseworker of LSS decisions.
+	 */
+	public static List<String> collectUnnamedLssCaseworkerIds(final List<WEECIntegrationContractsDecisionV1LssDecision> decisions) {
+		return Optional.ofNullable(decisions)
+			.orElseGet(List::of).stream()
+			.flatMap(decision -> Stream.of(decision.getCaseworker(), decision.getSfbCaseworker()))
+			.filter(Objects::nonNull)
+			.filter(DecisionMapper::lacksName)
+			.map(WEECIntegrationContractsCommonV1Caseworker::getId)
+			.filter(StringUtils::hasText)
+			.distinct()
+			.toList();
+	}
+
+	private static boolean lacksName(final WEECIntegrationContractsCommonV1Caseworker caseworker) {
+		return !hasText(caseworker.getFullName());
 	}
 
 	private static String toText(final WEECIntegrationContractsCommonV1CodeText codeText) {
@@ -215,20 +250,16 @@ public final class DecisionMapper {
 	 * The caseworker's full name, or null when there is none to show. EC sends the SFB caseworker as an object carrying
 	 * only an id, with the name fields empty — a blank name must be left out rather than published as an empty string.
 	 */
-	private static String toFullName(final WEECIntegrationContractsCommonV1Caseworker caseworker, final Function<String, Optional<String>> caseworkerNames) {
-		return Optional.ofNullable(caseworker)
-			.map(source -> Optional.ofNullable(source.getFullName())
-				.filter(not(String::isBlank))
-				.orElseGet(() -> resolveName(source.getId(), caseworkerNames)))
-			.filter(not(String::isBlank))
-			.orElse(null);
-	}
-
-	/** The name behind a caseworker id, or null when there is no id or it resolves to nothing. */
-	private static String resolveName(final String loginName, final Function<String, Optional<String>> caseworkerNames) {
-		return Optional.ofNullable(loginName)
-			.filter(not(String::isBlank))
-			.flatMap(caseworkerNames)
-			.orElse(null);
+	private static String toFullName(final WEECIntegrationContractsCommonV1Caseworker caseworker, final Map<String, String> caseworkerNames) {
+		if (caseworker == null) {
+			return null;
+		}
+		if (hasText(caseworker.getFullName())) {
+			return caseworker.getFullName();
+		}
+		if (!hasText(caseworker.getId())) {
+			return null;
+		}
+		return caseworkerNames.get(caseworker.getId());
 	}
 }

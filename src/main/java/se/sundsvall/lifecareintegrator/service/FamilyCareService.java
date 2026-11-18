@@ -81,7 +81,7 @@ public class FamilyCareService {
 		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
 		final var calculations = lifecareFcIntegration.getCalculations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending());
-		final var partyIds = partyIntegration.getPartyIds(municipalityId, CalculationMapper.personNumbersOf(calculations));
+		final var partyIds = partyIntegration.getPartyIds(municipalityId, CalculationMapper.collectPersonNumbers(calculations));
 		return CalculationMapper.toCalculations(calculations, partyIds);
 	}
 
@@ -151,7 +151,7 @@ public class FamilyCareService {
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
 		final var proposal = lifecareFcIntegration.getCalculationProposal(personNumber);
 
-		final var partyIds = partyIntegration.getPartyIds(municipalityId, ProposalMapper.personNumbersOf(proposal));
+		final var partyIds = partyIntegration.getPartyIds(municipalityId, ProposalMapper.collectPersonNumbers(proposal));
 		return ProposalMapper.toCalculationProposal(proposal, partyIds);
 	}
 

@@ -176,19 +176,19 @@ class ProposalMapperTest {
 	}
 
 	@Test
-	void personNumbersOf() {
+	void collectPersonNumbers() {
 		final var proposal = new PersonBasedCalculationProposalDTO().householdMembers(List.of(
 			new PersonBasedCalculationHouseholdMemberDTO().personId("199001011234"),
 			new PersonBasedCalculationHouseholdMemberDTO().personId(null),
 			new PersonBasedCalculationHouseholdMemberDTO().personId("199001011234"),
 			new PersonBasedCalculationHouseholdMemberDTO().personId("201001011234")));
 
-		assertThat(ProposalMapper.personNumbersOf(proposal)).containsExactly("199001011234", "201001011234");
+		assertThat(ProposalMapper.collectPersonNumbers(proposal)).containsExactly("199001011234", "201001011234");
 	}
 
 	@Test
-	void personNumbersOfWithoutHouseholdMembers() {
-		assertThat(ProposalMapper.personNumbersOf(null)).isEmpty();
-		assertThat(ProposalMapper.personNumbersOf(new PersonBasedCalculationProposalDTO().householdMembers(null))).isEmpty();
+	void collectPersonNumbersWithoutHouseholdMembers() {
+		assertThat(ProposalMapper.collectPersonNumbers(null)).isEmpty();
+		assertThat(ProposalMapper.collectPersonNumbers(new PersonBasedCalculationProposalDTO().householdMembers(null))).isEmpty();
 	}
 }

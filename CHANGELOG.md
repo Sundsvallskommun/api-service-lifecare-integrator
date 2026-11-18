@@ -6,6 +6,7 @@ Every change to the service, newest date first. One short line per change.
 
 - Add `docs/` with architecture and integration notes, `AGENTS.md` and this changelog.
 - Resolve party ids the same way in every flow: services look them up and pass a map to the mappers.
+- Look up caseworker names in `DecisionService` before mapping, so the decision mappers make no calls.
 
 ## 2026-10-27
 

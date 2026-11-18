@@ -254,7 +254,7 @@ class DecisionServiceTest {
 	}
 
 	@Test
-	void aCaseworkerWithoutANameIsResolvedOnceAndReusedAcrossDecisions() {
+	void aCaseworkerWithoutANameIsResolvedOnceAcrossTheDecisionsOfOneSource() {
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
 		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of());
 		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(
@@ -270,6 +270,25 @@ class DecisionServiceTest {
 
 		// Two decisions, one lookup: Lifecare repeats the same caseworker across a person's decisions.
 		verify(employeeIntegrationMock, times(1)).getFullName(MUNICIPALITY_ID, "LOHE");
+	}
+
+	@Test
+	void aCaseworkerWithoutANameIsResolvedForTheSolDecisionsToo() {
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of(solDecisionWithBlankCaseworker(1)));
+		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(lssDecisionWithBlankSfbCaseworker(2)));
+		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of());
+		when(employeeIntegrationMock.getFullName(MUNICIPALITY_ID, "LOHE")).thenReturn(Optional.of("Lotta Helsinger"));
+
+		final var response = decisionService.getDecisions(MUNICIPALITY_ID, PARTY_ID, null, null);
+
+		assertThat(response.getDecisions())
+			.filteredOn(decision -> "SOL".equals(decision.getLaw()))
+			.singleElement()
+			.satisfies(decision -> assertThat(decision.getDecisionMaker()).isEqualTo("Lotta Helsinger"));
+
+		// Each source looks up its own caseworkers, so one appearing in both SoL and LSS is looked up twice.
+		verify(employeeIntegrationMock, times(2)).getFullName(MUNICIPALITY_ID, "LOHE");
 	}
 
 	@Test
@@ -311,6 +330,12 @@ class DecisionServiceTest {
 			.id(id)
 			.law(7)
 			.sfbCaseworker(new WEECIntegrationContractsCommonV1Caseworker().id("LOHE").fullName(""));
+	}
+
+	private static WEECIntegrationContractsDecisionV1Decision solDecisionWithBlankCaseworker(final int id) {
+		return new WEECIntegrationContractsDecisionV1Decision()
+			.id(id)
+			.caseworker(new WEECIntegrationContractsCommonV1Caseworker().id("LOHE").fullName(""));
 	}
 
 	@Test
@@ -366,6 +391,22 @@ class DecisionServiceTest {
 		assertThat(result.getLaw()).isEqualTo("SFB");
 		verify(lifecareEcIntegrationMock).getLssDecision(DECISION_ID);
 		verifyNoMoreInteractions(lifecareEcIntegrationMock);
+	}
+
+	@Test
+	void getDecisionFromElderlyCareSolResolvesTheCaseworkerName() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareEcIntegrationMock.getSolDecision(DECISION_ID)).thenReturn(Optional.of(
+			solDecisionWithBlankCaseworker(1001).personId(PERSON_NUMBER)));
+		when(employeeIntegrationMock.getFullName(MUNICIPALITY_ID, "LOHE")).thenReturn(Optional.of("Lotta Helsinger"));
+
+		// Act
+		final var result = decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "ELDERLY_CARE", "SOL");
+
+		// Verify
+		assertThat(result.getDecisionMaker()).isEqualTo("Lotta Helsinger");
+		verify(employeeIntegrationMock).getFullName(MUNICIPALITY_ID, "LOHE");
 	}
 
 	@Test

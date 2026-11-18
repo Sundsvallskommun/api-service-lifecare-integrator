@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,32 +69,13 @@ public class DecisionService {
 	}
 
 	public DecisionsResponse getDecisions(final String municipalityId, final String partyId, final LocalDate from, final LocalDate to) {
-		// FC requires a date window — fall back to a wide default. EC has no decision-date filter (its gt/lt track
-		// modification time), so EC is fetched unfiltered and filtered on validity overlap below.
 		final var window = DateWindow.of(from, to);
-
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
-		final var caseworkerNames = caseworkerNameResolver(municipalityId);
 
 		final var results = List.of(
-			fetchSource(SOURCE_ELDERLY_CARE, LAW_SOL,
-				() -> lifecareEcIntegration.getSolDecisions(personNumber).stream()
-					.map(decision -> DecisionMapper.toDecision(decision, caseworkerNames))
-					.filter(decision -> overlapsWindow(decision, from, to))
-					.toList()),
-			fetchSource(SOURCE_ELDERLY_CARE, LAW_LSS,
-				() -> lifecareEcIntegration.getLssDecisions(personNumber).stream()
-					.map(decision -> DecisionMapper.toDecision(decision, caseworkerNames))
-					.filter(decision -> overlapsWindow(decision, from, to))
-					.toList()),
-			fetchSource(SOURCE_FAMILY_CARE, null,
-				() -> {
-					final var familyCareDecisions = lifecareFcIntegration.getAllDecisions(personNumber, window.start(), window.end());
-					final var partyIds = partyIntegration.getPartyIds(municipalityId, DecisionMapper.personNumbersOf(familyCareDecisions));
-					return familyCareDecisions.stream()
-						.map(decision -> DecisionMapper.toDecision(decision, partyIds))
-						.toList();
-				}));
+			fetchSource(SOURCE_ELDERLY_CARE, LAW_SOL, () -> getSolDecisions(municipalityId, personNumber, from, to)),
+			fetchSource(SOURCE_ELDERLY_CARE, LAW_LSS, () -> getLssDecisions(municipalityId, personNumber, from, to)),
+			fetchSource(SOURCE_FAMILY_CARE, null, () -> getFamilyCareDecisions(municipalityId, personNumber, window)));
 
 		return DecisionsResponse.create()
 			.withDecisions(results.stream()
@@ -105,6 +85,37 @@ public class DecisionService {
 			.withSources(results.stream()
 				.map(SourceResult::toSourceStatus)
 				.toList());
+	}
+
+	/**
+	 * EC has no decision-date filter (its gt/lt track modification time), so decisions are filtered on validity overlap.
+	 */
+	private List<Decision> getSolDecisions(final String municipalityId, final String personNumber, final LocalDate from, final LocalDate to) {
+		final var solDecisions = lifecareEcIntegration.getSolDecisions(personNumber);
+		final var caseworkerNames = getCaseworkerNames(municipalityId, DecisionMapper.collectUnnamedSolCaseworkerIds(solDecisions));
+		return solDecisions.stream()
+			.map(decision -> DecisionMapper.toDecision(decision, caseworkerNames))
+			.filter(decision -> overlapsWindow(decision, from, to))
+			.toList();
+	}
+
+	/** Filtered on validity overlap, as {@link #getSolDecisions}. */
+	private List<Decision> getLssDecisions(final String municipalityId, final String personNumber, final LocalDate from, final LocalDate to) {
+		final var lssDecisions = lifecareEcIntegration.getLssDecisions(personNumber);
+		final var caseworkerNames = getCaseworkerNames(municipalityId, DecisionMapper.collectUnnamedLssCaseworkerIds(lssDecisions));
+		return lssDecisions.stream()
+			.map(decision -> DecisionMapper.toDecision(decision, caseworkerNames))
+			.filter(decision -> overlapsWindow(decision, from, to))
+			.toList();
+	}
+
+	/** FC filters on the date window itself, and requires one: an open window falls back to a wide default. */
+	private List<Decision> getFamilyCareDecisions(final String municipalityId, final String personNumber, final DateWindow window) {
+		final var familyCareDecisions = lifecareFcIntegration.getAllDecisions(personNumber, window.start(), window.end());
+		final var partyIds = partyIntegration.getPartyIds(municipalityId, DecisionMapper.collectPersonNumbers(familyCareDecisions));
+		return familyCareDecisions.stream()
+			.map(decision -> DecisionMapper.toDecision(decision, partyIds))
+			.toList();
 	}
 
 	/**
@@ -128,15 +139,20 @@ public class DecisionService {
 			return findFamilyCareDecision(municipalityId, personNumber, decisionId);
 		}
 
-		final var caseworkerNames = caseworkerNameResolver(municipalityId);
 		if (LAW_SOL.equals(law)) {
 			return lifecareEcIntegration.getSolDecision(decisionId)
 				.filter(decision -> personNumber.equals(decision.getPersonId()))
-				.map(decision -> DecisionMapper.toDecision(decision, caseworkerNames));
+				.map(decision -> {
+					final var caseworkerNames = getCaseworkerNames(municipalityId, DecisionMapper.collectUnnamedSolCaseworkerIds(List.of(decision)));
+					return DecisionMapper.toDecision(decision, caseworkerNames);
+				});
 		}
 		return lifecareEcIntegration.getLssDecision(decisionId)
 			.filter(decision -> personNumber.equals(decision.getPersonId()))
-			.map(decision -> DecisionMapper.toDecision(decision, caseworkerNames));
+			.map(decision -> {
+				final var caseworkerNames = getCaseworkerNames(municipalityId, DecisionMapper.collectUnnamedLssCaseworkerIds(List.of(decision)));
+				return DecisionMapper.toDecision(decision, caseworkerNames);
+			});
 	}
 
 	/**
@@ -149,7 +165,10 @@ public class DecisionService {
 		return lifecareFcIntegration.getAllDecisions(personNumber, window.start(), window.end()).stream()
 			.filter(decision -> decisionId.equals(String.valueOf(decision.getId())))
 			.findFirst()
-			.map(decision -> DecisionMapper.toDecision(decision, partyIntegration.getPartyIds(municipalityId, DecisionMapper.personNumbersOf(List.of(decision)))));
+			.map(decision -> {
+				final var partyIds = partyIntegration.getPartyIds(municipalityId, DecisionMapper.collectPersonNumbers(List.of(decision)));
+				return DecisionMapper.toDecision(decision, partyIds);
+			});
 	}
 
 	private static void validateLaw(final String source, final String law) {
@@ -167,16 +186,11 @@ public class DecisionService {
 			.orElse(source);
 	}
 
-	/**
-	 * A caseworker-id-to-name resolver for one request, memoizing every lookup — including the misses, which are the
-	 * common case for ids that are not employees at all. Lifecare repeats the same handful of caseworkers across a
-	 * person's decisions, so without this a name would be fetched once per decision. Confined to a single request
-	 * thread, so the plain map is enough.
-	 */
-	private Function<String, Optional<String>> caseworkerNameResolver(final String municipalityId) {
-		final Map<String, Optional<String>> resolved = new HashMap<>();
-
-		return loginName -> resolved.computeIfAbsent(loginName, id -> employeeIntegration.getFullName(municipalityId, id));
+	private Map<String, String> getCaseworkerNames(final String municipalityId, final List<String> caseworkerIds) {
+		final var names = new HashMap<String, String>();
+		caseworkerIds.forEach(caseworkerId -> employeeIntegration.getFullName(municipalityId, caseworkerId)
+			.ifPresent(name -> names.put(caseworkerId, name)));
+		return names;
 	}
 
 	private SourceResult fetchSource(final String source, final String law, final Supplier<List<Decision>> fetcher) {

@@ -4,8 +4,7 @@ import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1LssDe
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,7 +38,7 @@ import static org.assertj.core.api.Assertions.tuple;
 class LifecareEcDecisionDeserializationTest {
 
 	/** No caseworker resolution — asserts what the payload alone yields. */
-	private static final Function<String, Optional<String>> NO_NAMES = _ -> Optional.empty();
+	private static final Map<String, String> NO_NAMES = Map.of();
 
 	@Autowired
 	private JsonMapper jsonMapper;
@@ -106,8 +105,8 @@ class LifecareEcDecisionDeserializationTest {
 		// EC sends the SFB caseworker as an id with empty name fields. Left alone that becomes an empty string.
 		assertThat(DecisionMapper.toDecision(sfbDecision, NO_NAMES).getElderlyCareDetails().getSfbCaseworker()).isNull();
 
-		// With the employee directory reachable, the id becomes a name.
-		assertThat(DecisionMapper.toDecision(sfbDecision, loginName -> Optional.of(loginName).filter("LOHE"::equals).map(_ -> "Lotta Helsinger"))
+		// Given a name for the id, the id becomes that name.
+		assertThat(DecisionMapper.toDecision(sfbDecision, Map.of("LOHE", "Lotta Helsinger"))
 			.getElderlyCareDetails().getSfbCaseworker()).isEqualTo("Lotta Helsinger");
 	}
 

@@ -80,7 +80,7 @@ public final class CalculationMapper {
 	 * Every personnummer appearing on the persons of these calculations, so the caller can resolve them in one batch
 	 * rather than one lookup per person.
 	 */
-	public static List<String> personNumbersOf(final ApiPaginationCompositePersonBasedCalculationDTO composite) {
+	public static List<String> collectPersonNumbers(final ApiPaginationCompositePersonBasedCalculationDTO composite) {
 		return Optional.ofNullable(composite)
 			.map(ApiPaginationCompositePersonBasedCalculationDTO::getResult)
 			.orElseGet(List::of).stream()

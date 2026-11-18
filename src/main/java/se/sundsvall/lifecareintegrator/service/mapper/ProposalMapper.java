@@ -106,7 +106,7 @@ public final class ProposalMapper {
 			.orElse(null);
 	}
 
-	public static List<String> personNumbersOf(final PersonBasedCalculationProposalDTO proposal) {
+	public static List<String> collectPersonNumbers(final PersonBasedCalculationProposalDTO proposal) {
 		return Optional.ofNullable(proposal)
 			.map(PersonBasedCalculationProposalDTO::getHouseholdMembers)
 			.orElseGet(List::of).stream()
