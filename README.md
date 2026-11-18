@@ -57,6 +57,8 @@ Access the API documentation via Swagger UI:
 
 Alternatively, refer to the `src/main/resources/openapi.yaml` file for the OpenAPI specification.
 
+Architecture and integration notes are in [docs/](docs/README.md).
+
 ## Usage
 
 ### API Endpoints
