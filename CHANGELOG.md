@@ -8,6 +8,8 @@ Every change to the service, newest date first. One short line per change.
 - Resolve party ids the same way in every flow: services look them up and pass a map to the mappers.
 - Look up caseworker names in `DecisionService` before mapping, so the decision mappers make no calls.
 - Add code conventions for method names, conditionals and comments to `AGENTS.md`.
+- Drop the error body buffering in `LifecareErrorDecoder` that dept44 has done itself since 8.0.12, and keep Lifecare's
+  message for statuses without an `HttpStatus` constant.
 
 ## 2026-10-27
 
