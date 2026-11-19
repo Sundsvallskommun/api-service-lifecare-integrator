@@ -19,16 +19,17 @@ import se.sundsvall.lifecareintegrator.integration.employee.EmployeeIntegration;
 import se.sundsvall.lifecareintegrator.integration.lifecareec.LifecareEcIntegration;
 import se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcIntegration;
 import se.sundsvall.lifecareintegrator.integration.party.PartyIntegration;
-import se.sundsvall.lifecareintegrator.service.mapper.DecisionMapper;
+import se.sundsvall.lifecareintegrator.service.mapper.ElderlyCareDecisionMapper;
+import se.sundsvall.lifecareintegrator.service.mapper.FamilyCareDecisionMapper;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.LAW_LSS;
+import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.LAW_SOL;
+import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.SOURCE_ELDERLY_CARE;
+import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.SOURCE_FAMILY_CARE;
 import static se.sundsvall.lifecareintegrator.api.model.common.SourceStatus.STATUS_OK;
 import static se.sundsvall.lifecareintegrator.api.model.common.SourceStatus.STATUS_UNAVAILABLE;
-import static se.sundsvall.lifecareintegrator.service.mapper.DecisionMapper.LAW_LSS;
-import static se.sundsvall.lifecareintegrator.service.mapper.DecisionMapper.LAW_SOL;
-import static se.sundsvall.lifecareintegrator.service.mapper.DecisionMapper.SOURCE_ELDERLY_CARE;
-import static se.sundsvall.lifecareintegrator.service.mapper.DecisionMapper.SOURCE_FAMILY_CARE;
 import static se.sundsvall.lifecareintegrator.util.LogSanitizer.describe;
 
 /**
@@ -92,9 +93,9 @@ public class DecisionService {
 	 */
 	private List<Decision> getSolDecisions(final String municipalityId, final String personNumber, final LocalDate from, final LocalDate to) {
 		final var solDecisions = lifecareEcIntegration.getSolDecisions(personNumber);
-		final var caseworkerNames = getCaseworkerNames(municipalityId, DecisionMapper.collectUnnamedSolCaseworkerIds(solDecisions));
+		final var caseworkerNames = getCaseworkerNames(municipalityId, ElderlyCareDecisionMapper.collectUnnamedSolCaseworkerIds(solDecisions));
 		return solDecisions.stream()
-			.map(decision -> DecisionMapper.toDecision(decision, caseworkerNames))
+			.map(decision -> ElderlyCareDecisionMapper.toDecision(decision, caseworkerNames))
 			.filter(decision -> overlapsWindow(decision, from, to))
 			.toList();
 	}
@@ -102,9 +103,9 @@ public class DecisionService {
 	/** Filtered on validity overlap, as {@link #getSolDecisions}. */
 	private List<Decision> getLssDecisions(final String municipalityId, final String personNumber, final LocalDate from, final LocalDate to) {
 		final var lssDecisions = lifecareEcIntegration.getLssDecisions(personNumber);
-		final var caseworkerNames = getCaseworkerNames(municipalityId, DecisionMapper.collectUnnamedLssCaseworkerIds(lssDecisions));
+		final var caseworkerNames = getCaseworkerNames(municipalityId, ElderlyCareDecisionMapper.collectUnnamedLssCaseworkerIds(lssDecisions));
 		return lssDecisions.stream()
-			.map(decision -> DecisionMapper.toDecision(decision, caseworkerNames))
+			.map(decision -> ElderlyCareDecisionMapper.toDecision(decision, caseworkerNames))
 			.filter(decision -> overlapsWindow(decision, from, to))
 			.toList();
 	}
@@ -112,9 +113,9 @@ public class DecisionService {
 	/** FC filters on the date window itself, and requires one: an open window falls back to a wide default. */
 	private List<Decision> getFamilyCareDecisions(final String municipalityId, final String personNumber, final DateWindow window) {
 		final var familyCareDecisions = lifecareFcIntegration.getAllDecisions(personNumber, window.start(), window.end());
-		final var partyIdsByPersonNumber = partyIntegration.getPartyIds(municipalityId, DecisionMapper.collectPersonNumbers(familyCareDecisions));
+		final var partyIdsByPersonNumber = partyIntegration.getPartyIds(municipalityId, FamilyCareDecisionMapper.collectPersonNumbers(familyCareDecisions));
 		return familyCareDecisions.stream()
-			.map(decision -> DecisionMapper.toDecision(decision, partyIdsByPersonNumber))
+			.map(decision -> FamilyCareDecisionMapper.toDecision(decision, partyIdsByPersonNumber))
 			.toList();
 	}
 
@@ -143,15 +144,15 @@ public class DecisionService {
 			return lifecareEcIntegration.getSolDecision(decisionId)
 				.filter(decision -> personNumber.equals(decision.getPersonId()))
 				.map(decision -> {
-					final var caseworkerNames = getCaseworkerNames(municipalityId, DecisionMapper.collectUnnamedSolCaseworkerIds(List.of(decision)));
-					return DecisionMapper.toDecision(decision, caseworkerNames);
+					final var caseworkerNames = getCaseworkerNames(municipalityId, ElderlyCareDecisionMapper.collectUnnamedSolCaseworkerIds(List.of(decision)));
+					return ElderlyCareDecisionMapper.toDecision(decision, caseworkerNames);
 				});
 		}
 		return lifecareEcIntegration.getLssDecision(decisionId)
 			.filter(decision -> personNumber.equals(decision.getPersonId()))
 			.map(decision -> {
-				final var caseworkerNames = getCaseworkerNames(municipalityId, DecisionMapper.collectUnnamedLssCaseworkerIds(List.of(decision)));
-				return DecisionMapper.toDecision(decision, caseworkerNames);
+				final var caseworkerNames = getCaseworkerNames(municipalityId, ElderlyCareDecisionMapper.collectUnnamedLssCaseworkerIds(List.of(decision)));
+				return ElderlyCareDecisionMapper.toDecision(decision, caseworkerNames);
 			});
 	}
 
@@ -166,8 +167,8 @@ public class DecisionService {
 			.filter(decision -> decisionId.equals(String.valueOf(decision.getId())))
 			.findFirst()
 			.map(decision -> {
-				final var partyIdsByPersonNumber = partyIntegration.getPartyIds(municipalityId, DecisionMapper.collectPersonNumbers(List.of(decision)));
-				return DecisionMapper.toDecision(decision, partyIdsByPersonNumber);
+				final var partyIdsByPersonNumber = partyIntegration.getPartyIds(municipalityId, FamilyCareDecisionMapper.collectPersonNumbers(List.of(decision)));
+				return FamilyCareDecisionMapper.toDecision(decision, partyIdsByPersonNumber);
 			});
 	}
 

@@ -4,8 +4,6 @@ import generated.se.sundsvall.lifecareec.WEECIntegrationContractsCommonV1Casewor
 import generated.se.sundsvall.lifecareec.WEECIntegrationContractsCommonV1CodeText;
 import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1Decision;
 import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1LssDecision;
-import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedDecisionPersonDTO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,20 +12,13 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
 import se.sundsvall.lifecareintegrator.api.model.elderlycare.ElderlyCareDecisionDetails;
-import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
 
 import static java.time.Month.FEBRUARY;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
-class DecisionMapperTest {
-
-	/** The batch party lookup's answer: only 199001011234 resolves. */
-	private static final Map<String, String> PARTY_IDS = Map.of("199001011234", "party-1");
+class ElderlyCareDecisionMapperTest {
 
 	/** No caseworker names — Lifecare supplies the name in every case these tests cover. */
 	private static final Map<String, String> NO_NAMES = Map.of();
@@ -70,7 +61,7 @@ class DecisionMapperTest {
 			.deleted(false);
 
 		// Act
-		final var result = DecisionMapper.toDecision(source, NO_NAMES);
+		final var result = ElderlyCareDecisionMapper.toDecision(source, NO_NAMES);
 		final var expected = Decision.create()
 			.withSource("ELDERLY_CARE")
 			.withLaw("SOL")
@@ -109,13 +100,13 @@ class DecisionMapperTest {
 
 	@Test
 	void toDecisionFromSolDecisionWithNull() {
-		assertThat(DecisionMapper.toDecision((WEECIntegrationContractsDecisionV1Decision) null, NO_NAMES)).isNull();
+		assertThat(ElderlyCareDecisionMapper.toDecision((WEECIntegrationContractsDecisionV1Decision) null, NO_NAMES)).isNull();
 	}
 
 	@Test
 	void toDecisionFromSolDecisionWithMinimalInput() {
 		// Act
-		final var result = DecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1Decision(), NO_NAMES);
+		final var result = ElderlyCareDecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1Decision(), NO_NAMES);
 
 		// Assert
 		assertThat(result.getSource()).isEqualTo("ELDERLY_CARE");
@@ -146,7 +137,7 @@ class DecisionMapperTest {
 			.sfbCaseworker(new WEECIntegrationContractsCommonV1Caseworker().fullName("Bo Bengtsson"));
 
 		// Act
-		final var result = DecisionMapper.toDecision(source, NO_NAMES);
+		final var result = ElderlyCareDecisionMapper.toDecision(source, NO_NAMES);
 
 		// Assert
 		assertThat(result.getSource()).isEqualTo("ELDERLY_CARE");
@@ -169,94 +160,7 @@ class DecisionMapperTest {
 
 	@Test
 	void toDecisionFromLssDecisionWithNull() {
-		assertThat(DecisionMapper.toDecision((WEECIntegrationContractsDecisionV1LssDecision) null, NO_NAMES)).isNull();
-	}
-
-	@Test
-	void toDecisionFromFcDecision() {
-		// Arrange
-		final var source = new PersonBasedDecisionDTO()
-			.id(555)
-			.date("2026-05-01T00:00:00")
-			.type("Ekonomiskt bistånd")
-			.fromDate("2026-05-01")
-			.toDate("2026-05-31")
-			.reason("Bifall")
-			.decisionMaker("Cecilia Carlsson")
-			.organization("Vuxen försörjningsstöd")
-			.investigationExecutionId(777)
-			.serviceId(888)
-			.amount(9000.0)
-			.coApplicant("Berit Bengtsson")
-			.reasonCoApplicant("Bifall")
-			.connectedApplication(999)
-			.decisionPersonDTOs(List.of(
-				new PersonBasedDecisionPersonDTO().personId("199001011234").name("Kalle Karlsson").isCoApplicant(false),
-				new PersonBasedDecisionPersonDTO().personId("201001011234").name("Okänd Person").isCoApplicant(true),
-				new PersonBasedDecisionPersonDTO().personId(null).name("Utan Personnummer").isCoApplicant(false)));
-
-		// Act
-		final var result = DecisionMapper.toDecision(source, PARTY_IDS);
-
-		// Assert
-		assertThat(result.getSource()).isEqualTo("FAMILY_CARE");
-		assertThat(result.getLaw()).isNull();
-		assertThat(result.getDecisionId()).isEqualTo("555");
-		assertThat(result.getDecided()).isEqualTo(LocalDate.parse("2026-05-01"));
-		assertThat(result.getValidFrom()).isEqualTo(LocalDate.parse("2026-05-01"));
-		assertThat(result.getValidTo()).isEqualTo(LocalDate.parse("2026-05-31"));
-		assertThat(result.getType()).isEqualTo("Ekonomiskt bistånd");
-		assertThat(result.getReason()).isEqualTo("Bifall");
-		assertThat(result.getDecisionMaker()).isEqualTo("Cecilia Carlsson");
-		assertThat(result.getAmount()).isEqualByComparingTo(BigDecimal.valueOf(9000.0));
-		assertThat(result.getElderlyCareDetails()).isNull();
-
-		final var details = result.getFamilyCareDetails();
-		assertThat(details.getInvestigationExecutionId()).isEqualTo(777);
-		assertThat(details.getServiceId()).isEqualTo(888);
-		assertThat(details.getOrganization()).isEqualTo("Vuxen försörjningsstöd");
-		assertThat(details.getCoApplicant()).isEqualTo("Berit Bengtsson");
-		assertThat(details.getReasonCoApplicant()).isEqualTo("Bifall");
-		assertThat(details.getConnectedApplication()).isEqualTo(999);
-
-		// The personnummer is swapped for the party id; unresolvable persons keep a null party id
-		assertThat(details.getPersons())
-			.extracting(RelatedPerson::getPartyId, RelatedPerson::getName, RelatedPerson::getCoApplicant)
-			.containsExactly(
-				tuple("party-1", "Kalle Karlsson", false),
-				tuple(null, "Okänd Person", true),
-				tuple(null, "Utan Personnummer", false));
-		assertThat(result.toString()).doesNotContain("199001011234", "201001011234");
-	}
-
-	@Test
-	void toDecisionFromFcDecisionWithoutPersons() {
-		final var result = DecisionMapper.toDecision(new PersonBasedDecisionDTO().decisionPersonDTOs(null), PARTY_IDS);
-
-		assertThat(result.getFamilyCareDetails().getPersons()).isEmpty();
-	}
-
-	@Test
-	void toDecisionFromFcDecisionWithNull() {
-		assertThat(DecisionMapper.toDecision((PersonBasedDecisionDTO) null, PARTY_IDS)).isNull();
-	}
-
-	@ParameterizedTest
-	@NullAndEmptySource
-	@ValueSource(strings = {
-		"garbage-date", "2026-13-99T00:00:00", "2026"
-	})
-	void toDecisionFromFcDecisionWithUnparseableDates(final String date) {
-		// Act
-		final var result = DecisionMapper.toDecision(new PersonBasedDecisionDTO()
-			.date(date)
-			.fromDate(date)
-			.toDate(date), PARTY_IDS);
-
-		// Assert
-		assertThat(result.getDecided()).isNull();
-		assertThat(result.getValidFrom()).isNull();
-		assertThat(result.getValidTo()).isNull();
+		assertThat(ElderlyCareDecisionMapper.toDecision((WEECIntegrationContractsDecisionV1LssDecision) null, NO_NAMES)).isNull();
 	}
 
 	private static WEECIntegrationContractsCommonV1CodeText codeText(final String text) {
@@ -270,7 +174,7 @@ class DecisionMapperTest {
 	void theLawIsReadFromTheDecisionNotAssumedFromTheEndpoint(final Integer lawCode, final String expected) {
 		// lss_decisions serves both: 3 is LSS, 7 is SFB — assistansersättning decided by Försäkringskassan. Anything
 		// unrecognised falls back to what the endpoint is.
-		final var decision = DecisionMapper.toDecision(
+		final var decision = ElderlyCareDecisionMapper.toDecision(
 			new WEECIntegrationContractsDecisionV1LssDecision().id(1).law(lawCode), NO_NAMES);
 
 		assertThat(decision.getLaw()).isEqualTo(expected);
@@ -281,7 +185,7 @@ class DecisionMapperTest {
 		final var notSet = LocalDateTime.parse("0001-01-01T00:00:00");
 		final var noEndDate = LocalDateTime.parse("9999-12-31T23:59:59.9999999");
 
-		final var decision = DecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1Decision()
+		final var decision = ElderlyCareDecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1Decision()
 			.id(1)
 			.fromDate(notSet)
 			.toDate(noEndDate)
@@ -296,7 +200,7 @@ class DecisionMapperTest {
 
 	@Test
 	void anOrdinaryDateIsLeftAlone() {
-		final var decision = DecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1Decision()
+		final var decision = ElderlyCareDecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1Decision()
 			.id(1)
 			.fromDate(LocalDateTime.parse("2024-02-07T00:00:00")), NO_NAMES);
 
@@ -307,40 +211,25 @@ class DecisionMapperTest {
 	void aCaseworkerNameIsResolvedOnlyWhenLifecareDoesNotSupplyOne() {
 		final var names = Map.of("LOHE", "Lotta Helsinger");
 
-		final var supplied = DecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1LssDecision()
+		final var supplied = ElderlyCareDecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1LssDecision()
 			.id(1)
 			.caseworker(new WEECIntegrationContractsCommonV1Caseworker().id("LOHE").fullName("Helsinger Lotta")), names);
 		assertThat(supplied.getDecisionMaker()).isEqualTo("Helsinger Lotta");
 
-		final var blank = DecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1LssDecision()
+		final var blank = ElderlyCareDecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1LssDecision()
 			.id(2)
 			.sfbCaseworker(new WEECIntegrationContractsCommonV1Caseworker().id("LOHE").fullName("")), names);
 		assertThat(blank.getElderlyCareDetails().getSfbCaseworker()).isEqualTo("Lotta Helsinger");
 
-		final var unresolvable = DecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1LssDecision()
+		final var unresolvable = ElderlyCareDecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1LssDecision()
 			.id(3)
 			.sfbCaseworker(new WEECIntegrationContractsCommonV1Caseworker().id("FÖRSKASSAN").fullName("")), names);
 		assertThat(unresolvable.getElderlyCareDetails().getSfbCaseworker()).isNull();
 
-		final var withoutId = DecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1LssDecision()
+		final var withoutId = ElderlyCareDecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1LssDecision()
 			.id(4)
 			.sfbCaseworker(new WEECIntegrationContractsCommonV1Caseworker().fullName("")), names);
 		assertThat(withoutId.getElderlyCareDetails().getSfbCaseworker()).isNull();
-	}
-
-	@Test
-	void collectPersonNumbers() {
-		final var decisions = List.of(
-			new PersonBasedDecisionDTO().decisionPersonDTOs(List.of(
-				new PersonBasedDecisionPersonDTO().personId("199001011234"),
-				new PersonBasedDecisionPersonDTO().personId(null))),
-			new PersonBasedDecisionDTO().decisionPersonDTOs(List.of(
-				new PersonBasedDecisionPersonDTO().personId("199001011234"),
-				new PersonBasedDecisionPersonDTO().personId("201001011234"))),
-			new PersonBasedDecisionDTO().decisionPersonDTOs(null));
-
-		assertThat(DecisionMapper.collectPersonNumbers(decisions)).containsExactly("199001011234", "201001011234");
-		assertThat(DecisionMapper.collectPersonNumbers(null)).isEmpty();
 	}
 
 	@Test
@@ -354,8 +243,8 @@ class DecisionMapperTest {
 			new WEECIntegrationContractsDecisionV1Decision().caseworker(new WEECIntegrationContractsCommonV1Caseworker().id("BEBE").fullName("  ")),
 			new WEECIntegrationContractsDecisionV1Decision());
 
-		assertThat(DecisionMapper.collectUnnamedSolCaseworkerIds(decisions)).containsExactly("LOHE", "BEBE");
-		assertThat(DecisionMapper.collectUnnamedSolCaseworkerIds(null)).isEmpty();
+		assertThat(ElderlyCareDecisionMapper.collectUnnamedSolCaseworkerIds(decisions)).containsExactly("LOHE", "BEBE");
+		assertThat(ElderlyCareDecisionMapper.collectUnnamedSolCaseworkerIds(null)).isEmpty();
 	}
 
 	@Test
@@ -368,7 +257,7 @@ class DecisionMapperTest {
 				.caseworker(new WEECIntegrationContractsCommonV1Caseworker().id("BEBE"))
 				.sfbCaseworker(new WEECIntegrationContractsCommonV1Caseworker().id("LOHE")));
 
-		assertThat(DecisionMapper.collectUnnamedLssCaseworkerIds(decisions)).containsExactly("LOHE", "BEBE");
-		assertThat(DecisionMapper.collectUnnamedLssCaseworkerIds(null)).isEmpty();
+		assertThat(ElderlyCareDecisionMapper.collectUnnamedLssCaseworkerIds(decisions)).containsExactly("LOHE", "BEBE");
+		assertThat(ElderlyCareDecisionMapper.collectUnnamedLssCaseworkerIds(null)).isEmpty();
 	}
 }

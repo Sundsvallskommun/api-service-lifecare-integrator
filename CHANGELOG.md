@@ -10,6 +10,7 @@ Every change to the service, newest date first. One short line per change.
 - Split the proposal and calculation request mappings into one small converter per list.
 - Return nested lists in calculations, payments, investigations, services and family care decisions as `[]` instead of `null` (ADR 0001).
 - State in `AGENTS.md` that every commit keeps `docs/` in step with the code.
+- Split `DecisionMapper` into `ElderlyCareDecisionMapper` and `FamilyCareDecisionMapper`, and move the source and law values to `DecisionConstants`.
 
 ## 2026-11-18
 

@@ -4,8 +4,6 @@ import generated.se.sundsvall.lifecareec.WEECIntegrationContractsCommonV1Casewor
 import generated.se.sundsvall.lifecareec.WEECIntegrationContractsCommonV1CodeText;
 import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1Decision;
 import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1LssDecision;
-import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedDecisionPersonDTO;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -14,28 +12,22 @@ import java.util.stream.Stream;
 import org.springframework.util.StringUtils;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
 import se.sundsvall.lifecareintegrator.api.model.elderlycare.ElderlyCareDecisionDetails;
-import se.sundsvall.lifecareintegrator.api.model.familycare.FamilyCareDecisionDetails;
-import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
 
-import static java.util.Collections.emptyList;
 import static org.springframework.util.StringUtils.hasText;
+import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.LAW_LSS;
+import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.LAW_SFB;
+import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.LAW_SOL;
+import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.SOURCE_ELDERLY_CARE;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toBigDecimal;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
-import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toPartyId;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toStringValue;
 
-public final class DecisionMapper {
-
-	public static final String SOURCE_ELDERLY_CARE = "ELDERLY_CARE";
-	public static final String SOURCE_FAMILY_CARE = "FAMILY_CARE";
-	public static final String LAW_SOL = "SOL";
-	public static final String LAW_LSS = "LSS";
-	public static final String LAW_SFB = "SFB";
+public final class ElderlyCareDecisionMapper {
 
 	/** The {@code Law} code EC uses for Socialförsäkringsbalken; everything else on this endpoint is LSS. */
 	private static final int LAW_CODE_SFB = 7;
 
-	private DecisionMapper() {}
+	private ElderlyCareDecisionMapper() {}
 
 	/**
 	 * @param caseworkerNames display names by caseworker id, for the caseworkers EC sends without one — see
@@ -84,29 +76,6 @@ public final class DecisionMapper {
 					.withIncreasedHourlyAmount(toBigDecimal(source.getIncreasedHourlyAmount()))
 					.withStandardAmount(toBigDecimal(source.getStandardAmount()))
 					.withSfbCaseworker(toFullName(source.getSfbCaseworker(), caseworkerNames))))
-			.orElse(null);
-	}
-
-	public static Decision toDecision(final PersonBasedDecisionDTO decision, final Map<String, String> partyIdsByPersonNumber) {
-		return Optional.ofNullable(decision)
-			.map(source -> Decision.create()
-				.withSource(SOURCE_FAMILY_CARE)
-				.withDecisionId(toStringValue(source.getId()))
-				.withDecided(toLocalDate(source.getDate()))
-				.withValidFrom(toLocalDate(source.getFromDate()))
-				.withValidTo(toLocalDate(source.getToDate()))
-				.withType(source.getType())
-				.withReason(source.getReason())
-				.withDecisionMaker(source.getDecisionMaker())
-				.withAmount(toBigDecimal(source.getAmount()))
-				.withFamilyCareDetails(FamilyCareDecisionDetails.create()
-					.withInvestigationExecutionId(source.getInvestigationExecutionId())
-					.withServiceId(source.getServiceId())
-					.withOrganization(source.getOrganization())
-					.withCoApplicant(source.getCoApplicant())
-					.withReasonCoApplicant(source.getReasonCoApplicant())
-					.withConnectedApplication(source.getConnectedApplication())
-					.withPersons(toRelatedPersons(source.getDecisionPersonDTOs(), partyIdsByPersonNumber))))
 			.orElse(null);
 	}
 
@@ -164,28 +133,6 @@ public final class DecisionMapper {
 			.deleted(lss.getDeleted());
 	}
 
-	/** An unresolvable person keeps a null party id, so a consumer still sees that the decision concerned someone. */
-	private static List<RelatedPerson> toRelatedPersons(final List<PersonBasedDecisionPersonDTO> persons, final Map<String, String> partyIdsByPersonNumber) {
-		return Optional.ofNullable(persons).orElse(emptyList()).stream()
-			.map(person -> RelatedPerson.create()
-				.withPartyId(toPartyId(person.getPersonId(), partyIdsByPersonNumber))
-				.withName(person.getName())
-				.withCoApplicant(person.getIsCoApplicant()))
-			.toList();
-	}
-
-	public static List<String> collectPersonNumbers(final List<PersonBasedDecisionDTO> decisions) {
-		return Optional.ofNullable(decisions)
-			.orElseGet(List::of).stream()
-			.map(PersonBasedDecisionDTO::getDecisionPersonDTOs)
-			.filter(Objects::nonNull)
-			.flatMap(List::stream)
-			.map(PersonBasedDecisionPersonDTO::getPersonId)
-			.filter(Objects::nonNull)
-			.distinct()
-			.toList();
-	}
-
 	/**
 	 * The ids of the caseworkers EC sent without a name, so the caller can look the names up before mapping.
 	 */
@@ -194,7 +141,7 @@ public final class DecisionMapper {
 			.orElseGet(List::of).stream()
 			.map(WEECIntegrationContractsDecisionV1Decision::getCaseworker)
 			.filter(Objects::nonNull)
-			.filter(DecisionMapper::lacksName)
+			.filter(ElderlyCareDecisionMapper::lacksName)
 			.map(WEECIntegrationContractsCommonV1Caseworker::getId)
 			.filter(StringUtils::hasText)
 			.distinct()
@@ -209,7 +156,7 @@ public final class DecisionMapper {
 			.orElseGet(List::of).stream()
 			.flatMap(decision -> Stream.of(decision.getCaseworker(), decision.getSfbCaseworker()))
 			.filter(Objects::nonNull)
-			.filter(DecisionMapper::lacksName)
+			.filter(ElderlyCareDecisionMapper::lacksName)
 			.map(WEECIntegrationContractsCommonV1Caseworker::getId)
 			.filter(StringUtils::hasText)
 			.distinct()

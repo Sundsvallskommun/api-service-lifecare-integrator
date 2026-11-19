@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ActiveProfiles;
 import se.sundsvall.lifecareintegrator.Application;
-import se.sundsvall.lifecareintegrator.service.mapper.DecisionMapper;
+import se.sundsvall.lifecareintegrator.service.mapper.ElderlyCareDecisionMapper;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -77,7 +77,7 @@ class LifecareEcDecisionDeserializationTest {
 	@Test
 	void theWholeResponseMapsToTheApiModel() {
 		final var decisions = realResponseQuietly().stream()
-			.map(decision -> DecisionMapper.toDecision(decision, NO_NAMES))
+			.map(decision -> ElderlyCareDecisionMapper.toDecision(decision, NO_NAMES))
 			.toList();
 
 		// The endpoint serves two laws: Law 3 is LSS, Law 7 is SFB — assistansersättning decided by Försäkringskassan,
@@ -92,7 +92,7 @@ class LifecareEcDecisionDeserializationTest {
 
 	@Test
 	void theNotSetSentinelDoesNotReachTheCitizen() {
-		final var notScheduled = DecisionMapper.toDecision(realResponseQuietly().get(2), NO_NAMES);
+		final var notScheduled = ElderlyCareDecisionMapper.toDecision(realResponseQuietly().get(2), NO_NAMES);
 
 		assertThat(notScheduled.getElderlyCareDetails().getExecutionStartDate()).isNull();
 		assertThat(notScheduled.getElderlyCareDetails().getExecutionEndDate()).isNull();
@@ -103,10 +103,10 @@ class LifecareEcDecisionDeserializationTest {
 		final var sfbDecision = realResponseQuietly().getLast();
 
 		// EC sends the SFB caseworker as an id with empty name fields. Left alone that becomes an empty string.
-		assertThat(DecisionMapper.toDecision(sfbDecision, NO_NAMES).getElderlyCareDetails().getSfbCaseworker()).isNull();
+		assertThat(ElderlyCareDecisionMapper.toDecision(sfbDecision, NO_NAMES).getElderlyCareDetails().getSfbCaseworker()).isNull();
 
 		// Given a name for the id, the id becomes that name.
-		assertThat(DecisionMapper.toDecision(sfbDecision, Map.of("LOHE", "Lotta Helsinger"))
+		assertThat(ElderlyCareDecisionMapper.toDecision(sfbDecision, Map.of("LOHE", "Lotta Helsinger"))
 			.getElderlyCareDetails().getSfbCaseworker()).isEqualTo("Lotta Helsinger");
 	}
 
