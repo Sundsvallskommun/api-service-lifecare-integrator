@@ -6,8 +6,12 @@ import generated.se.sundsvall.lifecarefc.PersonBasedCalculationPersonPostDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedCalculationSpecialExpensePostDTO;
 import generated.se.sundsvall.lifecarefc.PostAktualiseringsBodyRequest;
 import generated.se.sundsvall.lifecarefc.PostCalculationBodyRequest;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationExpenseRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationIncomeRequest;
+import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationPersonRequest;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationRequest;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateCalculationRequest;
 
@@ -57,37 +61,53 @@ public final class RequestMapper {
 				.calculationToDate(startOfDay(source.getCalculationToDate()))
 				.hasCustomHouseholdSize(source.getHasCustomHouseholdSize())
 				.householdSize(source.getHouseholdSize())
-				.calculationPersons(Optional.ofNullable(source.getPersons()).orElse(emptyList()).stream()
-					.map(person -> new PersonBasedCalculationPersonPostDTO()
-						.personId(personNumbersByPartyId.get(person.getPartyId()))
-						.numberOfDays(person.getNumberOfDays())
-						.deviationFromDate(toLocalDateTime(person.getDeviationFromDate()))
-						.deviationToDate(toLocalDateTime(person.getDeviationToDate())))
-					.toList())
-				.calculationIncomes(Optional.ofNullable(source.getIncomes()).orElse(emptyList()).stream()
-					.map(income -> new PersonBasedCalculationIncomePostDTO()
-						.id(income.getTypeId())
-						.applicantAmount(toDouble(income.getApplicantAmount()))
-						.applicantAmountDate(toLocalDateTime(income.getApplicantAmountDate()))
-						.coApplicantAmount(toDouble(income.getCoApplicantAmount()))
-						.coApplicantAmountDate(toLocalDateTime(income.getCoApplicantAmountDate()))
-						.note(income.getNote()))
-					.toList())
-				.calculationExpenses(Optional.ofNullable(source.getExpenses()).orElse(emptyList()).stream()
-					.map(expense -> new PersonBasedCalculationExpensePostDTO()
-						.id(expense.getTypeId())
-						.amount(toDouble(expense.getAmount()))
-						.approvedAmount(toDouble(expense.getApprovedAmount()))
-						.note(expense.getNote()))
-					.toList())
-				.calculationSpecialExpenses(Optional.ofNullable(source.getSpecialExpenses()).orElse(emptyList()).stream()
-					.map(specialExpense -> new PersonBasedCalculationSpecialExpensePostDTO()
-						.id(specialExpense.getTypeId())
-						.amount(toDouble(specialExpense.getAmount()))
-						.approvedAmount(toDouble(specialExpense.getApprovedAmount()))
-						.note(specialExpense.getNote()))
-					.toList()))
+				.calculationPersons(toCalculationPersons(source.getPersons(), personNumbersByPartyId))
+				.calculationIncomes(toCalculationIncomes(source.getIncomes()))
+				.calculationExpenses(toCalculationExpenses(source.getExpenses()))
+				.calculationSpecialExpenses(toCalculationSpecialExpenses(source.getSpecialExpenses())))
 			.orElse(null);
+	}
+
+	private static List<PersonBasedCalculationPersonPostDTO> toCalculationPersons(final List<CalculationPersonRequest> persons, final Map<String, String> personNumbersByPartyId) {
+		return Optional.ofNullable(persons).orElse(emptyList()).stream()
+			.map(person -> new PersonBasedCalculationPersonPostDTO()
+				.personId(personNumbersByPartyId.get(person.getPartyId()))
+				.numberOfDays(person.getNumberOfDays())
+				.deviationFromDate(toLocalDateTime(person.getDeviationFromDate()))
+				.deviationToDate(toLocalDateTime(person.getDeviationToDate())))
+			.toList();
+	}
+
+	private static List<PersonBasedCalculationIncomePostDTO> toCalculationIncomes(final List<CalculationIncomeRequest> incomes) {
+		return Optional.ofNullable(incomes).orElse(emptyList()).stream()
+			.map(income -> new PersonBasedCalculationIncomePostDTO()
+				.id(income.getTypeId())
+				.applicantAmount(toDouble(income.getApplicantAmount()))
+				.applicantAmountDate(toLocalDateTime(income.getApplicantAmountDate()))
+				.coApplicantAmount(toDouble(income.getCoApplicantAmount()))
+				.coApplicantAmountDate(toLocalDateTime(income.getCoApplicantAmountDate()))
+				.note(income.getNote()))
+			.toList();
+	}
+
+	private static List<PersonBasedCalculationExpensePostDTO> toCalculationExpenses(final List<CalculationExpenseRequest> expenses) {
+		return Optional.ofNullable(expenses).orElse(emptyList()).stream()
+			.map(expense -> new PersonBasedCalculationExpensePostDTO()
+				.id(expense.getTypeId())
+				.amount(toDouble(expense.getAmount()))
+				.approvedAmount(toDouble(expense.getApprovedAmount()))
+				.note(expense.getNote()))
+			.toList();
+	}
+
+	private static List<PersonBasedCalculationSpecialExpensePostDTO> toCalculationSpecialExpenses(final List<CalculationExpenseRequest> specialExpenses) {
+		return Optional.ofNullable(specialExpenses).orElse(emptyList()).stream()
+			.map(specialExpense -> new PersonBasedCalculationSpecialExpensePostDTO()
+				.id(specialExpense.getTypeId())
+				.amount(toDouble(specialExpense.getAmount()))
+				.approvedAmount(toDouble(specialExpense.getApprovedAmount()))
+				.note(specialExpense.getNote()))
+			.toList();
 	}
 
 }
