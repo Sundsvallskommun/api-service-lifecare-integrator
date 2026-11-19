@@ -8,13 +8,14 @@ Every change to the service, newest date first. One short line per change.
 - Replace the text-only PDF fixture in `DocumentsIT` with a minimal binary PDF, so git never converts its line endings.
 - Map lists inline in the mappers and drop `mapList` and its local copies; paged mappings return early on a null composite.
 - Split the proposal and calculation request mappings into one small converter per list.
-- Return nested lists in calculations, payments, investigations, services and family care decisions as `[]` instead of `null` (ADR 0001).
+- Return nested lists in calculations, payments, investigations, services and family care decisions as `[]` instead of `null`.
 - State in `AGENTS.md` that every commit keeps `docs/` in step with the code.
 - Split `DecisionMapper` into `ElderlyCareDecisionMapper` and `FamilyCareDecisionMapper`, and move the source and law values to `DecisionConstants`.
 - Rename the Lifecare EC and FC integrations to `elderlycare` and `familycare` in packages, classes and configuration, which breaks deployments: the keys become `integration.elderlycare.*` and `integration.familycare.*` (env `INTEGRATION_ELDERLYCARE_*`, `INTEGRATION_FAMILYCARE_*` including `USERKEY`), and the Feign client, circuit breaker and error message names change to match.
 - Remove the comments from `ElderlyCareClient` and `FamilyCareClient`, and name every `@RequestParam` in `FamilyCareClient` with `value =`.
-- Remove the Javadoc from the elderly care and family care configuration classes, and document the logging level and the FC 404 in `docs/integrations/`.
+- Remove the Javadoc from the elderly care and family care configuration classes, and document the logging level and the FC 404 instead.
 - Configure the Lifecare keys percent-encoded only, pass them on unchanged and refuse to start on a decoded key, replacing `LifecareApiKey`, which breaks deployments that hold a decoded key.
+- Add a code convention to `AGENTS.md`: nothing outside `docs/` refers to an ADR or a docs file.
 
 ## 2026-11-18
 

@@ -25,4 +25,7 @@ Read `docs/AGENTS.md` before editing anything under `docs/`.
 - Write conditionals as `if` statements or an Optional chain, not the ternary operator.
 - Let names and structure explain the code. Add a comment only for a genuinely complex case the code cannot make
   clear on its own, such as a Lifecare quirk, and keep it short.
+- References run one way: `docs/` points at the code, and nothing outside `docs/` points into it. Code, comments,
+  validation and error messages, `application.yml`, `openapi.yaml` and `CHANGELOG.md` state what they need in their
+  own words, without naming an ADR or a docs file.
 
