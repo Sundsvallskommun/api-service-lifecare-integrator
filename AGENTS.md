@@ -2,10 +2,14 @@
 
 Documentation lives in `docs/`, in English. `docs/README.md` is the index.
 
-Update the documentation in the same change as the code:
+Keep `docs/` true to the code at every commit. Each change updates the documentation it affects in the same commit,
+not in a later one. A change is done when every statement in `docs/` and `README.md` about the code it touched still
+holds. The usual cases:
 
 - An integration added or removed, or its calls or authentication changed → `docs/integrations/<integration>.md`.
 - An endpoint added or removed, or the source it reads changed → `docs/architecture.md`.
+- A rule that holds across the service added or changed, such as what a response contains → `docs/architecture.md`.
+- A choice that is not obvious from the code and could reasonably be undone → a new record in `docs/adr/`.
 - A configuration property added, renamed or removed → `README.md`.
 
 Every change adds one line to `CHANGELOG.md` under today's date (`## YYYY-MM-DD`), newest date first. Create the
