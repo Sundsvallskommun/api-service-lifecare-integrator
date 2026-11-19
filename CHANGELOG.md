@@ -11,7 +11,8 @@ Every change to the service, newest date first. One short line per change.
 - Return nested lists in calculations, payments, investigations, services and family care decisions as `[]` instead of `null` (ADR 0001).
 - State in `AGENTS.md` that every commit keeps `docs/` in step with the code.
 - Split `DecisionMapper` into `ElderlyCareDecisionMapper` and `FamilyCareDecisionMapper`, and move the source and law values to `DecisionConstants`.
-- Rename the Lifecare EC and FC integrations to `elderlycare` and `familycare` in packages, classes and configuration. Breaking for deployments: `integration.lifecare-ec` and `integration.lifecare-fc` are now `integration.elderlycare` and `integration.familycare`.
+- Rename the Lifecare EC and FC integrations to `elderlycare` and `familycare` in packages, classes and configuration, which breaks deployments: the keys become `integration.elderlycare.*` and `integration.familycare.*` (env `INTEGRATION_ELDERLYCARE_*`, `INTEGRATION_FAMILYCARE_*` including `USERKEY`), and the Feign client, circuit breaker and error message names change to match.
+- Remove the comments from `ElderlyCareClient` and `FamilyCareClient`, and name every `@RequestParam` in `FamilyCareClient` with `value =`.
 
 ## 2026-11-18
 

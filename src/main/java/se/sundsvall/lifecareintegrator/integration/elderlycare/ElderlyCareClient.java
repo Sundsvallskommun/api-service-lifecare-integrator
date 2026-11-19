@@ -13,61 +13,23 @@ import se.sundsvall.lifecareintegrator.integration.elderlycare.configuration.Eld
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static se.sundsvall.lifecareintegrator.integration.elderlycare.configuration.ElderlyCareConfiguration.CLIENT_ID;
 
-/**
- * Feign contract for the Lifecare Welfare API Services / Elderly care (EC) API ({@code WE.EC.Integration.Host}). Scoped
- * to the Mina Sidor decision facade: SoL and LSS decisions only (read-only). The mandatory {@code domain} + {@code key}
- * auth is added globally by {@link ElderlyCareConfiguration}, so it is not part of these method signatures. Citizen
- * lookup is done by the caller as {@code q=PersonId='YYYYMMDDXXXX'}.
- */
 @FeignClient(name = CLIENT_ID, url = "${integration.elderlycare.url}", configuration = ElderlyCareConfiguration.class, dismiss404 = true)
 @CircuitBreaker(name = CLIENT_ID)
 public interface ElderlyCareClient {
 
-	/**
-	 * List SoL decisions, filtered by the {@code q} query (e.g. {@code PersonId='YYYYMMDDXXXX'}).
-	 *
-	 * @param  gt     greater-than delta filter (UTC datetime, optional)
-	 * @param  lt     less-than delta filter (UTC datetime, optional)
-	 * @param  q      query filter, e.g. {@code PersonId='YYYYMMDDXXXX'}
-	 * @param  limit  page size (optional)
-	 * @param  offset offset into the result (optional)
-	 * @return        the SoL decisions
-	 */
 	@GetMapping(path = "/api/v1/sol_decisions", produces = APPLICATION_JSON_VALUE)
 	List<WEECIntegrationContractsDecisionV1Decision> getSolDecisions(
 		@RequestParam(value = "q", required = false) final String q,
 		@RequestParam(value = "limit", required = false) final Integer limit);
 
-	/**
-	 * Read a single SoL decision by its Lifecare id.
-	 *
-	 * @param  id the decision id
-	 * @return    the SoL decision
-	 */
 	@GetMapping(path = "/api/v1/sol_decisions/{id}", produces = APPLICATION_JSON_VALUE)
 	WEECIntegrationContractsDecisionV1Decision getSolDecision(@PathVariable final String id);
 
-	/**
-	 * List LSS decisions, filtered by the {@code q} query (e.g. {@code PersonId='YYYYMMDDXXXX'}).
-	 *
-	 * @param  gt     greater-than delta filter (UTC datetime, optional)
-	 * @param  lt     less-than delta filter (UTC datetime, optional)
-	 * @param  q      query filter, e.g. {@code PersonId='YYYYMMDDXXXX'}
-	 * @param  limit  page size (optional)
-	 * @param  offset offset into the result (optional)
-	 * @return        the LSS decisions
-	 */
 	@GetMapping(path = "/api/v1/lss_decisions", produces = APPLICATION_JSON_VALUE)
 	List<WEECIntegrationContractsDecisionV1LssDecision> getLssDecisions(
 		@RequestParam(value = "q", required = false) final String q,
 		@RequestParam(value = "limit", required = false) final Integer limit);
 
-	/**
-	 * Read a single LSS decision by its Lifecare id.
-	 *
-	 * @param  id the decision id
-	 * @return    the LSS decision
-	 */
 	@GetMapping(path = "/api/v1/lss_decisions/{id}", produces = APPLICATION_JSON_VALUE)
 	WEECIntegrationContractsDecisionV1LssDecision getLssDecision(@PathVariable final String id);
 }

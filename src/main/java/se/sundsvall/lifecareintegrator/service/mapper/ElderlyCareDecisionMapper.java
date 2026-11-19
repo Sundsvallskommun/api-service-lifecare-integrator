@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
 import se.sundsvall.lifecareintegrator.api.model.elderlycare.ElderlyCareDecisionDetails;
 
+import static java.util.Collections.emptyList;
 import static org.springframework.util.StringUtils.hasText;
 import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.LAW_LSS;
 import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.LAW_SFB;
@@ -138,7 +139,7 @@ public final class ElderlyCareDecisionMapper {
 	 */
 	public static List<String> collectUnnamedSolCaseworkerIds(final List<WEECIntegrationContractsDecisionV1Decision> decisions) {
 		return Optional.ofNullable(decisions)
-			.orElseGet(List::of).stream()
+			.orElse(emptyList()).stream()
 			.map(WEECIntegrationContractsDecisionV1Decision::getCaseworker)
 			.filter(Objects::nonNull)
 			.filter(ElderlyCareDecisionMapper::lacksName)
@@ -153,7 +154,7 @@ public final class ElderlyCareDecisionMapper {
 	 */
 	public static List<String> collectUnnamedLssCaseworkerIds(final List<WEECIntegrationContractsDecisionV1LssDecision> decisions) {
 		return Optional.ofNullable(decisions)
-			.orElseGet(List::of).stream()
+			.orElse(emptyList()).stream()
 			.flatMap(decision -> Stream.of(decision.getCaseworker(), decision.getSfbCaseworker()))
 			.filter(Objects::nonNull)
 			.filter(ElderlyCareDecisionMapper::lacksName)

@@ -56,7 +56,7 @@ public final class FamilyCareDecisionMapper {
 
 	public static List<String> collectPersonNumbers(final List<PersonBasedDecisionDTO> decisions) {
 		return Optional.ofNullable(decisions)
-			.orElseGet(List::of).stream()
+			.orElse(emptyList()).stream()
 			.map(PersonBasedDecisionDTO::getDecisionPersonDTOs)
 			.filter(Objects::nonNull)
 			.flatMap(List::stream)

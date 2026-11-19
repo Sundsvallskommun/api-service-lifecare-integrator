@@ -86,7 +86,7 @@ class FamilyCareDecisionMapperTest {
 
 	@Test
 	void toDecisionFromFcDecisionWithNull() {
-		assertThat(FamilyCareDecisionMapper.toDecision((PersonBasedDecisionDTO) null, PARTY_IDS)).isNull();
+		assertThat(FamilyCareDecisionMapper.toDecision(null, PARTY_IDS)).isNull();
 	}
 
 	@ParameterizedTest
