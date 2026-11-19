@@ -24,7 +24,8 @@ All under `/apifc/v1`.
 
 ## Authentication
 
-`domain` and `key` as query parameters (`integration/LifecareApiKey.java`). `/Users/*` is licensed to a separate
+`domain` and `key` as query parameters (`integration/familycare/configuration/FamilyCareConfiguration.java`), with both keys configured decoded
+([ADR 0002](../adr/0002-lifecare-keys-configured-decoded.md)). `/Users/*` is licensed to a separate
 consumer and may need its own `user-key`. The two surfaces refuse the wrong key in different ways; the comment on
 `integration.familycare` in `application.yml` describes how.
 

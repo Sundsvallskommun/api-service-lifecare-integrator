@@ -28,8 +28,8 @@ spring:
 integration:
   # Lifecare Welfare API Services / Elderly care (EC) — WE.EC.Integration.Host. Auth is domain + key as query
   # parameters, and the key goes nowhere else — EC rejects the request if it finds the key in a header too.
-  # Either the percent-encoded or the decoded form of the key works. The key is a secret: override per
-  # environment, never commit it.
+  # Give the key decoded (with '+', '/' and '=', never '%2B'); the service encodes it (ADR 0002). The key is a
+  # secret: override per environment, never commit it. The same applies to the familycare keys.
   elderlycare:
     url: override-me
     domain: override-me

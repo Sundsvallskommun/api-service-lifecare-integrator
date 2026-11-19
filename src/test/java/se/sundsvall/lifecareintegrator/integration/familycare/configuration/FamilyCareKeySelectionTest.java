@@ -59,19 +59,6 @@ class FamilyCareKeySelectionTest {
 	}
 
 	@Test
-	void anAlreadyEncodedKeyIsNotEncodedAgain() {
-		final var requestedUrl = new AtomicReference<String>();
-		final var client = clientCapturing(requestedUrl, interceptor("B3zXYTywcGodU%2beJwc7ZJut8IcVXV%2fabc%3d", "the-user-key"));
-
-		assertThatThrownBy(() -> client.getPerson("199001011234")).isInstanceOf(SentinelException.class);
-
-		// Either configured form must arrive as the same bytes.
-		assertThat(requestedUrl.get())
-			.contains("key=B3zXYTywcGodU%2BeJwc7ZJut8IcVXV%2Fabc%3D")
-			.doesNotContain("%252");
-	}
-
-	@Test
 	void usersGoOutWithTheUserKeyAndPersonBasedReadsWithTheMainKey() {
 		final var requestedUrl = new AtomicReference<String>();
 		final var client = clientCapturing(requestedUrl, interceptor("the-key", "the-user-key"));
