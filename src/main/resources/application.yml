@@ -28,8 +28,8 @@ spring:
 integration:
   # Lifecare Welfare API Services / Elderly care (EC) — WE.EC.Integration.Host. Auth is domain + key as query
   # parameters, and the key goes nowhere else — EC rejects the request if it finds the key in a header too.
-  # Give the key decoded (with '+', '/' and '=', never '%2B'); the service encodes it (ADR 0002). The key is a
-  # secret: override per environment, never commit it. The same applies to the familycare keys.
+  # Give the key percent-encoded (%2B, %2F, %3D, never a raw '+', '/' or '='); it is sent as it is and a decoded key
+  # stops the service at startup. The key is a secret: override per environment, never commit it.
   elderlycare:
     url: override-me
     domain: override-me
@@ -50,7 +50,8 @@ integration:
   # Set user-key to that second key where the split applies; leave it unset (mocks, single-consumer tenants) and
   # key is used for every call. The two surfaces refuse the wrong key DIFFERENTLY, which is worth knowing before
   # debugging one of them: /Users answers 403 to a case key (observed 2026-09-22), while the person-based reads
-  # answer 200 with an empty body to a user key — no status, no log line, nothing to notice.
+  # answer 200 with an empty body to a user key — no status, no log line, nothing to notice. Give key and user-key
+  # percent-encoded, as for elderlycare. Both are secrets: override per environment, never commit them.
   familycare:
     url: override-me
     domain: override-me

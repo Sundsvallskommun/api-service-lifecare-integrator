@@ -42,14 +42,14 @@ class FamilyCareKeySelectionTest {
 	private FamilyCareProperties propertiesMock;
 
 	/**
-	 * The whole encoding scheme rests on Feign leaving an existing percent-escape alone. A plain alphanumeric key never
-	 * exercises that, so this uses a base64-shaped one: {@code +} must reach the wire as {@code %2B} — never raw, which
-	 * the server would decode as a space, and never {@code %252B}, which is a double encoding.
+	 * The key is configured percent-encoded and passed on as it is, so this rests on Feign leaving an existing
+	 * percent-escape alone. A plain alphanumeric key never exercises that, so this uses an encoded base64 one: it must
+	 * reach the wire unchanged, never as {@code %252B}, which is a double encoding.
 	 */
 	@Test
-	void aBase64KeyReachesTheWirePercentEncodedExactlyOnce() {
+	void aPercentEncodedKeyReachesTheWireUnchanged() {
 		final var requestedUrl = new AtomicReference<String>();
-		final var client = clientCapturing(requestedUrl, interceptor("B3zXYTywcGodU+eJwc7ZJut8IcVXV/abc=", "the-user-key"));
+		final var client = clientCapturing(requestedUrl, interceptor("B3zXYTywcGodU%2BeJwc7ZJut8IcVXV%2Fabc%3D", "the-user-key"));
 
 		assertThatThrownBy(() -> client.getPerson("199001011234")).isInstanceOf(SentinelException.class);
 

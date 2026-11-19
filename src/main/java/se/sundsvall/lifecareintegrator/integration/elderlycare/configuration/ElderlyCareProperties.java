@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.integration.elderlycare.configuration;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.validation.annotation.Validated;
@@ -13,7 +14,7 @@ public record ElderlyCareProperties(
 
 	@NotBlank String domain,
 
-	@NotBlank String key,
+	@NotBlank @Pattern(regexp = "[^+/=]*", message = "must be percent-encoded") String key,
 
 	@DefaultValue("5") int connectTimeout,
 

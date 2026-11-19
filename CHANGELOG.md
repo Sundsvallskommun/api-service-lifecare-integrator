@@ -14,7 +14,7 @@ Every change to the service, newest date first. One short line per change.
 - Rename the Lifecare EC and FC integrations to `elderlycare` and `familycare` in packages, classes and configuration, which breaks deployments: the keys become `integration.elderlycare.*` and `integration.familycare.*` (env `INTEGRATION_ELDERLYCARE_*`, `INTEGRATION_FAMILYCARE_*` including `USERKEY`), and the Feign client, circuit breaker and error message names change to match.
 - Remove the comments from `ElderlyCareClient` and `FamilyCareClient`, and name every `@RequestParam` in `FamilyCareClient` with `value =`.
 - Remove the Javadoc from the elderly care and family care configuration classes, and document the logging level and the FC 404 in `docs/integrations/`.
-- Configure the Lifecare keys in their decoded form only and move the key encoding from `LifecareApiKey` into each configuration class (ADR 0002). Breaking for deployments: an environment holding an encoded key must switch to the decoded one.
+- Configure the Lifecare keys percent-encoded only, pass them on unchanged and refuse to start on a decoded key, replacing `LifecareApiKey`, which breaks deployments that hold a decoded key.
 
 ## 2026-11-18
 

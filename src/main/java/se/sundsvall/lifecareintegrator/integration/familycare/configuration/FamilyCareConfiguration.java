@@ -3,7 +3,6 @@ package se.sundsvall.lifecareintegrator.integration.familycare.configuration;
 import feign.Client;
 import feign.Logger;
 import feign.RequestTemplate;
-import java.net.URLEncoder;
 import java.util.List;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
@@ -15,7 +14,6 @@ import se.sundsvall.dept44.security.Truststore;
 import se.sundsvall.lifecareintegrator.integration.LifecareErrorDecoder;
 import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -44,12 +42,7 @@ public class FamilyCareConfiguration {
 
 	private static void addAuthentication(final RequestTemplate template, final FamilyCareProperties properties) {
 		template.query("domain", properties.domain());
-		template.query("key", toQueryValue(keyFor(template.path(), properties)));
-	}
-
-	static String toQueryValue(final String key) {
-		// URLEncoder renders a space as '+', which Lifecare reads back as a space
-		return URLEncoder.encode(key, UTF_8).replace("+", "%20");
+		template.query("key", keyFor(template.path(), properties));
 	}
 
 	static String keyFor(final String path, final FamilyCareProperties properties) {

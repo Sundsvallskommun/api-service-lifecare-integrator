@@ -18,7 +18,7 @@ Lifecare Welfare API Services, host `WE.EC.Integration.Host`. Source of SoL and 
 ## Authentication
 
 `domain` and `key` as query parameters, and nowhere else. See
-`integration/elderlycare/configuration/ElderlyCareConfiguration.java`. The key is configured decoded and encoded by the service ([ADR 0002](../adr/0002-lifecare-keys-configured-decoded.md)).
+`integration/elderlycare/configuration/ElderlyCareConfiguration.java`. The key is configured percent-encoded and passed on as it is ([ADR 0002](../adr/0002-lifecare-keys-configured-encoded.md)).
 
 ## Code and configuration
 

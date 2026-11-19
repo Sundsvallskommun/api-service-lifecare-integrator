@@ -12,6 +12,6 @@ Getting started and configuration are in the [root README](../README.md). The AP
 | [integrations/party.md](integrations/party.md)                                               | partyId ↔ personnummer                                                          |
 | [integrations/employee.md](integrations/employee.md)                                         | Display names for Lifecare caseworkers                                          |
 | [adr/0001-empty-lists-instead-of-null.md](adr/0001-empty-lists-instead-of-null.md)           | A list in a response is `[]`, never `null`                                      |
-| [adr/0002-lifecare-keys-configured-decoded.md](adr/0002-lifecare-keys-configured-decoded.md) | Lifecare keys are configured decoded; the service encodes them                  |
+| [adr/0002-lifecare-keys-configured-encoded.md](adr/0002-lifecare-keys-configured-encoded.md) | Lifecare keys are configured percent-encoded and passed on as they are          |
 
 Ownership, environments and contacts: Confluence. TODO: link to the service page.
