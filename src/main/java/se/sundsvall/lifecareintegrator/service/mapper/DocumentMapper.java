@@ -2,7 +2,6 @@ package se.sundsvall.lifecareintegrator.service.mapper;
 
 import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedDocumentDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedDocumentDTO;
-import java.util.List;
 import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.familycare.DocumentMetadata;
 import se.sundsvall.lifecareintegrator.api.model.familycare.PagedDocumentResponse;
@@ -16,20 +15,16 @@ public final class DocumentMapper {
 	private DocumentMapper() {}
 
 	public static PagedDocumentResponse toDocuments(final ApiPaginationCompositePersonBasedDocumentDTO documents) {
-		return Optional.ofNullable(documents)
-			.map(source -> toDocumentMetadataList(source.getResult()))
-			.map(documentList -> PagedDocumentResponse.create()
-				.withDocuments(documentList)
-				.withMetaData(toPagingMetaData(documents.getPageNumber(), documents.getPageSize(), documents.getTotalNumberOfPages(), documents.getTotalNumberOfRecords(), documentList.size())))
-			.orElseGet(() -> PagedDocumentResponse.create().withDocuments(emptyList()));
-	}
+		if (documents == null) {
+			return PagedDocumentResponse.create().withDocuments(emptyList());
+		}
 
-	private static List<DocumentMetadata> toDocumentMetadataList(final List<PersonBasedDocumentDTO> documents) {
-		return Optional.ofNullable(documents)
-			.map(list -> list.stream()
-				.map(DocumentMapper::toDocumentMetadata)
-				.toList())
-			.orElse(emptyList());
+		final var documentList = Optional.ofNullable(documents.getResult()).orElse(emptyList()).stream()
+			.map(DocumentMapper::toDocumentMetadata)
+			.toList();
+		return PagedDocumentResponse.create()
+			.withDocuments(documentList)
+			.withMetaData(toPagingMetaData(documents.getPageNumber(), documents.getPageSize(), documents.getTotalNumberOfPages(), documents.getTotalNumberOfRecords(), documentList.size()));
 	}
 
 	private static DocumentMetadata toDocumentMetadata(final PersonBasedDocumentDTO document) {

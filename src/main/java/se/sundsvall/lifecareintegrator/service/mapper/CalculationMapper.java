@@ -27,12 +27,16 @@ public final class CalculationMapper {
 	private CalculationMapper() {}
 
 	public static PagedCalculationResponse toCalculations(final ApiPaginationCompositePersonBasedCalculationDTO composite, final Map<String, String> partyIdsByPersonNumber) {
-		return Optional.ofNullable(composite)
-			.map(source -> toCalculationList(source.getResult(), partyIdsByPersonNumber))
-			.map(calculations -> PagedCalculationResponse.create()
-				.withCalculations(calculations)
-				.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), calculations.size())))
-			.orElseGet(() -> PagedCalculationResponse.create().withCalculations(emptyList()));
+		if (composite == null) {
+			return PagedCalculationResponse.create().withCalculations(emptyList());
+		}
+
+		final var calculations = Optional.ofNullable(composite.getResult()).orElse(emptyList()).stream()
+			.map(calculation -> toCalculation(calculation, partyIdsByPersonNumber))
+			.toList();
+		return PagedCalculationResponse.create()
+			.withCalculations(calculations)
+			.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), calculations.size()));
 	}
 
 	public static Calculation toCalculation(final PersonBasedCalculationDTO calculation, final Map<String, String> partyIdsByPersonNumber) {
@@ -59,14 +63,6 @@ public final class CalculationMapper {
 				.withExpenses(toCalculationExpenses(source.getCalculationExpensesDTOs()))
 				.withSpecialExpenses(toCalculationSpecialExpenses(source.getCalculationSpecialExpensesDTOs())))
 			.orElse(null);
-	}
-
-	private static List<Calculation> toCalculationList(final List<PersonBasedCalculationDTO> calculations, final Map<String, String> partyIdsByPersonNumber) {
-		return Optional.ofNullable(calculations)
-			.map(list -> list.stream()
-				.map(calculation -> toCalculation(calculation, partyIdsByPersonNumber))
-				.toList())
-			.orElse(emptyList());
 	}
 
 	private static List<CalculationPerson> toCalculationPersons(final List<PersonBasedCalculationPersonDTO> persons, final Map<String, String> partyIdsByPersonNumber) {

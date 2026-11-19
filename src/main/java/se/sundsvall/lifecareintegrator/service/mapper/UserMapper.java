@@ -13,11 +13,9 @@ public final class UserMapper {
 	private UserMapper() {}
 
 	public static List<Caseworker> toCaseworkers(final List<User> users) {
-		return Optional.ofNullable(users)
-			.map(list -> list.stream()
-				.map(UserMapper::toCaseworker)
-				.toList())
-			.orElse(emptyList());
+		return Optional.ofNullable(users).orElse(emptyList()).stream()
+			.map(UserMapper::toCaseworker)
+			.toList();
 	}
 
 	private static Caseworker toCaseworker(final User user) {

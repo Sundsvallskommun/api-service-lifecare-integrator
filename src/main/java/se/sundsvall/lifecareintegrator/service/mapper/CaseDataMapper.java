@@ -29,7 +29,6 @@ import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
 import se.sundsvall.lifecareintegrator.api.model.familycare.ResourceAllocation;
 
 import static java.util.Collections.emptyList;
-import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.mapList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toBigDecimal;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toPagingMetaData;
@@ -45,48 +44,68 @@ public final class CaseDataMapper {
 	private CaseDataMapper() {}
 
 	public static PagedPaymentResponse toPayments(final ApiPaginationCompositePersonBasedPaymentDTO composite) {
-		return Optional.ofNullable(composite)
-			.map(source -> mapList(source.getResult(), CaseDataMapper::toPayment))
-			.map(payments -> PagedPaymentResponse.create()
-				.withPayments(payments)
-				.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), payments.size())))
-			.orElseGet(() -> PagedPaymentResponse.create().withPayments(emptyList()));
+		if (composite == null) {
+			return PagedPaymentResponse.create().withPayments(emptyList());
+		}
+
+		final var payments = Optional.ofNullable(composite.getResult()).orElse(emptyList()).stream()
+			.map(CaseDataMapper::toPayment)
+			.toList();
+		return PagedPaymentResponse.create()
+			.withPayments(payments)
+			.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), payments.size()));
 	}
 
 	public static PagedInvestigationResponse toInvestigations(final ApiPaginationCompositePersonBasedInvestigationDTO composite) {
-		return Optional.ofNullable(composite)
-			.map(source -> mapList(source.getResult(), CaseDataMapper::toInvestigation))
-			.map(investigations -> PagedInvestigationResponse.create()
-				.withInvestigations(investigations)
-				.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), investigations.size())))
-			.orElseGet(() -> PagedInvestigationResponse.create().withInvestigations(emptyList()));
+		if (composite == null) {
+			return PagedInvestigationResponse.create().withInvestigations(emptyList());
+		}
+
+		final var investigations = Optional.ofNullable(composite.getResult()).orElse(emptyList()).stream()
+			.map(CaseDataMapper::toInvestigation)
+			.toList();
+		return PagedInvestigationResponse.create()
+			.withInvestigations(investigations)
+			.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), investigations.size()));
 	}
 
 	public static PagedServiceResponse toCaseServices(final ApiPaginationCompositePersonBasedServiceDTO composite) {
-		return Optional.ofNullable(composite)
-			.map(source -> mapList(source.getResult(), CaseDataMapper::toCaseService))
-			.map(services -> PagedServiceResponse.create()
-				.withServices(services)
-				.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), services.size())))
-			.orElseGet(() -> PagedServiceResponse.create().withServices(emptyList()));
+		if (composite == null) {
+			return PagedServiceResponse.create().withServices(emptyList());
+		}
+
+		final var services = Optional.ofNullable(composite.getResult()).orElse(emptyList()).stream()
+			.map(CaseDataMapper::toCaseService)
+			.toList();
+		return PagedServiceResponse.create()
+			.withServices(services)
+			.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), services.size()));
 	}
 
 	public static PagedExecutionResponse toExecutions(final ApiPaginationCompositePersonBasedExecutionDTO composite) {
-		return Optional.ofNullable(composite)
-			.map(source -> mapList(source.getResult(), CaseDataMapper::toExecution))
-			.map(executions -> PagedExecutionResponse.create()
-				.withExecutions(executions)
-				.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), executions.size())))
-			.orElseGet(() -> PagedExecutionResponse.create().withExecutions(emptyList()));
+		if (composite == null) {
+			return PagedExecutionResponse.create().withExecutions(emptyList());
+		}
+
+		final var executions = Optional.ofNullable(composite.getResult()).orElse(emptyList()).stream()
+			.map(CaseDataMapper::toExecution)
+			.toList();
+		return PagedExecutionResponse.create()
+			.withExecutions(executions)
+			.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), executions.size()));
 	}
 
 	public static PagedResourceAllocationResponse toResourceAllocations(final ApiPaginationCompositePersonBasedResourceAllocationDTO composite) {
-		return Optional.ofNullable(composite)
-			.map(source -> mapList(source.getResult(), CaseDataMapper::toResourceAllocation))
-			.map(resourceAllocations -> PagedResourceAllocationResponse.create()
-				.withResourceAllocations(resourceAllocations)
-				.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), resourceAllocations.size())))
-			.orElseGet(() -> PagedResourceAllocationResponse.create().withResourceAllocations(emptyList()));
+		if (composite == null) {
+			return PagedResourceAllocationResponse.create().withResourceAllocations(emptyList());
+		}
+
+		final var resourceAllocations = Optional.ofNullable(composite.getResult()).orElse(emptyList()).stream()
+			.map(CaseDataMapper::toResourceAllocation)
+			.toList();
+		return PagedResourceAllocationResponse.create()
+			.withResourceAllocations(resourceAllocations)
+			.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), resourceAllocations.size()));
 	}
 
 	private static Payment toPayment(final PersonBasedPaymentDTO payment) {

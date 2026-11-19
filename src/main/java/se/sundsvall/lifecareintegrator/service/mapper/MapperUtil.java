@@ -6,15 +6,12 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
 
 import static java.time.Month.DECEMBER;
 import static java.time.Month.JANUARY;
-import static java.util.Collections.emptyList;
 
 /**
  * Shared mapping helpers for the vendor models. Both vendor APIs send date-times without a zone or an offset
@@ -45,14 +42,6 @@ final class MapperUtil {
 	private static final LocalDate NO_END_DATE = LocalDate.of(9999, DECEMBER, 31);
 
 	private MapperUtil() {}
-
-	static <S, T> List<T> mapList(final List<S> source, final Function<S, T> mapper) {
-		return Optional.ofNullable(source)
-			.map(list -> list.stream()
-				.map(mapper)
-				.toList())
-			.orElse(emptyList());
-	}
 
 	/**
 	 * The date part of an EC date-time, with both of EC's sentinels resolved to {@code null}.

@@ -36,11 +36,9 @@ public final class PersonMapper {
 	}
 
 	public static List<Contact> toContacts(final List<PersonBasedContactDTO> contacts) {
-		return Optional.ofNullable(contacts)
-			.map(list -> list.stream()
-				.map(PersonMapper::toContact)
-				.toList())
-			.orElse(emptyList());
+		return Optional.ofNullable(contacts).orElse(emptyList()).stream()
+			.map(PersonMapper::toContact)
+			.toList();
 	}
 
 	private static Contact toContact(final PersonBasedContactDTO contact) {

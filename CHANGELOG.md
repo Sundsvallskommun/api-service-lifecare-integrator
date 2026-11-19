@@ -6,6 +6,7 @@ Every change to the service, newest date first. One short line per change.
 
 - Give a person without a personnummer a null party id explicitly, and test the party id mapping in every flow.
 - Replace the text-only PDF fixture in `DocumentsIT` with a minimal binary PDF, so git never converts its line endings.
+- Map lists inline in the mappers and drop `mapList` and its local copies; paged mappings return early on a null composite.
 
 ## 2026-11-18
 

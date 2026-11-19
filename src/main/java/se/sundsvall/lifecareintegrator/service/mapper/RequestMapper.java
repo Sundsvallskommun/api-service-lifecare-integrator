@@ -11,8 +11,8 @@ import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationRequest;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateCalculationRequest;
 
+import static java.util.Collections.emptyList;
 import static se.sundsvall.lifecareintegrator.integration.lifecarefc.FamilyCareDates.startOfDay;
-import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.mapList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toDouble;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDateTime;
 
@@ -57,28 +57,36 @@ public final class RequestMapper {
 				.calculationToDate(startOfDay(source.getCalculationToDate()))
 				.hasCustomHouseholdSize(source.getHasCustomHouseholdSize())
 				.householdSize(source.getHouseholdSize())
-				.calculationPersons(mapList(source.getPersons(), person -> new PersonBasedCalculationPersonPostDTO()
-					.personId(personNumbersByPartyId.get(person.getPartyId()))
-					.numberOfDays(person.getNumberOfDays())
-					.deviationFromDate(toLocalDateTime(person.getDeviationFromDate()))
-					.deviationToDate(toLocalDateTime(person.getDeviationToDate()))))
-				.calculationIncomes(mapList(source.getIncomes(), income -> new PersonBasedCalculationIncomePostDTO()
-					.id(income.getTypeId())
-					.applicantAmount(toDouble(income.getApplicantAmount()))
-					.applicantAmountDate(toLocalDateTime(income.getApplicantAmountDate()))
-					.coApplicantAmount(toDouble(income.getCoApplicantAmount()))
-					.coApplicantAmountDate(toLocalDateTime(income.getCoApplicantAmountDate()))
-					.note(income.getNote())))
-				.calculationExpenses(mapList(source.getExpenses(), expense -> new PersonBasedCalculationExpensePostDTO()
-					.id(expense.getTypeId())
-					.amount(toDouble(expense.getAmount()))
-					.approvedAmount(toDouble(expense.getApprovedAmount()))
-					.note(expense.getNote())))
-				.calculationSpecialExpenses(mapList(source.getSpecialExpenses(), specialExpense -> new PersonBasedCalculationSpecialExpensePostDTO()
-					.id(specialExpense.getTypeId())
-					.amount(toDouble(specialExpense.getAmount()))
-					.approvedAmount(toDouble(specialExpense.getApprovedAmount()))
-					.note(specialExpense.getNote()))))
+				.calculationPersons(Optional.ofNullable(source.getPersons()).orElse(emptyList()).stream()
+					.map(person -> new PersonBasedCalculationPersonPostDTO()
+						.personId(personNumbersByPartyId.get(person.getPartyId()))
+						.numberOfDays(person.getNumberOfDays())
+						.deviationFromDate(toLocalDateTime(person.getDeviationFromDate()))
+						.deviationToDate(toLocalDateTime(person.getDeviationToDate())))
+					.toList())
+				.calculationIncomes(Optional.ofNullable(source.getIncomes()).orElse(emptyList()).stream()
+					.map(income -> new PersonBasedCalculationIncomePostDTO()
+						.id(income.getTypeId())
+						.applicantAmount(toDouble(income.getApplicantAmount()))
+						.applicantAmountDate(toLocalDateTime(income.getApplicantAmountDate()))
+						.coApplicantAmount(toDouble(income.getCoApplicantAmount()))
+						.coApplicantAmountDate(toLocalDateTime(income.getCoApplicantAmountDate()))
+						.note(income.getNote()))
+					.toList())
+				.calculationExpenses(Optional.ofNullable(source.getExpenses()).orElse(emptyList()).stream()
+					.map(expense -> new PersonBasedCalculationExpensePostDTO()
+						.id(expense.getTypeId())
+						.amount(toDouble(expense.getAmount()))
+						.approvedAmount(toDouble(expense.getApprovedAmount()))
+						.note(expense.getNote()))
+					.toList())
+				.calculationSpecialExpenses(Optional.ofNullable(source.getSpecialExpenses()).orElse(emptyList()).stream()
+					.map(specialExpense -> new PersonBasedCalculationSpecialExpensePostDTO()
+						.id(specialExpense.getTypeId())
+						.amount(toDouble(specialExpense.getAmount()))
+						.approvedAmount(toDouble(specialExpense.getApprovedAmount()))
+						.note(specialExpense.getNote()))
+					.toList()))
 			.orElse(null);
 	}
 
