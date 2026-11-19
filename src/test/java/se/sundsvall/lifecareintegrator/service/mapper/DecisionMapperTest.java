@@ -18,14 +18,16 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
 import se.sundsvall.lifecareintegrator.api.model.elderlycare.ElderlyCareDecisionDetails;
+import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
 
 import static java.time.Month.FEBRUARY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 class DecisionMapperTest {
 
-	/** Stands in for the batch party lookup: every personnummer resolves, prefixed so the mapping is visible. */
-	private static final Map<String, String> PARTY_IDS = Map.of("199001011234", "party-199001011234");
+	/** The batch party lookup's answer: only 199001011234 resolves. */
+	private static final Map<String, String> PARTY_IDS = Map.of("199001011234", "party-1");
 
 	/** No caseworker names — Lifecare supplies the name in every case these tests cover. */
 	private static final Map<String, String> NO_NAMES = Map.of();
@@ -188,10 +190,10 @@ class DecisionMapperTest {
 			.coApplicant("Berit Bengtsson")
 			.reasonCoApplicant("Bifall")
 			.connectedApplication(999)
-			.decisionPersonDTOs(List.of(new PersonBasedDecisionPersonDTO()
-				.personId("199001011234")
-				.name("Kalle Karlsson")
-				.isCoApplicant(false)));
+			.decisionPersonDTOs(List.of(
+				new PersonBasedDecisionPersonDTO().personId("199001011234").name("Kalle Karlsson").isCoApplicant(false),
+				new PersonBasedDecisionPersonDTO().personId("201001011234").name("Okänd Person").isCoApplicant(true),
+				new PersonBasedDecisionPersonDTO().personId(null).name("Utan Personnummer").isCoApplicant(false)));
 
 		// Act
 		final var result = DecisionMapper.toDecision(source, PARTY_IDS);
@@ -217,10 +219,14 @@ class DecisionMapperTest {
 		assertThat(details.getReasonCoApplicant()).isEqualTo("Bifall");
 		assertThat(details.getConnectedApplication()).isEqualTo(999);
 
-		// The person id (personnummer) must never survive the mapping
-		assertThat(details.getPersons()).hasSize(1);
-		assertThat(details.getPersons().getFirst().getName()).isEqualTo("Kalle Karlsson");
-		assertThat(details.getPersons().getFirst().getCoApplicant()).isFalse();
+		// The personnummer is swapped for the party id; unresolvable persons keep a null party id
+		assertThat(details.getPersons())
+			.extracting(RelatedPerson::getPartyId, RelatedPerson::getName, RelatedPerson::getCoApplicant)
+			.containsExactly(
+				tuple("party-1", "Kalle Karlsson", false),
+				tuple(null, "Okänd Person", true),
+				tuple(null, "Utan Personnummer", false));
+		assertThat(result.toString()).doesNotContain("199001011234", "201001011234");
 	}
 
 	@Test
@@ -313,6 +319,21 @@ class DecisionMapperTest {
 			.id(4)
 			.sfbCaseworker(new WEECIntegrationContractsCommonV1Caseworker().fullName("")), names);
 		assertThat(withoutId.getElderlyCareDetails().getSfbCaseworker()).isNull();
+	}
+
+	@Test
+	void collectPersonNumbers() {
+		final var decisions = List.of(
+			new PersonBasedDecisionDTO().decisionPersonDTOs(List.of(
+				new PersonBasedDecisionPersonDTO().personId("199001011234"),
+				new PersonBasedDecisionPersonDTO().personId(null))),
+			new PersonBasedDecisionDTO().decisionPersonDTOs(List.of(
+				new PersonBasedDecisionPersonDTO().personId("199001011234"),
+				new PersonBasedDecisionPersonDTO().personId("201001011234"))),
+			new PersonBasedDecisionDTO().decisionPersonDTOs(null));
+
+		assertThat(DecisionMapper.collectPersonNumbers(decisions)).containsExactly("199001011234", "201001011234");
+		assertThat(DecisionMapper.collectPersonNumbers(null)).isEmpty();
 	}
 
 	@Test

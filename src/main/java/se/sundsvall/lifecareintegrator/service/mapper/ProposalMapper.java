@@ -20,6 +20,7 @@ import se.sundsvall.lifecareintegrator.api.model.familycare.ProposalCase;
 
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.mapList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toPartyId;
 
 /**
  * Maps the FC proposal lookups (the valid code lists used to build actualisation/calculation create requests) to the
@@ -89,9 +90,8 @@ public final class ProposalMapper {
 					.withName(norm.getName())
 					.withValidFrom(toLocalDate(norm.getFromDate()))
 					.withValidTo(toLocalDate(norm.getToDate()))))
-				// The household member person number is swapped for a partyId — unresolved members keep a null partyId
 				.withHouseholdMembers(mapList(source.getHouseholdMembers(), member -> HouseholdMember.create()
-					.withPartyId(partyIdsByPersonNumber.get(member.getPersonId()))
+					.withPartyId(toPartyId(member.getPersonId(), partyIdsByPersonNumber))
 					.withName(member.getName())
 					.withChildFromOtherHousehold(member.getChildFromOtherHousehold())))
 				.withIncomeTypes(mapList(source.getCalculationIncomeTypes(), incomeType -> toLookup(incomeType.getId(), incomeType.getName())))

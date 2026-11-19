@@ -20,8 +20,8 @@ import static org.assertj.core.api.Assertions.tuple;
 
 class CalculationMapperTest {
 
-	/** Stands in for the batch party lookup: every personnummer resolves, prefixed so the mapping is visible. */
-	private static final Map<String, String> PARTY_IDS = Map.of("199001011234", "party-199001011234");
+	/** The batch party lookup's answer: only 199001011234 resolves. */
+	private static final Map<String, String> PARTY_IDS = Map.of("199001011234", "party-1");
 
 	@Test
 	void toCalculationsWithNull() {
@@ -59,12 +59,15 @@ class CalculationMapperTest {
 			.serviceId(3)
 			._final(true)
 			.connectedApplication(4)
-			.calculationPersonDTOs(List.of(new PersonBasedCalculationPersonDTO()
-				.personId("199001011234")
-				.name("Kalle Karlsson")
-				.amount(4000.0)
-				.deviationFromDate("2026-05-01")
-				.deviationToDate("2026-05-31")))
+			.calculationPersonDTOs(List.of(
+				new PersonBasedCalculationPersonDTO()
+					.personId("199001011234")
+					.name("Kalle Karlsson")
+					.amount(4000.0)
+					.deviationFromDate("2026-05-01")
+					.deviationToDate("2026-05-31"),
+				new PersonBasedCalculationPersonDTO().personId("201001011234").name("Okänd Person"),
+				new PersonBasedCalculationPersonDTO().personId(null).name("Utan Personnummer")))
 			.calculationIncomesDTOs(List.of(new CommonCalculationIncomeDTO()
 				.type("Lön")
 				.amountApplicant(9000.0)
@@ -101,10 +104,15 @@ class CalculationMapperTest {
 		assertThat(result.getFinalCalculation()).isTrue();
 		assertThat(result.getConnectedApplication()).isEqualTo(4);
 
-		// The person id (personnummer) must never survive the mapping
+		// The personnummer is swapped for the party id; unresolvable persons keep a null party id
 		assertThat(result.getPersons())
-			.extracting(CalculationPerson::getName, CalculationPerson::getAmount, CalculationPerson::getDeviationFromDate, CalculationPerson::getDeviationToDate)
-			.containsExactly(tuple("Kalle Karlsson", BigDecimal.valueOf(4000.0), LocalDate.parse("2026-05-01"), LocalDate.parse("2026-05-31")));
+			.extracting(CalculationPerson::getPartyId, CalculationPerson::getName, CalculationPerson::getAmount, CalculationPerson::getDeviationFromDate,
+				CalculationPerson::getDeviationToDate)
+			.containsExactly(
+				tuple("party-1", "Kalle Karlsson", BigDecimal.valueOf(4000.0), LocalDate.parse("2026-05-01"), LocalDate.parse("2026-05-31")),
+				tuple(null, "Okänd Person", null, null, null),
+				tuple(null, "Utan Personnummer", null, null, null));
+		assertThat(result.toString()).doesNotContain("199001011234", "201001011234");
 
 		assertThat(result.getIncomes())
 			.extracting(CalculationIncome::getType, CalculationIncome::getAmountApplicant, CalculationIncome::getApplicantSearchDate,
@@ -152,5 +160,20 @@ class CalculationMapperTest {
 		assertThat(result.getCalculations()).hasSize(1);
 		assertThat(result.getCalculations().getFirst().getId()).isEqualTo(1);
 		assertThat(result.getCalculations().getFirst().getNorm()).isEqualTo("Riksnorm 2026");
+	}
+
+	@Test
+	void collectPersonNumbers() {
+		final var composite = new ApiPaginationCompositePersonBasedCalculationDTO().result(List.of(
+			new PersonBasedCalculationDTO().calculationPersonDTOs(List.of(
+				new PersonBasedCalculationPersonDTO().personId("199001011234"),
+				new PersonBasedCalculationPersonDTO().personId(null))),
+			new PersonBasedCalculationDTO().calculationPersonDTOs(List.of(
+				new PersonBasedCalculationPersonDTO().personId("199001011234"),
+				new PersonBasedCalculationPersonDTO().personId("201001011234"))),
+			new PersonBasedCalculationDTO().calculationPersonDTOs(null)));
+
+		assertThat(CalculationMapper.collectPersonNumbers(composite)).containsExactly("199001011234", "201001011234");
+		assertThat(CalculationMapper.collectPersonNumbers(null)).isEmpty();
 	}
 }

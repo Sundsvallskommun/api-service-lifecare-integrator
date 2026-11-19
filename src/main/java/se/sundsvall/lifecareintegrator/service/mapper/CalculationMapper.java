@@ -20,6 +20,7 @@ import static java.util.Collections.emptyList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toBigDecimal;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toPagingMetaData;
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toPartyId;
 
 public final class CalculationMapper {
 
@@ -76,10 +77,6 @@ public final class CalculationMapper {
 			.orElse(null);
 	}
 
-	/**
-	 * Every personnummer appearing on the persons of these calculations, so the caller can resolve them in one batch
-	 * rather than one lookup per person.
-	 */
 	public static List<String> collectPersonNumbers(final ApiPaginationCompositePersonBasedCalculationDTO composite) {
 		return Optional.ofNullable(composite)
 			.map(ApiPaginationCompositePersonBasedCalculationDTO::getResult)
@@ -93,14 +90,10 @@ public final class CalculationMapper {
 			.toList();
 	}
 
-	/**
-	 * The personnummer Lifecare carries on a calculation person is replaced by the party id it resolves to — the
-	 * personnummer itself never leaves this service. A person the party service cannot resolve keeps a null party id;
-	 * the name is still useful to a consumer, and dropping the row would silently shrink a household instead.
-	 */
+	/** An unresolvable person keeps a null party id rather than being dropped, which would shrink the household. */
 	private static CalculationPerson toCalculationPerson(final PersonBasedCalculationPersonDTO person, final Map<String, String> partyIdsByPersonNumber) {
 		return CalculationPerson.create()
-			.withPartyId(partyIdsByPersonNumber.get(person.getPersonId()))
+			.withPartyId(toPartyId(person.getPersonId(), partyIdsByPersonNumber))
 			.withName(person.getName())
 			.withAmount(toBigDecimal(person.getAmount()))
 			.withDeviationFromDate(toLocalDate(person.getDeviationFromDate()))

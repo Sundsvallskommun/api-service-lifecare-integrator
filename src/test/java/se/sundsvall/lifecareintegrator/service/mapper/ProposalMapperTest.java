@@ -115,7 +115,8 @@ class ProposalMapperTest {
 			.norms(List.of(new PersonBasedCalculationNormDTO().id(3).name("Riksnorm 2026").fromDate("2026-01-01").toDate("2026-12-31")))
 			.householdMembers(List.of(
 				new PersonBasedCalculationHouseholdMemberDTO().personId(PERSON_NUMBER).name("Kalle Karlsson").childFromOtherHousehold(false),
-				new PersonBasedCalculationHouseholdMemberDTO().personId(UNRESOLVED_PERSON_NUMBER).name("Lisa Larsson").childFromOtherHousehold(true)))
+				new PersonBasedCalculationHouseholdMemberDTO().personId(UNRESOLVED_PERSON_NUMBER).name("Lisa Larsson").childFromOtherHousehold(true),
+				new PersonBasedCalculationHouseholdMemberDTO().personId(null).name("Utan Personnummer").childFromOtherHousehold(false)))
 			.calculationIncomeTypes(List.of(new PersonBasedCalculationCalculationIncomeTypeDTO().id(4).name("Lön")))
 			.calculationExpenseTypes(List.of(new PersonBasedCalculationExpenseTypeDTO().id(5).name("Hyra")))
 			.calculationSpecialExpenseTypes(List.of(new PersonBasedCalculationSpecialExpenseTypeDTO().id(6).name("Tandvård")))
@@ -142,7 +143,8 @@ class ProposalMapperTest {
 			.extracting(HouseholdMember::getPartyId, HouseholdMember::getName, HouseholdMember::getChildFromOtherHousehold)
 			.containsExactly(
 				tuple(PARTY_ID, "Kalle Karlsson", false),
-				tuple(null, "Lisa Larsson", true));
+				tuple(null, "Lisa Larsson", true),
+				tuple(null, "Utan Personnummer", false));
 
 		assertThat(result.getIncomeTypes()).extracting(Lookup::getId, Lookup::getName).containsExactly(tuple(4, "Lön"));
 		assertThat(result.getExpenseTypes()).extracting(Lookup::getId, Lookup::getName).containsExactly(tuple(5, "Hyra"));

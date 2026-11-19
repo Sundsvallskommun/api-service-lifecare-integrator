@@ -7,6 +7,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
@@ -76,6 +77,12 @@ final class MapperUtil {
 		return Optional.ofNullable(date)
 			.filter(value -> value.length() >= ISO_DATE_LENGTH)
 			.map(MapperUtil::parseLocalDate)
+			.orElse(null);
+	}
+
+	static String toPartyId(final String personNumber, final Map<String, String> partyIdsByPersonNumber) {
+		return Optional.ofNullable(personNumber)
+			.map(partyIdsByPersonNumber::get)
 			.orElse(null);
 	}
 

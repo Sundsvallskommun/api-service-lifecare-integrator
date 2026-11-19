@@ -1,8 +1,11 @@
 package se.sundsvall.lifecareintegrator.service;
 
 import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedAktualiseringDTO;
+import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedCalculationDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringDTO;
+import generated.se.sundsvall.lifecarefc.PersonBasedCalculationDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedCalculationHouseholdMemberDTO;
+import generated.se.sundsvall.lifecarefc.PersonBasedCalculationPersonDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedCalculationProposalDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedContactDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedPersonDTO;
@@ -229,6 +232,53 @@ class FamilyCareServiceTest {
 		assertThat(result.getHouseholdMembers()).hasSize(1);
 		assertThat(result.getHouseholdMembers().getFirst().getPartyId()).isEqualTo(MEMBER_PARTY_ID);
 		assertThat(result.getHouseholdMembers().getFirst().getName()).isEqualTo("Member");
+	}
+
+	@Test
+	void getCalculationProposalWithoutHouseholdMembers() {
+		// Mock: FC may send "HouseholdMembers": null
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareFcIntegrationMock.getCalculationProposal(PERSON_NUMBER)).thenReturn(new PersonBasedCalculationProposalDTO().householdMembers(null));
+
+		// Act
+		final var result = familyCareService.getCalculationProposal(MUNICIPALITY_ID, PARTY_ID);
+
+		// Verify
+		assertThat(result.getHouseholdMembers()).isEmpty();
+		verify(partyIntegrationMock).getPartyIds(MUNICIPALITY_ID, List.of());
+	}
+
+	@Test
+	void getCalculationProposalWithoutProposal() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareFcIntegrationMock.getCalculationProposal(PERSON_NUMBER)).thenReturn(null);
+
+		// Act & verify
+		assertThat(familyCareService.getCalculationProposal(MUNICIPALITY_ID, PARTY_ID)).isNull();
+	}
+
+	@Test
+	void getCalculationsSwapsPersonNumbersForPartyIds() {
+		// Parameter values
+		final var parameters = new PeriodParameters();
+		parameters.setPartyId(PARTY_ID);
+
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(lifecareFcIntegrationMock.getCalculations(any(), any(), any(), any(), any(), any())).thenReturn(new ApiPaginationCompositePersonBasedCalculationDTO()
+			.result(List.of(new PersonBasedCalculationDTO().id(1).calculationPersonDTOs(List.of(
+				new PersonBasedCalculationPersonDTO().personId(MEMBER_PERSON_NUMBER).name("Member"))))));
+		when(partyIntegrationMock.getPartyIds(MUNICIPALITY_ID, List.of(MEMBER_PERSON_NUMBER))).thenReturn(Map.of(MEMBER_PERSON_NUMBER, MEMBER_PARTY_ID));
+
+		// Act
+		final var result = familyCareService.getCalculations(MUNICIPALITY_ID, parameters);
+
+		// Verify: persons expose partyId, never the person number
+		assertThat(result.getCalculations()).singleElement()
+			.satisfies(calculation -> assertThat(calculation.getPersons()).singleElement()
+				.satisfies(person -> assertThat(person.getPartyId()).isEqualTo(MEMBER_PARTY_ID)));
+		assertThat(result.toString()).doesNotContain(MEMBER_PERSON_NUMBER);
 	}
 
 	@Test

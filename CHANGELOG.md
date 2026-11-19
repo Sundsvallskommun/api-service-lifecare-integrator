@@ -2,6 +2,11 @@
 
 Every change to the service, newest date first. One short line per change.
 
+## 2026-11-19
+
+- Give a person without a personnummer a null party id explicitly, and test the party id mapping in every flow.
+- Replace the text-only PDF fixture in `DocumentsIT` with a minimal binary PDF, so git never converts its line endings.
+
 ## 2026-11-18
 
 - Add `docs/` with architecture and integration notes, `AGENTS.md` and this changelog.

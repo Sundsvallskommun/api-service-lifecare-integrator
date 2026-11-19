@@ -20,6 +20,7 @@ import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
 import static org.springframework.util.StringUtils.hasText;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toBigDecimal;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toPartyId;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toStringValue;
 
 public final class DecisionMapper {
@@ -162,26 +163,18 @@ public final class DecisionMapper {
 			.deleted(lss.getDeleted());
 	}
 
-	/**
-	 * The personnummer Lifecare carries on a decision person is replaced by the party id it resolves to — the
-	 * personnummer itself never leaves this service. An unresolvable person keeps a null party id rather than being
-	 * dropped, so a consumer can still see that the decision concerned someone it could not identify.
-	 */
+	/** An unresolvable person keeps a null party id, so a consumer still sees that the decision concerned someone. */
 	private static List<RelatedPerson> toRelatedPersons(final List<PersonBasedDecisionPersonDTO> persons, final Map<String, String> partyIdsByPersonNumber) {
 		return Optional.ofNullable(persons)
 			.map(list -> list.stream()
 				.map(person -> RelatedPerson.create()
-					.withPartyId(partyIdsByPersonNumber.get(person.getPersonId()))
+					.withPartyId(toPartyId(person.getPersonId(), partyIdsByPersonNumber))
 					.withName(person.getName())
 					.withCoApplicant(person.getIsCoApplicant()))
 				.toList())
 			.orElse(null);
 	}
 
-	/**
-	 * Every personnummer appearing on the persons of these decisions, so the caller can resolve them in one batch
-	 * rather than one lookup per person.
-	 */
 	public static List<String> collectPersonNumbers(final List<PersonBasedDecisionDTO> decisions) {
 		return Optional.ofNullable(decisions)
 			.orElseGet(List::of).stream()

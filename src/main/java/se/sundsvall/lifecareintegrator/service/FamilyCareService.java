@@ -81,8 +81,8 @@ public class FamilyCareService {
 		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
 		final var calculations = lifecareFcIntegration.getCalculations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending());
-		final var partyIds = partyIntegration.getPartyIds(municipalityId, CalculationMapper.collectPersonNumbers(calculations));
-		return CalculationMapper.toCalculations(calculations, partyIds);
+		final var partyIdsByPersonNumber = partyIntegration.getPartyIds(municipalityId, CalculationMapper.collectPersonNumbers(calculations));
+		return CalculationMapper.toCalculations(calculations, partyIdsByPersonNumber);
 	}
 
 	public PagedPaymentResponse getPayments(final String municipalityId, final PeriodParameters parameters) {
@@ -150,9 +150,8 @@ public class FamilyCareService {
 	public CalculationProposal getCalculationProposal(final String municipalityId, final String partyId) {
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
 		final var proposal = lifecareFcIntegration.getCalculationProposal(personNumber);
-
-		final var partyIds = partyIntegration.getPartyIds(municipalityId, ProposalMapper.collectPersonNumbers(proposal));
-		return ProposalMapper.toCalculationProposal(proposal, partyIds);
+		final var partyIdsByPersonNumber = partyIntegration.getPartyIds(municipalityId, ProposalMapper.collectPersonNumbers(proposal));
+		return ProposalMapper.toCalculationProposal(proposal, partyIdsByPersonNumber);
 	}
 
 	public Integer createCalculation(final String municipalityId, final CreateCalculationRequest request) {

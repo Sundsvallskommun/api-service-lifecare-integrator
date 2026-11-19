@@ -112,9 +112,9 @@ public class DecisionService {
 	/** FC filters on the date window itself, and requires one: an open window falls back to a wide default. */
 	private List<Decision> getFamilyCareDecisions(final String municipalityId, final String personNumber, final DateWindow window) {
 		final var familyCareDecisions = lifecareFcIntegration.getAllDecisions(personNumber, window.start(), window.end());
-		final var partyIds = partyIntegration.getPartyIds(municipalityId, DecisionMapper.collectPersonNumbers(familyCareDecisions));
+		final var partyIdsByPersonNumber = partyIntegration.getPartyIds(municipalityId, DecisionMapper.collectPersonNumbers(familyCareDecisions));
 		return familyCareDecisions.stream()
-			.map(decision -> DecisionMapper.toDecision(decision, partyIds))
+			.map(decision -> DecisionMapper.toDecision(decision, partyIdsByPersonNumber))
 			.toList();
 	}
 
@@ -166,8 +166,8 @@ public class DecisionService {
 			.filter(decision -> decisionId.equals(String.valueOf(decision.getId())))
 			.findFirst()
 			.map(decision -> {
-				final var partyIds = partyIntegration.getPartyIds(municipalityId, DecisionMapper.collectPersonNumbers(List.of(decision)));
-				return DecisionMapper.toDecision(decision, partyIds);
+				final var partyIdsByPersonNumber = partyIntegration.getPartyIds(municipalityId, DecisionMapper.collectPersonNumbers(List.of(decision)));
+				return DecisionMapper.toDecision(decision, partyIdsByPersonNumber);
 			});
 	}
 
