@@ -15,7 +15,6 @@ import generated.se.sundsvall.lifecarefc.PersonBasedServiceDTO;
 import generated.se.sundsvall.lifecarefc.PersonBasedServicePersonDTO;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CaseService;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Execution;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Investigation;
@@ -130,7 +129,7 @@ public final class CaseDataMapper {
 				.withServiceId(source.getServiceId())
 				.withConnectedApplication(source.getConnectedApplication())
 				.withConcernedMonth(source.getConcernedMonth())
-				.withPersons(toNamedPersons(source.getPaymentPersonDTOs(), PersonBasedPaymentPersonDTO::getName)))
+				.withPersons(toPaymentPersons(source.getPaymentPersonDTOs())))
 			.orElse(null);
 	}
 
@@ -164,7 +163,7 @@ public final class CaseDataMapper {
 				.withDecisionId(source.getDecisionId())
 				.withApplicant(source.getApplicant())
 				.withCoApplicant(source.getCoApplicant())
-				.withPersons(toNamedPersons(source.getServicePersonDTOs(), PersonBasedServicePersonDTO::getName)))
+				.withPersons(toServicePersons(source.getServicePersonDTOs())))
 			.orElse(null);
 	}
 
@@ -194,16 +193,18 @@ public final class CaseDataMapper {
 			.orElse(null);
 	}
 
-	/**
-	 * Maps vendor case persons that carry a name only to {@link RelatedPerson} (co-applicant left null). The vendor
-	 * personId (personnummer) is intentionally dropped.
-	 */
-	private static <S> List<RelatedPerson> toNamedPersons(final List<S> persons, final Function<S, String> nameGetter) {
-		return Optional.ofNullable(persons)
-			.map(list -> list.stream()
-				.map(person -> RelatedPerson.create().withName(nameGetter.apply(person)))
-				.toList())
-			.orElse(null);
+	/** The vendor personId (personnummer) is intentionally dropped. */
+	private static List<RelatedPerson> toPaymentPersons(final List<PersonBasedPaymentPersonDTO> persons) {
+		return Optional.ofNullable(persons).orElse(emptyList()).stream()
+			.map(person -> RelatedPerson.create().withName(person.getName()))
+			.toList();
+	}
+
+	/** The vendor personId (personnummer) is intentionally dropped. */
+	private static List<RelatedPerson> toServicePersons(final List<PersonBasedServicePersonDTO> persons) {
+		return Optional.ofNullable(persons).orElse(emptyList()).stream()
+			.map(person -> RelatedPerson.create().withName(person.getName()))
+			.toList();
 	}
 
 	/**
@@ -211,12 +212,10 @@ public final class CaseDataMapper {
 	 * (personnummer) is intentionally dropped.
 	 */
 	private static List<RelatedPerson> toInvestigationPersons(final List<PersonBasedInvestigationPersonDTO> persons) {
-		return Optional.ofNullable(persons)
-			.map(list -> list.stream()
-				.map(person -> RelatedPerson.create()
-					.withName(person.getName())
-					.withCoApplicant(person.getCoApplicant()))
-				.toList())
-			.orElse(null);
+		return Optional.ofNullable(persons).orElse(emptyList()).stream()
+			.map(person -> RelatedPerson.create()
+				.withName(person.getName())
+				.withCoApplicant(person.getCoApplicant()))
+			.toList();
 	}
 }

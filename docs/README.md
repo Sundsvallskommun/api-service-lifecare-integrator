@@ -11,5 +11,6 @@ Getting started and configuration are in the [root README](../README.md). The AP
 | [integrations/lifecare-professionalweb.md](integrations/lifecare-professionalweb.md) | Pass-through to Lifecare's internal api2 surface                                |
 | [integrations/party.md](integrations/party.md)                                       | partyId ↔ personnummer                                                          |
 | [integrations/employee.md](integrations/employee.md)                                 | Display names for Lifecare caseworkers                                          |
+| [adr/0001-empty-lists-instead-of-null.md](adr/0001-empty-lists-instead-of-null.md)   | A list in a response is `[]`, never `null`                                      |
 
 Ownership, environments and contacts: Confluence. TODO: link to the service page.

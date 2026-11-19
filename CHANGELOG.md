@@ -8,6 +8,7 @@ Every change to the service, newest date first. One short line per change.
 - Replace the text-only PDF fixture in `DocumentsIT` with a minimal binary PDF, so git never converts its line endings.
 - Map lists inline in the mappers and drop `mapList` and its local copies; paged mappings return early on a null composite.
 - Split the proposal and calculation request mappings into one small converter per list.
+- Return nested lists in calculations, payments, investigations, services and family care decisions as `[]` instead of `null` (ADR 0001).
 
 ## 2026-11-18
 

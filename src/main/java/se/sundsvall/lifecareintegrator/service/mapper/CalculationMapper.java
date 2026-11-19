@@ -66,11 +66,9 @@ public final class CalculationMapper {
 	}
 
 	private static List<CalculationPerson> toCalculationPersons(final List<PersonBasedCalculationPersonDTO> persons, final Map<String, String> partyIdsByPersonNumber) {
-		return Optional.ofNullable(persons)
-			.map(list -> list.stream()
-				.map(person -> toCalculationPerson(person, partyIdsByPersonNumber))
-				.toList())
-			.orElse(null);
+		return Optional.ofNullable(persons).orElse(emptyList()).stream()
+			.map(person -> toCalculationPerson(person, partyIdsByPersonNumber))
+			.toList();
 	}
 
 	public static List<String> collectPersonNumbers(final ApiPaginationCompositePersonBasedCalculationDTO composite) {
@@ -97,11 +95,9 @@ public final class CalculationMapper {
 	}
 
 	private static List<CalculationIncome> toCalculationIncomes(final List<CommonCalculationIncomeDTO> incomes) {
-		return Optional.ofNullable(incomes)
-			.map(list -> list.stream()
-				.map(CalculationMapper::toCalculationIncome)
-				.toList())
-			.orElse(null);
+		return Optional.ofNullable(incomes).orElse(emptyList()).stream()
+			.map(CalculationMapper::toCalculationIncome)
+			.toList();
 	}
 
 	private static CalculationIncome toCalculationIncome(final CommonCalculationIncomeDTO income) {
@@ -114,11 +110,9 @@ public final class CalculationMapper {
 	}
 
 	private static List<CalculationExpense> toCalculationExpenses(final List<CommonCalculationExpenseDTO> expenses) {
-		return Optional.ofNullable(expenses)
-			.map(list -> list.stream()
-				.map(CalculationMapper::toCalculationExpense)
-				.toList())
-			.orElse(null);
+		return Optional.ofNullable(expenses).orElse(emptyList()).stream()
+			.map(CalculationMapper::toCalculationExpense)
+			.toList();
 	}
 
 	private static CalculationExpense toCalculationExpense(final CommonCalculationExpenseDTO expense) {
@@ -129,11 +123,9 @@ public final class CalculationMapper {
 	}
 
 	private static List<CalculationExpense> toCalculationSpecialExpenses(final List<CommonCalculationSpecialExpenseDTO> specialExpenses) {
-		return Optional.ofNullable(specialExpenses)
-			.map(list -> list.stream()
-				.map(CalculationMapper::toCalculationExpense)
-				.toList())
-			.orElse(null);
+		return Optional.ofNullable(specialExpenses).orElse(emptyList()).stream()
+			.map(CalculationMapper::toCalculationExpense)
+			.toList();
 	}
 
 	private static CalculationExpense toCalculationExpense(final CommonCalculationSpecialExpenseDTO specialExpense) {

@@ -129,6 +129,22 @@ class CalculationMapperTest {
 	}
 
 	@Test
+	void toCalculationWithoutLists() {
+		final var source = new PersonBasedCalculationDTO()
+			.calculationPersonDTOs(null)
+			.calculationIncomesDTOs(null)
+			.calculationExpensesDTOs(null)
+			.calculationSpecialExpensesDTOs(null);
+
+		final var result = CalculationMapper.toCalculation(source, PARTY_IDS);
+
+		assertThat(result.getPersons()).isEmpty();
+		assertThat(result.getIncomes()).isEmpty();
+		assertThat(result.getExpenses()).isEmpty();
+		assertThat(result.getSpecialExpenses()).isEmpty();
+	}
+
+	@Test
 	void toCalculationWithUnparseableDate() {
 		// Act
 		final var result = CalculationMapper.toCalculation(new PersonBasedCalculationDTO().fromDate("garbage-date").toDate("2026"), PARTY_IDS);

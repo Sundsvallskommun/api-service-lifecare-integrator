@@ -17,6 +17,7 @@ import se.sundsvall.lifecareintegrator.api.model.elderlycare.ElderlyCareDecision
 import se.sundsvall.lifecareintegrator.api.model.familycare.FamilyCareDecisionDetails;
 import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
 
+import static java.util.Collections.emptyList;
 import static org.springframework.util.StringUtils.hasText;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toBigDecimal;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
@@ -165,14 +166,12 @@ public final class DecisionMapper {
 
 	/** An unresolvable person keeps a null party id, so a consumer still sees that the decision concerned someone. */
 	private static List<RelatedPerson> toRelatedPersons(final List<PersonBasedDecisionPersonDTO> persons, final Map<String, String> partyIdsByPersonNumber) {
-		return Optional.ofNullable(persons)
-			.map(list -> list.stream()
-				.map(person -> RelatedPerson.create()
-					.withPartyId(toPartyId(person.getPersonId(), partyIdsByPersonNumber))
-					.withName(person.getName())
-					.withCoApplicant(person.getIsCoApplicant()))
-				.toList())
-			.orElse(null);
+		return Optional.ofNullable(persons).orElse(emptyList()).stream()
+			.map(person -> RelatedPerson.create()
+				.withPartyId(toPartyId(person.getPersonId(), partyIdsByPersonNumber))
+				.withName(person.getName())
+				.withCoApplicant(person.getIsCoApplicant()))
+			.toList();
 	}
 
 	public static List<String> collectPersonNumbers(final List<PersonBasedDecisionDTO> decisions) {

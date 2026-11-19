@@ -230,6 +230,13 @@ class DecisionMapperTest {
 	}
 
 	@Test
+	void toDecisionFromFcDecisionWithoutPersons() {
+		final var result = DecisionMapper.toDecision(new PersonBasedDecisionDTO().decisionPersonDTOs(null), PARTY_IDS);
+
+		assertThat(result.getFamilyCareDetails().getPersons()).isEmpty();
+	}
+
+	@Test
 	void toDecisionFromFcDecisionWithNull() {
 		assertThat(DecisionMapper.toDecision((PersonBasedDecisionDTO) null, PARTY_IDS)).isNull();
 	}

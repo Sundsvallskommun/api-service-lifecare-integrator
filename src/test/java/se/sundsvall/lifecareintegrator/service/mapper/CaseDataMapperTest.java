@@ -108,6 +108,20 @@ class CaseDataMapperTest {
 	}
 
 	@Test
+	void toCaseDataWithoutPersons() {
+		final var payments = CaseDataMapper.toPayments(new ApiPaginationCompositePersonBasedPaymentDTO()
+			.result(List.of(new PersonBasedPaymentDTO().paymentPersonDTOs(null))));
+		final var investigations = CaseDataMapper.toInvestigations(new ApiPaginationCompositePersonBasedInvestigationDTO()
+			.result(List.of(new PersonBasedInvestigationDTO().investigationPersonDTOs(null))));
+		final var services = CaseDataMapper.toCaseServices(new ApiPaginationCompositePersonBasedServiceDTO()
+			.result(List.of(new PersonBasedServiceDTO().servicePersonDTOs(null))));
+
+		assertThat(payments.getPayments().getFirst().getPersons()).isEmpty();
+		assertThat(investigations.getInvestigations().getFirst().getPersons()).isEmpty();
+		assertThat(services.getServices().getFirst().getPersons()).isEmpty();
+	}
+
+	@Test
 	void toInvestigationsWithNull() {
 		final var result = CaseDataMapper.toInvestigations(null);
 		assertThat(result).isNotNull();

@@ -25,6 +25,8 @@ TODO: list the services that call this one. The only one known from the code is 
   would confirm that the id exists. See `DecisionService`.
 - **Lifecare's error messages are kept.** Lifecare answers in ASP.NET's `{"Message": "…"}`, not RFC 9457.
   `LifecareErrorDecoder` carries the message on as the problem's `detail`.
+- **A list in a response is never null.** A missing list from Lifecare becomes `[]`, see
+  [adr/0001](adr/0001-empty-lists-instead-of-null.md).
 - **ProfessionalWeb traffic is never logged.** It carries personnummer and free text in both directions, so its paths
   are excluded from logbook in `application.yml`.
 
