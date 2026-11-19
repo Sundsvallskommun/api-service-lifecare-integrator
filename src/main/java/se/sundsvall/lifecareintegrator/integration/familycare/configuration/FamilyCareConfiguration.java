@@ -18,33 +18,14 @@ import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
-/**
- * Builds the {@link se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareClient} customizer: query-string
- * authentication with a per-request key, HTTP/1.1, and Feign logging off.
- *
- * <p>
- * FC licences the {@code Users/*} directory to a different consumer from the person-based case APIs, so requests into
- * {@code /Users} are authenticated with {@link FamilyCareProperties#userKeyOrDefault()} and everything else with
- * {@link FamilyCareProperties#key()}. Authentication is applied by {@link LifecareApiKey}.
- *
- * <p>
- * Feign logging is pinned to {@link Logger.Level#NONE}, overriding the dept44 default of {@code FULL}: FC request URLs
- * carry the personnummer and the API key, so any higher level would log both as soon as the client logger reached
- * {@code DEBUG}.
- */
 @Import(FeignConfiguration.class)
 @EnableConfigurationProperties(FamilyCareProperties.class)
 public class FamilyCareConfiguration {
 
 	public static final String CLIENT_ID = "familycare";
 
-	/** The path segment marking the separately licensed FC user directory ({@code /apifc/v1/Users/*}). */
 	static final String USERS_PATH_SEGMENT = "/Users";
 
-	/**
-	 * Overrides the dept44 {@code okHttpClient} bean for this Feign client only, pinning the connection to HTTP/1.1 —
-	 * see {@link LifecareOkHttpClientFactory} for why Lifecare's IIS requires it.
-	 */
 	@Bean
 	Client okHttpClient(final Truststore truststore) {
 		return LifecareOkHttpClientFactory.http11Client(truststore);
@@ -53,8 +34,6 @@ public class FamilyCareConfiguration {
 	@Bean
 	FeignBuilderCustomizer feignBuilderCustomizer(final FamilyCareProperties properties) {
 		return FeignMultiCustomizer.create()
-			// Bypass 404 so a "no such resource" surfaces as NOT_FOUND (handled by FamilyCareIntegration) instead of the
-			// default BAD_GATEWAY — e.g. a person or document content that does not exist.
 			.withErrorDecoder(new LifecareErrorDecoder(CLIENT_ID, List.of(NOT_FOUND.value())))
 			.withRequestInterceptor(template -> addAuthentication(template, properties))
 			.withCustomizer(builder -> builder.logLevel(Logger.Level.valueOf(properties.logLevel())))
@@ -68,7 +47,6 @@ public class FamilyCareConfiguration {
 		LifecareApiKey.applyTo(template, properties.domain(), key);
 	}
 
-	/** The licence key the given request path is authenticated with — see the class documentation. */
 	static String keyFor(final String path, final FamilyCareProperties properties) {
 		if (ofNullable(path).orElse("").contains(USERS_PATH_SEGMENT)) {
 			return properties.userKeyOrDefault();

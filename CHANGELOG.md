@@ -13,6 +13,7 @@ Every change to the service, newest date first. One short line per change.
 - Split `DecisionMapper` into `ElderlyCareDecisionMapper` and `FamilyCareDecisionMapper`, and move the source and law values to `DecisionConstants`.
 - Rename the Lifecare EC and FC integrations to `elderlycare` and `familycare` in packages, classes and configuration, which breaks deployments: the keys become `integration.elderlycare.*` and `integration.familycare.*` (env `INTEGRATION_ELDERLYCARE_*`, `INTEGRATION_FAMILYCARE_*` including `USERKEY`), and the Feign client, circuit breaker and error message names change to match.
 - Remove the comments from `ElderlyCareClient` and `FamilyCareClient`, and name every `@RequestParam` in `FamilyCareClient` with `value =`.
+- Remove the Javadoc from the elderly care and family care configuration classes, and document the logging level and the FC 404 in `docs/integrations/`.
 
 ## 2026-11-18
 

@@ -40,5 +40,8 @@ consumer and may need its own `user-key`. The two surfaces refuse the wrong key 
 - The period reads require both dates. An open window in our API falls back to a ten-year default. See
   `service/DateWindow.java`.
 - Errors arrive as `{"Message": "…"}` and are kept as the problem's `detail`. See `integration/LifecareErrorDecoder.java`.
+- A 404, such as a missing person or a document without a PDF, reaches the caller as 404 rather than 502.
+- Feign logging defaults to `NONE` (`log-level`). Request URLs carry the personnummer and the API key, so any higher
+  level writes both to the log.
 
 TODO: field mapping notes and code values not documented in the spec.

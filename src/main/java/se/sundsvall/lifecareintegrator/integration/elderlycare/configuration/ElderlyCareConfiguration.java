@@ -14,24 +14,12 @@ import se.sundsvall.lifecareintegrator.integration.LifecareApiKey;
 import se.sundsvall.lifecareintegrator.integration.LifecareErrorDecoder;
 import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
 
-/**
- * Builds the {@link se.sundsvall.lifecareintegrator.integration.elderlycare.ElderlyCareClient} customizer: query-string
- * authentication, HTTP/1.1, and Feign logging off.
- *
- * <p>
- * Authentication is applied by {@link LifecareApiKey}, which is also where the rule that the key may not travel in a
- * header is documented.
- */
 @Import(FeignConfiguration.class)
 @EnableConfigurationProperties(ElderlyCareProperties.class)
 public class ElderlyCareConfiguration {
 
 	public static final String CLIENT_ID = "elderlycare";
 
-	/**
-	 * Overrides the dept44 {@code okHttpClient} bean for this Feign client only, pinning the connection to HTTP/1.1 —
-	 * see {@link LifecareOkHttpClientFactory} for why Lifecare's IIS requires it.
-	 */
 	@Bean
 	Client okHttpClient(final Truststore truststore) {
 		return LifecareOkHttpClientFactory.http11Client(truststore);

@@ -30,5 +30,7 @@ Lifecare Welfare API Services, host `WE.EC.Integration.Host`. Source of SoL and 
 - A by-id read returns the decision for any person, so `DecisionService` checks that it belongs to the requested party
   before returning it.
 - A 404 is read as "no data", not as an error (`dismiss404`).
+- Feign logging defaults to `NONE` (`log-level`). Request URLs carry the personnummer and the API key, so any higher
+  level writes both to the log.
 
 TODO: field mapping notes and code values not documented in the spec.
