@@ -1,10 +1,10 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationExpensePostDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationIncomePostDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationPersonPostDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationSpecialExpensePostDTO;
-import generated.se.sundsvall.lifecarefc.PostCalculationBodyRequest;
+import generated.se.sundsvall.familycare.PersonBasedCalculationExpensePostDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationIncomePostDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationPersonPostDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationSpecialExpensePostDTO;
+import generated.se.sundsvall.familycare.PostCalculationBodyRequest;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

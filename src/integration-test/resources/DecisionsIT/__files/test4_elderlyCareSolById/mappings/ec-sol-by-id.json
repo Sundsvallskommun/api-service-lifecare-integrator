@@ -1,7 +1,7 @@
 {
 	"request": {
 		"method": "GET",
-		"urlPath": "/lifecare-ec/api/v1/sol_decisions/1001"
+		"urlPath": "/elderlycare/api/v1/sol_decisions/1001"
 	},
 	"response": {
 		"headers": {

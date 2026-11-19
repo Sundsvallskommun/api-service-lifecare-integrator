@@ -1,7 +1,7 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedDocumentDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedDocumentDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedDocumentDTO;
+import generated.se.sundsvall.familycare.PersonBasedDocumentDTO;
 import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.familycare.DocumentMetadata;
 import se.sundsvall.lifecareintegrator.api.model.familycare.PagedDocumentResponse;

@@ -26,17 +26,17 @@ All under `/apifc/v1`.
 
 `domain` and `key` as query parameters (`integration/LifecareApiKey.java`). `/Users/*` is licensed to a separate
 consumer and may need its own `user-key`. The two surfaces refuse the wrong key in different ways; the comment on
-`integration.lifecare-fc` in `application.yml` describes how.
+`integration.familycare` in `application.yml` describes how.
 
 ## Code and configuration
 
-- Client: `src/main/java/se/sundsvall/lifecareintegrator/integration/lifecarefc/`, generated from
-  `src/main/resources/integrations/lifecare-fc-api.json`.
-- Configuration: `integration.lifecare-fc` in `application.yml`.
+- Client: `src/main/java/se/sundsvall/lifecareintegrator/integration/familycare/`, generated from
+  `src/main/resources/integrations/familycare-api.json`.
+- Configuration: `integration.familycare` in `application.yml`.
 
 ## Behaviour worth knowing
 
-- Dates must be sent as RFC 3339 with a time component. See `integration/lifecarefc/FamilyCareDates.java`.
+- Dates must be sent as RFC 3339 with a time component. See `integration/familycare/FamilyCareDates.java`.
 - The period reads require both dates. An open window in our API falls back to a ten-year default. See
   `service/DateWindow.java`.
 - Errors arrive as `{"Message": "…"}` and are kept as the problem's `detail`. See `integration/LifecareErrorDecoder.java`.

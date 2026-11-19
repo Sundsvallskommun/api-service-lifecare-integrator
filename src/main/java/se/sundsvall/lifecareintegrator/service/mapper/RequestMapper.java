@@ -1,11 +1,11 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationExpensePostDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationIncomePostDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationPersonPostDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationSpecialExpensePostDTO;
-import generated.se.sundsvall.lifecarefc.PostAktualiseringsBodyRequest;
-import generated.se.sundsvall.lifecarefc.PostCalculationBodyRequest;
+import generated.se.sundsvall.familycare.PersonBasedCalculationExpensePostDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationIncomePostDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationPersonPostDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationSpecialExpensePostDTO;
+import generated.se.sundsvall.familycare.PostAktualiseringsBodyRequest;
+import generated.se.sundsvall.familycare.PostCalculationBodyRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,14 +16,14 @@ import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationR
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateCalculationRequest;
 
 import static java.util.Collections.emptyList;
-import static se.sundsvall.lifecareintegrator.integration.lifecarefc.FamilyCareDates.startOfDay;
+import static se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareDates.startOfDay;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toDouble;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDateTime;
 
 /**
  * Maps the public create requests to the FC POST bodies. The person number is resolved by the service and injected here
  * — it is never present in the public requests. The string-typed date fields are rendered by
- * {@link se.sundsvall.lifecareintegrator.integration.lifecarefc.FamilyCareDates}: FC rejects a bare date.
+ * {@link se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareDates}: FC rejects a bare date.
  */
 public final class RequestMapper {
 

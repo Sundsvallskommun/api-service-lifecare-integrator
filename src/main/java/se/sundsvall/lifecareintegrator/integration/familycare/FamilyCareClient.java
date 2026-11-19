@@ -1,21 +1,21 @@
-package se.sundsvall.lifecareintegrator.integration.lifecarefc;
+package se.sundsvall.lifecareintegrator.integration.familycare;
 
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedAktualiseringDTO;
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedCalculationDTO;
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedDecisionDTO;
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedDocumentDTO;
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedExecutionDTO;
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedInvestigationDTO;
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedPaymentDTO;
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedResourceAllocationDTO;
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedServiceDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringProposalDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationProposalDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedContactDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedPersonDTO;
-import generated.se.sundsvall.lifecarefc.PostAktualiseringsBodyRequest;
-import generated.se.sundsvall.lifecarefc.PostCalculationBodyRequest;
-import generated.se.sundsvall.lifecarefc.User;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedAktualiseringDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedCalculationDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedDecisionDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedDocumentDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedExecutionDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedInvestigationDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedPaymentDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedResourceAllocationDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedServiceDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringProposalDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationProposalDTO;
+import generated.se.sundsvall.familycare.PersonBasedContactDTO;
+import generated.se.sundsvall.familycare.PersonBasedPersonDTO;
+import generated.se.sundsvall.familycare.PostAktualiseringsBodyRequest;
+import generated.se.sundsvall.familycare.PostCalculationBodyRequest;
+import generated.se.sundsvall.familycare.User;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
-import se.sundsvall.lifecareintegrator.integration.lifecarefc.configuration.LifecareFcConfiguration;
+import se.sundsvall.lifecareintegrator.integration.familycare.configuration.FamilyCareConfiguration;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
-import static se.sundsvall.lifecareintegrator.integration.lifecarefc.configuration.LifecareFcConfiguration.CLIENT_ID;
+import static se.sundsvall.lifecareintegrator.integration.familycare.configuration.FamilyCareConfiguration.CLIENT_ID;
 
 /**
  * Feign contract for the EB subset of the Tieto/Lifecare FamilyCare (FC) API: the person-based case-data reads (person,
@@ -39,14 +39,14 @@ import static se.sundsvall.lifecareintegrator.integration.lifecarefc.configurati
  * investigations,
  * services, executions, resource allocations), the write-back (create actualization plus calculation), and the two
  * proposal lookups that supply the code lists those POST bodies reference. The mandatory {@code domain} + {@code key}
- * auth is added globally by {@link LifecareFcConfiguration}, so it is not part of these method signatures. The list
+ * auth is added globally by {@link FamilyCareConfiguration}, so it is not part of these method signatures. The list
  * reads share {@code startDate}/{@code endDate} (required) and optional
  * {@code pageSize}/{@code pageNr}/{@code ascending} pagination. Full API documented in
- * vof-ekonomiskt-bistand/architecture/lifecare-fc-api.md.
+ * vof-ekonomiskt-bistand/architecture/familycare-api.md.
  */
-@FeignClient(name = CLIENT_ID, url = "${integration.lifecare-fc.url}", configuration = LifecareFcConfiguration.class)
+@FeignClient(name = CLIENT_ID, url = "${integration.familycare.url}", configuration = FamilyCareConfiguration.class)
 @CircuitBreaker(name = CLIENT_ID)
-public interface LifecareFcClient {
+public interface FamilyCareClient {
 
 	// ---- Person-based reads ------------------------------------------------------------------------------------------
 
@@ -253,7 +253,7 @@ public interface LifecareFcClient {
 
 	/**
 	 * Upload a document and bind it to actualization. Multipart {@code form-data} (the {@code domain}/{@code key} query
-	 * auth is added globally by {@link LifecareFcConfiguration}); FC answers {@code 204 No Content} on success.
+	 * auth is added globally by {@link FamilyCareConfiguration}); FC answers {@code 204 No Content} on success.
 	 *
 	 * @param id                 the Lifecare actualisation id the document is bound to
 	 * @param documentType       the {@code InsertDocumentType} code for the document

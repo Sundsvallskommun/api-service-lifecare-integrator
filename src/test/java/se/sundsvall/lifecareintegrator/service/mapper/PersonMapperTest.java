@@ -1,8 +1,8 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.PersonBasedAddressDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedContactDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedPersonDTO;
+import generated.se.sundsvall.familycare.PersonBasedAddressDTO;
+import generated.se.sundsvall.familycare.PersonBasedContactDTO;
+import generated.se.sundsvall.familycare.PersonBasedPersonDTO;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Contact;

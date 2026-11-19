@@ -1,4 +1,4 @@
-package se.sundsvall.lifecareintegrator.integration.lifecarefc.configuration;
+package se.sundsvall.lifecareintegrator.integration.familycare.configuration;
 
 import feign.Feign;
 import feign.RequestInterceptor;
@@ -15,7 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
 import org.springframework.cloud.openfeign.support.SpringMvcContract;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
-import se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcClient;
+import se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
  * the user key.
  */
 @ExtendWith(MockitoExtension.class)
-class LifecareFcKeySelectionTest {
+class FamilyCareKeySelectionTest {
 
 	@Spy
 	private FeignMultiCustomizer feignMultiCustomizerSpy;
@@ -39,7 +39,7 @@ class LifecareFcKeySelectionTest {
 	private FeignBuilderCustomizer feignBuilderCustomizerMock;
 
 	@Mock
-	private LifecareFcProperties propertiesMock;
+	private FamilyCareProperties propertiesMock;
 
 	/**
 	 * The whole encoding scheme rests on Feign leaving an existing percent-escape alone. A plain alphanumeric key never
@@ -95,7 +95,7 @@ class LifecareFcKeySelectionTest {
 		try (final MockedStatic<FeignMultiCustomizer> feignMultiCustomizerMock = Mockito.mockStatic(FeignMultiCustomizer.class)) {
 			feignMultiCustomizerMock.when(FeignMultiCustomizer::create).thenReturn(feignMultiCustomizerSpy);
 
-			new LifecareFcConfiguration().feignBuilderCustomizer(propertiesMock);
+			new FamilyCareConfiguration().feignBuilderCustomizer(propertiesMock);
 
 			final ArgumentCaptor<RequestInterceptor> captor = ArgumentCaptor.forClass(RequestInterceptor.class);
 			verify(feignMultiCustomizerSpy).withRequestInterceptor(captor.capture());
@@ -104,7 +104,7 @@ class LifecareFcKeySelectionTest {
 	}
 
 	/** An FC client whose transport records the request URL and aborts before any decoding happens. */
-	private static LifecareFcClient clientCapturing(final AtomicReference<String> requestedUrl, final RequestInterceptor interceptor) {
+	private static FamilyCareClient clientCapturing(final AtomicReference<String> requestedUrl, final RequestInterceptor interceptor) {
 		return Feign.builder()
 			.contract(new SpringMvcContract())
 			.retryer(Retryer.NEVER_RETRY)
@@ -113,7 +113,7 @@ class LifecareFcKeySelectionTest {
 				requestedUrl.set(request.url() + " " + request.headers());
 				throw new SentinelException();
 			})
-			.target(LifecareFcClient.class, "http://familycare.test/WESE.FC.Api.FC");
+			.target(FamilyCareClient.class, "http://familycare.test/WESE.FC.Api.FC");
 	}
 
 	/**

@@ -1,7 +1,7 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedAktualiseringDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedAktualiseringDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringDTO;
 import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Actualisation;
 import se.sundsvall.lifecareintegrator.api.model.familycare.PagedActualisationResponse;

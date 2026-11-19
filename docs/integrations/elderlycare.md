@@ -21,9 +21,9 @@ Lifecare Welfare API Services, host `WE.EC.Integration.Host`. Source of SoL and 
 
 ## Code and configuration
 
-- Client: `src/main/java/se/sundsvall/lifecareintegrator/integration/lifecareec/`, generated from
-  `src/main/resources/integrations/lifecare-ec-api.json`.
-- Configuration: `integration.lifecare-ec` in `application.yml`.
+- Client: `src/main/java/se/sundsvall/lifecareintegrator/integration/elderlycare/`, generated from
+  `src/main/resources/integrations/elderlycare-api.json`.
+- Configuration: `integration.elderlycare` in `application.yml`.
 
 ## Behaviour worth knowing
 

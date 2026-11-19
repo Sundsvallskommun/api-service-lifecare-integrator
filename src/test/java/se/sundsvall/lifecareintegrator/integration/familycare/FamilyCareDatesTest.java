@@ -1,4 +1,4 @@
-package se.sundsvall.lifecareintegrator.integration.lifecarefc;
+package se.sundsvall.lifecareintegrator.integration.familycare;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import static java.time.Month.JUNE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static se.sundsvall.lifecareintegrator.integration.lifecarefc.FamilyCareDates.atUtc;
-import static se.sundsvall.lifecareintegrator.integration.lifecarefc.FamilyCareDates.endOfDay;
-import static se.sundsvall.lifecareintegrator.integration.lifecarefc.FamilyCareDates.startOfDay;
+import static se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareDates.atUtc;
+import static se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareDates.endOfDay;
+import static se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareDates.startOfDay;
 
 class FamilyCareDatesTest {
 

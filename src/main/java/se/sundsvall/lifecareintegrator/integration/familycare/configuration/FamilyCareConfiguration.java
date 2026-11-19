@@ -1,4 +1,4 @@
-package se.sundsvall.lifecareintegrator.integration.lifecarefc.configuration;
+package se.sundsvall.lifecareintegrator.integration.familycare.configuration;
 
 import feign.Client;
 import feign.Logger;
@@ -19,13 +19,13 @@ import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
- * Builds the {@link se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcClient} customizer: query-string
+ * Builds the {@link se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareClient} customizer: query-string
  * authentication with a per-request key, HTTP/1.1, and Feign logging off.
  *
  * <p>
  * FC licences the {@code Users/*} directory to a different consumer from the person-based case APIs, so requests into
- * {@code /Users} are authenticated with {@link LifecareFcProperties#userKeyOrDefault()} and everything else with
- * {@link LifecareFcProperties#key()}. Authentication is applied by {@link LifecareApiKey}.
+ * {@code /Users} are authenticated with {@link FamilyCareProperties#userKeyOrDefault()} and everything else with
+ * {@link FamilyCareProperties#key()}. Authentication is applied by {@link LifecareApiKey}.
  *
  * <p>
  * Feign logging is pinned to {@link Logger.Level#NONE}, overriding the dept44 default of {@code FULL}: FC request URLs
@@ -33,10 +33,10 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
  * {@code DEBUG}.
  */
 @Import(FeignConfiguration.class)
-@EnableConfigurationProperties(LifecareFcProperties.class)
-public class LifecareFcConfiguration {
+@EnableConfigurationProperties(FamilyCareProperties.class)
+public class FamilyCareConfiguration {
 
-	public static final String CLIENT_ID = "lifecare-fc";
+	public static final String CLIENT_ID = "familycare";
 
 	/** The path segment marking the separately licensed FC user directory ({@code /apifc/v1/Users/*}). */
 	static final String USERS_PATH_SEGMENT = "/Users";
@@ -51,9 +51,9 @@ public class LifecareFcConfiguration {
 	}
 
 	@Bean
-	FeignBuilderCustomizer feignBuilderCustomizer(final LifecareFcProperties properties) {
+	FeignBuilderCustomizer feignBuilderCustomizer(final FamilyCareProperties properties) {
 		return FeignMultiCustomizer.create()
-			// Bypass 404 so a "no such resource" surfaces as NOT_FOUND (handled by LifecareFcIntegration) instead of the
+			// Bypass 404 so a "no such resource" surfaces as NOT_FOUND (handled by FamilyCareIntegration) instead of the
 			// default BAD_GATEWAY — e.g. a person or document content that does not exist.
 			.withErrorDecoder(new LifecareErrorDecoder(CLIENT_ID, List.of(NOT_FOUND.value())))
 			.withRequestInterceptor(template -> addAuthentication(template, properties))
@@ -62,14 +62,14 @@ public class LifecareFcConfiguration {
 			.composeCustomizersToOne();
 	}
 
-	private static void addAuthentication(final RequestTemplate template, final LifecareFcProperties properties) {
+	private static void addAuthentication(final RequestTemplate template, final FamilyCareProperties properties) {
 		final var key = keyFor(template.path(), properties);
 
 		LifecareApiKey.applyTo(template, properties.domain(), key);
 	}
 
 	/** The licence key the given request path is authenticated with — see the class documentation. */
-	static String keyFor(final String path, final LifecareFcProperties properties) {
+	static String keyFor(final String path, final FamilyCareProperties properties) {
 		if (ofNullable(path).orElse("").contains(USERS_PATH_SEGMENT)) {
 			return properties.userKeyOrDefault();
 		}

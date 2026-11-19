@@ -1,7 +1,7 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedDecisionPersonDTO;
+import generated.se.sundsvall.familycare.PersonBasedDecisionDTO;
+import generated.se.sundsvall.familycare.PersonBasedDecisionPersonDTO;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

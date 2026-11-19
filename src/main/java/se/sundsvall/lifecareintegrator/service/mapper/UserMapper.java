@@ -1,6 +1,6 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.User;
+import generated.se.sundsvall.familycare.User;
 import java.util.List;
 import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Caseworker;

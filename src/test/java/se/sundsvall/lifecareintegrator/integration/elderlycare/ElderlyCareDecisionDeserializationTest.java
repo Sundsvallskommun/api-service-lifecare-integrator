@@ -1,6 +1,6 @@
-package se.sundsvall.lifecareintegrator.integration.lifecareec;
+package se.sundsvall.lifecareintegrator.integration.elderlycare;
 
-import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1LssDecision;
+import generated.se.sundsvall.elderlycare.WEECIntegrationContractsDecisionV1LssDecision;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.tuple;
  */
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("junit")
-class LifecareEcDecisionDeserializationTest {
+class ElderlyCareDecisionDeserializationTest {
 
 	/** No caseworker resolution — asserts what the payload alone yields. */
 	private static final Map<String, String> NO_NAMES = Map.of();
@@ -44,7 +44,7 @@ class LifecareEcDecisionDeserializationTest {
 	private JsonMapper jsonMapper;
 
 	private List<WEECIntegrationContractsDecisionV1LssDecision> realResponse() throws Exception {
-		final var json = new ClassPathResource("lifecare-ec/lss-decisions-response.json").getContentAsString(UTF_8);
+		final var json = new ClassPathResource("elderlycare/lss-decisions-response.json").getContentAsString(UTF_8);
 		return jsonMapper.readValue(json, new TypeReference<>() {});
 	}
 

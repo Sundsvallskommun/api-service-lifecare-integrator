@@ -1,7 +1,7 @@
 {
 	"request": {
 		"method": "GET",
-		"urlPath": "/lifecare-fc/apifc/v1/Services",
+		"urlPath": "/familycare/apifc/v1/Services",
 		"queryParameters": {
 			"personId": {
 				"equalTo": "199001011234"

@@ -1,27 +1,27 @@
-package se.sundsvall.lifecareintegrator.integration.lifecareec;
+package se.sundsvall.lifecareintegrator.integration.elderlycare;
 
-import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1Decision;
-import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1LssDecision;
+import generated.se.sundsvall.elderlycare.WEECIntegrationContractsDecisionV1Decision;
+import generated.se.sundsvall.elderlycare.WEECIntegrationContractsDecisionV1LssDecision;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import se.sundsvall.lifecareintegrator.integration.lifecareec.configuration.LifecareEcConfiguration;
+import se.sundsvall.lifecareintegrator.integration.elderlycare.configuration.ElderlyCareConfiguration;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static se.sundsvall.lifecareintegrator.integration.lifecareec.configuration.LifecareEcConfiguration.CLIENT_ID;
+import static se.sundsvall.lifecareintegrator.integration.elderlycare.configuration.ElderlyCareConfiguration.CLIENT_ID;
 
 /**
  * Feign contract for the Lifecare Welfare API Services / Elderly care (EC) API ({@code WE.EC.Integration.Host}). Scoped
  * to the Mina Sidor decision facade: SoL and LSS decisions only (read-only). The mandatory {@code domain} + {@code key}
- * auth is added globally by {@link LifecareEcConfiguration}, so it is not part of these method signatures. Citizen
+ * auth is added globally by {@link ElderlyCareConfiguration}, so it is not part of these method signatures. Citizen
  * lookup is done by the caller as {@code q=PersonId='YYYYMMDDXXXX'}.
  */
-@FeignClient(name = CLIENT_ID, url = "${integration.lifecare-ec.url}", configuration = LifecareEcConfiguration.class, dismiss404 = true)
+@FeignClient(name = CLIENT_ID, url = "${integration.elderlycare.url}", configuration = ElderlyCareConfiguration.class, dismiss404 = true)
 @CircuitBreaker(name = CLIENT_ID)
-public interface LifecareEcClient {
+public interface ElderlyCareClient {
 
 	/**
 	 * List SoL decisions, filtered by the {@code q} query (e.g. {@code PersonId='YYYYMMDDXXXX'}).

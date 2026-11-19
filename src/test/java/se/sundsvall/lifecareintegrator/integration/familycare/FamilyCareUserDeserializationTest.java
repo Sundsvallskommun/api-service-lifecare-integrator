@@ -1,6 +1,6 @@
-package se.sundsvall.lifecareintegrator.integration.lifecarefc;
+package se.sundsvall.lifecareintegrator.integration.familycare;
 
-import generated.se.sundsvall.lifecarefc.User;
+import generated.se.sundsvall.familycare.User;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("junit")
-class LifecareFcUserDeserializationTest {
+class FamilyCareUserDeserializationTest {
 
 	private static final String RESPONSE = """
 		[

@@ -1,4 +1,4 @@
-package se.sundsvall.lifecareintegrator.integration.lifecareec.configuration;
+package se.sundsvall.lifecareintegrator.integration.elderlycare.configuration;
 
 import feign.Client;
 import feign.Logger;
@@ -15,7 +15,7 @@ import se.sundsvall.lifecareintegrator.integration.LifecareErrorDecoder;
 import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
 
 /**
- * Builds the {@link se.sundsvall.lifecareintegrator.integration.lifecareec.LifecareEcClient} customizer: query-string
+ * Builds the {@link se.sundsvall.lifecareintegrator.integration.elderlycare.ElderlyCareClient} customizer: query-string
  * authentication, HTTP/1.1, and Feign logging off.
  *
  * <p>
@@ -23,10 +23,10 @@ import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
  * header is documented.
  */
 @Import(FeignConfiguration.class)
-@EnableConfigurationProperties(LifecareEcProperties.class)
-public class LifecareEcConfiguration {
+@EnableConfigurationProperties(ElderlyCareProperties.class)
+public class ElderlyCareConfiguration {
 
-	public static final String CLIENT_ID = "lifecare-ec";
+	public static final String CLIENT_ID = "elderlycare";
 
 	/**
 	 * Overrides the dept44 {@code okHttpClient} bean for this Feign client only, pinning the connection to HTTP/1.1 —
@@ -38,7 +38,7 @@ public class LifecareEcConfiguration {
 	}
 
 	@Bean
-	FeignBuilderCustomizer feignBuilderCustomizer(final LifecareEcProperties properties) {
+	FeignBuilderCustomizer feignBuilderCustomizer(final ElderlyCareProperties properties) {
 		return FeignMultiCustomizer.create()
 			.withErrorDecoder(new LifecareErrorDecoder(CLIENT_ID))
 			.withRequestInterceptor(template -> addAuthentication(template, properties))
@@ -47,7 +47,7 @@ public class LifecareEcConfiguration {
 			.composeCustomizersToOne();
 	}
 
-	private static void addAuthentication(final RequestTemplate template, final LifecareEcProperties properties) {
+	private static void addAuthentication(final RequestTemplate template, final ElderlyCareProperties properties) {
 		LifecareApiKey.applyTo(template, properties.domain(), properties.key());
 	}
 

@@ -1,4 +1,4 @@
-package se.sundsvall.lifecareintegrator.integration.lifecarefc.configuration;
+package se.sundsvall.lifecareintegrator.integration.familycare.configuration;
 
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -11,7 +11,7 @@ import static java.util.Optional.ofNullable;
 /**
  * Configuration for the Tieto/Lifecare FamilyCare (FC) integration. {@code url} is the FC base path (host +
  * {@code /WESE.FC.Api.FC}); {@code domain} and {@code key} are the FC tenant id and API key applied as query
- * parameters by {@link LifecareFcConfiguration}. The keys are secrets — keep them out of committed config and out of
+ * parameters by {@link FamilyCareConfiguration}. The keys are secrets — keep them out of committed config and out of
  * request logging.
  *
  * <p>
@@ -27,8 +27,8 @@ import static java.util.Optional.ofNullable;
  * data for comes back empty through this service, suspect {@code key} before anything else.
  */
 @Validated
-@ConfigurationProperties(prefix = "integration.lifecare-fc")
-public record LifecareFcProperties(
+@ConfigurationProperties(prefix = "integration.familycare")
+public record FamilyCareProperties(
 
 	@NotBlank String url,
 

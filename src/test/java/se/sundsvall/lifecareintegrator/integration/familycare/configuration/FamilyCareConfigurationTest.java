@@ -1,4 +1,4 @@
-package se.sundsvall.lifecareintegrator.integration.lifecareec.configuration;
+package se.sundsvall.lifecareintegrator.integration.familycare.configuration;
 
 import feign.Client;
 import feign.RequestInterceptor;
@@ -20,10 +20,10 @@ import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static se.sundsvall.lifecareintegrator.integration.lifecareec.configuration.LifecareEcConfiguration.CLIENT_ID;
+import static se.sundsvall.lifecareintegrator.integration.familycare.configuration.FamilyCareConfiguration.CLIENT_ID;
 
 @ExtendWith(MockitoExtension.class)
-class LifecareEcConfigurationTest {
+class FamilyCareConfigurationTest {
 
 	@Spy
 	private FeignMultiCustomizer feignMultiCustomizerSpy;
@@ -38,11 +38,11 @@ class LifecareEcConfigurationTest {
 	private Client clientMock;
 
 	@Mock
-	private LifecareEcProperties propertiesMock;
+	private FamilyCareProperties propertiesMock;
 
 	@Test
 	void testFeignBuilderCustomizer() {
-		final var configuration = new LifecareEcConfiguration();
+		final var configuration = new FamilyCareConfiguration();
 
 		when(propertiesMock.domain()).thenReturn("the-domain");
 		when(propertiesMock.key()).thenReturn("the-key");
@@ -73,12 +73,34 @@ class LifecareEcConfigurationTest {
 			assertThat(template.queries().get("key")).containsExactly("the-key");
 			// The key travels in the query string only: a second carrier makes EC reject the request as ambiguous.
 			assertThat(template.headers()).doesNotContainKey("X-API-Key");
+
+			// Feign re-applies the interceptors to the same template on every retry attempt — the auth
+			// parameters must not accumulate.
+			interceptorCaptor.getValue().apply(template);
+
+			assertThat(template.queries().get("domain")).containsExactly("the-domain");
+			assertThat(template.queries().get("key")).containsExactly("the-key");
 		}
 	}
 
 	@Test
+	void testKeyForPicksTheUserKeyForTheUsersDirectory() {
+		when(propertiesMock.userKeyOrDefault()).thenReturn("the-user-key");
+
+		assertThat(FamilyCareConfiguration.keyFor("/apifc/v1/Users/GetUsers", propertiesMock)).isEqualTo("the-user-key");
+	}
+
+	@Test
+	void testKeyForPicksTheMainKeyForEverythingElse() {
+		when(propertiesMock.key()).thenReturn("the-key");
+
+		assertThat(FamilyCareConfiguration.keyFor("/apifc/v1/Persons", propertiesMock)).isEqualTo("the-key");
+		assertThat(FamilyCareConfiguration.keyFor(null, propertiesMock)).isEqualTo("the-key");
+	}
+
+	@Test
 	void testOkHttpClientIsPinnedToHttp11() {
-		final var configuration = new LifecareEcConfiguration();
+		final var configuration = new FamilyCareConfiguration();
 
 		try (final MockedStatic<LifecareOkHttpClientFactory> factoryMock = Mockito.mockStatic(LifecareOkHttpClientFactory.class)) {
 			factoryMock.when(() -> LifecareOkHttpClientFactory.http11Client(truststoreMock)).thenReturn(clientMock);

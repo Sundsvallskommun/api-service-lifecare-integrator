@@ -13,7 +13,7 @@ docs/
 ```
 
 - An integration file is named after the integration's key under `integration:` in
-  `src/main/resources/application.yml` (`lifecare-ec.md`, `party.md`), and follows the sections of the existing files.
+  `src/main/resources/application.yml` (`elderlycare.md`, `party.md`), and follows the sections of the existing files.
 - A new subdirectory starts once it has at least two files; until then the file sits directly in `docs/`.
 - File names are kebab-case. Decision records are named `adr/NNNN-short-title.md`, numbered from `0001`.
 - Every file added, renamed or removed is reflected in `docs/README.md` in the same change.

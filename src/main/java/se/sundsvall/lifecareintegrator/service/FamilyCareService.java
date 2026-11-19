@@ -24,7 +24,7 @@ import se.sundsvall.lifecareintegrator.api.model.familycare.PagedResourceAllocat
 import se.sundsvall.lifecareintegrator.api.model.familycare.PagedServiceResponse;
 import se.sundsvall.lifecareintegrator.api.model.familycare.PeriodParameters;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Person;
-import se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcIntegration;
+import se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareIntegration;
 import se.sundsvall.lifecareintegrator.integration.party.PartyIntegration;
 import se.sundsvall.lifecareintegrator.service.mapper.ActualisationMapper;
 import se.sundsvall.lifecareintegrator.service.mapper.CalculationMapper;
@@ -48,25 +48,25 @@ public class FamilyCareService {
 	static final String DOCUMENT_CONTENT_NOT_FOUND = "No document content found for document '%s'";
 
 	private final PartyIntegration partyIntegration;
-	private final LifecareFcIntegration lifecareFcIntegration;
+	private final FamilyCareIntegration familyCareIntegration;
 
-	public FamilyCareService(final PartyIntegration partyIntegration, final LifecareFcIntegration lifecareFcIntegration) {
+	public FamilyCareService(final PartyIntegration partyIntegration, final FamilyCareIntegration familyCareIntegration) {
 		this.partyIntegration = partyIntegration;
-		this.lifecareFcIntegration = lifecareFcIntegration;
+		this.familyCareIntegration = familyCareIntegration;
 	}
 
 	// ---- Person master data ------------------------------------------------------------------------------------------
 
 	public Person getPerson(final String municipalityId, final String partyId) {
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
-		return lifecareFcIntegration.getPerson(personNumber)
+		return familyCareIntegration.getPerson(personNumber)
 			.map(PersonMapper::toPerson)
 			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, PERSON_NOT_FOUND.formatted(partyId)));
 	}
 
 	public List<Contact> getContacts(final String municipalityId, final String partyId) {
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
-		return PersonMapper.toContacts(lifecareFcIntegration.getContacts(personNumber));
+		return PersonMapper.toContacts(familyCareIntegration.getContacts(personNumber));
 	}
 
 	// ---- Period reads ------------------------------------------------------------------------------------------------
@@ -74,13 +74,13 @@ public class FamilyCareService {
 	public PagedActualisationResponse getActualisations(final String municipalityId, final PeriodParameters parameters) {
 		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
-		return ActualisationMapper.toActualisations(lifecareFcIntegration.getActualisations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
+		return ActualisationMapper.toActualisations(familyCareIntegration.getActualisations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
 	public PagedCalculationResponse getCalculations(final String municipalityId, final PeriodParameters parameters) {
 		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
-		final var calculations = lifecareFcIntegration.getCalculations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending());
+		final var calculations = familyCareIntegration.getCalculations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending());
 		final var partyIdsByPersonNumber = partyIntegration.getPartyIds(municipalityId, CalculationMapper.collectPersonNumbers(calculations));
 		return CalculationMapper.toCalculations(calculations, partyIdsByPersonNumber);
 	}
@@ -88,31 +88,31 @@ public class FamilyCareService {
 	public PagedPaymentResponse getPayments(final String municipalityId, final PeriodParameters parameters) {
 		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
-		return CaseDataMapper.toPayments(lifecareFcIntegration.getPayments(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
+		return CaseDataMapper.toPayments(familyCareIntegration.getPayments(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
 	public PagedInvestigationResponse getInvestigations(final String municipalityId, final PeriodParameters parameters) {
 		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
-		return CaseDataMapper.toInvestigations(lifecareFcIntegration.getInvestigations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
+		return CaseDataMapper.toInvestigations(familyCareIntegration.getInvestigations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
 	public PagedServiceResponse getServices(final String municipalityId, final PeriodParameters parameters) {
 		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
-		return CaseDataMapper.toCaseServices(lifecareFcIntegration.getServices(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
+		return CaseDataMapper.toCaseServices(familyCareIntegration.getServices(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
 	public PagedExecutionResponse getExecutions(final String municipalityId, final PeriodParameters parameters) {
 		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
-		return CaseDataMapper.toExecutions(lifecareFcIntegration.getExecutions(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
+		return CaseDataMapper.toExecutions(familyCareIntegration.getExecutions(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
 	public PagedResourceAllocationResponse getResourceAllocations(final String municipalityId, final PeriodParameters parameters) {
 		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
-		return CaseDataMapper.toResourceAllocations(lifecareFcIntegration.getResourceAllocations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
+		return CaseDataMapper.toResourceAllocations(familyCareIntegration.getResourceAllocations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
 	// ---- Documents ---------------------------------------------------------------------------------------------------
@@ -120,11 +120,11 @@ public class FamilyCareService {
 	public PagedDocumentResponse getDocuments(final String municipalityId, final PeriodParameters parameters) {
 		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
-		return DocumentMapper.toDocuments(lifecareFcIntegration.getDocuments(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
+		return DocumentMapper.toDocuments(familyCareIntegration.getDocuments(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
 	public byte[] getDocumentContent(final String documentId) {
-		return lifecareFcIntegration.getDocumentContent(documentId)
+		return familyCareIntegration.getDocumentContent(documentId)
 			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, DOCUMENT_CONTENT_NOT_FOUND.formatted(documentId)));
 	}
 
@@ -132,24 +132,24 @@ public class FamilyCareService {
 
 	public List<Caseworker> getUsers(final Integer limit, final Integer offset,
 		final OffsetDateTime modifiedAfter, final OffsetDateTime modifiedBefore) {
-		return UserMapper.toCaseworkers(lifecareFcIntegration.getUsers(limit, offset, modifiedAfter, modifiedBefore));
+		return UserMapper.toCaseworkers(familyCareIntegration.getUsers(limit, offset, modifiedAfter, modifiedBefore));
 	}
 
 	// ---- Proposals and write-back ------------------------------------------------------------------------------------
 
 	public ActualisationProposal getActualisationProposal(final String municipalityId, final String partyId) {
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
-		return ProposalMapper.toActualisationProposal(lifecareFcIntegration.getActualisationProposal(personNumber));
+		return ProposalMapper.toActualisationProposal(familyCareIntegration.getActualisationProposal(personNumber));
 	}
 
 	public Integer createActualisation(final String municipalityId, final CreateActualisationRequest request) {
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, request.getPartyId());
-		return lifecareFcIntegration.createActualisation(RequestMapper.toPostAktualiseringsBodyRequest(request, personNumber));
+		return familyCareIntegration.createActualisation(RequestMapper.toPostAktualiseringsBodyRequest(request, personNumber));
 	}
 
 	public CalculationProposal getCalculationProposal(final String municipalityId, final String partyId) {
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
-		final var proposal = lifecareFcIntegration.getCalculationProposal(personNumber);
+		final var proposal = familyCareIntegration.getCalculationProposal(personNumber);
 		final var partyIdsByPersonNumber = partyIntegration.getPartyIds(municipalityId, ProposalMapper.collectPersonNumbers(proposal));
 		return ProposalMapper.toCalculationProposal(proposal, partyIdsByPersonNumber);
 	}
@@ -167,11 +167,11 @@ public class FamilyCareService {
 			.orElse(List.of());
 		final var personNumbersByPartyId = partyIntegration.getPersonNumbers(municipalityId, memberPartyIds);
 
-		return lifecareFcIntegration.createCalculation(RequestMapper.toPostCalculationBodyRequest(request, personNumber, personNumbersByPartyId));
+		return familyCareIntegration.createCalculation(RequestMapper.toPostCalculationBodyRequest(request, personNumber, personNumbersByPartyId));
 	}
 
 	public void addActualisationAttachment(final Integer actualisationId, final String documentType,
 		final String senderType, final String title, final String senderName, final MultipartFile content) {
-		lifecareFcIntegration.addActualisationAttachment(actualisationId, documentType, senderType, title, senderName, content);
+		familyCareIntegration.addActualisationAttachment(actualisationId, documentType, senderType, title, senderName, content);
 	}
 }

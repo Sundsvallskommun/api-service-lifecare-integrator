@@ -1,11 +1,11 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedCalculationDTO;
-import generated.se.sundsvall.lifecarefc.CommonCalculationExpenseDTO;
-import generated.se.sundsvall.lifecarefc.CommonCalculationIncomeDTO;
-import generated.se.sundsvall.lifecarefc.CommonCalculationSpecialExpenseDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationPersonDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedCalculationDTO;
+import generated.se.sundsvall.familycare.CommonCalculationExpenseDTO;
+import generated.se.sundsvall.familycare.CommonCalculationIncomeDTO;
+import generated.se.sundsvall.familycare.CommonCalculationSpecialExpenseDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationPersonDTO;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

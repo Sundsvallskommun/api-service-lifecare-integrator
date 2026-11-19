@@ -1,7 +1,7 @@
 {
 	"request": {
 		"method": "GET",
-		"urlPath": "/lifecare-ec/api/v1/sol_decisions",
+		"urlPath": "/elderlycare/api/v1/sol_decisions",
 		"queryParameters": {
 			"q": {
 				"equalTo": "PersonId='199001011234'"

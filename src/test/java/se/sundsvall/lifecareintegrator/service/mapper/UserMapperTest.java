@@ -1,6 +1,6 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.User;
+import generated.se.sundsvall.familycare.User;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;

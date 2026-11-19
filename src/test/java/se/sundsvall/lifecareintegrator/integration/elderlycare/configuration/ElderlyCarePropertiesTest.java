@@ -1,14 +1,14 @@
-package se.sundsvall.lifecareintegrator.integration.lifecareec.configuration;
+package se.sundsvall.lifecareintegrator.integration.elderlycare.configuration;
 
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class LifecareEcPropertiesTest {
+class ElderlyCarePropertiesTest {
 
 	@Test
 	void accessors() {
-		final var properties = new LifecareEcProperties("http://ec", "the-domain", "the-key", 5, 30, "FULL");
+		final var properties = new ElderlyCareProperties("http://ec", "the-domain", "the-key", 5, 30, "FULL");
 
 		assertThat(properties.url()).isEqualTo("http://ec");
 		assertThat(properties.domain()).isEqualTo("the-domain");

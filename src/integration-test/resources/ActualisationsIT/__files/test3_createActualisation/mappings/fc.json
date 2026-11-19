@@ -1,7 +1,7 @@
 {
 	"request": {
 		"method": "POST",
-		"urlPath": "/lifecare-fc/apifc/v1/Actualisations"
+		"urlPath": "/familycare/apifc/v1/Actualisations"
 	},
 	"response": {
 		"headers": {

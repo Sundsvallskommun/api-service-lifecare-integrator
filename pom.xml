@@ -69,12 +69,12 @@
 				<artifactId>openapi-generator-maven-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>lifecare-ec-api</id>
+						<id>elderlycare-api</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>src/main/resources/integrations/lifecare-ec-api.json</inputSpec>
+							<inputSpec>src/main/resources/integrations/elderlycare-api.json</inputSpec>
 							<output>${generated-sources-path}</output>
 							<generatorName>spring</generatorName>
 							<generateApis>false</generateApis>
@@ -86,7 +86,7 @@
 								<!-- EC sends zone-less local date-times ("2024-02-07T00:00:00"); java8 would generate OffsetDateTime and fail to parse them -->
 								<dateLibrary>java8-localdatetime</dateLibrary>
 								<apiPackage>generated</apiPackage>
-								<modelPackage>generated.se.sundsvall.lifecareec</modelPackage>
+								<modelPackage>generated.se.sundsvall.elderlycare</modelPackage>
 								<openApiNullable>false</openApiNullable>
 								<generatePom>false</generatePom>
 								<useBeanValidation>true</useBeanValidation>
@@ -96,12 +96,12 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>lifecare-fc-api</id>
+						<id>familycare-api</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>src/main/resources/integrations/lifecare-fc-api.json</inputSpec>
+							<inputSpec>src/main/resources/integrations/familycare-api.json</inputSpec>
 							<output>${generated-sources-path}</output>
 							<generatorName>spring</generatorName>
 							<generateApis>false</generateApis>
@@ -112,7 +112,7 @@
 								<sourceFolder>models</sourceFolder>
 								<dateLibrary>java8-localdatetime</dateLibrary>
 								<apiPackage>generated</apiPackage>
-								<modelPackage>generated.se.sundsvall.lifecarefc</modelPackage>
+								<modelPackage>generated.se.sundsvall.familycare</modelPackage>
 								<openApiNullable>false</openApiNullable>
 								<generatePom>false</generatePom>
 								<useBeanValidation>true</useBeanValidation>

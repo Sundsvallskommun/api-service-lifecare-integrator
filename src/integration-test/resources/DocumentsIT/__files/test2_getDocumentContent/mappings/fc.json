@@ -1,7 +1,7 @@
 {
 	"request": {
 		"method": "GET",
-		"urlPath": "/lifecare-fc/apifc/v1/DocumentContent",
+		"urlPath": "/familycare/apifc/v1/DocumentContent",
 		"queryParameters": {
 			"id": {
 				"equalTo": "12345"

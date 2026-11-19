@@ -1,9 +1,9 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecareec.WEECIntegrationContractsCommonV1Caseworker;
-import generated.se.sundsvall.lifecareec.WEECIntegrationContractsCommonV1CodeText;
-import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1Decision;
-import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1LssDecision;
+import generated.se.sundsvall.elderlycare.WEECIntegrationContractsCommonV1Caseworker;
+import generated.se.sundsvall.elderlycare.WEECIntegrationContractsCommonV1CodeText;
+import generated.se.sundsvall.elderlycare.WEECIntegrationContractsDecisionV1Decision;
+import generated.se.sundsvall.elderlycare.WEECIntegrationContractsDecisionV1LssDecision;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

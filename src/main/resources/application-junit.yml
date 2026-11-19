@@ -5,12 +5,12 @@ logging:
   level:
     root: DEBUG
 integration:
-  lifecare-ec:
-    url: http://lifecareec.url
+  elderlycare:
+    url: http://elderlycare.url
     domain: junit-domain
     key: junit-key
-  lifecare-fc:
-    url: http://lifecarefc.url
+  familycare:
+    url: http://familycare.url
     domain: junit-domain
     key: junit-key
   employee:

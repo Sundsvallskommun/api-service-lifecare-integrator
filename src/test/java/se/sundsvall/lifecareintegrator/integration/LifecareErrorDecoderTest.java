@@ -41,8 +41,8 @@ class LifecareErrorDecoderTest {
 	void keepsTheMessageOfAOneShotBody() {
 		// The body is read more than once while decoding, and an OkHttp body is one-shot. dept44 buffers it first; without
 		// that the second read comes back empty and only the bare status title is left.
-		final var problem = new LifecareErrorDecoder("lifecare-ec")
-			.decode("LifecareEcClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY));
+		final var problem = new LifecareErrorDecoder("elderlycare")
+			.decode("ElderlyCareClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY));
 
 		assertThat(problem).isInstanceOf(ClientProblem.class);
 		assertThat(problem.getMessage())
@@ -54,36 +54,36 @@ class LifecareErrorDecoderTest {
 	void carriesLifecaresOwnMessageOnAsTheDetail() {
 		// The body FamilyCare really answered create_actualisation with on 2026-09-22. dept44 finds no title or detail in
 		// it and reduces it to the bare status; the message is the whole diagnosis.
-		final var problem = new LifecareErrorDecoder("lifecare-fc")
-			.decode("LifecareFcClient#createActualisation(Actualisation)",
+		final var problem = new LifecareErrorDecoder("familycare")
+			.decode("FamilyCareClient#createActualisation(Actualisation)",
 				oneShotResponse(400, "{\"Message\":\"No fromWho entry with id 0 found for aktualiserings-type 0\"}"));
 
 		assertThat(problem).isInstanceOf(ClientProblem.class)
 			.hasFieldOrPropertyWithValue("status", BAD_GATEWAY);
 		assertThat(problem.getMessage())
-			.isEqualTo("Bad Gateway: lifecare-fc error: {detail=No fromWho entry with id 0 found for aktualiserings-type 0, "
+			.isEqualTo("Bad Gateway: familycare error: {detail=No fromWho entry with id 0 found for aktualiserings-type 0, "
 				+ "status=400 Bad Request, title=Bad Request}");
 	}
 
 	@Test
 	void aServerErrorCarriesItsMessageToo() {
-		final var problem = new LifecareErrorDecoder("lifecare-fc")
-			.decode("LifecareFcClient#commitNormberakning(Normberakning)",
+		final var problem = new LifecareErrorDecoder("familycare")
+			.decode("FamilyCareClient#commitNormberakning(Normberakning)",
 				oneShotResponse(500, "{\"Message\":\"An error has occurred.\"}"));
 
 		assertThat(problem.getMessage())
-			.isEqualTo("Bad Gateway: lifecare-fc error: {detail=An error has occurred., status=500 Internal Server Error, "
+			.isEqualTo("Bad Gateway: familycare error: {detail=An error has occurred., status=500 Internal Server Error, "
 				+ "title=Internal Server Error}");
 	}
 
 	@Test
 	void aBodyWithoutAMessageStillNamesTheStatusRatherThanUnknownError() {
-		final var problem = new LifecareErrorDecoder("lifecare-ec")
-			.decode("LifecareEcClient#getSolDecisions(String,Integer)",
+		final var problem = new LifecareErrorDecoder("elderlycare")
+			.decode("ElderlyCareClient#getSolDecisions(String,Integer)",
 				oneShotResponse(502, "<html><body><h1>502 Bad Gateway</h1></body></html>"));
 
 		assertThat(problem.getMessage())
-			.isEqualTo("Bad Gateway: lifecare-ec error: {status=502 Bad Gateway, title=Bad Gateway}");
+			.isEqualTo("Bad Gateway: elderlycare error: {status=502 Bad Gateway, title=Bad Gateway}");
 	}
 
 	@Test
@@ -91,8 +91,8 @@ class LifecareErrorDecoderTest {
 		// Unlike the body, the message leaves the service in the problem — so it passes the same sanitizer the logs do.
 		final var body = "{\"Message\":\"Ingen person 19900101TF03 hittades " + "x".repeat(600) + "\"}";
 
-		final var problem = new LifecareErrorDecoder("lifecare-fc")
-			.decode("LifecareFcClient#getPerson(String)", oneShotResponse(400, body));
+		final var problem = new LifecareErrorDecoder("familycare")
+			.decode("FamilyCareClient#getPerson(String)", oneShotResponse(400, body));
 
 		assertThat(problem.getMessage())
 			.doesNotContain("19900101TF03")
@@ -103,11 +103,11 @@ class LifecareErrorDecoderTest {
 
 	@Test
 	void aStatusWithoutAnHttpStatusConstantStillCarriesTheMessage() {
-		final var problem = new LifecareErrorDecoder("lifecare-fc")
-			.decode("LifecareFcClient#getPerson(String)", oneShotResponse(520, "{\"Message\":\"Origin unreachable\"}"));
+		final var problem = new LifecareErrorDecoder("familycare")
+			.decode("FamilyCareClient#getPerson(String)", oneShotResponse(520, "{\"Message\":\"Origin unreachable\"}"));
 
 		assertThat(problem.getMessage())
-			.isEqualTo("Bad Gateway: lifecare-fc error: {detail=Origin unreachable, status=520 Unknown Status, title=Unknown Status}");
+			.isEqualTo("Bad Gateway: familycare error: {detail=Origin unreachable, status=520 Unknown Status, title=Unknown Status}");
 	}
 
 	@ParameterizedTest(name = "{0}")
@@ -142,8 +142,8 @@ class LifecareErrorDecoderTest {
 
 	@Test
 	void bypassedStatusIsStillHonoured() {
-		final var problem = new LifecareErrorDecoder("lifecare-fc", List.of(NOT_FOUND.value()))
-			.decode("LifecareFcClient#getPerson(String)", oneShotResponse(404, PROBLEM_BODY));
+		final var problem = new LifecareErrorDecoder("familycare", List.of(NOT_FOUND.value()))
+			.decode("FamilyCareClient#getPerson(String)", oneShotResponse(404, PROBLEM_BODY));
 
 		assertThat(problem).isInstanceOf(ClientProblem.class)
 			.hasFieldOrPropertyWithValue("status", NOT_FOUND);
@@ -251,13 +251,13 @@ class LifecareErrorDecoderTest {
 
 	@Test
 	void anUnexpectedStatusWarnsWithTheRequestButNotTheBody() {
-		final var logged = capturingLogs(Level.WARN, () -> new LifecareErrorDecoder("lifecare-ec")
-			.decode("LifecareEcClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY)));
+		final var logged = capturingLogs(Level.WARN, () -> new LifecareErrorDecoder("elderlycare")
+			.decode("ElderlyCareClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY)));
 
 		assertThat(logged).singleElement().satisfies(event -> {
 			assertThat(event.getLevel()).isEqualTo(Level.WARN);
 			assertThat(event.getFormattedMessage())
-				.contains("lifecare-ec responded 400 to GET")
+				.contains("elderlycare responded 400 to GET")
 				.contains("key=[REDACTED]", "[REDACTED-PNR]")
 				// The body is vendor-controlled and only ever written at DEBUG.
 				.doesNotContain("Invalid query format");
@@ -268,8 +268,8 @@ class LifecareErrorDecoderTest {
 	void aBypassedStatusDoesNotWarnAtAll() {
 		// NOT_FOUND is an outcome the caller handles, not a failure worth a warning. Captured at DEBUG so the
 		// assertion rests on the level of what was logged rather than on the test configuration hiding it.
-		final var logged = capturingLogs(Level.DEBUG, () -> new LifecareErrorDecoder("lifecare-fc", List.of(NOT_FOUND.value()))
-			.decode("LifecareFcClient#getPerson(String)", oneShotResponse(404, PROBLEM_BODY)));
+		final var logged = capturingLogs(Level.DEBUG, () -> new LifecareErrorDecoder("familycare", List.of(NOT_FOUND.value()))
+			.decode("FamilyCareClient#getPerson(String)", oneShotResponse(404, PROBLEM_BODY)));
 
 		assertThat(logged).isNotEmpty().noneMatch(event -> event.getLevel() == Level.WARN);
 		assertThat(logged).noneMatch(event -> event.getFormattedMessage().contains("response body was"));
@@ -277,8 +277,8 @@ class LifecareErrorDecoderTest {
 
 	@Test
 	void theBodyIsWrittenOnlyWhenDebugIsOn() {
-		final var logged = capturingLogs(Level.DEBUG, () -> new LifecareErrorDecoder("lifecare-ec")
-			.decode("LifecareEcClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY)));
+		final var logged = capturingLogs(Level.DEBUG, () -> new LifecareErrorDecoder("elderlycare")
+			.decode("ElderlyCareClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY)));
 
 		// Also covers the deferred argument: with DEBUG off the supplier is never invoked, so this is the only path
 		// that exercises it from logBody.
@@ -292,8 +292,8 @@ class LifecareErrorDecoderTest {
 	void theLoggedBodyIsRedactedAndCapped() {
 		final var body = "{\"Message\":\"no such person 19900101TF03\"}" + "x".repeat(3000);
 
-		final var logged = capturingLogs(Level.DEBUG, () -> new LifecareErrorDecoder("lifecare-fc")
-			.decode("LifecareFcClient#getPerson(String)", oneShotResponse(400, body)));
+		final var logged = capturingLogs(Level.DEBUG, () -> new LifecareErrorDecoder("familycare")
+			.decode("FamilyCareClient#getPerson(String)", oneShotResponse(400, body)));
 
 		assertThat(logged)
 			.filteredOn(event -> event.getFormattedMessage().contains("response body was"))

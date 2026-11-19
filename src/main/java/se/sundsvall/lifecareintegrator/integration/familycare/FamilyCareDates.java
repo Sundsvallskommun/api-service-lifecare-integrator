@@ -1,4 +1,4 @@
-package se.sundsvall.lifecareintegrator.integration.lifecarefc;
+package se.sundsvall.lifecareintegrator.integration.familycare;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;

@@ -15,9 +15,9 @@ import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
 import se.sundsvall.lifecareintegrator.api.model.common.DecisionsResponse;
 import se.sundsvall.lifecareintegrator.api.model.common.SourceStatus;
+import se.sundsvall.lifecareintegrator.integration.elderlycare.ElderlyCareIntegration;
 import se.sundsvall.lifecareintegrator.integration.employee.EmployeeIntegration;
-import se.sundsvall.lifecareintegrator.integration.lifecareec.LifecareEcIntegration;
-import se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcIntegration;
+import se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareIntegration;
 import se.sundsvall.lifecareintegrator.integration.party.PartyIntegration;
 import se.sundsvall.lifecareintegrator.service.mapper.ElderlyCareDecisionMapper;
 import se.sundsvall.lifecareintegrator.service.mapper.FamilyCareDecisionMapper;
@@ -54,18 +54,18 @@ public class DecisionService {
 	private static final Logger LOG = LoggerFactory.getLogger(DecisionService.class);
 
 	private final PartyIntegration partyIntegration;
-	private final LifecareEcIntegration lifecareEcIntegration;
-	private final LifecareFcIntegration lifecareFcIntegration;
+	private final ElderlyCareIntegration elderlyCareIntegration;
+	private final FamilyCareIntegration familyCareIntegration;
 	private final EmployeeIntegration employeeIntegration;
 
 	public DecisionService(
 		final PartyIntegration partyIntegration,
-		final LifecareEcIntegration lifecareEcIntegration,
-		final LifecareFcIntegration lifecareFcIntegration,
+		final ElderlyCareIntegration elderlyCareIntegration,
+		final FamilyCareIntegration familyCareIntegration,
 		final EmployeeIntegration employeeIntegration) {
 		this.partyIntegration = partyIntegration;
-		this.lifecareEcIntegration = lifecareEcIntegration;
-		this.lifecareFcIntegration = lifecareFcIntegration;
+		this.elderlyCareIntegration = elderlyCareIntegration;
+		this.familyCareIntegration = familyCareIntegration;
 		this.employeeIntegration = employeeIntegration;
 	}
 
@@ -92,7 +92,7 @@ public class DecisionService {
 	 * EC has no decision-date filter (its gt/lt track modification time), so decisions are filtered on validity overlap.
 	 */
 	private List<Decision> getSolDecisions(final String municipalityId, final String personNumber, final LocalDate from, final LocalDate to) {
-		final var solDecisions = lifecareEcIntegration.getSolDecisions(personNumber);
+		final var solDecisions = elderlyCareIntegration.getSolDecisions(personNumber);
 		final var caseworkerNames = getCaseworkerNames(municipalityId, ElderlyCareDecisionMapper.collectUnnamedSolCaseworkerIds(solDecisions));
 		return solDecisions.stream()
 			.map(decision -> ElderlyCareDecisionMapper.toDecision(decision, caseworkerNames))
@@ -102,7 +102,7 @@ public class DecisionService {
 
 	/** Filtered on validity overlap, as {@link #getSolDecisions}. */
 	private List<Decision> getLssDecisions(final String municipalityId, final String personNumber, final LocalDate from, final LocalDate to) {
-		final var lssDecisions = lifecareEcIntegration.getLssDecisions(personNumber);
+		final var lssDecisions = elderlyCareIntegration.getLssDecisions(personNumber);
 		final var caseworkerNames = getCaseworkerNames(municipalityId, ElderlyCareDecisionMapper.collectUnnamedLssCaseworkerIds(lssDecisions));
 		return lssDecisions.stream()
 			.map(decision -> ElderlyCareDecisionMapper.toDecision(decision, caseworkerNames))
@@ -112,7 +112,7 @@ public class DecisionService {
 
 	/** FC filters on the date window itself, and requires one: an open window falls back to a wide default. */
 	private List<Decision> getFamilyCareDecisions(final String municipalityId, final String personNumber, final DateWindow window) {
-		final var familyCareDecisions = lifecareFcIntegration.getAllDecisions(personNumber, window.start(), window.end());
+		final var familyCareDecisions = familyCareIntegration.getAllDecisions(personNumber, window.start(), window.end());
 		final var partyIdsByPersonNumber = partyIntegration.getPartyIds(municipalityId, FamilyCareDecisionMapper.collectPersonNumbers(familyCareDecisions));
 		return familyCareDecisions.stream()
 			.map(decision -> FamilyCareDecisionMapper.toDecision(decision, partyIdsByPersonNumber))
@@ -141,14 +141,14 @@ public class DecisionService {
 		}
 
 		if (LAW_SOL.equals(law)) {
-			return lifecareEcIntegration.getSolDecision(decisionId)
+			return elderlyCareIntegration.getSolDecision(decisionId)
 				.filter(decision -> personNumber.equals(decision.getPersonId()))
 				.map(decision -> {
 					final var caseworkerNames = getCaseworkerNames(municipalityId, ElderlyCareDecisionMapper.collectUnnamedSolCaseworkerIds(List.of(decision)));
 					return ElderlyCareDecisionMapper.toDecision(decision, caseworkerNames);
 				});
 		}
-		return lifecareEcIntegration.getLssDecision(decisionId)
+		return elderlyCareIntegration.getLssDecision(decisionId)
 			.filter(decision -> personNumber.equals(decision.getPersonId()))
 			.map(decision -> {
 				final var caseworkerNames = getCaseworkerNames(municipalityId, ElderlyCareDecisionMapper.collectUnnamedLssCaseworkerIds(List.of(decision)));
@@ -163,7 +163,7 @@ public class DecisionService {
 	private Optional<Decision> findFamilyCareDecision(final String municipalityId, final String personNumber, final String decisionId) {
 		final var window = DateWindow.of(null, null);
 
-		return lifecareFcIntegration.getAllDecisions(personNumber, window.start(), window.end()).stream()
+		return familyCareIntegration.getAllDecisions(personNumber, window.start(), window.end()).stream()
 			.filter(decision -> decisionId.equals(String.valueOf(decision.getId())))
 			.findFirst()
 			.map(decision -> {

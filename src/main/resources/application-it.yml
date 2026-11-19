@@ -23,12 +23,12 @@ spring:
             client-id: the-client-id
             client-secret: the-client-secret
 integration:
-  lifecare-ec:
-    url: http://localhost:${wiremock.server.port}/lifecare-ec
+  elderlycare:
+    url: http://localhost:${wiremock.server.port}/elderlycare
     domain: it-domain
     key: it-key
-  lifecare-fc:
-    url: http://localhost:${wiremock.server.port}/lifecare-fc
+  familycare:
+    url: http://localhost:${wiremock.server.port}/familycare
     domain: it-domain
     key: it-key
   employee:
