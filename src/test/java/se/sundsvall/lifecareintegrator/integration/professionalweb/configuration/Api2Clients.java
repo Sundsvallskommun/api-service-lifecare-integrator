@@ -26,7 +26,7 @@ public final class Api2Clients {
 		final var session = new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC());
 		final var builder = Feign.builder()
 			.contract(new SpringMvcContract())
-			.client(new OkHttpClient());
+			.client(new ProfessionalWebHtmlBufferingClient(new OkHttpClient()));
 		new ProfessionalWebApi2Configuration().feignBuilderCustomizer(properties, session).customize(builder);
 		return builder.target(type, baseUrl);
 	}

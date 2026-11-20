@@ -91,4 +91,7 @@ All paths are under `/{municipalityId}`.
 | `POST /professional-web/services/{serviceId}/calculations`                   | ProfessionalWeb `api2/Calculation/Create`                                                                                  |
 | `PUT /professional-web/calculations/{calculationId}`                         | ProfessionalWeb `api2/Calculation/Update`                                                                                  |
 | `DELETE /professional-web/calculations/{calculationId}`                      | ProfessionalWeb `api2/Calculation/Delete`                                                                                  |
+| `GET /professional-web/calculations/{calculationId}/pdf`                     | ProfessionalWeb `RenderPdf/PrintContainer`, Lifecare's PDF                                                                 |
+| `GET /professional-web/decisions/{decisionId}/pdf`                           | ProfessionalWeb `RenderPdf/PrintDecision`, Lifecare's PDF                                                                  |
+| `GET /professional-web/documents/{id}/pdf`                                   | ProfessionalWeb `RenderPdf/PrintDocument`, Lifecare's PDF                                                                  |
 

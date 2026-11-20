@@ -21,7 +21,7 @@ public class ProfessionalWebApi2Configuration {
 
 	@Bean
 	Client okHttpClient(final Truststore truststore) {
-		return LifecareOkHttpClientFactory.http11Client(truststore);
+		return new ProfessionalWebHtmlBufferingClient(LifecareOkHttpClientFactory.http11Client(truststore));
 	}
 
 	@Bean

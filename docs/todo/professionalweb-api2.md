@@ -36,6 +36,11 @@ Done since, on the same pattern, with unit tests per layer and no integration te
 - Calculation: the underlag and the latest calculation of a service, reading one to show or to edit, a service's job
   stimulus, the four reckonings that change nothing in Lifecare, and creating, updating and removing a calculation, on
   `ProfessionalWebCalculationClient`.
+- Prints: Lifecare's PDF of a calculation, a decision and a document, on `ProfessionalWebPrintClient`, with the
+  template ids under `integration.lifecare-professionalweb.print`. A template's parameter questions are answered with
+  Lifecare's defaults and posted back as a form.
+
+All areas caremanagement uses now have resources. What is left is the integration tests for them.
 
 Decided along the way:
 
@@ -62,12 +67,6 @@ Decided along the way:
    must match the path.
 3. A resource per operation, returning Lifecare's bytes, and the OpenAPI baseline.
 4. An integration test per way the area is used.
-
-## Areas left
-
-|         Area         |                               api2 operations caremanagement uses                                |
-|----------------------|--------------------------------------------------------------------------------------------------|
-| Prints (`RenderPdf`) | PrintContainer (calculation), PrintDecision (decision), PrintDocument (written document or form) |
 
 ## After the areas
 

@@ -53,6 +53,9 @@ tags:
   description: Service reads from the Lifecare family care system
 - name: Users
   description: Caseworker (user) lookup in the Lifecare family care system
+- name: ProfessionalWeb prints
+  description: "Lifecare ProfessionalWeb prints, Lifecare's own PDF of a calculation,\
+    \ a decision or a document"
 paths:
   /{municipalityId}/professional-web/reminders/{reminderId}:
     get:
@@ -3321,6 +3324,72 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/documents/{id}/pdf:
+    get:
+      tags:
+      - ProfessionalWeb prints
+      summary: Get Lifecare's print of a written document or form
+      description: "Lifecare's RenderPdf/PrintDocument, with the configured document\
+        \ template"
+      operationId: getDocumentPdf
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: id
+        in: path
+        description: The Lifecare document id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 1
+      responses:
+        "200":
+          description: Lifecare's PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session, answered\
+            \ with an error or with something that is not a PDF"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/professional-web/documents/{id}/edit:
     get:
       tags:
@@ -3387,6 +3456,72 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/decisions/{decisionId}/pdf:
+    get:
+      tags:
+      - ProfessionalWeb prints
+      summary: Get Lifecare's print of a decision
+      description: "Lifecare's RenderPdf/PrintDecision, with the configured decision\
+        \ template. Parameter questions are answered with Lifecare's defaults"
+      operationId: getDecisionPdf
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: decisionId
+        in: path
+        description: The Lifecare decision id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 9
+      responses:
+        "200":
+          description: Lifecare's PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session, answered\
+            \ with an error or with something that is not a PDF"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/professional-web/decision-codes/{decisionCode}/reasons:
     get:
       tags:
@@ -3447,6 +3582,72 @@ paths:
         "502":
           description: "Lifecare could not be reached, would not give a session or\
             \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/calculations/{calculationId}/pdf:
+    get:
+      tags:
+      - ProfessionalWeb prints
+      summary: Get Lifecare's print of a calculation
+      description: "Lifecare's RenderPdf/PrintContainer, with the configured calculation\
+        \ template"
+      operationId: getCalculationPdf
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: calculationId
+        in: path
+        description: The Lifecare calculation (beräkning) id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 7
+      responses:
+        "200":
+          description: Lifecare's PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session, answered\
+            \ with an error or with something that is not a PDF"
           content:
             application/problem+json:
               schema:
@@ -4404,8 +4605,6 @@ components:
           type: boolean
         integralNumber:
           type: boolean
-        missingNode:
-          type: boolean
         nodeType:
           type: string
           enum:
@@ -4418,34 +4617,36 @@ components:
           - OBJECT
           - POJO
           - STRING
-        bigDecimal:
-          type: boolean
-        bigInteger:
+        missingNode:
           type: boolean
         valueNode:
           type: boolean
+        bigInteger:
+          type: boolean
+        bigDecimal:
+          type: boolean
         floatingPointNumber:
           type: boolean
+        number:
+          type: boolean
+        long:
+          type: boolean
+        string:
+          type: boolean
+        pojo:
+          type: boolean
         short:
+          type: boolean
+        int:
           type: boolean
         textual:
           type: boolean
           deprecated: true
-        int:
-          type: boolean
-        double:
-          type: boolean
-        string:
-          type: boolean
-        long:
-          type: boolean
-        pojo:
-          type: boolean
         binary:
           type: boolean
         boolean:
           type: boolean
-        number:
+        double:
           type: boolean
         embeddedValue:
           type: boolean

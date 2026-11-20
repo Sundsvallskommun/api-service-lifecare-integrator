@@ -4,9 +4,12 @@ import feign.InvocationContext;
 import feign.Response;
 import feign.ResponseInterceptor;
 import feign.RetryableException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebParameterForm;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebSession;
 
 import static se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebHttp.IDENTITY_PORTAL_PATH;
@@ -37,7 +40,19 @@ class ProfessionalWebSessionResponseInterceptor implements ResponseInterceptor {
 		if (findHeader(response, "Location").stream().anyMatch(location -> location.contains(IDENTITY_PORTAL_PATH))) {
 			return true;
 		}
-		return isSuccess(response) && findHeader(response, "Content-Type").stream().anyMatch(type -> type.contains("text/html"));
+		return isSuccess(response) && findHeader(response, "Content-Type").stream().anyMatch(type -> type.contains("text/html")) && !isParameterQuestions(response);
+	}
+
+	// A print's parameter questions are an HTML page too, but one the caller answers
+	private static boolean isParameterQuestions(final Response response) {
+		if (response.body() == null) {
+			return false;
+		}
+		try (InputStream stream = response.body().asInputStream()) {
+			return ProfessionalWebParameterForm.isParameterQuestions(stream.readAllBytes());
+		} catch (final IOException _) {
+			return false;
+		}
 	}
 
 	private static boolean isSuccess(final Response response) {

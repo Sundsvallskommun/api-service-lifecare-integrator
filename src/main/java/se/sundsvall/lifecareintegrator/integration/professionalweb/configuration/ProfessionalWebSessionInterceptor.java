@@ -9,6 +9,7 @@ import se.sundsvall.lifecareintegrator.integration.professionalweb.session.Profe
 import se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebSession;
 
 import static feign.Request.HttpMethod.GET;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
 class ProfessionalWebSessionInterceptor implements RequestInterceptor {
 
@@ -24,16 +25,28 @@ class ProfessionalWebSessionInterceptor implements RequestInterceptor {
 	public void apply(final RequestTemplate template) {
 		final var headers = new LinkedHashMap<String, String>();
 		headers.putAll(ProfessionalWebHttp.BROWSER_HEADERS);
-		headers.putAll(ProfessionalWebHttp.AJAX_HEADERS);
-		headers.put("Origin", toOrigin(properties.baseUrl()));
-		headers.put("Referer", properties.baseUrl() + "/WE.Flow.Html/");
-		if (template.method() != null && !GET.name().equals(template.method())) {
-			headers.put("Content-Type", "application/json; charset=UTF-8");
+		if (isForm(template)) {
+			// A form goes out the way a browser posts it, from the page that asked for it
+			headers.putAll(ProfessionalWebHttp.NAVIGATION_HEADERS);
+			headers.put("Origin", toOrigin(properties.baseUrl()));
+			headers.put("Referer", properties.baseUrl() + template.url());
+		} else {
+			headers.putAll(ProfessionalWebHttp.AJAX_HEADERS);
+			headers.put("Origin", toOrigin(properties.baseUrl()));
+			headers.put("Referer", properties.baseUrl() + "/WE.Flow.Html/");
+			if (template.method() != null && !GET.name().equals(template.method())) {
+				headers.put("Content-Type", "application/json; charset=UTF-8");
+			}
 		}
 		headers.putAll(session.prepare());
 
 		// Feign runs the interceptors again on the same template for every retry, and header() appends
 		headers.forEach((name, value) -> replaceHeader(template, name, value));
+	}
+
+	private static boolean isForm(final RequestTemplate template) {
+		return template.headers().getOrDefault("Content-Type", List.of()).stream()
+			.anyMatch(type -> type.startsWith(APPLICATION_FORM_URLENCODED_VALUE));
 	}
 
 	private static void replaceHeader(final RequestTemplate template, final String name, final String value) {

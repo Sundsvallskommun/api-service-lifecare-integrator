@@ -16,7 +16,7 @@ Two ways in, sharing one session:
 2. One Feign client per api2 area, such as `ProfessionalWebReminderClient`, with one method per operation that has its
    own resource. They share `ProfessionalWebApi2Configuration`: OkHttp pinned to HTTP/1.1, redirects not followed,
    the session added by a request interceptor and checked by a response interceptor, and a retryer that bootstraps,
-   then signs in again, then answers 502.
+   then signs in again, then answers 502. `ProfessionalWebPrintClient` reaches the `RenderPdf` prints the same way.
 
 There is no spec. The client is written by hand, not generated.
 
@@ -43,7 +43,13 @@ configured instead. See the comment on `integration.lifecare-professionalweb` in
 - Session lifecycle (sign-in, bootstrap, keep-alive, replacement): `session/ProfessionalWebSession`.
 - When an answer says a session is needed, the call is retried after a bootstrap, then after a fresh sign-in, and
   otherwise answered with 502: `ProfessionalWebExchange` for exchange, `ProfessionalWebSessionRetryer` for the Feign
-  clients. On the Feign clients an HTML answer counts as a lost session only with a success status.
+  clients. On the Feign clients an HTML answer counts as a lost session only with a success status, and never when it
+  is a print's parameter questions. HTML answers are read into memory for that check, in
+  `ProfessionalWebHtmlBufferingClient`.
+- Some print templates ask parameter questions before they render. `ProfessionalWebPrintService` answers them with
+  Lifecare's defaults (`ProfessionalWebParameterForm`) and posts the form back to the same path and query. The request
+  interceptor sends a form the way a browser does: navigation headers and the print's own address as Referer. Asked
+  again, or answered with something that is not a PDF, the print answers 502.
 - Exchange hands back every answer as data. The Feign clients turn a refusal into a problem instead, in
   `ProfessionalWebErrorDecoder`, and their circuit breaker `lifecare-professionalweb` ignores the 4xx ones:
 

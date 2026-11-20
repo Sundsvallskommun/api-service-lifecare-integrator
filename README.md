@@ -107,6 +107,17 @@ Configuration is crucial for the application to run successfully. Ensure all nec
     oauth2:
       token-url: http://dependecy_service_token_url
   ```
+- **Lifecare print templates:** the templates the ProfessionalWeb print resources render with. Each defaults to the
+  template api-service-caremanagement uses.
+
+  ```yaml
+  integration:
+    lifecare-professionalweb:
+      print:
+        decision-template-id: 885bfb68-c97b-47c0-921d-ef00caaa2423
+        calculation-template-id: 7936e9ec-e32a-40cf-9dea-d95b16e021f0
+        document-template-id: b9f20b49-c8ba-4c44-ad33-b2bf8f0b688a
+  ```
 
 ### Database Initialization
 
