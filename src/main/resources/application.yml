@@ -82,6 +82,8 @@ resilience4j:
         ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
       employee:
         ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
+      lifecare-professionalweb:
+        ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
 
 # The ProfessionalWeb paths carry whatever the caseworker wrote and Lifecare's answers, personnummer
 # included, in both directions. Keep it out of dept44's request/response payload logging entirely.

@@ -3,7 +3,7 @@ package se.sundsvall.lifecareintegrator.service;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import se.sundsvall.dept44.problem.Problem;
-import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebApi2Client;
+import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebReminderClient;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
@@ -19,9 +19,9 @@ public class ProfessionalWebReminderService {
 
 	private static final JsonMapper JSON = JsonMapper.builder().build();
 
-	private final ProfessionalWebApi2Client client;
+	private final ProfessionalWebReminderClient client;
 
-	public ProfessionalWebReminderService(final ProfessionalWebApi2Client client) {
+	public ProfessionalWebReminderService(final ProfessionalWebReminderClient client) {
 		this.client = client;
 	}
 
@@ -34,7 +34,7 @@ public class ProfessionalWebReminderService {
 	}
 
 	public byte[] getReminder(final long reminderId) {
-		return client.getReminderEditComposite(reminderId);
+		return client.getReminderEditComposite(reminderId, false);
 	}
 
 	public Optional<byte[]> createReminder(final byte[] body) {
@@ -45,8 +45,8 @@ public class ProfessionalWebReminderService {
 
 	public void updateReminder(final long reminderId, final byte[] body) {
 		Optional.ofNullable(requireJsonObject(body).get("reminderId"))
-			.filter(JsonNode::isIntegralNumber)
-			.filter(bodyReminderId -> bodyReminderId.asLong() == reminderId)
+			.filter(JsonNode::canConvertToLong)
+			.filter(bodyReminderId -> bodyReminderId.longValue() == reminderId)
 			.orElseThrow(() -> Problem.valueOf(BAD_REQUEST, REMINDER_ID_MISMATCH.formatted(reminderId)));
 		client.updateReminder(body);
 	}

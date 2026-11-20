@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.dept44.problem.ThrowableProblem;
-import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebApi2Client;
+import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebReminderClient;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +29,7 @@ class ProfessionalWebReminderServiceTest {
 	private static final byte[] UPDATE_BODY = "{\"reminderId\": 7, \"text\": \"Påminnelse åäö\", \"personnummer\": \"191212121212\", \"unknown\": {\"a\": [1]}}".getBytes(UTF_8);
 
 	@Mock
-	private ProfessionalWebApi2Client clientMock;
+	private ProfessionalWebReminderClient clientMock;
 
 	@InjectMocks
 	private ProfessionalWebReminderService service;
@@ -56,11 +56,11 @@ class ProfessionalWebReminderServiceTest {
 
 	@Test
 	void getReminder() {
-		when(clientMock.getReminderEditComposite(7)).thenReturn(LIFECARE_JSON);
+		when(clientMock.getReminderEditComposite(7, false)).thenReturn(LIFECARE_JSON);
 
 		assertThat(service.getReminder(7)).isEqualTo(LIFECARE_JSON);
 
-		verify(clientMock).getReminderEditComposite(7);
+		verify(clientMock).getReminderEditComposite(7, false);
 		verifyNoMoreInteractions(clientMock);
 	}
 

@@ -17,8 +17,6 @@ Code and documentation that work but should be simpler or more accurate.
   `findFamilyCareDecision`, and the `forEach` in `PartyIntegration.resolve`. Use named methods.
 - `FamilyCareService.createCalculation` still maps persons with `.map(persons -> persons.stream()…).orElse(List.of())`
   instead of `Optional.ofNullable(list).orElse(emptyList()).stream()`.
-- `ProfessionalWebFeignClient.toQueryParams` keeps only the last value of a repeated query parameter. No api2 call
-  repeats one today.
 
 ## Tests
 

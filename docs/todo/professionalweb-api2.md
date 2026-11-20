@@ -22,7 +22,8 @@ is given as a partyId, not a personnummer.
 
 ## After the areas
 
-- Remove exchange once api-service-caremanagement no longer calls it.
+- Remove exchange once api-service-caremanagement no longer calls it: the `legacy` packages under
+  `integration/professionalweb/`, `api/` and `api/model/professionalweb/`, with their tests.
 - The `RenderPdf` prints are not moving here. api-service-caremanagement will fetch the data from this service and
   render the PDF through templating. Until then the prints go through exchange.
 - Decide whether api-service-caremanagement keeps its own direct ProfessionalWeb transport once everything goes

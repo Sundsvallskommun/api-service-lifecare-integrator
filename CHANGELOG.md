@@ -4,6 +4,8 @@ Every change to the service, newest date first. One short line per change.
 
 ## 2026-11-20
 
+- Lay out the ProfessionalWeb code like the other integrations, with the api2 Feign clients beside `configuration`, `session` for sign-in and the session, and `legacy` for the exchange pass-through (HYDRAN-3431).
+- Make the reminder client a `@FeignClient` with a circuit breaker, carrying the ProfessionalWeb session in its own Feign configuration instead of through exchange, and answer 400 for a body reminderId too large for a number (HYDRAN-3431).
 - Add an integration test that a reminder read after an exchange call sends the session cookie Lifecare rotated on the exchange call (HYDRAN-3431).
 - Add an integration test that a reminder read Lifecare answers with 360 bootstraps the module and answers with the retried read (HYDRAN-3431).
 - Add an integration test that a reminder update Lifecare refuses with 461 answers 422 with Lifecare's text, and one it fails with 500 answers 502 (HYDRAN-3431).
