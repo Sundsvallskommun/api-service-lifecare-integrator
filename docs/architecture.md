@@ -67,4 +67,9 @@ All paths are under `/{municipalityId}`.
 | `GET /professional-web/persons/{partyId}/household`                          | ProfessionalWeb `api2/Household/HasHouseholdThisDate/`, with the personnummer from Party                                   |
 | `POST /professional-web/services/{serviceId}/payments`                       | ProfessionalWeb `api2/Payment/Create`, never sent twice                                                                    |
 | `POST /professional-web/payees`                                              | ProfessionalWeb `api2/Payee/Create`                                                                                        |
+| `GET /professional-web/services/{serviceId}/decisions/proposal`              | ProfessionalWeb `api2/Decision/GetProposalForService`                                                                      |
+| `GET /professional-web/decision-codes/{decisionCode}/reasons`                | ProfessionalWeb `api2/Decision/GetMappedDecisionReasons`                                                                   |
+| `GET /professional-web/decisions/{decisionId}`                               | ProfessionalWeb `api2/Decision/GetDecision`                                                                                |
+| `POST /professional-web/services/{serviceId}/decisions`                      | ProfessionalWeb `api2/Decision/Create`                                                                                     |
+| `PUT /professional-web/decisions/{decisionId}`                               | ProfessionalWeb `api2/Decision/Update`                                                                                     |
 

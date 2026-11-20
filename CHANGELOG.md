@@ -4,6 +4,7 @@ Every change to the service, newest date first. One short line per change.
 
 ## 2026-11-20
 
+- Add ProfessionalWeb resources for a decision's underlag and the reasons of a decision type, and for reading, creating and updating a decision (HYDRAN-3431).
 - Add ProfessionalWeb resources for a service's payment underlag and latest payments, a person's household on a date, and creating a payment or a payee (HYDRAN-3431).
 - Add ProfessionalWeb resources that read the end date of a job stimulus period and save a person's periods (HYDRAN-3431).
 - Plan resources for the Lifecare prints as well, returning Lifecare's own PDF, instead of leaving them to templating (HYDRAN-3431).

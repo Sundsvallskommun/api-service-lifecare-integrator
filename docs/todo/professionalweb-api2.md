@@ -29,6 +29,8 @@ Done since, on the same pattern, with unit tests per layer and no integration te
 - Job stimulus: the end date of a period and saving a person's periods, on `ProfessionalWebCalculationClient`.
 - Payment, Payee and Household: the underlag and the latest payments of a service, a person's household on a date,
   and creating a payment and a payee, on `ProfessionalWebPaymentClient`.
+- Decision: the underlag for a decision made from a calculation, the reasons of a decision type, and reading,
+  creating and updating a decision, on `ProfessionalWebDecisionClient`.
 
 Decided along the way:
 
@@ -49,7 +51,8 @@ Decided along the way:
 ## Adding an area
 
 1. A `@FeignClient` beside `ProfessionalWebReminderClient` on `ProfessionalWebApi2Configuration`, with one method per
-   operation and the full path including `/WESE.FC.ProfessionalWeb`.
+   operation and the full path including `/WESE.FC.ProfessionalWeb`. Every client after the first shares its name
+   and circuit breaker and needs a `contextId` of its own.
 2. A service with the checks the resources need, such as a body that must be a JSON object or an id in the body that
    must match the path.
 3. A resource per operation, returning Lifecare's bytes, and the OpenAPI baseline.
@@ -60,7 +63,6 @@ Decided along the way:
 |         Area         |                                                                                     api2 operations caremanagement uses                                                                                      |
 |----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Calculation          | GetProposalService, ListCalculations, GetCalculation, GetCalculationForEdit, GetJobStimulusForService, PlacePersons, GetAmount, GetSharedCost, GetJobStimuliForCalculation, Create, Update, Delete           |
-| Decision             | GetProposalForService, GetMappedDecisionReasons, GetDecision, Create, Update                                                                                                                                 |
 | Document             | GetDocumentsListForClient, GetJournalNoteWithContent, GetDocumentWithContent, GetNoteProposalForService, GetDocumentProposalForService, CreateJournalNote, CreateDocument, UpdateJournalNote, UpdateDocument |
 | Prints (`RenderPdf`) | PrintContainer (calculation), PrintDecision (decision), PrintDocument (written document or form)                                                                                                             |
 

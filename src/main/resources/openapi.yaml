@@ -12,6 +12,9 @@ servers:
 tags:
 - name: Investigations
   description: Investigation reads from the Lifecare family care system
+- name: ProfessionalWeb decisions
+  description: "Lifecare ProfessionalWeb decisions (beslut), with Lifecare's JSON\
+    \ passed through untouched"
 - name: ProfessionalWeb job stimulus
   description: "Lifecare ProfessionalWeb job stimulus (jobbstimulans), with Lifecare's\
     \ JSON passed through untouched"
@@ -234,6 +237,147 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/decisions/{decisionId}:
+    get:
+      tags:
+      - ProfessionalWeb decisions
+      summary: Get a decision
+      description: Lifecare's api2/Decision/GetDecision
+      operationId: getDecision
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: decisionId
+        in: path
+        description: The Lifecare decision id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 9
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+    put:
+      tags:
+      - ProfessionalWeb decisions
+      summary: Update a decision
+      description: Lifecare's api2/Decision/Update. The body is sent to Lifecare as
+        it is
+      operationId: updateDecision
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: decisionId
+        in: path
+        description: The Lifecare decision id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 9
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "200":
+          description: "Updated, with Lifecare's answer"
+          content:
+            application/json:
+              schema:
+                type: object
+        "204":
+          description: "Updated, without an answer from Lifecare"
+          content:
+            application/json:
+              schema:
+                type: string
+                format: byte
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/professional-web/services/{serviceId}/payments:
     post:
       tags:
@@ -296,6 +440,84 @@ paths:
         "404":
           description: "Lifecare found nothing there, or Party knows no person by\
             \ the partyId"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/services/{serviceId}/decisions:
+    post:
+      tags:
+      - ProfessionalWeb decisions
+      summary: Register a decision on a service
+      description: Lifecare's api2/Decision/Create. The body is sent to Lifecare as
+        it is
+      operationId: createDecision
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: serviceId
+        in: path
+        description: The Lifecare service (insats) id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 42
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "201":
+          description: "Created, with Lifecare's answer"
+          content:
+            application/json:
+              schema:
+                type: object
+        "204":
+          description: "Created, without an answer from Lifecare"
+          content:
+            application/json:
+              schema:
+                type: string
+                format: byte
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
           content:
             application/problem+json:
               schema:
@@ -1472,6 +1694,88 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/services/{serviceId}/decisions/proposal:
+    get:
+      tags:
+      - ProfessionalWeb decisions
+      summary: "Get Lifecare's underlag for a new decision on a service, made from\
+        \ a calculation"
+      description: Lifecare's api2/Decision/GetProposalForService
+      operationId: getDecisionProposal
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: serviceId
+        in: path
+        description: The Lifecare service (insats) id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 42
+      - name: amountType
+        in: query
+        description: Which of the calculation's amounts the decision takes
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        example: TotalSum
+      - name: calculationId
+        in: query
+        description: The Lifecare calculation (beräkning) id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 7
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/professional-web/persons/{partyId}/household:
     get:
       tags:
@@ -1575,6 +1879,70 @@ paths:
             application/json:
               schema:
                 type: string
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/decision-codes/{decisionCode}/reasons:
+    get:
+      tags:
+      - ProfessionalWeb decisions
+      summary: Get Lifecare's reasons for a decision type
+      description: Lifecare's api2/Decision/GetMappedDecisionReasons
+      operationId: getDecisionReasons
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: decisionCode
+        in: path
+        description: The Lifecare decision type (beslutstyp) code
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 5
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: array
         "400":
           description: Bad request
           content:
@@ -2196,7 +2564,7 @@ paths:
         \ so law LSS and SFB address the same ids. A decision that does not belong\
         \ to the person is reported as not found. Unlike the list, a source that cannot\
         \ be reached fails the request."
-      operationId: getDecision
+      operationId: getDecision_1
       parameters:
       - name: municipalityId
         in: path
@@ -2445,9 +2813,9 @@ components:
         type:
           type: string
           format: uri
-        detail:
-          type: string
         title:
+          type: string
+        detail:
           type: string
         status:
           type: integer
@@ -2494,28 +2862,13 @@ components:
           type: boolean
         container:
           type: boolean
-        number:
+        missingNode:
           type: boolean
-        pojo:
-          type: boolean
-        binary:
-          type: boolean
-        long:
-          type: boolean
-        double:
-          type: boolean
-        short:
-          type: boolean
-        int:
-          type: boolean
-        boolean:
-          type: boolean
-        string:
-          type: boolean
-        textual:
-          type: boolean
-          deprecated: true
         floatingPointNumber:
+          type: boolean
+        valueNode:
+          type: boolean
+        integralNumber:
           type: boolean
         nodeType:
           type: string
@@ -2529,15 +2882,30 @@ components:
           - OBJECT
           - POJO
           - STRING
-        integralNumber:
+        bigDecimal:
           type: boolean
         bigInteger:
           type: boolean
-        missingNode:
+        number:
           type: boolean
-        bigDecimal:
+        string:
           type: boolean
-        valueNode:
+        long:
+          type: boolean
+        short:
+          type: boolean
+        binary:
+          type: boolean
+        double:
+          type: boolean
+        int:
+          type: boolean
+        boolean:
+          type: boolean
+        textual:
+          type: boolean
+          deprecated: true
+        pojo:
           type: boolean
         embeddedValue:
           type: boolean
