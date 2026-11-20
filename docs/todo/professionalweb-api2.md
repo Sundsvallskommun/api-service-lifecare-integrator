@@ -31,6 +31,8 @@ Done since, on the same pattern, with unit tests per layer and no integration te
   and creating a payment and a payee, on `ProfessionalWebPaymentClient`.
 - Decision: the underlag for a decision made from a calculation, the reasons of a decision type, and reading,
   creating and updating a decision, on `ProfessionalWebDecisionClient`.
+- Document: a person's journal notes and documents, reading one to show or to edit, the proposals of a service, and
+  creating and updating a journal note or a document, on `ProfessionalWebDocumentClient`.
 
 Decided along the way:
 
@@ -60,11 +62,10 @@ Decided along the way:
 
 ## Areas left
 
-|         Area         |                                                                                     api2 operations caremanagement uses                                                                                      |
-|----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Calculation          | GetProposalService, ListCalculations, GetCalculation, GetCalculationForEdit, GetJobStimulusForService, PlacePersons, GetAmount, GetSharedCost, GetJobStimuliForCalculation, Create, Update, Delete           |
-| Document             | GetDocumentsListForClient, GetJournalNoteWithContent, GetDocumentWithContent, GetNoteProposalForService, GetDocumentProposalForService, CreateJournalNote, CreateDocument, UpdateJournalNote, UpdateDocument |
-| Prints (`RenderPdf`) | PrintContainer (calculation), PrintDecision (decision), PrintDocument (written document or form)                                                                                                             |
+|         Area         |                                                                                api2 operations caremanagement uses                                                                                 |
+|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Calculation          | GetProposalService, ListCalculations, GetCalculation, GetCalculationForEdit, GetJobStimulusForService, PlacePersons, GetAmount, GetSharedCost, GetJobStimuliForCalculation, Create, Update, Delete |
+| Prints (`RenderPdf`) | PrintContainer (calculation), PrintDecision (decision), PrintDocument (written document or form)                                                                                                   |
 
 ## After the areas
 

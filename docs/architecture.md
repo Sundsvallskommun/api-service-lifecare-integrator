@@ -72,4 +72,11 @@ All paths are under `/{municipalityId}`.
 | `GET /professional-web/decisions/{decisionId}`                               | ProfessionalWeb `api2/Decision/GetDecision`                                                                                |
 | `POST /professional-web/services/{serviceId}/decisions`                      | ProfessionalWeb `api2/Decision/Create`                                                                                     |
 | `PUT /professional-web/decisions/{decisionId}`                               | ProfessionalWeb `api2/Decision/Update`                                                                                     |
+| `GET /professional-web/persons/{partyId}/documents`                          | ProfessionalWeb `api2/Document/GetDocumentsListForClient/`, with the personnummer from Party                               |
+| `GET /professional-web/journal-notes/{id}`, `GET …/journal-notes/{id}/edit`  | ProfessionalWeb `api2/Document/GetJournalNoteWithContent/`, to show or to edit                                             |
+| `GET /professional-web/documents/{id}`, `GET …/documents/{id}/edit`          | ProfessionalWeb `api2/Document/GetDocumentWithContent/`, to show or to edit                                                |
+| `GET /professional-web/services/{serviceId}/journal-notes/proposal`          | ProfessionalWeb `api2/Document/GetNoteProposalForService`                                                                  |
+| `GET /professional-web/services/{serviceId}/documents/proposal`              | ProfessionalWeb `api2/Document/GetDocumentProposalForService`                                                              |
+| `POST /professional-web/journal-notes`, `POST /professional-web/documents`   | ProfessionalWeb `api2/Document/CreateJournalNote/`, `api2/Document/CreateDocument/`                                        |
+| `PUT /professional-web/journal-notes/{id}`, `PUT …/documents/{id}`           | ProfessionalWeb `api2/Document/UpdateJournalNote/`, `UpdateDocument/`. The body's `documentId` must match the path         |
 

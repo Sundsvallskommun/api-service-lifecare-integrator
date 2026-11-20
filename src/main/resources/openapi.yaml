@@ -15,6 +15,9 @@ tags:
 - name: ProfessionalWeb decisions
   description: "Lifecare ProfessionalWeb decisions (beslut), with Lifecare's JSON\
     \ passed through untouched"
+- name: ProfessionalWeb documents
+  description: "Lifecare ProfessionalWeb journal notes and documents, with Lifecare's\
+    \ JSON passed through untouched"
 - name: ProfessionalWeb job stimulus
   description: "Lifecare ProfessionalWeb job stimulus (jobbstimulans), with Lifecare's\
     \ JSON passed through untouched"
@@ -220,6 +223,292 @@ paths:
                 $ref: "#/components/schemas/Problem"
         "404":
           description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/journal-notes/{id}:
+    get:
+      tags:
+      - ProfessionalWeb documents
+      summary: Get a journal note to show
+      description: "Lifecare's api2/Document/GetJournalNoteWithContent/, without revisions"
+      operationId: getJournalNote
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: id
+        in: path
+        description: The Lifecare document id of the journal note
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 1
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: "Lifecare found nothing there, or Party knows no person by\
+            \ the partyId"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+    put:
+      tags:
+      - ProfessionalWeb documents
+      summary: Update a journal note
+      description: "Lifecare's api2/Document/UpdateJournalNote/. The body is sent\
+        \ to Lifecare as it is, and its documentId must be the one in the path"
+      operationId: updateJournalNote
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: id
+        in: path
+        description: The Lifecare document id of the journal note
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "200":
+          description: "Updated, with Lifecare's answer"
+          content:
+            application/json:
+              schema:
+                type: object
+        "204":
+          description: "Updated, without an answer from Lifecare"
+          content:
+            application/json:
+              schema:
+                type: string
+                format: byte
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: "Lifecare found nothing there, or Party knows no person by\
+            \ the partyId"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/documents/{id}:
+    get:
+      tags:
+      - ProfessionalWeb documents
+      summary: Get a document to show
+      description: "Lifecare's api2/Document/GetDocumentWithContent/, without revisions"
+      operationId: getDocument
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: id
+        in: path
+        description: The Lifecare document id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 1
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: "Lifecare found nothing there, or Party knows no person by\
+            \ the partyId"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+    put:
+      tags:
+      - ProfessionalWeb documents
+      summary: Update a document
+      description: "Lifecare's api2/Document/UpdateDocument/. The body is sent to\
+        \ Lifecare as it is, and its documentId must be the one in the path"
+      operationId: updateDocument
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: id
+        in: path
+        description: The Lifecare document id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "200":
+          description: "Updated, with Lifecare's answer"
+          content:
+            application/json:
+              schema:
+                type: object
+        "204":
+          description: "Updated, without an answer from Lifecare"
+          content:
+            application/json:
+              schema:
+                type: string
+                format: byte
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: "Lifecare found nothing there, or Party knows no person by\
+            \ the partyId"
           content:
             application/problem+json:
               schema:
@@ -667,6 +956,76 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/journal-notes:
+    post:
+      tags:
+      - ProfessionalWeb documents
+      summary: Create a journal note
+      description: Lifecare's api2/Document/CreateJournalNote/. The body is sent to
+        Lifecare as it is
+      operationId: createJournalNote
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "201":
+          description: "Created, with Lifecare's answer"
+          content:
+            application/json:
+              schema:
+                type: object
+        "204":
+          description: "Created, without an answer from Lifecare"
+          content:
+            application/json:
+              schema:
+                type: string
+                format: byte
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: "Lifecare found nothing there, or Party knows no person by\
+            \ the partyId"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/professional-web/job-stimulus:
     post:
       tags:
@@ -781,6 +1140,76 @@ paths:
                 - $ref: "#/components/schemas/ConstraintViolationProblem"
         "502":
           description: Lifecare could not be reached or would not give a session
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/documents:
+    post:
+      tags:
+      - ProfessionalWeb documents
+      summary: Create a document
+      description: Lifecare's api2/Document/CreateDocument/. The body is sent to Lifecare
+        as it is
+      operationId: createDocument
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "201":
+          description: "Created, with Lifecare's answer"
+          content:
+            application/json:
+              schema:
+                type: object
+        "204":
+          description: "Created, without an answer from Lifecare"
+          content:
+            application/json:
+              schema:
+                type: string
+                format: byte
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: "Lifecare found nothing there, or Party knows no person by\
+            \ the partyId"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
           content:
             application/problem+json:
               schema:
@@ -1694,6 +2123,136 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/services/{serviceId}/journal-notes/proposal:
+    get:
+      tags:
+      - ProfessionalWeb documents
+      summary: Get Lifecare's proposal for a new journal note on a service
+      description: Lifecare's api2/Document/GetNoteProposalForService
+      operationId: getJournalNoteProposal
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: serviceId
+        in: path
+        description: The Lifecare service (insats) id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 42
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: "Lifecare found nothing there, or Party knows no person by\
+            \ the partyId"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/services/{serviceId}/documents/proposal:
+    get:
+      tags:
+      - ProfessionalWeb documents
+      summary: Get Lifecare's proposal for a new document on a service
+      description: Lifecare's api2/Document/GetDocumentProposalForService
+      operationId: getDocumentProposal
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: serviceId
+        in: path
+        description: The Lifecare service (insats) id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 42
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: "Lifecare found nothing there, or Party knows no person by\
+            \ the partyId"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/professional-web/services/{serviceId}/decisions/proposal:
     get:
       tags:
@@ -1848,6 +2407,135 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/persons/{partyId}/documents:
+    get:
+      tags:
+      - ProfessionalWeb documents
+      summary: List a person's journal notes and documents
+      description: Lifecare's api2/Document/GetDocumentsListForClient/
+      operationId: getDocuments
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: partyId
+        in: path
+        description: Party id of the person
+        required: true
+        schema:
+          type: string
+        example: 81471222-5798-11e9-ae24-57fa13b361e1
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: array
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: "Lifecare found nothing there, or Party knows no person by\
+            \ the partyId"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/journal-notes/{id}/edit:
+    get:
+      tags:
+      - ProfessionalWeb documents
+      summary: Get a journal note to edit
+      description: "Lifecare's api2/Document/GetJournalNoteWithContent/, with revisions,\
+        \ as the object an update takes back"
+      operationId: getJournalNoteForEdit
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: id
+        in: path
+        description: The Lifecare document id of the journal note
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 1
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: "Lifecare found nothing there, or Party knows no person by\
+            \ the partyId"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/professional-web/job-stimulus/end-date:
     get:
       tags:
@@ -1895,6 +2583,72 @@ paths:
                 $ref: "#/components/schemas/Problem"
         "404":
           description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/documents/{id}/edit:
+    get:
+      tags:
+      - ProfessionalWeb documents
+      summary: Get a document to edit
+      description: "Lifecare's api2/Document/GetDocumentWithContent/, with revisions,\
+        \ as the object an update takes back"
+      operationId: getDocumentForEdit
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: id
+        in: path
+        description: The Lifecare document id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 1
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: "Lifecare found nothing there, or Party knows no person by\
+            \ the partyId"
           content:
             application/problem+json:
               schema:
@@ -2339,7 +3093,7 @@ paths:
       - Documents
       description: Get document metadata for a person. The content of a single document
         is fetched separately
-      operationId: getDocuments
+      operationId: getDocuments_1
       parameters:
       - name: municipalityId
         in: path
@@ -2813,9 +3567,9 @@ components:
         type:
           type: string
           format: uri
-        title:
-          type: string
         detail:
+          type: string
+        title:
           type: string
         status:
           type: integer
@@ -2862,9 +3616,32 @@ components:
           type: boolean
         container:
           type: boolean
-        missingNode:
+        binary:
+          type: boolean
+        boolean:
+          type: boolean
+        string:
+          type: boolean
+        pojo:
+          type: boolean
+        long:
+          type: boolean
+        double:
+          type: boolean
+        int:
+          type: boolean
+        textual:
+          type: boolean
+          deprecated: true
+        short:
           type: boolean
         floatingPointNumber:
+          type: boolean
+        bigInteger:
+          type: boolean
+        missingNode:
+          type: boolean
+        bigDecimal:
           type: boolean
         valueNode:
           type: boolean
@@ -2882,30 +3659,7 @@ components:
           - OBJECT
           - POJO
           - STRING
-        bigDecimal:
-          type: boolean
-        bigInteger:
-          type: boolean
         number:
-          type: boolean
-        string:
-          type: boolean
-        long:
-          type: boolean
-        short:
-          type: boolean
-        binary:
-          type: boolean
-        double:
-          type: boolean
-        int:
-          type: boolean
-        boolean:
-          type: boolean
-        textual:
-          type: boolean
-          deprecated: true
-        pojo:
           type: boolean
         embeddedValue:
           type: boolean
