@@ -11,8 +11,7 @@ api-service-caremanagement and does not interpret the answers.
 
 Two ways in, sharing one session:
 
-1. Exchange passes any api2 or RenderPdf path through, named by the caller, over the JDK client in
-   `ProfessionalWebExchange`.
+1. Exchange passes any api2 or RenderPdf path through, named by the caller, in `ProfessionalWebExchange`.
 2. One Feign client per api2 area, such as `ProfessionalWebReminderClient`, with one method per operation that has its
    own resource. They share `ProfessionalWebApi2Configuration`: OkHttp pinned to HTTP/1.1, redirects not followed,
    the session added by a request interceptor and checked by a response interceptor, and a retryer that bootstraps,
@@ -32,7 +31,7 @@ configured instead. See the comment on `integration.lifecare-professionalweb` in
   - the package itself: the api2 Feign clients, one per area;
   - `configuration/`: their Feign configuration (interceptors, retryer, error decoder) and the properties;
   - `session/`: sign-in, the session and its cookies, keep-alive, the health indicator, and the HTTP client sign-in
-    uses;
+    uses, OkHttp pinned to HTTP/1.1 like the Feign clients;
   - `legacy/`: `ProfessionalWebExchange`, behind exchange. Its resource and models are in `api/legacy/` and
     `api/model/professionalweb/legacy/`. All of `legacy/` goes when exchange does.
 - Configuration: `integration.lifecare-professionalweb` in `application.yml`. Leaving `url` unset makes every exchange

@@ -30,7 +30,7 @@ public final class LifecareOkHttpClientFactory {
 	}
 
 	/** The underlying OkHttp client — the dept44 truststore configuration plus the HTTP/1.1 protocol pinning. */
-	static okhttp3.OkHttpClient http11OkHttp(final Truststore truststore) {
+	public static okhttp3.OkHttpClient http11OkHttp(final Truststore truststore) {
 		final var trustManager = (X509TrustManager) truststore.getTrustManagerFactory().getTrustManagers()[0];
 
 		return new okhttp3.OkHttpClient.Builder()

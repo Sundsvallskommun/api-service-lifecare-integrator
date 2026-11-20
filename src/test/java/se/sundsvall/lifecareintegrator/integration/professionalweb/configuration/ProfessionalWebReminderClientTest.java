@@ -8,7 +8,6 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import feign.Feign;
 import feign.okhttp.OkHttpClient;
-import java.net.http.HttpClient;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
@@ -366,7 +365,7 @@ class ProfessionalWebReminderClientTest {
 	}
 
 	private static ProfessionalWebHttp http(final ProfessionalWebProperties properties) {
-		return new ProfessionalWebHttp(HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NEVER).build(), properties);
+		return new ProfessionalWebHttp(new okhttp3.OkHttpClient.Builder().followRedirects(false).followSslRedirects(false).build());
 	}
 
 	private static ProfessionalWebProperties properties(final String url) {

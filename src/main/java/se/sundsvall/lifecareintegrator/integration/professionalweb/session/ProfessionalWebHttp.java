@@ -3,29 +3,28 @@ package se.sundsvall.lifecareintegrator.integration.professionalweb.session;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.net.http.HttpHeaders;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import se.sundsvall.dept44.problem.Problem;
-import se.sundsvall.lifecareintegrator.integration.professionalweb.configuration.ProfessionalWebProperties;
 
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
 /**
- * The raw HTTP layer every ProfessionalWeb call goes through, the sign-in hops at the identity provider included.
+ * The raw HTTP layer that sign-in, the module bootstrap and the exchange pass-through go through. The api2 Feign
+ * clients use the same OkHttp setup through their own configuration.
  *
  * <p>
- * Built on the JDK client rather than Feign, deliberately and against the dept44 default: Lifecare answers a dead
- * session with a status of its own (360) and with redirects that must be detected rather than followed, rotates its
- * cookies on ordinary calls, and walks sign-in through HTML forms. None of that fits a declarative client, so statuses
+ * OkHttp used directly rather than through Feign: sign-in walks HTML forms and redirects across hosts whose addresses
+ * come from the pages themselves, collecting cookies on the way. None of that fits a declarative client, so statuses
  * are read here rather than thrown, and redirects are never followed automatically.
  * </p>
  *
@@ -65,12 +64,10 @@ public class ProfessionalWebHttp {
 	public static final String IDENTITY_PORTAL_PATH = "IdentityPortalWeb";
 	private static final int MAX_REDIRECT_HOPS = 10;
 
-	private final HttpClient client;
-	private final Duration readTimeout;
+	private final OkHttpClient client;
 
-	public ProfessionalWebHttp(@Qualifier("professionalWebHttpClient") final HttpClient client, final ProfessionalWebProperties properties) {
+	public ProfessionalWebHttp(@Qualifier("professionalWebHttpClient") final OkHttpClient client) {
 		this.client = client;
-		this.readTimeout = Duration.ofSeconds(properties.readTimeout());
 	}
 
 	/**
@@ -83,25 +80,29 @@ public class ProfessionalWebHttp {
 	 * @return         the response
 	 */
 	public ProfessionalWebResponse send(final String method, final URI uri, final Map<String, String> headers, final byte[] body) {
-		final var builder = HttpRequest.newBuilder(uri).timeout(readTimeout);
+		final var builder = new Request.Builder().url(uri.toString());
 		headers.forEach(builder::header);
-		if (body == null) {
-			builder.method(method, HttpRequest.BodyPublishers.noBody());
-		} else {
-			builder.method(method, HttpRequest.BodyPublishers.ofByteArray(body));
-		}
+		builder.method(method, toRequestBody(method, body));
 
-		try {
-			final var response = client.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
-			return new ProfessionalWebResponse(response.statusCode(), response.headers(), response.body(), uri);
+		try (var response = client.newCall(builder.build()).execute()) {
+			final var responseHeaders = HttpHeaders.of(response.headers().toMultimap(), (name, value) -> true);
+			return new ProfessionalWebResponse(response.code(), responseHeaders, response.body().bytes(), uri);
 		} catch (final IOException e) {
 			// The exception type is the whole diagnosis (a refused connection says something else than a timeout), and it
 			// holds nothing about the person being looked up.
 			throw Problem.valueOf(BAD_GATEWAY, "Lifecare could not be reached (" + e.getClass().getSimpleName() + ")");
-		} catch (final InterruptedException _) {
-			Thread.currentThread().interrupt();
-			throw Problem.valueOf(BAD_GATEWAY, "Interrupted while calling Lifecare");
 		}
+	}
+
+	private static RequestBody toRequestBody(final String method, final byte[] body) {
+		if (body != null) {
+			return RequestBody.create(body);
+		}
+		// OkHttp refuses a POST or PUT without a body
+		if ("POST".equals(method) || "PUT".equals(method)) {
+			return RequestBody.create(new byte[0]);
+		}
+		return null;
 	}
 
 	/**

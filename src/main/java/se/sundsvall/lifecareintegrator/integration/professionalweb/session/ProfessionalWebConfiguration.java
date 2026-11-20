@@ -1,12 +1,12 @@
 package se.sundsvall.lifecareintegrator.integration.professionalweb.session;
 
-import java.net.ProxySelector;
-import java.net.http.HttpClient;
 import java.time.Duration;
+import okhttp3.OkHttpClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import se.sundsvall.dept44.security.Truststore;
+import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.configuration.ProfessionalWebProperties;
 
 /**
@@ -18,16 +18,13 @@ import se.sundsvall.lifecareintegrator.integration.professionalweb.configuration
 class ProfessionalWebConfiguration {
 
 	@Bean
-	HttpClient professionalWebHttpClient(final ProfessionalWebProperties properties, final Truststore truststore) {
-		return HttpClient.newBuilder()
-			.followRedirects(HttpClient.Redirect.NEVER)
-			// The JDK client uses no proxy unless told to, unlike OkHttp (which the FamilyCare calls go through) and the rest of
-			// the JVM. Where egress goes through a proxy (http(s).proxyHost), leaving this out is a connect timeout.
-			.proxy(ProxySelector.getDefault())
-			// Lifecare runs on IIS, which the fleet has pinned to HTTP/1.1 elsewhere for good reason.
-			.version(HttpClient.Version.HTTP_1_1)
+	OkHttpClient professionalWebHttpClient(final ProfessionalWebProperties properties, final Truststore truststore) {
+		return LifecareOkHttpClientFactory.http11OkHttp(truststore).newBuilder()
+			// Redirects are walked by hand, carrying the cookies from one hop to the next
+			.followRedirects(false)
+			.followSslRedirects(false)
 			.connectTimeout(Duration.ofSeconds(properties.connectTimeout()))
-			.sslContext(truststore.getSSLContext())
+			.readTimeout(Duration.ofSeconds(properties.readTimeout()))
 			.build();
 	}
 }
