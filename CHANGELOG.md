@@ -16,6 +16,7 @@ Every change to the service, newest date first. One short line per change.
 - Remove the Javadoc from the elderly care and family care configuration classes, and document the logging level and the FC 404 instead.
 - Configure the Lifecare keys percent-encoded only, pass them on unchanged and refuse to start on a decoded key, replacing `LifecareApiKey`, which breaks deployments that hold a decoded key.
 - Add a code convention to `AGENTS.md`: nothing outside `docs/` refers to an ADR or a docs file.
+- Add `docs/todo/` for known work not done yet: deploy configuration, bugs, decisions needed, cleanup and the api2 resources.
 
 ## 2026-11-18
 

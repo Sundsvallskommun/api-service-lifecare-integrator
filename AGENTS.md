@@ -11,6 +11,7 @@ holds. The usual cases:
 - A rule that holds across the service added or changed, such as what a response contains → `docs/architecture.md`.
 - A choice that is not obvious from the code and could reasonably be undone → a new record in `docs/adr/`.
 - A configuration property added, renamed or removed → `README.md`.
+- Work found but left for later → an item in `docs/todo/`; work that finishes an item → that item deleted.
 
 Every change adds one line to `CHANGELOG.md` under today's date (`## YYYY-MM-DD`), newest date first. Create the
 heading if today has none. One short sentence in English, in the imperative ("Add …", "Fix …"), with the Jira key in

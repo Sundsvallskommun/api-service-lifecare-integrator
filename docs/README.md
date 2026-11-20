@@ -13,5 +13,10 @@ Getting started and configuration are in the [root README](../README.md). The AP
 | [integrations/employee.md](integrations/employee.md)                                         | Display names for Lifecare caseworkers                                          |
 | [adr/0001-empty-lists-instead-of-null.md](adr/0001-empty-lists-instead-of-null.md)           | A list in a response is `[]`, never `null`                                      |
 | [adr/0002-lifecare-keys-configured-encoded.md](adr/0002-lifecare-keys-configured-encoded.md) | Lifecare keys are configured percent-encoded and passed on as they are          |
+| [todo/deploy.md](todo/deploy.md)                                                             | Configuration every environment needs before the next deploy                    |
+| [todo/bugs.md](todo/bugs.md)                                                                 | Known bugs                                                                      |
+| [todo/decisions-needed.md](todo/decisions-needed.md)                                         | Behaviour that needs a decision before it changes                               |
+| [todo/cleanup.md](todo/cleanup.md)                                                           | Code, tests and documentation to simplify or correct                            |
+| [todo/professionalweb-api2.md](todo/professionalweb-api2.md)                                 | Replacing the ProfessionalWeb pass-through with one resource per api2 operation |
 
 Ownership, environments and contacts: Confluence. TODO: link to the service page.

@@ -10,6 +10,7 @@ docs/
   architecture.md    components, cross-cutting rules, which endpoint reads which source
   integrations/      one file per external system
   adr/               decision records, created with the first record
+  todo/              known work not done yet, one file per kind
 ```
 
 - An integration file is named after the integration's key under `integration:` in
@@ -17,6 +18,8 @@ docs/
 - A new subdirectory starts once it has at least two files; until then the file sits directly in `docs/`.
 - File names are kebab-case. Decision records are named `adr/NNNN-short-title.md`, numbered from `0001`.
 - Every file added, renamed or removed is reflected in `docs/README.md` in the same change.
+- A todo item says what is wrong, where, and when it is done. The change that does it deletes the item, and the file
+  once it is empty.
 
 ## Where each kind of knowledge lives
 
@@ -27,6 +30,7 @@ Each fact has one home. The documentation links to the others instead of restati
 | The map: what talks to what, knowledge spanning several classes | `docs/`                                                                     |
 | A complex case in a single class the code cannot make clear     | A short comment in that class, see Code conventions in the root `AGENTS.md` |
 | What a configuration property means                             | Its comment in `application.yml`                                            |
+| Work known but not done yet                                     | `docs/todo/`                                                                |
 | Request and response fields                                     | `src/main/resources/openapi.yaml`                                           |
 | Ownership, environments, contacts, operations                   | Confluence, linked from `docs/README.md`                                    |
 
