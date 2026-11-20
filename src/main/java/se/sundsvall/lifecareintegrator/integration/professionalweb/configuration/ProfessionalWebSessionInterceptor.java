@@ -25,14 +25,13 @@ class ProfessionalWebSessionInterceptor implements RequestInterceptor {
 	public void apply(final RequestTemplate template) {
 		final var headers = new LinkedHashMap<String, String>();
 		headers.putAll(ProfessionalWebHttp.BROWSER_HEADERS);
+		headers.put("Origin", toOrigin(properties.baseUrl()));
 		if (isForm(template)) {
 			// A form goes out the way a browser posts it, from the page that asked for it
 			headers.putAll(ProfessionalWebHttp.NAVIGATION_HEADERS);
-			headers.put("Origin", toOrigin(properties.baseUrl()));
 			headers.put("Referer", properties.baseUrl() + template.url());
 		} else {
 			headers.putAll(ProfessionalWebHttp.AJAX_HEADERS);
-			headers.put("Origin", toOrigin(properties.baseUrl()));
 			headers.put("Referer", properties.baseUrl() + "/WE.Flow.Html/");
 			if (template.method() != null && !GET.name().equals(template.method())) {
 				headers.put("Content-Type", "application/json; charset=UTF-8");

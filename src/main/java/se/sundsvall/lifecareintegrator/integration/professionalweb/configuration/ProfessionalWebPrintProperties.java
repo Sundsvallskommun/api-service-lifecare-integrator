@@ -4,14 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
 /**
- * The Lifecare print templates the print resources render with. The defaults are the templates
- * api-service-caremanagement
- * uses.
- *
- * @param decisionTemplateId    the template a decision is printed with
- * @param calculationTemplateId the template a calculation is printed with
- * @param documentTemplateId    the template a written document or form is printed with. Lifecare ties templates to the
- *                              document's owner and refuses one the owner lacks
+ * The Lifecare print templates the print resources render with, by default the ones api-service-caremanagement uses.
  */
 @ConfigurationProperties("integration.lifecare-professionalweb.print")
 public record ProfessionalWebPrintProperties(

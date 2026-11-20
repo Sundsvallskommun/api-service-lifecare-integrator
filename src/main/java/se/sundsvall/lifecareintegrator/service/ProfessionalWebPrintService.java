@@ -8,7 +8,6 @@ import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebParameterForm;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebPrintClient;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.configuration.ProfessionalWebPrintProperties;
-import se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebHttp;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
@@ -62,9 +61,9 @@ public class ProfessionalWebPrintService {
 		if (isPdf(answer)) {
 			return answer;
 		}
-		final var fields = ProfessionalWebParameterForm.readFields(answer)
+		final var form = ProfessionalWebParameterForm.answerWithDefaults(answer)
 			.orElseThrow(() -> Problem.valueOf(BAD_GATEWAY, NOT_A_PDF));
-		final var rendered = client.submitParameters(print, query, ProfessionalWebHttp.encodeForm(fields));
+		final var rendered = client.submitParameters(print, query, form);
 		if (isPdf(rendered)) {
 			return rendered;
 		}

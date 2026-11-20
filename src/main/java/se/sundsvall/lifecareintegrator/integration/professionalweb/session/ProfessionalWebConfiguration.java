@@ -12,8 +12,7 @@ import se.sundsvall.lifecareintegrator.integration.professionalweb.configuration
 
 /**
  * Registers the ProfessionalWeb properties, the print templates, and the raw HTTP client that sign-in and the exchange
- * pass-through use. The
- * api2 Feign clients have their own configuration.
+ * pass-through use. The api2 Feign clients have their own configuration.
  */
 @Configuration
 @EnableConfigurationProperties({
