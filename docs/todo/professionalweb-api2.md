@@ -6,12 +6,10 @@ time, with exchange kept until every client has moved.
 
 ## Areas
 
-Reminders is the pilot. The rest follow the same pattern once it has been reviewed. The Reminders reads have resources.
-CreateReminder, UpdateReminder and RemoveReminder do not yet.
+Reminders was the pilot and has its resources. The other areas follow the same pattern once it has been reviewed.
 
 |           Area            |                                                                                          api2 operations careM uses                                                                                          |
 |---------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Reminders                 | ListRemindersByServiceId, GetProposalForService, GetReminderEditComposite, CreateReminder, UpdateReminder, RemoveReminder                                                                                    |
 | Calculation               | GetProposalService, ListCalculations, GetCalculation, GetCalculationForEdit, GetJobStimulusForService, PlacePersons, GetAmount, GetSharedCost, GetJobStimuliForCalculation, Create, Update, Delete           |
 | Decision                  | GetProposalForService, GetMappedDecisionReasons, GetDecision, Create, Update                                                                                                                                 |
 | Document                  | GetDocumentsListForClient, GetJournalNoteWithContent, GetDocumentWithContent, GetNoteProposalForService, GetDocumentProposalForService, CreateJournalNote, CreateDocument, UpdateJournalNote, UpdateDocument |

@@ -27,8 +27,10 @@ TODO: list the services that call this one. The only one known from the code is 
   `LifecareErrorDecoder` carries the message on as the problem's `detail`.
 - **A list in a response is never null.** A missing list from Lifecare becomes `[]`, see
   [adr/0001](adr/0001-empty-lists-instead-of-null.md).
-- **The ProfessionalWeb resources return Lifecare's JSON untouched.** They map Lifecare's refusals to problems, see
-  [ProfessionalWeb](integrations/lifecare-professionalweb.md). Exchange returns every answer as data instead.
+- **The ProfessionalWeb resources pass JSON through untouched in both directions.** Lifecare's answer is returned as
+  it came, and a client's body is sent to Lifecare as it came, personnummer included. They map Lifecare's refusals to
+  problems, see [ProfessionalWeb](integrations/lifecare-professionalweb.md). Exchange returns every answer as data
+  instead.
 - **ProfessionalWeb traffic is never logged.** It carries personnummer and free text in both directions, so its paths
   are excluded from logbook in `application.yml`.
 
@@ -55,4 +57,7 @@ All paths are under `/{municipalityId}`.
 | `GET /professional-web/services/{serviceId}/reminders`                       | ProfessionalWeb `api2/Reminders/ListRemindersByServiceId`                                                                  |
 | `GET /professional-web/services/{serviceId}/reminders/proposal`              | ProfessionalWeb `api2/Reminders/GetProposalForService`                                                                     |
 | `GET /professional-web/reminders/{reminderId}`                               | ProfessionalWeb `api2/Reminders/GetReminderEditComposite`                                                                  |
+| `POST /professional-web/reminders`                                           | ProfessionalWeb `api2/Reminders/CreateReminder/`                                                                           |
+| `PUT /professional-web/reminders/{reminderId}`                               | ProfessionalWeb `api2/Reminders/UpdateReminder/`. The body's `reminderId` must match the path                              |
+| `DELETE /professional-web/reminders/{reminderId}`                            | ProfessionalWeb `api2/Reminders/RemoveReminder/`                                                                           |
 

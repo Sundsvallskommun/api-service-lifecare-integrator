@@ -18,6 +18,8 @@ import se.sundsvall.dept44.problem.ThrowableProblem;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
+import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
@@ -94,6 +96,58 @@ class ProfessionalWebApi2ClientTest {
 
 		assertThat(new String(client.getReminderEditComposite(7), UTF_8)).isEqualTo(LIFECARE_JSON);
 		wireMock.verify(1, getRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/GetReminderEditComposite?reminderId=7&readOptions=false")));
+	}
+
+	@Test
+	void createReminderPostsTheBodyAsItIsAndReturnsLifecaresAnswer() {
+		final var body = "{ \"serviceId\": 42, \"personnummer\": \"191212121212\", \"unknown\": {\"a\": [1]} }";
+		wireMock.stubFor(post(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/CreateReminder/")).willReturn(okJson("{\"id\":9}")));
+
+		final var answer = client.createReminder(body.getBytes(UTF_8));
+
+		assertThat(new String(answer, UTF_8)).isEqualTo("{\"id\":9}");
+		wireMock.verify(1, postRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/CreateReminder/"))
+			.withHeader("Content-Type", equalTo("application/json; charset=UTF-8"))
+			.withHeader("X-LEGACY-TOKEN", equalTo("tok"))
+			.withRequestBody(equalTo(body)));
+	}
+
+	@Test
+	void createReminderWithAnEmptyAnswerReturnsNoBytes() {
+		wireMock.stubFor(post(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/CreateReminder/")).willReturn(ok()));
+
+		assertThat(client.createReminder("{}".getBytes(UTF_8))).isEmpty();
+	}
+
+	@Test
+	void updateReminderPostsTheBodyAsItIs() {
+		final var body = "{\"reminderId\":7, \"text\":\"Ring\"}";
+		wireMock.stubFor(post(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/UpdateReminder/")).willReturn(ok()));
+
+		client.updateReminder(body.getBytes(UTF_8));
+
+		wireMock.verify(1, postRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/UpdateReminder/")).withRequestBody(equalTo(body)));
+	}
+
+	@Test
+	void removeReminderSendsADeleteWithTheBody() {
+		wireMock.stubFor(delete(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/RemoveReminder/")).willReturn(ok()));
+
+		client.removeReminder("{\"id\":7}".getBytes(UTF_8));
+
+		wireMock.verify(1, deleteRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/RemoveReminder/")).withRequestBody(equalTo("{\"id\":7}")));
+	}
+
+	@Test
+	void updateReminderRefusedByLifecareIsUnprocessable() {
+		wireMock.stubFor(post(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/UpdateReminder/"))
+			.willReturn(aResponse().withStatus(461).withBody("{\"exceptionMessage\":\"Påminnelsen är klar\"}")));
+
+		assertThatThrownBy(() -> client.updateReminder("{\"reminderId\":7}".getBytes(UTF_8)))
+			.isInstanceOfSatisfying(ThrowableProblem.class, problem -> {
+				assertThat(problem.getStatus().value()).isEqualTo(422);
+				assertThat(problem.getDetail()).isEqualTo("Påminnelsen är klar");
+			});
 	}
 
 	@Test
