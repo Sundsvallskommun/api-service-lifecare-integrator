@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -62,8 +63,8 @@ class ProfessionalWebReminderResource {
 			description = "Lifecare's answer",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "object"))))
 	ResponseEntity<byte[]> listReminders(
-		@ValidMunicipalityId @PathVariable final String municipalityId,
-		@Positive @PathVariable final Long serviceId) {
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@Parameter(name = "serviceId", description = "The Lifecare service (insats) id", example = "42") @Positive @PathVariable final Long serviceId) {
 
 		return ok(service.listReminders(serviceId));
 	}
@@ -75,8 +76,8 @@ class ProfessionalWebReminderResource {
 			description = "Lifecare's answer",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "object"))))
 	ResponseEntity<byte[]> getReminderProposal(
-		@ValidMunicipalityId @PathVariable final String municipalityId,
-		@Positive @PathVariable final Long serviceId) {
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@Parameter(name = "serviceId", description = "The Lifecare service (insats) id", example = "42") @Positive @PathVariable final Long serviceId) {
 
 		return ok(service.getReminderProposal(serviceId));
 	}
@@ -88,8 +89,8 @@ class ProfessionalWebReminderResource {
 			description = "Lifecare's answer",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "object"))))
 	ResponseEntity<byte[]> getReminder(
-		@ValidMunicipalityId @PathVariable final String municipalityId,
-		@Positive @PathVariable final Long reminderId) {
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@Parameter(name = "reminderId", description = "The Lifecare reminder id", example = "7") @Positive @PathVariable final Long reminderId) {
 
 		return ok(service.getReminder(reminderId));
 	}
@@ -103,36 +104,36 @@ class ProfessionalWebReminderResource {
 			description = "Created, with Lifecare's answer when it gave one",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "object"))))
 	ResponseEntity<byte[]> createReminder(
-		@ValidMunicipalityId @PathVariable final String municipalityId,
-		@RequestBody final String body) {
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@RequestBody final byte[] body) {
 
 		return service.createReminder(body)
 			.map(answer -> status(CREATED).body(answer))
 			.orElseGet(() -> status(CREATED).build());
 	}
 
-	@PutMapping(path = "/reminders/{reminderId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_PROBLEM_JSON_VALUE)
+	@PutMapping(path = "/reminders/{reminderId}", consumes = APPLICATION_JSON_VALUE)
 	@Operation(summary = "Update a reminder",
 		description = "Lifecare's api2/Reminders/UpdateReminder. The body is sent to Lifecare as it is, and its reminderId must be the one in the path",
 		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
 			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "object"))),
 		responses = @ApiResponse(responseCode = "204", description = "Updated"))
 	ResponseEntity<Void> updateReminder(
-		@ValidMunicipalityId @PathVariable final String municipalityId,
-		@Positive @PathVariable final Long reminderId,
-		@RequestBody final String body) {
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@Parameter(name = "reminderId", description = "The Lifecare reminder id", example = "7") @Positive @PathVariable final Long reminderId,
+		@RequestBody final byte[] body) {
 
 		service.updateReminder(reminderId, body);
 		return noContent().build();
 	}
 
-	@DeleteMapping(path = "/reminders/{reminderId}", produces = APPLICATION_PROBLEM_JSON_VALUE)
+	@DeleteMapping(path = "/reminders/{reminderId}")
 	@Operation(summary = "Remove a reminder",
 		description = "Lifecare's api2/Reminders/RemoveReminder",
 		responses = @ApiResponse(responseCode = "204", description = "Removed"))
 	ResponseEntity<Void> removeReminder(
-		@ValidMunicipalityId @PathVariable final String municipalityId,
-		@Positive @PathVariable final Long reminderId) {
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@Parameter(name = "reminderId", description = "The Lifecare reminder id", example = "7") @Positive @PathVariable final Long reminderId) {
 
 		service.removeReminder(reminderId);
 		return noContent().build();

@@ -15,9 +15,10 @@ import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.lifecareintegrator.Application;
 import se.sundsvall.lifecareintegrator.service.ProfessionalWebReminderService;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -146,7 +147,7 @@ class ProfessionalWebReminderResourceFailureTest {
 
 	@Test
 	void createReminderRefusedByTheService() {
-		when(serviceMock.createReminder("[]")).thenThrow(Problem.valueOf(BAD_REQUEST, "The body must be a JSON object"));
+		when(serviceMock.createReminder("[]".getBytes(UTF_8))).thenThrow(Problem.valueOf(BAD_REQUEST, "The body must be a JSON object"));
 
 		webTestClient.post().uri("/2281/professional-web/reminders")
 			.contentType(APPLICATION_JSON)
@@ -157,13 +158,13 @@ class ProfessionalWebReminderResourceFailureTest {
 			.jsonPath("$.status").isEqualTo(400)
 			.jsonPath("$.detail").isEqualTo("The body must be a JSON object");
 
-		verify(serviceMock).createReminder("[]");
+		verify(serviceMock).createReminder("[]".getBytes(UTF_8));
 		verifyNoMoreInteractions(serviceMock);
 	}
 
 	@Test
 	void updateReminderRefusedByTheService() {
-		doThrow(Problem.valueOf(BAD_REQUEST, "The body's reminderId must be 7")).when(serviceMock).updateReminder(7, "{\"reminderId\": 8}");
+		doThrow(Problem.valueOf(BAD_REQUEST, "The body's reminderId must be 7")).when(serviceMock).updateReminder(7, "{\"reminderId\": 8}".getBytes(UTF_8));
 
 		webTestClient.put().uri("/2281/professional-web/reminders/7")
 			.contentType(APPLICATION_JSON)
@@ -174,7 +175,7 @@ class ProfessionalWebReminderResourceFailureTest {
 			.jsonPath("$.status").isEqualTo(400)
 			.jsonPath("$.detail").isEqualTo("The body's reminderId must be 7");
 
-		verify(serviceMock).updateReminder(7, "{\"reminderId\": 8}");
+		verify(serviceMock).updateReminder(7, "{\"reminderId\": 8}".getBytes(UTF_8));
 		verifyNoMoreInteractions(serviceMock);
 	}
 
@@ -195,7 +196,7 @@ class ProfessionalWebReminderResourceFailureTest {
 
 	@Test
 	void updateReminderRefusedByLifecare() {
-		doThrow(Problem.valueOf(UNPROCESSABLE_CONTENT, "Påminnelsen är klar")).when(serviceMock).updateReminder(eq(7L), anyString());
+		doThrow(Problem.valueOf(UNPROCESSABLE_CONTENT, "Påminnelsen är klar")).when(serviceMock).updateReminder(eq(7L), any(byte[].class));
 
 		webTestClient.put().uri("/2281/professional-web/reminders/7")
 			.contentType(APPLICATION_JSON)
@@ -205,7 +206,7 @@ class ProfessionalWebReminderResourceFailureTest {
 			.expectBody()
 			.jsonPath("$.detail").isEqualTo("Påminnelsen är klar");
 
-		verify(serviceMock).updateReminder(7, "{\"reminderId\": 7}");
+		verify(serviceMock).updateReminder(7, "{\"reminderId\": 7}".getBytes(UTF_8));
 		verifyNoMoreInteractions(serviceMock);
 	}
 

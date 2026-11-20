@@ -25,8 +25,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 class ProfessionalWebReminderResourceTest {
 
 	private static final String LIFECARE_JSON = "{\"id\":42,\"unknownField\":{\"nested\":[1,2]},\"personnummer\":\"191212121212\"}";
-	private static final String CREATE_BODY = "{ \"serviceId\": 42,\n  \"personnummer\": \"19121212-1212\", \"unknown\": {\"a\": [1, 2.50]} }";
-	private static final String UPDATE_BODY = "{\"reminderId\": 7, \"personnummer\": \"191212121212\", \"unknown\": {\"a\": [1]}}";
+	private static final String CREATE_BODY = "{ \"serviceId\": 42,\n  \"text\": \"Påminnelse åäö\", \"personnummer\": \"19121212-1212\", \"unknown\": {\"a\": [1, 2.50]} }";
+	private static final String UPDATE_BODY = "{\"reminderId\": 7, \"text\": \"Påminnelse åäö\", \"personnummer\": \"191212121212\", \"unknown\": {\"a\": [1]}}";
 
 	@MockitoBean
 	private ProfessionalWebReminderService serviceMock;
@@ -95,24 +95,24 @@ class ProfessionalWebReminderResourceTest {
 
 	@Test
 	void createReminder() {
-		when(serviceMock.createReminder(CREATE_BODY)).thenReturn(Optional.of("{\"id\":9}".getBytes(UTF_8)));
+		when(serviceMock.createReminder(CREATE_BODY.getBytes(UTF_8))).thenReturn(Optional.of("{\"id\":9}".getBytes(UTF_8)));
 
 		final var body = webTestClient.post().uri("/2281/professional-web/reminders")
 			.contentType(APPLICATION_JSON)
-			.bodyValue(CREATE_BODY)
+			.bodyValue(CREATE_BODY.getBytes(UTF_8))
 			.exchange()
 			.expectStatus().isCreated()
 			.expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
 			.expectBody(String.class).returnResult().getResponseBody();
 
 		assertThat(body).isEqualTo("{\"id\":9}");
-		verify(serviceMock).createReminder(CREATE_BODY);
+		verify(serviceMock).createReminder(CREATE_BODY.getBytes(UTF_8));
 		verifyNoMoreInteractions(serviceMock);
 	}
 
 	@Test
 	void createReminderWithoutLifecareAnswer() {
-		when(serviceMock.createReminder("{}")).thenReturn(Optional.empty());
+		when(serviceMock.createReminder("{}".getBytes(UTF_8))).thenReturn(Optional.empty());
 
 		webTestClient.post().uri("/2281/professional-web/reminders")
 			.contentType(APPLICATION_JSON)
@@ -122,7 +122,7 @@ class ProfessionalWebReminderResourceTest {
 			.expectHeader().doesNotExist("Content-Type")
 			.expectBody().isEmpty();
 
-		verify(serviceMock).createReminder("{}");
+		verify(serviceMock).createReminder("{}".getBytes(UTF_8));
 		verifyNoMoreInteractions(serviceMock);
 	}
 
@@ -130,12 +130,12 @@ class ProfessionalWebReminderResourceTest {
 	void updateReminder() {
 		webTestClient.put().uri("/2281/professional-web/reminders/7")
 			.contentType(APPLICATION_JSON)
-			.bodyValue(UPDATE_BODY)
+			.bodyValue(UPDATE_BODY.getBytes(UTF_8))
 			.exchange()
 			.expectStatus().isNoContent()
 			.expectBody().isEmpty();
 
-		verify(serviceMock).updateReminder(7, UPDATE_BODY);
+		verify(serviceMock).updateReminder(7, UPDATE_BODY.getBytes(UTF_8));
 		verifyNoMoreInteractions(serviceMock);
 	}
 
@@ -145,6 +145,30 @@ class ProfessionalWebReminderResourceTest {
 			.exchange()
 			.expectStatus().isNoContent()
 			.expectBody().isEmpty();
+
+		verify(serviceMock).removeReminder(7);
+		verifyNoMoreInteractions(serviceMock);
+	}
+
+	@Test
+	void updateReminderAcceptingJson() {
+		webTestClient.put().uri("/2281/professional-web/reminders/7")
+			.contentType(APPLICATION_JSON)
+			.accept(APPLICATION_JSON)
+			.bodyValue(UPDATE_BODY.getBytes(UTF_8))
+			.exchange()
+			.expectStatus().isNoContent();
+
+		verify(serviceMock).updateReminder(7, UPDATE_BODY.getBytes(UTF_8));
+		verifyNoMoreInteractions(serviceMock);
+	}
+
+	@Test
+	void removeReminderAcceptingJson() {
+		webTestClient.delete().uri("/2281/professional-web/reminders/7")
+			.accept(APPLICATION_JSON)
+			.exchange()
+			.expectStatus().isNoContent();
 
 		verify(serviceMock).removeReminder(7);
 		verifyNoMoreInteractions(serviceMock);

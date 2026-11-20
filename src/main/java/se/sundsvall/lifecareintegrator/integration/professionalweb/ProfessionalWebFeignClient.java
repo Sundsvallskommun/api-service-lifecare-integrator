@@ -31,13 +31,17 @@ class ProfessionalWebFeignClient implements Client {
 			.build();
 	}
 
-	private static Map<String, String> toQueryParams(final URI uri) {
+	static Map<String, String> toQueryParams(final URI uri) {
 		final var params = new LinkedHashMap<String, String>();
 		if (uri.getRawQuery() == null) {
 			return params;
 		}
 		for (final var pair : uri.getRawQuery().split("&")) {
 			final var separator = pair.indexOf('=');
+			if (separator < 0) {
+				params.put(URLDecoder.decode(pair, UTF_8), "");
+				continue;
+			}
 			params.put(URLDecoder.decode(pair.substring(0, separator), UTF_8), URLDecoder.decode(pair.substring(separator + 1), UTF_8));
 		}
 		return params;

@@ -50,9 +50,11 @@ paths:
       parameters:
       - name: municipalityId
         in: path
+        description: Municipality id
         required: true
         schema:
           type: string
+        example: 2281
       requestBody:
         content:
           application/json:
@@ -809,16 +811,20 @@ paths:
       parameters:
       - name: municipalityId
         in: path
+        description: Municipality id
         required: true
         schema:
           type: string
+        example: 2281
       - name: serviceId
         in: path
+        description: The Lifecare service (insats) id
         required: true
         schema:
           type: integer
           format: int64
           exclusiveMinimum: 0
+        example: 42
       responses:
         "200":
           description: Lifecare's answer
@@ -869,16 +875,20 @@ paths:
       parameters:
       - name: municipalityId
         in: path
+        description: Municipality id
         required: true
         schema:
           type: string
+        example: 2281
       - name: serviceId
         in: path
+        description: The Lifecare service (insats) id
         required: true
         schema:
           type: integer
           format: int64
           exclusiveMinimum: 0
+        example: 42
       responses:
         "200":
           description: Lifecare's answer
@@ -929,16 +939,20 @@ paths:
       parameters:
       - name: municipalityId
         in: path
+        description: Municipality id
         required: true
         schema:
           type: string
+        example: 2281
       - name: reminderId
         in: path
+        description: The Lifecare reminder id
         required: true
         schema:
           type: integer
           format: int64
           exclusiveMinimum: 0
+        example: 7
       responses:
         "200":
           description: Lifecare's answer
@@ -989,16 +1003,20 @@ paths:
       parameters:
       - name: municipalityId
         in: path
+        description: Municipality id
         required: true
         schema:
           type: string
+        example: 2281
       - name: reminderId
         in: path
+        description: The Lifecare reminder id
         required: true
         schema:
           type: integer
           format: int64
           exclusiveMinimum: 0
+        example: 7
       requestBody:
         content:
           application/json:
@@ -1050,16 +1068,20 @@ paths:
       parameters:
       - name: municipalityId
         in: path
+        description: Municipality id
         required: true
         schema:
           type: string
+        example: 2281
       - name: reminderId
         in: path
+        description: The Lifecare reminder id
         required: true
         schema:
           type: integer
           format: int64
           exclusiveMinimum: 0
+        example: 7
       responses:
         "204":
           description: Removed

@@ -4,6 +4,8 @@ Every change to the service, newest date first. One short line per change.
 
 ## 2026-11-20
 
+- Let the reminder update and remove answer clients that accept JSON, keep request bodies byte for byte, and describe the path parameters in the API (HYDRAN-3431).
+- Test the reminder resources and the reminder service separately (HYDRAN-3431).
 - Move the reminder body checks from the resource into a ProfessionalWeb reminder service (HYDRAN-3431).
 - Add resources that create, update and remove a reminder in ProfessionalWeb, passing the body on unchanged (HYDRAN-3431).
 - Add resources that read a service's reminders, the proposal for a new one and a single reminder from ProfessionalWeb (HYDRAN-3431).

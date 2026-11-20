@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import se.sundsvall.dept44.problem.ThrowableProblem;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.binaryEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
 import static com.github.tomakehurst.wiremock.client.WireMock.delete;
 import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
@@ -35,6 +36,10 @@ import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
 class ProfessionalWebApi2ClientTest {
@@ -72,8 +77,7 @@ class ProfessionalWebApi2ClientTest {
 		final var body = client.listRemindersByServiceId(42);
 
 		assertThat(new String(body, UTF_8)).isEqualTo(LIFECARE_JSON);
-		wireMock.verify(1, getRequestedFor(urlPathEqualTo(LIST_REMINDERS))
-			.withQueryParam("id", equalTo("42"))
+		wireMock.verify(1, getRequestedFor(urlEqualTo(LIST_REMINDERS + "?id=42"))
 			.withHeader("X-LEGACY-TOKEN", equalTo("tok"))
 			.withHeader("Cookie", containing("LEGACY-TOKEN=tok"))
 			.withHeader("Cookie", containing("metadomain=Domain"))
@@ -101,7 +105,7 @@ class ProfessionalWebApi2ClientTest {
 
 	@Test
 	void createReminderPostsTheBodyAsItIsAndReturnsLifecaresAnswer() {
-		final var body = "{ \"serviceId\": 42, \"personnummer\": \"191212121212\", \"unknown\": {\"a\": [1]} }";
+		final var body = "{ \"serviceId\": 42, \"text\": \"Påminnelse åäö\", \"personnummer\": \"191212121212\", \"unknown\": {\"a\": [1]} }";
 		wireMock.stubFor(post(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/CreateReminder/")).willReturn(okJson("{\"id\":9}")));
 
 		final var answer = client.createReminder(body.getBytes(UTF_8));
@@ -110,12 +114,19 @@ class ProfessionalWebApi2ClientTest {
 		wireMock.verify(1, postRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/CreateReminder/"))
 			.withHeader("Content-Type", equalTo("application/json; charset=UTF-8"))
 			.withHeader("X-LEGACY-TOKEN", equalTo("tok"))
-			.withRequestBody(equalTo(body)));
+			.withRequestBody(binaryEqualTo(body.getBytes(UTF_8))));
 	}
 
 	@Test
 	void createReminderWithAnEmptyAnswerReturnsNoBytes() {
 		wireMock.stubFor(post(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/CreateReminder/")).willReturn(ok()));
+
+		assertThat(client.createReminder("{}".getBytes(UTF_8))).isEmpty();
+	}
+
+	@Test
+	void createReminderAnsweredWithNoContentReturnsNoBytes() {
+		wireMock.stubFor(post(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/CreateReminder/")).willReturn(aResponse().withStatus(204)));
 
 		assertThat(client.createReminder("{}".getBytes(UTF_8))).isEmpty();
 	}
@@ -127,7 +138,9 @@ class ProfessionalWebApi2ClientTest {
 
 		client.updateReminder(body.getBytes(UTF_8));
 
-		wireMock.verify(1, postRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/UpdateReminder/")).withRequestBody(equalTo(body)));
+		wireMock.verify(1, postRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/UpdateReminder/"))
+			.withHeader("Content-Type", equalTo("application/json; charset=UTF-8"))
+			.withRequestBody(equalTo(body)));
 	}
 
 	@Test
@@ -136,7 +149,9 @@ class ProfessionalWebApi2ClientTest {
 
 		client.removeReminder("{\"id\":7}".getBytes(UTF_8));
 
-		wireMock.verify(1, deleteRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/RemoveReminder/")).withRequestBody(equalTo("{\"id\":7}")));
+		wireMock.verify(1, deleteRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/RemoveReminder/"))
+			.withHeader("Content-Type", equalTo("application/json; charset=UTF-8"))
+			.withRequestBody(equalTo("{\"id\":7}")));
 	}
 
 	@Test
@@ -145,10 +160,9 @@ class ProfessionalWebApi2ClientTest {
 			.willReturn(aResponse().withStatus(461).withBody("{\"exceptionMessage\":\"Påminnelsen är klar\"}")));
 
 		assertThatThrownBy(() -> client.updateReminder("{\"reminderId\":7}".getBytes(UTF_8)))
-			.isInstanceOfSatisfying(ThrowableProblem.class, problem -> {
-				assertThat(problem.getStatus().value()).isEqualTo(422);
-				assertThat(problem.getDetail()).isEqualTo("Påminnelsen är klar");
-			});
+			.asInstanceOf(type(ThrowableProblem.class))
+			.extracting(problem -> problem.getStatus().value(), ThrowableProblem::getDetail)
+			.containsExactly(422, "Påminnelsen är klar");
 	}
 
 	@Test
@@ -210,10 +224,9 @@ class ProfessionalWebApi2ClientTest {
 		wireMock.stubFor(get(urlPathEqualTo(HEARTBEAT)).willReturn(ok()));
 
 		assertThatThrownBy(() -> client.listRemindersByServiceId(42))
-			.isInstanceOfSatisfying(ThrowableProblem.class, problem -> {
-				assertThat(problem.getStatus()).isEqualTo(BAD_GATEWAY);
-				assertThat(problem.getDetail()).isEqualTo("Lifecare would not accept a freshly established session (status 360)");
-			});
+			.asInstanceOf(type(ThrowableProblem.class))
+			.extracting(ThrowableProblem::getStatus, ThrowableProblem::getDetail)
+			.containsExactly(BAD_GATEWAY, "Lifecare would not accept a freshly established session (status 360)");
 		wireMock.verify(3, getRequestedFor(urlPathEqualTo(LIST_REMINDERS)));
 		wireMock.verify(2, postRequestedFor(urlPathEqualTo(SIGN_IN)));
 	}
@@ -240,10 +253,9 @@ class ProfessionalWebApi2ClientTest {
 		wireMock.stubFor(get(urlPathEqualTo(LIST_REMINDERS)).willReturn(aResponse().withStatus(461).withBody("{\"exceptionMessage\":\"Nej\"}")));
 
 		assertThatThrownBy(() -> client.listRemindersByServiceId(42))
-			.isInstanceOfSatisfying(ThrowableProblem.class, problem -> {
-				assertThat(problem.getStatus().value()).isEqualTo(422);
-				assertThat(problem.getDetail()).isEqualTo("Nej");
-			});
+			.asInstanceOf(type(ThrowableProblem.class))
+			.extracting(problem -> problem.getStatus().value(), ThrowableProblem::getDetail)
+			.containsExactly(422, "Nej");
 		wireMock.verify(1, getRequestedFor(urlPathEqualTo(LIST_REMINDERS)));
 	}
 
@@ -255,25 +267,25 @@ class ProfessionalWebApi2ClientTest {
 			new ProfessionalWebExchange(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC()), http));
 
 		assertThatThrownBy(() -> unreachable.listRemindersByServiceId(42))
-			.isInstanceOfSatisfying(ThrowableProblem.class, problem -> {
-				assertThat(problem.getStatus()).isEqualTo(BAD_GATEWAY);
-				assertThat(problem.getDetail()).startsWith("Lifecare could not be reached");
-			});
+			.asInstanceOf(type(ThrowableProblem.class))
+			.hasFieldOrPropertyWithValue("status", BAD_GATEWAY)
+			.extracting(ThrowableProblem::getDetail, STRING)
+			.startsWith("Lifecare could not be reached");
 	}
 
 	@Test
 	void unconfiguredProfessionalWebIsBadGatewayWithoutAnyCall() {
 		final var properties = properties(null);
-		final var http = http(properties);
+		final var http = mock(ProfessionalWebHttp.class);
 		final var unconfigured = new ProfessionalWebConfiguration().professionalWebApi2Client(
 			new ProfessionalWebExchange(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC()), http));
 
 		assertThatThrownBy(() -> unconfigured.listRemindersByServiceId(42))
-			.isInstanceOfSatisfying(ThrowableProblem.class, problem -> {
-				assertThat(problem.getStatus()).isEqualTo(BAD_GATEWAY);
-				assertThat(problem.getDetail()).contains("not configured");
-			});
-		assertThat(wireMock.getAllServeEvents()).isEmpty();
+			.asInstanceOf(type(ThrowableProblem.class))
+			.hasFieldOrPropertyWithValue("status", BAD_GATEWAY)
+			.extracting(ThrowableProblem::getDetail, STRING)
+			.contains("not configured");
+		verifyNoInteractions(http);
 	}
 
 	@Test

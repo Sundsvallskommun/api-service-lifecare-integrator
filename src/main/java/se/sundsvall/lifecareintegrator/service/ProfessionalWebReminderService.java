@@ -37,31 +37,31 @@ public class ProfessionalWebReminderService {
 		return client.getReminderEditComposite(reminderId);
 	}
 
-	public Optional<byte[]> createReminder(final String body) {
+	public Optional<byte[]> createReminder(final byte[] body) {
 		requireJsonObject(body);
-		return Optional.ofNullable(client.createReminder(body.getBytes(UTF_8)))
+		return Optional.ofNullable(client.createReminder(body))
 			.filter(answer -> answer.length > 0);
 	}
 
-	public void updateReminder(final long reminderId, final String body) {
+	public void updateReminder(final long reminderId, final byte[] body) {
 		Optional.ofNullable(requireJsonObject(body).get("reminderId"))
 			.filter(JsonNode::isIntegralNumber)
 			.filter(bodyReminderId -> bodyReminderId.asLong() == reminderId)
 			.orElseThrow(() -> Problem.valueOf(BAD_REQUEST, REMINDER_ID_MISMATCH.formatted(reminderId)));
-		client.updateReminder(body.getBytes(UTF_8));
+		client.updateReminder(body);
 	}
 
 	public void removeReminder(final long reminderId) {
 		client.removeReminder(("{\"id\":" + reminderId + "}").getBytes(UTF_8));
 	}
 
-	private static JsonNode requireJsonObject(final String body) {
+	private static JsonNode requireJsonObject(final byte[] body) {
 		return parse(body)
 			.filter(JsonNode::isObject)
 			.orElseThrow(() -> Problem.valueOf(BAD_REQUEST, BODY_NOT_A_JSON_OBJECT));
 	}
 
-	private static Optional<JsonNode> parse(final String body) {
+	private static Optional<JsonNode> parse(final byte[] body) {
 		try {
 			return Optional.ofNullable(JSON.readTree(body));
 		} catch (final JacksonException _) {
