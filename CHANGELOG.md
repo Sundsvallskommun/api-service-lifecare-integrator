@@ -4,6 +4,7 @@ Every change to the service, newest date first. One short line per change.
 
 ## 2026-11-20
 
+- Add an integration test that a reminder update Lifecare refuses with 461 answers 422 with Lifecare's text, and one it fails with 500 answers 502 (HYDRAN-3431).
 - Add an integration test that creates, updates and removes a reminder through ProfessionalWeb and checks the bodies Lifecare receives (HYDRAN-3431).
 - Add an integration test that reads a service's reminders, the proposal and a single reminder through ProfessionalWeb (HYDRAN-3431).
 - Let the reminder update and remove answer clients that accept JSON, keep request bodies byte for byte, and describe the path parameters in the API (HYDRAN-3431).

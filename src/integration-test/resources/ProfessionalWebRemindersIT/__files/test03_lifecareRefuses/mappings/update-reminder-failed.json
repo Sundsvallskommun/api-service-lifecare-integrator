@@ -1,0 +1,29 @@
+{
+	"request": {
+		"method": "POST",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Reminders/UpdateReminder/",
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"reminderId": 8,
+					"serviceId": 42,
+					"text": "Ring brukaren igen"
+				}
+			}
+		]
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"Message": "An error has occurred."
+		},
+		"status": 500
+	}
+}

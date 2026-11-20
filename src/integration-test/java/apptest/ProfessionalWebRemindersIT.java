@@ -9,9 +9,11 @@ import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_CONTENT;
 
 @WireMockAppTestSuite(files = "classpath:/ProfessionalWebRemindersIT/", classes = Application.class)
 class ProfessionalWebRemindersIT extends AbstractAppTest {
@@ -63,6 +65,25 @@ class ProfessionalWebRemindersIT extends AbstractAppTest {
 			.withHttpMethod(DELETE)
 			.withExpectedResponseStatus(NO_CONTENT)
 			.withExpectedResponseBodyIsNull()
+			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test03_lifecareRefuses() {
+		setupCall()
+			.withServicePath("/2281/professional-web/reminders/7")
+			.withHttpMethod(PUT)
+			.withRequest("update-request-7.json")
+			.withExpectedResponseStatus(UNPROCESSABLE_CONTENT)
+			.withExpectedResponse("refused-response.json")
+			.sendRequest();
+
+		setupCall()
+			.withServicePath("/2281/professional-web/reminders/8")
+			.withHttpMethod(PUT)
+			.withRequest("update-request-8.json")
+			.withExpectedResponseStatus(BAD_GATEWAY)
+			.withExpectedResponse("failed-response.json")
 			.sendRequestAndVerifyResponse();
 	}
 }
