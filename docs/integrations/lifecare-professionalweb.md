@@ -28,12 +28,26 @@ configured instead. See the comment on `integration.lifecare-professionalweb` in
 
 - Code: `src/main/java/se/sundsvall/lifecareintegrator/integration/professionalweb/`.
 - Configuration: `integration.lifecare-professionalweb` in `application.yml`. Leaving `url` unset makes every exchange
-  answer 502.
+  and api2 client call answer 502.
 
 ## Behaviour worth knowing
 
 - Session lifecycle (sign-in, bootstrap, keep-alive, replacement): `ProfessionalWebSession`.
 - When an answer says a session is needed, the call is retried after a bootstrap, then after a fresh sign-in, and
   otherwise answered with 502: `ProfessionalWebExchange`.
+- Exchange hands back every answer as data. `ProfessionalWebApi2Client` turns a refusal into a problem instead, in
+  `ProfessionalWebErrorDecoder`:
+
+  |   Lifecare    |          Answer           |
+  |---------------|---------------------------|
+  | 400           | 400, with Lifecare's text |
+  | 403           | 403                       |
+  | 404           | 404                       |
+  | 461           | 422, with Lifecare's text |
+  | anything else | 502                       |
+
+  The text comes from `exceptionMessage`, `ExceptionMessage`, `message` or `Message`, in that order. Without one
+  the answer says "Lifecare refused the request".
+
 - Request and response bodies are never logged.
 

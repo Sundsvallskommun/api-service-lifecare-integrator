@@ -5,7 +5,6 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.github.tomakehurst.wiremock.WireMockServer;
-import feign.FeignException;
 import java.net.http.HttpClient;
 import java.time.Clock;
 import java.time.Duration;
@@ -164,12 +163,44 @@ class ProfessionalWebApi2ClientTest {
 	}
 
 	@Test
-	void refusalIsNotReturnedAsData() {
-		wireMock.stubFor(get(urlPathEqualTo(LIST_REMINDERS)).willReturn(aResponse().withStatus(404).withBody("{\"message\":\"x\"}")));
+	void refusalIsAProblemWithTheMappedStatus() {
+		wireMock.stubFor(get(urlPathEqualTo(LIST_REMINDERS)).willReturn(aResponse().withStatus(461).withBody("{\"exceptionMessage\":\"Nej\"}")));
 
 		assertThatThrownBy(() -> client.listRemindersByServiceId(42))
-			.isInstanceOfSatisfying(FeignException.class, exception -> assertThat(exception.status()).isEqualTo(404));
+			.isInstanceOfSatisfying(ThrowableProblem.class, problem -> {
+				assertThat(problem.getStatus().value()).isEqualTo(422);
+				assertThat(problem.getDetail()).isEqualTo("Nej");
+			});
 		wireMock.verify(1, getRequestedFor(urlPathEqualTo(LIST_REMINDERS)));
+	}
+
+	@Test
+	void unreachableLifecareIsBadGateway() {
+		final var properties = properties("http://localhost:1");
+		final var http = http(properties);
+		final var unreachable = ProfessionalWebConfiguration.api2Client(
+			new ProfessionalWebExchange(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC()), http));
+
+		assertThatThrownBy(() -> unreachable.listRemindersByServiceId(42))
+			.isInstanceOfSatisfying(ThrowableProblem.class, problem -> {
+				assertThat(problem.getStatus()).isEqualTo(BAD_GATEWAY);
+				assertThat(problem.getDetail()).startsWith("Lifecare could not be reached");
+			});
+	}
+
+	@Test
+	void unconfiguredProfessionalWebIsBadGatewayWithoutAnyCall() {
+		final var properties = properties(null);
+		final var http = http(properties);
+		final var unconfigured = ProfessionalWebConfiguration.api2Client(
+			new ProfessionalWebExchange(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC()), http));
+
+		assertThatThrownBy(() -> unconfigured.listRemindersByServiceId(42))
+			.isInstanceOfSatisfying(ThrowableProblem.class, problem -> {
+				assertThat(problem.getStatus()).isEqualTo(BAD_GATEWAY);
+				assertThat(problem.getDetail()).contains("not configured");
+			});
+		assertThat(wireMock.getAllServeEvents()).isEmpty();
 	}
 
 	@Test

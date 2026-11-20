@@ -39,6 +39,7 @@ class ProfessionalWebConfiguration {
 	static ProfessionalWebApi2Client api2Client(final ProfessionalWebExchange exchange) {
 		return Feign.builder()
 			.client(new ProfessionalWebFeignClient(exchange))
+			.errorDecoder(new ProfessionalWebErrorDecoder())
 			.target(ProfessionalWebApi2Client.class, "http://" + ProfessionalWebExchange.MODULE);
 	}
 }
