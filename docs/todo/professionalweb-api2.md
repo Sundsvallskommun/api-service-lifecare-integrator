@@ -27,6 +27,8 @@ Reminders is done as the pilot (HYDRAN-3431), and the pattern for the other area
 Done since, on the same pattern, with unit tests per layer and no integration test yet:
 
 - Job stimulus: the end date of a period and saving a person's periods, on `ProfessionalWebCalculationClient`.
+- Payment, Payee and Household: the underlag and the latest payments of a service, a person's household on a date,
+  and creating a payment and a payee, on `ProfessionalWebPaymentClient`.
 
 Decided along the way:
 
@@ -55,13 +57,12 @@ Decided along the way:
 
 ## Areas left
 
-|           Area            |                                                                                     api2 operations caremanagement uses                                                                                      |
-|---------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Calculation               | GetProposalService, ListCalculations, GetCalculation, GetCalculationForEdit, GetJobStimulusForService, PlacePersons, GetAmount, GetSharedCost, GetJobStimuliForCalculation, Create, Update, Delete           |
-| Decision                  | GetProposalForService, GetMappedDecisionReasons, GetDecision, Create, Update                                                                                                                                 |
-| Document                  | GetDocumentsListForClient, GetJournalNoteWithContent, GetDocumentWithContent, GetNoteProposalForService, GetDocumentProposalForService, CreateJournalNote, CreateDocument, UpdateJournalNote, UpdateDocument |
-| Payment, Payee, Household | GetPaymentForCreate, GetLatestPayments, Payment/Create, Payee/Create, HasHouseholdThisDate                                                                                                                   |
-| Prints (`RenderPdf`)      | PrintContainer (calculation), PrintDecision (decision), PrintDocument (written document or form)                                                                                                             |
+|         Area         |                                                                                     api2 operations caremanagement uses                                                                                      |
+|----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Calculation          | GetProposalService, ListCalculations, GetCalculation, GetCalculationForEdit, GetJobStimulusForService, PlacePersons, GetAmount, GetSharedCost, GetJobStimuliForCalculation, Create, Update, Delete           |
+| Decision             | GetProposalForService, GetMappedDecisionReasons, GetDecision, Create, Update                                                                                                                                 |
+| Document             | GetDocumentsListForClient, GetJournalNoteWithContent, GetDocumentWithContent, GetNoteProposalForService, GetDocumentProposalForService, CreateJournalNote, CreateDocument, UpdateJournalNote, UpdateDocument |
+| Prints (`RenderPdf`) | PrintContainer (calculation), PrintDecision (decision), PrintDocument (written document or form)                                                                                                             |
 
 ## After the areas
 

@@ -62,4 +62,9 @@ All paths are under `/{municipalityId}`.
 | `DELETE /professional-web/reminders/{reminderId}`                            | ProfessionalWeb `api2/Reminders/RemoveReminder/`                                                                           |
 | `GET /professional-web/job-stimulus/end-date`                                | ProfessionalWeb `api2/Calculation/GetJobStimulusToDate`                                                                    |
 | `POST /professional-web/job-stimulus`                                        | ProfessionalWeb `api2/Calculation/SaveJobStimulus`                                                                         |
+| `GET /professional-web/services/{serviceId}/payments/proposal`               | ProfessionalWeb `api2/Payment/GetPaymentForCreate`                                                                         |
+| `GET /professional-web/services/{serviceId}/payments/latest`                 | ProfessionalWeb `api2/Payment/GetLatestPayments`                                                                           |
+| `GET /professional-web/persons/{partyId}/household`                          | ProfessionalWeb `api2/Household/HasHouseholdThisDate/`, with the personnummer from Party                                   |
+| `POST /professional-web/services/{serviceId}/payments`                       | ProfessionalWeb `api2/Payment/Create`, never sent twice                                                                    |
+| `POST /professional-web/payees`                                              | ProfessionalWeb `api2/Payee/Create`                                                                                        |
 
