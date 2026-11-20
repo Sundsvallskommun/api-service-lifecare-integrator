@@ -4,6 +4,7 @@ Every change to the service, newest date first. One short line per change.
 
 ## 2026-11-20
 
+- Add resources that read a service's reminders, the proposal for a new one and a single reminder from ProfessionalWeb (HYDRAN-3431).
 - Map Lifecare api2 refusals to 400, 403, 404, 422 and 502 problems in the api2 client (HYDRAN-3431).
 - Add an api2 Feign client that shares the ProfessionalWeb session with exchange (HYDRAN-3431).
 

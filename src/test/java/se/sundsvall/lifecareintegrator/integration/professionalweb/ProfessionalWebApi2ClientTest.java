@@ -25,6 +25,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
@@ -76,6 +77,23 @@ class ProfessionalWebApi2ClientTest {
 			.withHeader("X-Requested-With", equalTo("XMLHttpRequest"))
 			.withHeader("ajax-no-cross-domain-redirect", equalTo("true")));
 		wireMock.verify(1, postRequestedFor(urlPathEqualTo(SIGN_IN)));
+	}
+
+	@Test
+	void proposalForServiceIsReadWithTheServiceId() {
+		wireMock.stubFor(get(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/GetProposalForService?id=42")).willReturn(okJson(LIFECARE_JSON)));
+
+		assertThat(new String(client.getProposalForService(42), UTF_8)).isEqualTo(LIFECARE_JSON);
+		wireMock.verify(1, getRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/GetProposalForService?id=42")));
+	}
+
+	@Test
+	void reminderEditCompositeIsReadWithTheReminderIdThenReadOptionsFalse() {
+		wireMock.stubFor(get(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/GetReminderEditComposite?reminderId=7&readOptions=false"))
+			.willReturn(okJson(LIFECARE_JSON)));
+
+		assertThat(new String(client.getReminderEditComposite(7), UTF_8)).isEqualTo(LIFECARE_JSON);
+		wireMock.verify(1, getRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/GetReminderEditComposite?reminderId=7&readOptions=false")));
 	}
 
 	@Test

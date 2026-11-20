@@ -6,7 +6,8 @@ time, with exchange kept until every client has moved.
 
 ## Areas
 
-Reminders is the pilot. The rest follow the same pattern once it has been reviewed.
+Reminders is the pilot. The rest follow the same pattern once it has been reviewed. The Reminders reads have resources.
+CreateReminder, UpdateReminder and RemoveReminder do not yet.
 
 |           Area            |                                                                                          api2 operations careM uses                                                                                          |
 |---------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

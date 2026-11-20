@@ -10,6 +10,9 @@ servers:
 - url: http://localhost:64555
   description: Generated server url
 tags:
+- name: ProfessionalWeb reminders
+  description: "Lifecare ProfessionalWeb reminders, with Lifecare's JSON passed through\
+    \ untouched"
 - name: Investigations
   description: Investigation reads from the Lifecare family care system
 - name: Executions
@@ -732,6 +735,186 @@ paths:
                 - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/services/{serviceId}/reminders:
+    get:
+      tags:
+      - ProfessionalWeb reminders
+      summary: List the reminders of a service
+      description: Lifecare's api2/Reminders/ListRemindersByServiceId
+      operationId: listReminders
+      parameters:
+      - name: municipalityId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: serviceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/services/{serviceId}/reminders/proposal:
+    get:
+      tags:
+      - ProfessionalWeb reminders
+      summary: Get Lifecare's proposal for a new reminder on a service
+      description: Lifecare's api2/Reminders/GetProposalForService
+      operationId: getReminderProposal
+      parameters:
+      - name: municipalityId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: serviceId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/reminders/{reminderId}:
+    get:
+      tags:
+      - ProfessionalWeb reminders
+      summary: Get a reminder
+      description: Lifecare's api2/Reminders/GetReminderEditComposite
+      operationId: getReminder
+      parameters:
+      - name: municipalityId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: reminderId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
           content:
             application/problem+json:
               schema:
