@@ -33,6 +33,9 @@ Done since, on the same pattern, with unit tests per layer and no integration te
   creating and updating a decision, on `ProfessionalWebDecisionClient`.
 - Document: a person's journal notes and documents, reading one to show or to edit, the proposals of a service, and
   creating and updating a journal note or a document, on `ProfessionalWebDocumentClient`.
+- Calculation: the underlag and the latest calculation of a service, reading one to show or to edit, a service's job
+  stimulus, the four reckonings that change nothing in Lifecare, and creating, updating and removing a calculation, on
+  `ProfessionalWebCalculationClient`.
 
 Decided along the way:
 
@@ -62,10 +65,9 @@ Decided along the way:
 
 ## Areas left
 
-|         Area         |                                                                                api2 operations caremanagement uses                                                                                 |
-|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Calculation          | GetProposalService, ListCalculations, GetCalculation, GetCalculationForEdit, GetJobStimulusForService, PlacePersons, GetAmount, GetSharedCost, GetJobStimuliForCalculation, Create, Update, Delete |
-| Prints (`RenderPdf`) | PrintContainer (calculation), PrintDecision (decision), PrintDocument (written document or form)                                                                                                   |
+|         Area         |                               api2 operations caremanagement uses                                |
+|----------------------|--------------------------------------------------------------------------------------------------|
+| Prints (`RenderPdf`) | PrintContainer (calculation), PrintDecision (decision), PrintDocument (written document or form) |
 
 ## After the areas
 

@@ -79,4 +79,16 @@ All paths are under `/{municipalityId}`.
 | `GET /professional-web/services/{serviceId}/documents/proposal`              | ProfessionalWeb `api2/Document/GetDocumentProposalForService`                                                              |
 | `POST /professional-web/journal-notes`, `POST /professional-web/documents`   | ProfessionalWeb `api2/Document/CreateJournalNote/`, `api2/Document/CreateDocument/`                                        |
 | `PUT /professional-web/journal-notes/{id}`, `PUT …/documents/{id}`           | ProfessionalWeb `api2/Document/UpdateJournalNote/`, `UpdateDocument/`. The body's `documentId` must match the path         |
+| `GET /professional-web/services/{serviceId}/calculations/proposal`           | ProfessionalWeb `api2/Calculation/GetProposalService`                                                                      |
+| `GET /professional-web/services/{serviceId}/calculations/latest`             | ProfessionalWeb `api2/Calculation/ListCalculations`, only the latest                                                       |
+| `GET /professional-web/calculations/{calculationId}`                         | ProfessionalWeb `api2/Calculation/GetCalculation`                                                                          |
+| `GET /professional-web/calculations/{calculationId}/edit`                    | ProfessionalWeb `api2/Calculation/GetCalculationForEdit`                                                                   |
+| `GET /professional-web/services/{serviceId}/job-stimulus`                    | ProfessionalWeb `api2/Calculation/GetJobStimulusForService`                                                                |
+| `POST /professional-web/calculations/place-persons`                          | ProfessionalWeb `api2/Calculation/PlacePersons`, changes nothing in Lifecare                                               |
+| `POST /professional-web/calculations/amount`                                 | ProfessionalWeb `api2/Calculation/GetAmount`, changes nothing in Lifecare                                                  |
+| `POST /professional-web/calculations/shared-cost`                            | ProfessionalWeb `api2/Calculation/GetSharedCost`, changes nothing in Lifecare                                              |
+| `POST /professional-web/calculations/job-stimuli`                            | ProfessionalWeb `api2/Calculation/GetJobStimuliForCalculation`, changes nothing in Lifecare                                |
+| `POST /professional-web/services/{serviceId}/calculations`                   | ProfessionalWeb `api2/Calculation/Create`                                                                                  |
+| `PUT /professional-web/calculations/{calculationId}`                         | ProfessionalWeb `api2/Calculation/Update`                                                                                  |
+| `DELETE /professional-web/calculations/{calculationId}`                      | ProfessionalWeb `api2/Calculation/Delete`                                                                                  |
 

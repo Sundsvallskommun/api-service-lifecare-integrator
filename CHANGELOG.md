@@ -4,6 +4,7 @@ Every change to the service, newest date first. One short line per change.
 
 ## 2026-11-20
 
+- Add ProfessionalWeb resources for calculations: the underlag, the latest, reading one, a service's job stimulus, the reckonings, and creating, updating and removing one (HYDRAN-3431).
 - Add ProfessionalWeb resources for a person's journal notes and documents, reading one to show or to edit, the proposals of a service, and creating and updating them (HYDRAN-3431).
 - Add ProfessionalWeb resources for a decision's underlag and the reasons of a decision type, and for reading, creating and updating a decision (HYDRAN-3431).
 - Add ProfessionalWeb resources for a service's payment underlag and latest payments, a person's household on a date, and creating a payment or a payee (HYDRAN-3431).

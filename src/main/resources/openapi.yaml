@@ -32,6 +32,9 @@ tags:
   description: Payment reads from the Lifecare family care system
 - name: Documents
   description: Documents stored for a person in the Lifecare family care system
+- name: ProfessionalWeb calculations
+  description: "Lifecare ProfessionalWeb calculations (beräkningar), with Lifecare's\
+    \ JSON passed through untouched"
 - name: ProfessionalWeb payments
   description: "Lifecare ProfessionalWeb payments (utbetalningar), payees and households,\
     \ with Lifecare's JSON passed through untouched"
@@ -667,6 +670,206 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/calculations/{calculationId}:
+    get:
+      tags:
+      - ProfessionalWeb calculations
+      summary: Get a calculation to show
+      description: Lifecare's api2/Calculation/GetCalculation
+      operationId: getCalculation
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: calculationId
+        in: path
+        description: The Lifecare calculation (beräkning) id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 7
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+    put:
+      tags:
+      - ProfessionalWeb calculations
+      summary: Update a calculation
+      description: Lifecare's api2/Calculation/Update. The body is sent to Lifecare
+        as it is
+      operationId: updateCalculation
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: calculationId
+        in: path
+        description: The Lifecare calculation (beräkning) id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 7
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "200":
+          description: "Updated, with Lifecare's answer"
+          content:
+            application/json:
+              schema:
+                type: object
+        "204":
+          description: "Updated, without an answer from Lifecare"
+          content:
+            application/json:
+              schema:
+                type: string
+                format: byte
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+    delete:
+      tags:
+      - ProfessionalWeb calculations
+      summary: Remove a calculation
+      description: Lifecare's api2/Calculation/Delete
+      operationId: deleteCalculation
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: calculationId
+        in: path
+        description: The Lifecare calculation (beräkning) id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 7
+      responses:
+        "204":
+          description: Removed
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/professional-web/services/{serviceId}/payments:
     post:
       tags:
@@ -754,6 +957,84 @@ paths:
       description: Lifecare's api2/Decision/Create. The body is sent to Lifecare as
         it is
       operationId: createDecision
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: serviceId
+        in: path
+        description: The Lifecare service (insats) id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 42
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "201":
+          description: "Created, with Lifecare's answer"
+          content:
+            application/json:
+              schema:
+                type: object
+        "204":
+          description: "Created, without an answer from Lifecare"
+          content:
+            application/json:
+              schema:
+                type: string
+                format: byte
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/services/{serviceId}/calculations:
+    post:
+      tags:
+      - ProfessionalWeb calculations
+      summary: Create a calculation on a service
+      description: Lifecare's api2/Calculation/Create. The body is sent to Lifecare
+        as it is
+      operationId: createCalculation
       parameters:
       - name: municipalityId
         in: path
@@ -1214,6 +1495,254 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/calculations/shared-cost:
+    post:
+      tags:
+      - ProfessionalWeb calculations
+      summary: Let Lifecare count a household's shared costs for a period
+      description: Lifecare's api2/Calculation/GetSharedCost. Changes nothing in Lifecare.
+        The body is sent to Lifecare as it is
+      operationId: getSharedCost
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: number
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/calculations/place-persons:
+    post:
+      tags:
+      - ProfessionalWeb calculations
+      summary: Let Lifecare place the household's members on a norm's rows
+      description: Lifecare's api2/Calculation/PlacePersons. Changes nothing in Lifecare.
+        The body is sent to Lifecare as it is
+      operationId: placePersons
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/calculations/job-stimuli:
+    post:
+      tags:
+      - ProfessionalWeb calculations
+      summary: Let Lifecare mark which members of a calculation have job stimulus
+      description: Lifecare's api2/Calculation/GetJobStimuliForCalculation. Changes
+        nothing in Lifecare. The body is sent to Lifecare as it is
+      operationId: getJobStimuli
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/calculations/amount:
+    post:
+      tags:
+      - ProfessionalWeb calculations
+      summary: Let Lifecare count a member's amount for a period
+      description: Lifecare's api2/Calculation/GetAmount. Changes nothing in Lifecare.
+        The body is sent to Lifecare as it is
+      operationId: getAmount
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/calculations:
     get:
       tags:
@@ -1322,7 +1851,7 @@ paths:
       - Calculations
       description: Create a calculation in Lifecare family care. Ids in the request
         come from the proposal endpoint
-      operationId: createCalculation
+      operationId: createCalculation_1
       parameters:
       - name: municipalityId
         in: path
@@ -2188,6 +2717,70 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/services/{serviceId}/job-stimulus:
+    get:
+      tags:
+      - ProfessionalWeb calculations
+      summary: Get the job stimulus periods on a service
+      description: Lifecare's api2/Calculation/GetJobStimulusForService
+      operationId: getJobStimulus
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: serviceId
+        in: path
+        description: The Lifecare service (insats) id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 42
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/professional-web/services/{serviceId}/documents/proposal:
     get:
       tags:
@@ -2302,6 +2895,134 @@ paths:
             application/json:
               schema:
                 type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/services/{serviceId}/calculations/proposal:
+    get:
+      tags:
+      - ProfessionalWeb calculations
+      summary: Get Lifecare's underlag for a new calculation on a service
+      description: Lifecare's api2/Calculation/GetProposalService
+      operationId: getCalculationProposal
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: serviceId
+        in: path
+        description: The Lifecare service (insats) id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 42
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/services/{serviceId}/calculations/latest:
+    get:
+      tags:
+      - ProfessionalWeb calculations
+      summary: Get the latest calculation on a service
+      description: "Lifecare's api2/Calculation/ListCalculations, only the latest"
+      operationId: getLatestCalculation
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: serviceId
+        in: path
+        description: The Lifecare service (insats) id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 42
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: array
         "400":
           description: Bad request
           content:
@@ -2697,6 +3418,71 @@ paths:
             application/json:
               schema:
                 type: array
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/calculations/{calculationId}/edit:
+    get:
+      tags:
+      - ProfessionalWeb calculations
+      summary: Get a calculation to edit
+      description: "Lifecare's api2/Calculation/GetCalculationForEdit, the object\
+        \ an update takes back"
+      operationId: getCalculationForEdit
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: calculationId
+        in: path
+        description: The Lifecare calculation (beräkning) id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 7
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
         "400":
           description: Bad request
           content:
@@ -3448,7 +4234,7 @@ paths:
         \ and linkable cases) needed to create a calculation for a person. Household\
         \ members are identified by partyId — a member without a partyId could not\
         \ be resolved and cannot be referenced in a create request"
-      operationId: getCalculationProposal
+      operationId: getCalculationProposal_1
       parameters:
       - name: municipalityId
         in: path
@@ -3567,9 +4353,9 @@ components:
         type:
           type: string
           format: uri
-        detail:
-          type: string
         title:
+          type: string
+        detail:
           type: string
         status:
           type: integer
@@ -3616,36 +4402,9 @@ components:
           type: boolean
         container:
           type: boolean
-        binary:
-          type: boolean
-        boolean:
-          type: boolean
-        string:
-          type: boolean
-        pojo:
-          type: boolean
-        long:
-          type: boolean
-        double:
-          type: boolean
-        int:
-          type: boolean
-        textual:
-          type: boolean
-          deprecated: true
-        short:
-          type: boolean
-        floatingPointNumber:
-          type: boolean
-        bigInteger:
+        integralNumber:
           type: boolean
         missingNode:
-          type: boolean
-        bigDecimal:
-          type: boolean
-        valueNode:
-          type: boolean
-        integralNumber:
           type: boolean
         nodeType:
           type: string
@@ -3659,6 +4418,33 @@ components:
           - OBJECT
           - POJO
           - STRING
+        bigDecimal:
+          type: boolean
+        bigInteger:
+          type: boolean
+        valueNode:
+          type: boolean
+        floatingPointNumber:
+          type: boolean
+        short:
+          type: boolean
+        textual:
+          type: boolean
+          deprecated: true
+        int:
+          type: boolean
+        double:
+          type: boolean
+        string:
+          type: boolean
+        long:
+          type: boolean
+        pojo:
+          type: boolean
+        binary:
+          type: boolean
+        boolean:
+          type: boolean
         number:
           type: boolean
         embeddedValue:

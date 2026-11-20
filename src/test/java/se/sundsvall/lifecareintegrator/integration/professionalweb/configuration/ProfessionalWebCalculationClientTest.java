@@ -9,6 +9,8 @@ import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalW
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.binaryEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
+import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
@@ -93,5 +95,86 @@ class ProfessionalWebCalculationClientTest {
 			.extracting(problem -> problem.getStatus().value(), ThrowableProblem::getDetail)
 			.containsExactly(502, "Lifecare answered with status 500: Något gick fel");
 		wireMock.verify(1, postRequestedFor(urlEqualTo(CALCULATION + "SaveJobStimulus")));
+	}
+
+	@Test
+	void readsAreMadeWithBusinessTypeThenBusinessId() {
+		wireMock.stubFor(get(urlEqualTo(CALCULATION + "GetProposalService?businessType=8&businessId=42")).willReturn(okJson("{\"proposal\":1}")));
+		wireMock.stubFor(get(urlEqualTo(CALCULATION + "GetCalculation?businessType=3&businessId=7")).willReturn(okJson("{\"calculation\":1}")));
+		wireMock.stubFor(get(urlEqualTo(CALCULATION + "GetCalculationForEdit?businessType=3&businessId=7")).willReturn(okJson("{\"edit\":1}")));
+		wireMock.stubFor(get(urlEqualTo(CALCULATION + "GetJobStimulusForService?businessType=8&businessId=42")).willReturn(okJson("{\"jobStimulus\":1}")));
+
+		assertThat(new String(client.getProposalService(8, 42), UTF_8)).isEqualTo("{\"proposal\":1}");
+		assertThat(new String(client.getCalculation(3, 7), UTF_8)).isEqualTo("{\"calculation\":1}");
+		assertThat(new String(client.getCalculationForEdit(3, 7), UTF_8)).isEqualTo("{\"edit\":1}");
+		assertThat(new String(client.getJobStimulusForService(8, 42), UTF_8)).isEqualTo("{\"jobStimulus\":1}");
+
+		wireMock.verify(1, getRequestedFor(urlEqualTo(CALCULATION + "GetProposalService?businessType=8&businessId=42")));
+		wireMock.verify(1, getRequestedFor(urlEqualTo(CALCULATION + "GetCalculation?businessType=3&businessId=7")));
+		wireMock.verify(1, getRequestedFor(urlEqualTo(CALCULATION + "GetCalculationForEdit?businessType=3&businessId=7")));
+		wireMock.verify(1, getRequestedFor(urlEqualTo(CALCULATION + "GetJobStimulusForService?businessType=8&businessId=42")));
+	}
+
+	@Test
+	void listCalculationsIsReadWithItsParametersInOrder() {
+		final var url = CALCULATION + "ListCalculations?businessType=8&businessId=42&investigationId=0&serviceId=42&onlylatest=true";
+		wireMock.stubFor(get(urlEqualTo(url)).willReturn(okJson("[]")));
+
+		assertThat(new String(client.listCalculations(8, 42, 0, 42, true), UTF_8)).isEqualTo("[]");
+
+		wireMock.verify(1, getRequestedFor(urlEqualTo(url)));
+	}
+
+	@Test
+	void reckoningsPostTheBodyByteForByte() {
+		wireMock.stubFor(post(urlEqualTo(CALCULATION + "PlacePersons")).willReturn(okJson("{\"placed\":1}")));
+		wireMock.stubFor(post(urlEqualTo(CALCULATION + "GetAmount")).willReturn(okJson("{\"amount\":12.50}")));
+		wireMock.stubFor(post(urlEqualTo(CALCULATION + "GetSharedCost")).willReturn(okJson("1250.50")));
+		wireMock.stubFor(post(urlEqualTo(CALCULATION + "GetJobStimuliForCalculation")).willReturn(okJson("{\"stimuli\":1}")));
+
+		assertThat(new String(client.placePersons(BODY.getBytes(UTF_8)), UTF_8)).isEqualTo("{\"placed\":1}");
+		assertThat(new String(client.getAmount(BODY.getBytes(UTF_8)), UTF_8)).isEqualTo("{\"amount\":12.50}");
+		assertThat(new String(client.getSharedCost(BODY.getBytes(UTF_8)), UTF_8)).isEqualTo("1250.50");
+		assertThat(new String(client.getJobStimuliForCalculation(BODY.getBytes(UTF_8)), UTF_8)).isEqualTo("{\"stimuli\":1}");
+
+		for (final var operation : java.util.List.of("PlacePersons", "GetAmount", "GetSharedCost", "GetJobStimuliForCalculation")) {
+			wireMock.verify(1, postRequestedFor(urlEqualTo(CALCULATION + operation))
+				.withHeader("Content-Type", equalTo("application/json; charset=UTF-8"))
+				.withRequestBody(binaryEqualTo(BODY.getBytes(UTF_8))));
+		}
+	}
+
+	@Test
+	void createAndUpdatePostTheBodyByteForByte() {
+		wireMock.stubFor(post(urlEqualTo(CALCULATION + "Create?businessType=8&businessId=42")).willReturn(okJson("{\"calculationId\":7}")));
+		wireMock.stubFor(post(urlEqualTo(CALCULATION + "Update?businessType=3&businessId=7")).willReturn(aResponse().withStatus(204)));
+
+		assertThat(new String(client.create(8, 42, BODY.getBytes(UTF_8)), UTF_8)).isEqualTo("{\"calculationId\":7}");
+		assertThat(client.update(3, 7, BODY.getBytes(UTF_8))).isEmpty();
+
+		wireMock.verify(1, postRequestedFor(urlEqualTo(CALCULATION + "Create?businessType=8&businessId=42")).withRequestBody(binaryEqualTo(BODY.getBytes(UTF_8))));
+		wireMock.verify(1, postRequestedFor(urlEqualTo(CALCULATION + "Update?businessType=3&businessId=7")).withRequestBody(binaryEqualTo(BODY.getBytes(UTF_8))));
+	}
+
+	@Test
+	void deleteIsADeleteWithAnEmptyBody() {
+		wireMock.stubFor(delete(urlEqualTo(CALCULATION + "Delete?businessType=3&businessId=7")).willReturn(aResponse().withStatus(200)));
+
+		client.delete(3, 7, new byte[0]);
+
+		wireMock.verify(1, deleteRequestedFor(urlEqualTo(CALCULATION + "Delete?businessType=3&businessId=7"))
+			.withHeader("Content-Length", equalTo("0"))
+			.withHeader("Content-Type", equalTo("application/json; charset=UTF-8")));
+	}
+
+	@Test
+	void deleteRefusedByLifecareIsUnprocessableWithItsText() {
+		wireMock.stubFor(delete(urlEqualTo(CALCULATION + "Delete?businessType=3&businessId=7"))
+			.willReturn(aResponse().withStatus(461).withBody("{\"exceptionMessage\":\"Beräkningen är slutlig\"}")));
+
+		assertThatThrownBy(() -> client.delete(3, 7, new byte[0]))
+			.asInstanceOf(type(ThrowableProblem.class))
+			.extracting(problem -> problem.getStatus().value(), ThrowableProblem::getDetail)
+			.containsExactly(422, "Beräkningen är slutlig");
 	}
 }
