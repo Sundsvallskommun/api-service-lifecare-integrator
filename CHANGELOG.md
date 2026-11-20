@@ -2,6 +2,10 @@
 
 Every change to the service, newest date first. One short line per change.
 
+## 2026-11-20
+
+- Add an api2 Feign client that shares the ProfessionalWeb session with exchange (HYDRAN-3431).
+
 ## 2026-11-19
 
 - Give a person without a personnummer a null party id explicitly, and test the party id mapping in every flow.

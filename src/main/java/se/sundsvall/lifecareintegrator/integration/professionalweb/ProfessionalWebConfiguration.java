@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.integration.professionalweb;
 
+import feign.Feign;
 import java.net.ProxySelector;
 import java.net.http.HttpClient;
 import java.time.Duration;
@@ -28,5 +29,16 @@ class ProfessionalWebConfiguration {
 			.connectTimeout(Duration.ofSeconds(properties.connectTimeout()))
 			.sslContext(truststore.getSSLContext())
 			.build();
+	}
+
+	@Bean
+	ProfessionalWebApi2Client professionalWebApi2Client(final ProfessionalWebExchange exchange) {
+		return api2Client(exchange);
+	}
+
+	static ProfessionalWebApi2Client api2Client(final ProfessionalWebExchange exchange) {
+		return Feign.builder()
+			.client(new ProfessionalWebFeignClient(exchange))
+			.target(ProfessionalWebApi2Client.class, "http://" + ProfessionalWebExchange.MODULE);
 	}
 }

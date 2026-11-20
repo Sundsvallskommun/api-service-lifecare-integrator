@@ -9,7 +9,14 @@ api-service-caremanagement and does not interpret the answers.
 
 ## Calls
 
-Any api2 path, named by the caller. There is no spec and no generated client.
+Two ways in, sharing one session:
+
+1. Exchange passes any api2 or RenderPdf path through, named by the caller.
+2. `ProfessionalWebApi2Client`, a Feign client with one method per api2 operation that has its own resource. Its
+   Feign `Client` hands each request to `ProfessionalWebExchange`, so it gets the same session, escalation and
+   logging as exchange. It does not open connections of its own.
+
+There is no spec. The client is written by hand, not generated.
 
 ## Authentication
 

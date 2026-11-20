@@ -91,6 +91,21 @@ class ProfessionalWebResourceTest {
 	}
 
 	@Test
+	void exchangeStillReachesApi2PathsThatHaveTheirOwnResource() {
+		final var headers = HttpHeaders.of(Map.of("Content-Type", List.of("application/json")), (a, b) -> true);
+		when(exchangeMock.exchange(eq("POST"), eq("api2/Reminders/CreateReminder/"), any(), any()))
+			.thenReturn(new ProfessionalWebResponse(200, headers, "{}".getBytes(StandardCharsets.UTF_8), URI.create("https://x")));
+
+		webTestClient.post().uri(PATH)
+			.bodyValue(Map.of("method", "POST", "path", "api2/Reminders/CreateReminder/", "body", Map.of("a", 1)))
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody().jsonPath("$.status").isEqualTo(200);
+
+		verify(exchangeMock).exchange("POST", "api2/Reminders/CreateReminder/", null, "{\"a\":1}".getBytes(StandardCharsets.UTF_8));
+	}
+
+	@Test
 	void exchangeWithForm() {
 		final var headers = HttpHeaders.of(Map.of("Content-Type", List.of("application/pdf")), (a, b) -> true);
 		final var fields = List.of(Map.entry("51_0_2_1", "true"), Map.entry("51_0_2_1", "false"), Map.entry("X-LEGACY-TOKEN", "TOKEN"), Map.entry("empty", ""));
