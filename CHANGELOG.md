@@ -4,6 +4,7 @@ Every change to the service, newest date first. One short line per change.
 
 ## 2026-11-20
 
+- Add an integration test that reads a service's reminders, the proposal and a single reminder through ProfessionalWeb (HYDRAN-3431).
 - Let the reminder update and remove answer clients that accept JSON, keep request bodies byte for byte, and describe the path parameters in the API (HYDRAN-3431).
 - Test the reminder resources and the reminder service separately (HYDRAN-3431).
 - Move the reminder body checks from the resource into a ProfessionalWeb reminder service (HYDRAN-3431).

@@ -37,3 +37,10 @@ integration:
     url: http://localhost:${wiremock.server.port}/party
     # Off in the ITs: they share one context, and every test stubs (and verifies) its own Party calls.
     cache-time-to-live: PT0S
+  lifecare-professionalweb:
+    url: http://localhost:${wiremock.server.port}
+    domain: it-domain
+    # A seeded session, so the ITs need no sign-in at the identity provider.
+    session-cookie: ASP.NET_SessionId=it-session; LEGACY-TOKEN=it-legacy-token
+    # Longer than the IT run, so no keep-alive Heartbeat reaches WireMock unstubbed.
+    keep-alive-interval: 1h
