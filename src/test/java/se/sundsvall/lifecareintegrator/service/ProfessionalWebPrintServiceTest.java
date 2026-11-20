@@ -128,6 +128,10 @@ class ProfessionalWebPrintServiceTest {
 			.asInstanceOf(type(ThrowableProblem.class))
 			.extracting(ThrowableProblem::getStatus, ThrowableProblem::getDetail)
 			.containsExactly(BAD_GATEWAY, ASKED_AGAIN);
+
+		verify(clientMock).render(eq("PrintDecision"), anyMap());
+		verify(clientMock).submitParameters(eq("PrintDecision"), anyMap(), any(byte[].class));
+		verifyNoMoreInteractions(clientMock);
 	}
 
 	@Test
@@ -139,6 +143,10 @@ class ProfessionalWebPrintServiceTest {
 			.asInstanceOf(type(ThrowableProblem.class))
 			.extracting(ThrowableProblem::getStatus, ThrowableProblem::getDetail)
 			.containsExactly(BAD_GATEWAY, NOT_A_PDF);
+
+		verify(clientMock).render(eq("PrintDecision"), anyMap());
+		verify(clientMock).submitParameters(eq("PrintDecision"), anyMap(), any(byte[].class));
+		verifyNoMoreInteractions(clientMock);
 	}
 
 	@ParameterizedTest
@@ -165,6 +173,9 @@ class ProfessionalWebPrintServiceTest {
 			.asInstanceOf(type(ThrowableProblem.class))
 			.extracting(ThrowableProblem::getStatus, ThrowableProblem::getDetail)
 			.containsExactly(BAD_GATEWAY, NOT_A_PDF);
+
+		verify(clientMock).render(eq("PrintDocument"), anyMap());
+		verifyNoMoreInteractions(clientMock);
 	}
 
 	@Test
@@ -176,5 +187,9 @@ class ProfessionalWebPrintServiceTest {
 			.asInstanceOf(type(ThrowableProblem.class))
 			.extracting(ThrowableProblem::getStatus, ThrowableProblem::getDetail)
 			.containsExactly(UNPROCESSABLE_CONTENT, "Mallen saknas");
+
+		verify(clientMock).render(eq("PrintDecision"), anyMap());
+		verify(clientMock).submitParameters(eq("PrintDecision"), anyMap(), any(byte[].class));
+		verifyNoMoreInteractions(clientMock);
 	}
 }

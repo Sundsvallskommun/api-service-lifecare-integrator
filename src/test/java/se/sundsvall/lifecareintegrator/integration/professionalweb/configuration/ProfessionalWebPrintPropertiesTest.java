@@ -2,14 +2,34 @@ package se.sundsvall.lifecareintegrator.integration.professionalweb.configuratio
 
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.context.properties.source.MapConfigurationPropertySource;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import se.sundsvall.lifecareintegrator.Application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SpringBootTest(classes = Application.class, properties = {
+	"integration.lifecare-professionalweb.print.decision-template-id=decision-template",
+	"integration.lifecare-professionalweb.print.calculation-template-id=calculation-template",
+	"integration.lifecare-professionalweb.print.document-template-id=document-template"
+})
+@ActiveProfiles("junit")
 class ProfessionalWebPrintPropertiesTest {
 
 	private static final String PREFIX = "integration.lifecare-professionalweb.print";
+
+	@Autowired
+	private ProfessionalWebPrintProperties boundProperties;
+
+	@Test
+	void templatesAreBoundFromTheApplicationConfiguration() {
+		assertThat(boundProperties.decisionTemplateId()).isEqualTo("decision-template");
+		assertThat(boundProperties.calculationTemplateId()).isEqualTo("calculation-template");
+		assertThat(boundProperties.documentTemplateId()).isEqualTo("document-template");
+	}
 
 	@Test
 	void templatesDefaultToTheOnesCaremanagementUses() {

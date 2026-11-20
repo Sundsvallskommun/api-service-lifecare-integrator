@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.service;
 
 import java.time.LocalDate;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,6 +43,11 @@ class ProfessionalWebPaymentServiceTest {
 	@InjectMocks
 	private ProfessionalWebPaymentService service;
 
+	@AfterEach
+	void verifyNoUnexpectedPartyLookups() {
+		verifyNoMoreInteractions(partyIntegrationMock);
+	}
+
 	@Test
 	void getPaymentProposalAsksForTheServiceAsAnInsats() {
 		when(clientMock.getPaymentForCreate(8, 42)).thenReturn(LIFECARE_JSON);
@@ -69,6 +75,7 @@ class ProfessionalWebPaymentServiceTest {
 
 		assertThat(new String(service.hasHousehold(MUNICIPALITY_ID, PARTY_ID, LocalDate.of(2026, 1, 5)), UTF_8)).isEqualTo("false");
 
+		verify(partyIntegrationMock).getPersonNumber(MUNICIPALITY_ID, PARTY_ID);
 		verify(clientMock).hasHouseholdThisDate("191212121212", "2026-01-05");
 		verifyNoMoreInteractions(clientMock);
 	}
@@ -82,6 +89,7 @@ class ProfessionalWebPaymentServiceTest {
 			.extracting(ThrowableProblem::getStatus, ThrowableProblem::getDetail)
 			.containsExactly(NOT_FOUND, "No person number found for partyId '" + PARTY_ID + "'");
 
+		verify(partyIntegrationMock).getPersonNumber(MUNICIPALITY_ID, PARTY_ID);
 		verifyNoInteractions(clientMock);
 	}
 

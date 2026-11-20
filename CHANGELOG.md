@@ -4,6 +4,7 @@ Every change to the service, newest date first. One short line per change.
 
 ## 2026-11-20
 
+- Tidy the ProfessionalWeb print code and give each new ProfessionalWeb resource a failure test that checks the exact violation (HYDRAN-3431).
 - Add ProfessionalWeb resources that return Lifecare's PDF of a calculation, a decision and a document, answering a template's parameter questions with Lifecare's defaults, with the template ids as configuration (HYDRAN-3431).
 - Add ProfessionalWeb resources for calculations: the underlag, the latest, reading one, a service's job stimulus, the reckonings, and creating, updating and removing one (HYDRAN-3431).
 - Add ProfessionalWeb resources for a person's journal notes and documents, reading one to show or to edit, the proposals of a service, and creating and updating them (HYDRAN-3431).

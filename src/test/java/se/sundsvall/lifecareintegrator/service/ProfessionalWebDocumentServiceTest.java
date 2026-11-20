@@ -1,5 +1,6 @@
 package se.sundsvall.lifecareintegrator.service;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,6 +43,11 @@ class ProfessionalWebDocumentServiceTest {
 	@InjectMocks
 	private ProfessionalWebDocumentService service;
 
+	@AfterEach
+	void verifyNoUnexpectedPartyLookups() {
+		verifyNoMoreInteractions(partyIntegrationMock);
+	}
+
 	@Test
 	void getDocumentsAsksWithThePersonsPersonnummer() {
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn("191212121212");
@@ -49,6 +55,7 @@ class ProfessionalWebDocumentServiceTest {
 
 		assertThat(new String(service.getDocuments(MUNICIPALITY_ID, PARTY_ID), UTF_8)).isEqualTo("[]");
 
+		verify(partyIntegrationMock).getPersonNumber(MUNICIPALITY_ID, PARTY_ID);
 		verify(clientMock).getDocumentsListForClient("191212121212");
 		verifyNoMoreInteractions(clientMock);
 	}
@@ -59,9 +66,10 @@ class ProfessionalWebDocumentServiceTest {
 
 		assertThatThrownBy(() -> service.getDocuments(MUNICIPALITY_ID, PARTY_ID))
 			.asInstanceOf(type(ThrowableProblem.class))
-			.extracting(ThrowableProblem::getStatus)
-			.isEqualTo(NOT_FOUND);
+			.extracting(ThrowableProblem::getStatus, ThrowableProblem::getDetail)
+			.containsExactly(NOT_FOUND, "No person number found for partyId '" + PARTY_ID + "'");
 
+		verify(partyIntegrationMock).getPersonNumber(MUNICIPALITY_ID, PARTY_ID);
 		verifyNoInteractions(clientMock);
 	}
 
