@@ -1,11 +1,12 @@
 # Lifecare ProfessionalWeb
 
-The internal api2 surface that Lifecare's own web client uses. This service passes calls through to it for
-api-service-caremanagement and does not interpret the answers.
+The internal api2 surface that Lifecare's own web client uses, reached for api-service-caremanagement. The answers
+are passed on as Lifecare's JSON, not interpreted. Where it is heading: [todo/professionalweb-api2.md](../todo/professionalweb-api2.md).
 
 ## Used by
 
-`POST /professional-web/exchange`. See [architecture.md](../architecture.md).
+`POST /professional-web/exchange` and the reminder resources under `/professional-web/`. See
+[architecture.md](../architecture.md).
 
 ## Calls
 
