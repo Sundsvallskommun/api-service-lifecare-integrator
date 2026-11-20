@@ -5,6 +5,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import java.net.http.HttpClient;
 import java.time.Clock;
 import java.time.Duration;
@@ -279,13 +280,8 @@ class ProfessionalWebApi2ClientTest {
 	void readLogsMethodPathAndStatusButNeverTheBody() {
 		wireMock.stubFor(get(urlPathEqualTo(LIST_REMINDERS)).willReturn(aResponse().withStatus(404).withBody("{\"secret\":\"191212121212\"}")));
 
-		final var events = captureLogs(() -> {
-			try {
-				client.listRemindersByServiceId(42);
-			} catch (final RuntimeException _) {
-				// The refusal itself is step 2's concern; here only the log lines matter.
-			}
-		});
+		final var events = captureLogs(() -> assertThatThrownBy(() -> client.listRemindersByServiceId(42))
+			.isInstanceOfSatisfying(ThrowableProblem.class, problem -> assertThat(problem.getStatus().value()).isEqualTo(404)));
 
 		assertThat(events).extracting(ILoggingEvent::getFormattedMessage)
 			.contains("Lifecare answered GET /api2/Reminders/ListRemindersByServiceId with status 404")
@@ -316,7 +312,7 @@ class ProfessionalWebApi2ClientTest {
 			.withHeader("X-LEGACY-TOKEN", equalTo("tok")));
 	}
 
-	private void stubFirstAnswerThenJson(final com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder first) {
+	private void stubFirstAnswerThenJson(final ResponseDefinitionBuilder first) {
 		wireMock.stubFor(get(urlPathEqualTo(LIST_REMINDERS)).inScenario("b").whenScenarioStateIs(STARTED)
 			.willReturn(first).willSetStateTo("bootstrapped"));
 		wireMock.stubFor(get(urlPathEqualTo(LIST_REMINDERS)).inScenario("b").whenScenarioStateIs("bootstrapped")

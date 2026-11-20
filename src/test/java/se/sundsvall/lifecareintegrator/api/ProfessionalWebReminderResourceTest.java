@@ -1,26 +1,22 @@
 package se.sundsvall.lifecareintegrator.api;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.lifecareintegrator.Application;
-import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebApi2Client;
+import se.sundsvall.lifecareintegrator.service.ProfessionalWebReminderService;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
@@ -29,16 +25,18 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 class ProfessionalWebReminderResourceTest {
 
 	private static final String LIFECARE_JSON = "{\"id\":42,\"unknownField\":{\"nested\":[1,2]},\"personnummer\":\"191212121212\"}";
+	private static final String CREATE_BODY = "{ \"serviceId\": 42,\n  \"personnummer\": \"19121212-1212\", \"unknown\": {\"a\": [1, 2.50]} }";
+	private static final String UPDATE_BODY = "{\"reminderId\": 7, \"personnummer\": \"191212121212\", \"unknown\": {\"a\": [1]}}";
 
 	@MockitoBean
-	private ProfessionalWebApi2Client clientMock;
+	private ProfessionalWebReminderService serviceMock;
 
 	@Autowired
 	private WebTestClient webTestClient;
 
 	@Test
-	void listRemindersByService() {
-		when(clientMock.listRemindersByServiceId(42)).thenReturn(LIFECARE_JSON.getBytes(UTF_8));
+	void listReminders() {
+		when(serviceMock.listReminders(42)).thenReturn(LIFECARE_JSON.getBytes(UTF_8));
 
 		final var body = webTestClient.get().uri("/2281/professional-web/services/42/reminders")
 			.exchange()
@@ -47,13 +45,27 @@ class ProfessionalWebReminderResourceTest {
 			.expectBody(String.class).returnResult().getResponseBody();
 
 		assertThat(body).isEqualTo(LIFECARE_JSON);
-		verify(clientMock).listRemindersByServiceId(42);
-		verifyNoMoreInteractions(clientMock);
+		verify(serviceMock).listReminders(42);
+		verifyNoMoreInteractions(serviceMock);
 	}
 
 	@Test
-	void getProposalForService() {
-		when(clientMock.getProposalForService(42)).thenReturn(LIFECARE_JSON.getBytes(UTF_8));
+	void listRemindersAcceptsServiceIdOne() {
+		when(serviceMock.listReminders(1)).thenReturn("[]".getBytes(UTF_8));
+
+		final var body = webTestClient.get().uri("/2281/professional-web/services/1/reminders")
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody(String.class).returnResult().getResponseBody();
+
+		assertThat(body).isEqualTo("[]");
+		verify(serviceMock).listReminders(1);
+		verifyNoMoreInteractions(serviceMock);
+	}
+
+	@Test
+	void getReminderProposal() {
+		when(serviceMock.getReminderProposal(42)).thenReturn(LIFECARE_JSON.getBytes(UTF_8));
 
 		final var body = webTestClient.get().uri("/2281/professional-web/services/42/reminders/proposal")
 			.exchange()
@@ -62,13 +74,13 @@ class ProfessionalWebReminderResourceTest {
 			.expectBody(String.class).returnResult().getResponseBody();
 
 		assertThat(body).isEqualTo(LIFECARE_JSON);
-		verify(clientMock).getProposalForService(42);
-		verifyNoMoreInteractions(clientMock);
+		verify(serviceMock).getReminderProposal(42);
+		verifyNoMoreInteractions(serviceMock);
 	}
 
 	@Test
 	void getReminder() {
-		when(clientMock.getReminderEditComposite(7)).thenReturn(LIFECARE_JSON.getBytes(UTF_8));
+		when(serviceMock.getReminder(7)).thenReturn(LIFECARE_JSON.getBytes(UTF_8));
 
 		final var body = webTestClient.get().uri("/2281/professional-web/reminders/7")
 			.exchange()
@@ -77,58 +89,64 @@ class ProfessionalWebReminderResourceTest {
 			.expectBody(String.class).returnResult().getResponseBody();
 
 		assertThat(body).isEqualTo(LIFECARE_JSON);
-		verify(clientMock).getReminderEditComposite(7);
-		verifyNoMoreInteractions(clientMock);
-	}
-
-	@ParameterizedTest
-	@ValueSource(strings = {
-		"0", "-1", "abc", "1.5", "99999999999999999999"
-	})
-	void invalidServiceIdIsRefused(final String serviceId) {
-		webTestClient.get().uri("/2281/professional-web/services/" + serviceId + "/reminders").exchange().expectStatus().isBadRequest();
-		webTestClient.get().uri("/2281/professional-web/services/" + serviceId + "/reminders/proposal").exchange().expectStatus().isBadRequest();
-
-		verifyNoInteractions(clientMock);
-	}
-
-	@ParameterizedTest
-	@ValueSource(strings = {
-		"0", "-1", "abc"
-	})
-	void invalidReminderIdIsRefused(final String reminderId) {
-		webTestClient.get().uri("/2281/professional-web/reminders/" + reminderId).exchange().expectStatus().isBadRequest();
-
-		verifyNoInteractions(clientMock);
+		verify(serviceMock).getReminder(7);
+		verifyNoMoreInteractions(serviceMock);
 	}
 
 	@Test
-	void serviceIdOneIsAccepted() {
-		when(clientMock.listRemindersByServiceId(1)).thenReturn("[]".getBytes(UTF_8));
+	void createReminder() {
+		when(serviceMock.createReminder(CREATE_BODY)).thenReturn(Optional.of("{\"id\":9}".getBytes(UTF_8)));
 
-		webTestClient.get().uri("/2281/professional-web/services/1/reminders").exchange().expectStatus().isOk();
-
-		verify(clientMock).listRemindersByServiceId(1);
-	}
-
-	@Test
-	void invalidMunicipalityIdIsRefused() {
-		webTestClient.get().uri("/bad-municipality/professional-web/services/42/reminders").exchange().expectStatus().isBadRequest();
-		webTestClient.get().uri("/bad-municipality/professional-web/services/42/reminders/proposal").exchange().expectStatus().isBadRequest();
-		webTestClient.get().uri("/bad-municipality/professional-web/reminders/7").exchange().expectStatus().isBadRequest();
-
-		verifyNoInteractions(clientMock);
-	}
-
-	@Test
-	void lifecareRefusalPassesThroughAsTheProblem() {
-		when(clientMock.getReminderEditComposite(7)).thenThrow(Problem.valueOf(NOT_FOUND, "Lifecare found nothing there"));
-
-		webTestClient.get().uri("/2281/professional-web/reminders/7")
+		final var body = webTestClient.post().uri("/2281/professional-web/reminders")
+			.contentType(APPLICATION_JSON)
+			.bodyValue(CREATE_BODY)
 			.exchange()
-			.expectStatus().isNotFound()
-			.expectBody()
-			.jsonPath("$.status").isEqualTo(404)
-			.jsonPath("$.detail").isEqualTo("Lifecare found nothing there");
+			.expectStatus().isCreated()
+			.expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+			.expectBody(String.class).returnResult().getResponseBody();
+
+		assertThat(body).isEqualTo("{\"id\":9}");
+		verify(serviceMock).createReminder(CREATE_BODY);
+		verifyNoMoreInteractions(serviceMock);
+	}
+
+	@Test
+	void createReminderWithoutLifecareAnswer() {
+		when(serviceMock.createReminder("{}")).thenReturn(Optional.empty());
+
+		webTestClient.post().uri("/2281/professional-web/reminders")
+			.contentType(APPLICATION_JSON)
+			.bodyValue("{}")
+			.exchange()
+			.expectStatus().isCreated()
+			.expectHeader().doesNotExist("Content-Type")
+			.expectBody().isEmpty();
+
+		verify(serviceMock).createReminder("{}");
+		verifyNoMoreInteractions(serviceMock);
+	}
+
+	@Test
+	void updateReminder() {
+		webTestClient.put().uri("/2281/professional-web/reminders/7")
+			.contentType(APPLICATION_JSON)
+			.bodyValue(UPDATE_BODY)
+			.exchange()
+			.expectStatus().isNoContent()
+			.expectBody().isEmpty();
+
+		verify(serviceMock).updateReminder(7, UPDATE_BODY);
+		verifyNoMoreInteractions(serviceMock);
+	}
+
+	@Test
+	void removeReminder() {
+		webTestClient.delete().uri("/2281/professional-web/reminders/7")
+			.exchange()
+			.expectStatus().isNoContent()
+			.expectBody().isEmpty();
+
+		verify(serviceMock).removeReminder(7);
+		verifyNoMoreInteractions(serviceMock);
 	}
 }
