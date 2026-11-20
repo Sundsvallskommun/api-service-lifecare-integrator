@@ -1,0 +1,27 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Reminders/ListRemindersByServiceId",
+		"queryParameters": {
+			"id": {
+				"equalTo": "42"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			},
+			"ASP.NET_SessionId": {
+				"equalTo": "it-session"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8",
+			"Set-Cookie": "ASP.NET_SessionId=it-rotated-session; path=/; HttpOnly"
+		},
+		"body": "[{\"reminderId\":7,\"serviceId\":42,\"text\":\"Folj upp insatsen\"}]",
+		"status": 200
+	}
+}

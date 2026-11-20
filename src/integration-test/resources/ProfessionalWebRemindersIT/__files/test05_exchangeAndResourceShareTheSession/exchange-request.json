@@ -1,0 +1,7 @@
+{
+	"method": "GET",
+	"path": "api2/Reminders/ListRemindersByServiceId",
+	"params": {
+		"id": "42"
+	}
+}

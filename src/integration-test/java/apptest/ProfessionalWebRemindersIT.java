@@ -96,4 +96,22 @@ class ProfessionalWebRemindersIT extends AbstractAppTest {
 			.withExpectedResponse("response.json")
 			.sendRequestAndVerifyResponse();
 	}
+
+	@Test
+	void test05_exchangeAndResourceShareTheSession() {
+		setupCall()
+			.withServicePath("/2281/professional-web/exchange")
+			.withHttpMethod(POST)
+			.withRequest("exchange-request.json")
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse("exchange-response.json")
+			.sendRequest();
+
+		setupCall()
+			.withServicePath("/2281/professional-web/services/42/reminders")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse("reminders-response.json")
+			.sendRequestAndVerifyResponse();
+	}
 }
