@@ -1,0 +1,29 @@
+{
+	"request": {
+		"method": "DELETE",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Reminders/RemoveReminder/",
+		"headers": {
+			"Content-Type": {
+				"contains": "application/json"
+			},
+			"X-LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"id": 7
+				}
+			}
+		]
+	},
+	"response": {
+		"status": 200
+	}
+}
