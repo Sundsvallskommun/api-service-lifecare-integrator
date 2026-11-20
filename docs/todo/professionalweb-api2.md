@@ -33,8 +33,10 @@ Decided along the way:
 - Lifecare's refusals become 400, 403, 404, 422 (for its 461) and 502. The 4xx ones do not count against the
   circuit breaker.
 - A person is given as a partyId, never a personnummer.
-- The `RenderPdf` prints do not move here. caremanagement fetches the data from this service and renders the PDF
-  through templating. Until then the prints go through exchange.
+- The `RenderPdf` prints move here too, as resources that return Lifecare's own PDF. caremanagement shows Lifecare's
+  print today and does not render these with templating, so the PDF stays Lifecare's. This service answers a
+  template's parameter questions with Lifecare's defaults, as caremanagement does now, and holds the template ids as
+  configuration. Templating stays outside this service.
 - The session renewal exists twice while exchange lives, once in `ProfessionalWebExchange` and once in the Feign
   configuration. That is accepted for the transition.
 
@@ -56,6 +58,7 @@ Decided along the way:
 | Document                  | GetDocumentsListForClient, GetJournalNoteWithContent, GetDocumentWithContent, GetNoteProposalForService, GetDocumentProposalForService, CreateJournalNote, CreateDocument, UpdateJournalNote, UpdateDocument |
 | Payment, Payee, Household | GetPaymentForCreate, GetLatestPayments, Payment/Create, Payee/Create, HasHouseholdThisDate                                                                                                                   |
 | Job stimulus              | GetJobStimulusToDate, SaveJobStimulus                                                                                                                                                                        |
+| Prints (`RenderPdf`)      | PrintContainer (calculation), PrintDecision (decision), PrintDocument (written document or form)                                                                                                             |
 
 ## After the areas
 

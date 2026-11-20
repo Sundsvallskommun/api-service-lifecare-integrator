@@ -4,6 +4,7 @@ Every change to the service, newest date first. One short line per change.
 
 ## 2026-11-20
 
+- Plan resources for the Lifecare prints as well, returning Lifecare's own PDF, instead of leaving them to templating (HYDRAN-3431).
 - Carry Lifecare's text as the detail of every api2 refusal, and Lifecare's status in front of it on a 502 (HYDRAN-3431).
 - Document where the ProfessionalWeb api2 work stands and where it is heading (HYDRAN-3431).
 - Send ProfessionalWeb sign-in and exchange over OkHttp pinned to HTTP/1.1, like the Feign clients, instead of the JDK HTTP client (HYDRAN-3431).
