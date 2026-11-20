@@ -9,11 +9,11 @@ TODO: list the services that call this one. The only one known from the code is 
 
 ## Layers
 
-|    Layer    |    Package    |                                                                                                         Role                                                                                                          |
-|-------------|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| API         | `api`         | REST resources and the public model. Everything is scoped by `{municipalityId}`                                                                                                                                       |
-| Service     | `service`     | `DecisionService` merges decisions across sources. `FamilyCareService` handles all other FC operations. `ProfessionalWebReminderService` checks reminder bodies for ProfessionalWeb. Mappers live in `service/mapper` |
-| Integration | `integration` | One package per external system, see [integrations/](integrations/)                                                                                                                                                   |
+|    Layer    |    Package    |                                                                                                                             Role                                                                                                                             |
+|-------------|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| API         | `api`         | REST resources and the public model. Everything is scoped by `{municipalityId}`                                                                                                                                                                              |
+| Service     | `service`     | `DecisionService` merges decisions across sources. `FamilyCareService` handles all other FC operations. The `ProfessionalWeb*Service` classes check the bodies and ids of the ProfessionalWeb resources, one per api2 area. Mappers live in `service/mapper` |
+| Integration | `integration` | One package per external system, see [integrations/](integrations/)                                                                                                                                                                                          |
 
 ## Cross-cutting rules
 
@@ -60,4 +60,6 @@ All paths are under `/{municipalityId}`.
 | `POST /professional-web/reminders`                                           | ProfessionalWeb `api2/Reminders/CreateReminder/`                                                                           |
 | `PUT /professional-web/reminders/{reminderId}`                               | ProfessionalWeb `api2/Reminders/UpdateReminder/`. The body's `reminderId` must match the path                              |
 | `DELETE /professional-web/reminders/{reminderId}`                            | ProfessionalWeb `api2/Reminders/RemoveReminder/`                                                                           |
+| `GET /professional-web/job-stimulus/end-date`                                | ProfessionalWeb `api2/Calculation/GetJobStimulusToDate`                                                                    |
+| `POST /professional-web/job-stimulus`                                        | ProfessionalWeb `api2/Calculation/SaveJobStimulus`                                                                         |
 

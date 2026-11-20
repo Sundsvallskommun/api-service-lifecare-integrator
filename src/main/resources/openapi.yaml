@@ -10,35 +10,227 @@ servers:
 - url: http://localhost:64555
   description: Generated server url
 tags:
+- name: Investigations
+  description: Investigation reads from the Lifecare family care system
+- name: ProfessionalWeb job stimulus
+  description: "Lifecare ProfessionalWeb job stimulus (jobbstimulans), with Lifecare's\
+    \ JSON passed through untouched"
+- name: Executions
+  description: Execution reads from the Lifecare family care system
 - name: ProfessionalWeb reminders
   description: "Lifecare ProfessionalWeb reminders, with Lifecare's JSON passed through\
     \ untouched"
-- name: Investigations
-  description: Investigation reads from the Lifecare family care system
-- name: Executions
-  description: Execution reads from the Lifecare family care system
+- name: Person
+  description: Person master data and contacts from Lifecare family care
+- name: Payments
+  description: Payment reads from the Lifecare family care system
+- name: Documents
+  description: Documents stored for a person in the Lifecare family care system
 - name: Actualisations
   description: Actualisation (case intake) resource for the Lifecare family care system
 - name: Resource allocations
   description: Resource allocation reads from the Lifecare family care system
-- name: Person
-  description: Person master data and contacts from Lifecare family care
 - name: Decisions
   description: "Unified decision resource, merging the Lifecare elderly care (SoL\
     \ + LSS) and family care decision sources"
 - name: ProfessionalWeb
   description: Pass-through to Lifecare ProfessionalWeb for api-service-caremanagement
-- name: Payments
-  description: Payment reads from the Lifecare family care system
 - name: Calculations
   description: Calculation (normberäkning) resource for the Lifecare family care system
-- name: Documents
-  description: Documents stored for a person in the Lifecare family care system
 - name: Services
   description: Service reads from the Lifecare family care system
 - name: Users
   description: Caseworker (user) lookup in the Lifecare family care system
 paths:
+  /{municipalityId}/professional-web/reminders/{reminderId}:
+    get:
+      tags:
+      - ProfessionalWeb reminders
+      summary: Get a reminder
+      description: Lifecare's api2/Reminders/GetReminderEditComposite
+      operationId: getReminder
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: reminderId
+        in: path
+        description: The Lifecare reminder id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 7
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+    put:
+      tags:
+      - ProfessionalWeb reminders
+      summary: Update a reminder
+      description: "Lifecare's api2/Reminders/UpdateReminder. The body is sent to\
+        \ Lifecare as it is, and its reminderId must be the one in the path"
+      operationId: updateReminder
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: reminderId
+        in: path
+        description: The Lifecare reminder id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 7
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "204":
+          description: Updated
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+    delete:
+      tags:
+      - ProfessionalWeb reminders
+      summary: Remove a reminder
+      description: Lifecare's api2/Reminders/RemoveReminder
+      operationId: removeReminder
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: reminderId
+        in: path
+        description: The Lifecare reminder id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 7
+      responses:
+        "204":
+          description: Removed
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/professional-web/reminders:
     post:
       tags:
@@ -68,6 +260,75 @@ paths:
             application/json:
               schema:
                 type: object
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session or\
+            \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/job-stimulus:
+    post:
+      tags:
+      - ProfessionalWeb job stimulus
+      summary: Save a person's job stimulus periods
+      description: Lifecare's api2/Calculation/SaveJobStimulus. The body is sent to
+        Lifecare as it is
+      operationId: saveJobStimulus
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+        required: true
+      responses:
+        "201":
+          description: "Saved, with Lifecare's answer"
+          content:
+            application/json:
+              schema:
+                type: object
+        "204":
+          description: "Saved, without an answer from Lifecare"
+          content:
+            application/json:
+              schema:
+                type: string
+                format: byte
         "400":
           description: Bad request
           content:
@@ -929,13 +1190,14 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-  /{municipalityId}/professional-web/reminders/{reminderId}:
+  /{municipalityId}/professional-web/job-stimulus/end-date:
     get:
       tags:
-      - ProfessionalWeb reminders
-      summary: Get a reminder
-      description: Lifecare's api2/Reminders/GetReminderEditComposite
-      operationId: getReminder
+      - ProfessionalWeb job stimulus
+      summary: Get the end Lifecare gives a job stimulus period starting on a date
+      description: Lifecare's api2/Calculation/GetJobStimulusToDate. Lifecare answers
+        with a bare JSON string
+      operationId: getJobStimulusEndDate
       parameters:
       - name: municipalityId
         in: path
@@ -944,147 +1206,21 @@ paths:
         schema:
           type: string
         example: 2281
-      - name: reminderId
-        in: path
-        description: The Lifecare reminder id
+      - name: fromDate
+        in: query
+        description: The first day of the period
         required: true
         schema:
-          type: integer
-          format: int64
-          exclusiveMinimum: 0
-        example: 7
+          type: string
+          format: date
+        example: 2026-11-01
       responses:
         "200":
           description: Lifecare's answer
           content:
             application/json:
               schema:
-                type: object
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                oneOf:
-                - $ref: "#/components/schemas/Problem"
-                - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "403":
-          description: Lifecare does not let the integration account do this
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "404":
-          description: Lifecare found nothing there
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "422":
-          description: "Lifecare refused the request, with Lifecare's text"
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "502":
-          description: "Lifecare could not be reached, would not give a session or\
-            \ answered with an error"
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-    put:
-      tags:
-      - ProfessionalWeb reminders
-      summary: Update a reminder
-      description: "Lifecare's api2/Reminders/UpdateReminder. The body is sent to\
-        \ Lifecare as it is, and its reminderId must be the one in the path"
-      operationId: updateReminder
-      parameters:
-      - name: municipalityId
-        in: path
-        description: Municipality id
-        required: true
-        schema:
-          type: string
-        example: 2281
-      - name: reminderId
-        in: path
-        description: The Lifecare reminder id
-        required: true
-        schema:
-          type: integer
-          format: int64
-          exclusiveMinimum: 0
-        example: 7
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-        required: true
-      responses:
-        "204":
-          description: Updated
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                oneOf:
-                - $ref: "#/components/schemas/Problem"
-                - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "403":
-          description: Lifecare does not let the integration account do this
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "404":
-          description: Lifecare found nothing there
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "422":
-          description: "Lifecare refused the request, with Lifecare's text"
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "502":
-          description: "Lifecare could not be reached, would not give a session or\
-            \ answered with an error"
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-    delete:
-      tags:
-      - ProfessionalWeb reminders
-      summary: Remove a reminder
-      description: Lifecare's api2/Reminders/RemoveReminder
-      operationId: removeReminder
-      parameters:
-      - name: municipalityId
-        in: path
-        description: Municipality id
-        required: true
-        schema:
-          type: string
-        example: 2281
-      - name: reminderId
-        in: path
-        description: The Lifecare reminder id
-        required: true
-        schema:
-          type: integer
-          format: int64
-          exclusiveMinimum: 0
-        example: 7
-      responses:
-        "204":
-          description: Removed
+                type: string
         "400":
           description: Bad request
           content:
@@ -1949,16 +2085,16 @@ components:
     Problem:
       type: object
       properties:
-        title:
-          type: string
-        detail:
-          type: string
         instance:
           type: string
           format: uri
         type:
           type: string
           format: uri
+        detail:
+          type: string
+        title:
+          type: string
         status:
           type: integer
           format: int32
@@ -1977,11 +2113,11 @@ components:
             $ref: "#/components/schemas/Violation"
         title:
           type: string
-        detail:
-          type: string
         instance:
           type: string
           format: uri
+        detail:
+          type: string
     Violation:
       type: object
       properties:
@@ -1992,6 +2128,51 @@ components:
     JsonNode:
       type: object
       properties:
+        empty:
+          type: boolean
+        array:
+          type: boolean
+        "null":
+          type: boolean
+        object:
+          type: boolean
+        float:
+          type: boolean
+        container:
+          type: boolean
+        number:
+          type: boolean
+        string:
+          type: boolean
+        double:
+          type: boolean
+        pojo:
+          type: boolean
+        long:
+          type: boolean
+        boolean:
+          type: boolean
+        textual:
+          type: boolean
+          deprecated: true
+        int:
+          type: boolean
+        short:
+          type: boolean
+        binary:
+          type: boolean
+        valueNode:
+          type: boolean
+        integralNumber:
+          type: boolean
+        floatingPointNumber:
+          type: boolean
+        bigDecimal:
+          type: boolean
+        bigInteger:
+          type: boolean
+        missingNode:
+          type: boolean
         nodeType:
           type: string
           enum:
@@ -2004,51 +2185,6 @@ components:
           - OBJECT
           - POJO
           - STRING
-        container:
-          type: boolean
-        number:
-          type: boolean
-        floatingPointNumber:
-          type: boolean
-        string:
-          type: boolean
-        integralNumber:
-          type: boolean
-        missingNode:
-          type: boolean
-        valueNode:
-          type: boolean
-        pojo:
-          type: boolean
-        short:
-          type: boolean
-        int:
-          type: boolean
-        long:
-          type: boolean
-        double:
-          type: boolean
-        bigDecimal:
-          type: boolean
-        bigInteger:
-          type: boolean
-        textual:
-          type: boolean
-          deprecated: true
-        boolean:
-          type: boolean
-        binary:
-          type: boolean
-        empty:
-          type: boolean
-        array:
-          type: boolean
-        "null":
-          type: boolean
-        object:
-          type: boolean
-        float:
-          type: boolean
         embeddedValue:
           type: boolean
     ProfessionalWebExchangeRequest:

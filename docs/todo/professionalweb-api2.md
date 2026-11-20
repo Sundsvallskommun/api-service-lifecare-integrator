@@ -24,6 +24,10 @@ Reminders is done as the pilot (HYDRAN-3431), and the pattern for the other area
 - Unit tests per layer, and `src/integration-test/java/apptest/ProfessionalWebRemindersIT.java` runs every flow end to
   end against WireMock, exchange and a resource sharing the session included.
 
+Done since, on the same pattern, with unit tests per layer and no integration test yet:
+
+- Job stimulus: the end date of a period and saving a person's periods, on `ProfessionalWebCalculationClient`.
+
 Decided along the way:
 
 - REST paths per domain object under `/{municipalityId}/professional-web/`, not api2's names.
@@ -57,7 +61,6 @@ Decided along the way:
 | Decision                  | GetProposalForService, GetMappedDecisionReasons, GetDecision, Create, Update                                                                                                                                 |
 | Document                  | GetDocumentsListForClient, GetJournalNoteWithContent, GetDocumentWithContent, GetNoteProposalForService, GetDocumentProposalForService, CreateJournalNote, CreateDocument, UpdateJournalNote, UpdateDocument |
 | Payment, Payee, Household | GetPaymentForCreate, GetLatestPayments, Payment/Create, Payee/Create, HasHouseholdThisDate                                                                                                                   |
-| Job stimulus              | GetJobStimulusToDate, SaveJobStimulus                                                                                                                                                                        |
 | Prints (`RenderPdf`)      | PrintContainer (calculation), PrintDecision (decision), PrintDocument (written document or form)                                                                                                             |
 
 ## After the areas

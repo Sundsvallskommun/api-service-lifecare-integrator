@@ -5,7 +5,7 @@ are passed on as Lifecare's JSON, not interpreted. Where it is heading: [todo/pr
 
 ## Used by
 
-`POST /professional-web/exchange` and the reminder resources under `/professional-web/`. See
+`POST /professional-web/exchange` and the api2 resources under `/professional-web/`. See
 [architecture.md](../architecture.md).
 
 ## Calls
