@@ -55,7 +55,7 @@ class ProfessionalWebApi2ClientTest {
 		final var http = http(properties);
 		final var session = new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC());
 		exchange = new ProfessionalWebExchange(properties, session, http);
-		client = ProfessionalWebConfiguration.api2Client(exchange);
+		client = new ProfessionalWebConfiguration().professionalWebApi2Client(exchange);
 		stubSignIn();
 	}
 
@@ -250,7 +250,7 @@ class ProfessionalWebApi2ClientTest {
 	void unreachableLifecareIsBadGateway() {
 		final var properties = properties("http://localhost:1");
 		final var http = http(properties);
-		final var unreachable = ProfessionalWebConfiguration.api2Client(
+		final var unreachable = new ProfessionalWebConfiguration().professionalWebApi2Client(
 			new ProfessionalWebExchange(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC()), http));
 
 		assertThatThrownBy(() -> unreachable.listRemindersByServiceId(42))
@@ -264,7 +264,7 @@ class ProfessionalWebApi2ClientTest {
 	void unconfiguredProfessionalWebIsBadGatewayWithoutAnyCall() {
 		final var properties = properties(null);
 		final var http = http(properties);
-		final var unconfigured = ProfessionalWebConfiguration.api2Client(
+		final var unconfigured = new ProfessionalWebConfiguration().professionalWebApi2Client(
 			new ProfessionalWebExchange(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC()), http));
 
 		assertThatThrownBy(() -> unconfigured.listRemindersByServiceId(42))

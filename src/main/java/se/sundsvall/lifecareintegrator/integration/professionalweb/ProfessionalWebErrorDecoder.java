@@ -21,7 +21,7 @@ import static org.springframework.http.HttpStatus.UNPROCESSABLE_CONTENT;
 class ProfessionalWebErrorDecoder implements ErrorDecoder {
 
 	/** Lifecare's own status for a refusal its rules make, answered with a text for the caseworker. */
-	static final int LIFECARE_REFUSAL_STATUS = 461;
+	private static final int LIFECARE_REFUSAL_STATUS = 461;
 
 	private static final List<String> TEXT_KEYS = List.of("exceptionMessage", "ExceptionMessage", "message", "Message");
 	private static final String STANDARD_TEXT = "Lifecare refused the request";
@@ -30,16 +30,17 @@ class ProfessionalWebErrorDecoder implements ErrorDecoder {
 	@Override
 	public Exception decode(final String methodKey, final Response response) {
 		return switch (response.status()) {
-			case 400 -> Problem.valueOf(BAD_REQUEST, lifecareText(response).orElse(STANDARD_TEXT));
+			case 400 -> Problem.valueOf(BAD_REQUEST, findLifecareText(response).orElse(STANDARD_TEXT));
 			case 403 -> Problem.valueOf(FORBIDDEN, "Lifecare does not let the integration account do this");
 			case 404 -> Problem.valueOf(NOT_FOUND, "Lifecare found nothing there");
-			case LIFECARE_REFUSAL_STATUS -> Problem.valueOf(UNPROCESSABLE_CONTENT, lifecareText(response).orElse(STANDARD_TEXT));
+			case LIFECARE_REFUSAL_STATUS -> Problem.valueOf(UNPROCESSABLE_CONTENT, findLifecareText(response).orElse(STANDARD_TEXT));
 			default -> Problem.valueOf(BAD_GATEWAY, "Lifecare answered with status " + response.status());
 		};
 	}
 
-	private static Optional<String> lifecareText(final Response response) {
-		return readBody(response)
+	private static Optional<String> findLifecareText(final Response response) {
+		return Optional.ofNullable(response.body())
+			.flatMap(ProfessionalWebErrorDecoder::readBody)
 			.flatMap(ProfessionalWebErrorDecoder::parse)
 			.flatMap(node -> TEXT_KEYS.stream()
 				.map(node::get)
@@ -48,12 +49,9 @@ class ProfessionalWebErrorDecoder implements ErrorDecoder {
 				.findFirst());
 	}
 
-	private static Optional<String> readBody(final Response response) {
-		if (response.body() == null) {
-			return Optional.empty();
-		}
-		try (InputStream body = response.body().asInputStream()) {
-			return Optional.of(new String(body.readAllBytes(), UTF_8));
+	private static Optional<String> readBody(final Response.Body body) {
+		try (InputStream stream = body.asInputStream()) {
+			return Optional.of(new String(stream.readAllBytes(), UTF_8));
 		} catch (final IOException _) {
 			return Optional.empty();
 		}

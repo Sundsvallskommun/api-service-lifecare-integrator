@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import se.sundsvall.dept44.security.Truststore;
 
 /**
- * Registers the ProfessionalWeb properties and the raw HTTP client every ProfessionalWeb call is sent through. The
- * other beans are components in this package.
+ * Registers the ProfessionalWeb properties, the raw HTTP client every ProfessionalWeb call is sent through and the api2
+ * Feign client. The other beans are components in this package.
  */
 @Configuration
 @EnableConfigurationProperties(ProfessionalWebProperties.class)
@@ -33,10 +33,6 @@ class ProfessionalWebConfiguration {
 
 	@Bean
 	ProfessionalWebApi2Client professionalWebApi2Client(final ProfessionalWebExchange exchange) {
-		return api2Client(exchange);
-	}
-
-	static ProfessionalWebApi2Client api2Client(final ProfessionalWebExchange exchange) {
 		return Feign.builder()
 			.client(new ProfessionalWebFeignClient(exchange))
 			.errorDecoder(new ProfessionalWebErrorDecoder())

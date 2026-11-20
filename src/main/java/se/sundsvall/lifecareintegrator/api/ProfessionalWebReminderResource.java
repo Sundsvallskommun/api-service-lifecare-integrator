@@ -19,16 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
-import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebApi2Client;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.json.JsonMapper;
+import se.sundsvall.lifecareintegrator.service.ProfessionalWebReminderService;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
+import static org.springframework.http.ResponseEntity.noContent;
+import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.http.ResponseEntity.status;
 
 @RestController
 @Validated
@@ -51,12 +49,10 @@ import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 	content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 class ProfessionalWebReminderResource {
 
-	private static final JsonMapper JSON = JsonMapper.builder().build();
+	private final ProfessionalWebReminderService service;
 
-	private final ProfessionalWebApi2Client client;
-
-	ProfessionalWebReminderResource(final ProfessionalWebApi2Client client) {
-		this.client = client;
+	ProfessionalWebReminderResource(final ProfessionalWebReminderService service) {
+		this.service = service;
 	}
 
 	@GetMapping(path = "/services/{serviceId}/reminders", produces = APPLICATION_JSON_VALUE)
@@ -69,7 +65,7 @@ class ProfessionalWebReminderResource {
 		@ValidMunicipalityId @PathVariable final String municipalityId,
 		@Positive @PathVariable final Long serviceId) {
 
-		return ResponseEntity.ok(client.listRemindersByServiceId(serviceId));
+		return ok(service.listReminders(serviceId));
 	}
 
 	@GetMapping(path = "/services/{serviceId}/reminders/proposal", produces = APPLICATION_JSON_VALUE)
@@ -82,7 +78,7 @@ class ProfessionalWebReminderResource {
 		@ValidMunicipalityId @PathVariable final String municipalityId,
 		@Positive @PathVariable final Long serviceId) {
 
-		return ResponseEntity.ok(client.getProposalForService(serviceId));
+		return ok(service.getReminderProposal(serviceId));
 	}
 
 	@GetMapping(path = "/reminders/{reminderId}", produces = APPLICATION_JSON_VALUE)
@@ -95,7 +91,7 @@ class ProfessionalWebReminderResource {
 		@ValidMunicipalityId @PathVariable final String municipalityId,
 		@Positive @PathVariable final Long reminderId) {
 
-		return ResponseEntity.ok(client.getReminderEditComposite(reminderId));
+		return ok(service.getReminder(reminderId));
 	}
 
 	@PostMapping(path = "/reminders", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -110,12 +106,9 @@ class ProfessionalWebReminderResource {
 		@ValidMunicipalityId @PathVariable final String municipalityId,
 		@RequestBody final String body) {
 
-		requireJsonObject(body);
-		final var answer = client.createReminder(body.getBytes(UTF_8));
-		if (answer == null || answer.length == 0) {
-			return ResponseEntity.status(CREATED).build();
-		}
-		return ResponseEntity.status(CREATED).body(answer);
+		return service.createReminder(body)
+			.map(answer -> status(CREATED).body(answer))
+			.orElseGet(() -> status(CREATED).build());
 	}
 
 	@PutMapping(path = "/reminders/{reminderId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_PROBLEM_JSON_VALUE)
@@ -129,13 +122,8 @@ class ProfessionalWebReminderResource {
 		@Positive @PathVariable final Long reminderId,
 		@RequestBody final String body) {
 
-		final var reminder = requireJsonObject(body);
-		final var bodyReminderId = reminder.get("reminderId");
-		if (bodyReminderId == null || !bodyReminderId.isIntegralNumber() || bodyReminderId.asLong() != reminderId) {
-			throw Problem.valueOf(BAD_REQUEST, "The body's reminderId must be " + reminderId);
-		}
-		client.updateReminder(body.getBytes(UTF_8));
-		return ResponseEntity.noContent().build();
+		service.updateReminder(reminderId, body);
+		return noContent().build();
 	}
 
 	@DeleteMapping(path = "/reminders/{reminderId}", produces = APPLICATION_PROBLEM_JSON_VALUE)
@@ -146,19 +134,7 @@ class ProfessionalWebReminderResource {
 		@ValidMunicipalityId @PathVariable final String municipalityId,
 		@Positive @PathVariable final Long reminderId) {
 
-		client.removeReminder(("{\"id\":" + reminderId + "}").getBytes(UTF_8));
-		return ResponseEntity.noContent().build();
-	}
-
-	private static JsonNode requireJsonObject(final String body) {
-		try {
-			final var node = JSON.readTree(body);
-			if (node != null && node.isObject()) {
-				return node;
-			}
-		} catch (final JacksonException _) {
-			// Falls through to the refusal below.
-		}
-		throw Problem.valueOf(BAD_REQUEST, "The body must be a JSON object");
+		service.removeReminder(reminderId);
+		return noContent().build();
 	}
 }

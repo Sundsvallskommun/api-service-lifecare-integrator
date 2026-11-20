@@ -9,11 +9,11 @@ TODO: list the services that call this one. The only one known from the code is 
 
 ## Layers
 
-|    Layer    |    Package    |                                                                   Role                                                                   |
-|-------------|---------------|------------------------------------------------------------------------------------------------------------------------------------------|
-| API         | `api`         | REST resources and the public model. Everything is scoped by `{municipalityId}`                                                          |
-| Service     | `service`     | `DecisionService` merges decisions across sources. `FamilyCareService` handles all other FC operations. Mappers live in `service/mapper` |
-| Integration | `integration` | One package per external system, see [integrations/](integrations/)                                                                      |
+|    Layer    |    Package    |                                                                                                         Role                                                                                                          |
+|-------------|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| API         | `api`         | REST resources and the public model. Everything is scoped by `{municipalityId}`                                                                                                                                       |
+| Service     | `service`     | `DecisionService` merges decisions across sources. `FamilyCareService` handles all other FC operations. `ProfessionalWebReminderService` checks reminder bodies for ProfessionalWeb. Mappers live in `service/mapper` |
+| Integration | `integration` | One package per external system, see [integrations/](integrations/)                                                                                                                                                   |
 
 ## Cross-cutting rules
 

@@ -22,7 +22,7 @@ class ProfessionalWebFeignClient implements Client {
 	@Override
 	public Response execute(final Request request, final Request.Options options) {
 		final var uri = URI.create(request.url());
-		final var answer = exchange.exchange(request.httpMethod().name(), uri.getPath(), queryParams(uri), request.body());
+		final var answer = exchange.exchange(request.httpMethod().name(), uri.getPath(), toQueryParams(uri), request.body());
 		return Response.builder()
 			.request(request)
 			.status(answer.status())
@@ -31,7 +31,7 @@ class ProfessionalWebFeignClient implements Client {
 			.build();
 	}
 
-	private static Map<String, String> queryParams(final URI uri) {
+	private static Map<String, String> toQueryParams(final URI uri) {
 		final var params = new LinkedHashMap<String, String>();
 		if (uri.getRawQuery() == null) {
 			return params;
