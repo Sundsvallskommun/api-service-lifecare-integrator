@@ -60,13 +60,23 @@ class ProfessionalWebErrorDecoderTest {
 	}
 
 	@Test
-	void forbiddenIsForbidden() {
-		assertProblem(decode(403, "{\"message\":\"Nej\"}"), FORBIDDEN, "Lifecare does not let the integration account do this");
+	void forbiddenCarriesLifecaresText() {
+		assertProblem(decode(403, "{\"message\":\"Nej\"}"), FORBIDDEN, "Nej");
 	}
 
 	@Test
-	void notFoundIsNotFound() {
-		assertProblem(decode(404, "{\"message\":\"Saknas\"}"), NOT_FOUND, "Lifecare found nothing there");
+	void forbiddenWithoutTextGetsAStandardText() {
+		assertProblem(decode(403, null), FORBIDDEN, "Lifecare does not let the integration account do this");
+	}
+
+	@Test
+	void notFoundCarriesLifecaresText() {
+		assertProblem(decode(404, "{\"message\":\"Saknas\"}"), NOT_FOUND, "Saknas");
+	}
+
+	@Test
+	void notFoundWithoutTextGetsAStandardText() {
+		assertProblem(decode(404, null), NOT_FOUND, "Lifecare found nothing there");
 	}
 
 	@Test
@@ -83,8 +93,17 @@ class ProfessionalWebErrorDecoderTest {
 	@ValueSource(ints = {
 		401, 405, 409, 460, 462, 500, 503
 	})
-	void everyOtherStatusIsBadGateway(final int status) {
-		assertProblem(decode(status, "{\"exceptionMessage\":\"intern detalj\"}"), BAD_GATEWAY, "Lifecare answered with status " + status);
+	void everyOtherStatusIsBadGatewayWithLifecaresStatusAndText(final int status) {
+		assertProblem(decode(status, "{\"exceptionMessage\":\"Ett oväntat fel har inträffat. Id = 8745-4148\"}"), BAD_GATEWAY,
+			"Lifecare answered with status " + status + ": Ett oväntat fel har inträffat. Id = 8745-4148");
+	}
+
+	@ParameterizedTest
+	@ValueSource(ints = {
+		500, 503
+	})
+	void everyOtherStatusWithoutTextIsBadGatewayWithLifecaresStatus(final int status) {
+		assertProblem(decode(status, null), BAD_GATEWAY, "Lifecare answered with status " + status);
 	}
 
 	private ThrowableProblem decode(final int status, final String body) {

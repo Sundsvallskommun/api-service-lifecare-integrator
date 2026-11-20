@@ -47,16 +47,17 @@ configured instead. See the comment on `integration.lifecare-professionalweb` in
 - Exchange hands back every answer as data. The Feign clients turn a refusal into a problem instead, in
   `ProfessionalWebErrorDecoder`, and their circuit breaker `lifecare-professionalweb` ignores the 4xx ones:
 
-  |   Lifecare    |          Answer           |
-  |---------------|---------------------------|
-  | 400           | 400, with Lifecare's text |
-  | 403           | 403                       |
-  | 404           | 404                       |
-  | 461           | 422, with Lifecare's text |
-  | anything else | 502                       |
+  |   Lifecare    |                      Answer                      |
+  |---------------|--------------------------------------------------|
+  | 400           | 400                                              |
+  | 403           | 403                                              |
+  | 404           | 404                                              |
+  | 461           | 422                                              |
+  | anything else | 502, with Lifecare's status in front of its text |
 
-  The text comes from `exceptionMessage`, `ExceptionMessage`, `message` or `Message`, in that order. Without one
-  the answer says "Lifecare refused the request".
+  Every answer carries Lifecare's own text as its detail, for 500 including the id Lifecare's support asks for. The
+  text comes from `exceptionMessage`, `ExceptionMessage`, `message` or `Message`, in that order. Without one the detail
+  is a standard text.
 
 - Request and response bodies are never logged.
 

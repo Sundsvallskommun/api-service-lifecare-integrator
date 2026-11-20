@@ -35,13 +35,21 @@ class ProfessionalWebErrorDecoder implements ErrorDecoder {
 	@Override
 	public Exception decode(final String methodKey, final Response response) {
 		LOG.info("Lifecare answered {} {} with status {}", response.request().httpMethod(), URI.create(response.request().url()).getPath(), response.status());
+		final var lifecareText = findLifecareText(response);
 		return switch (response.status()) {
-			case 400 -> new ClientProblem(BAD_REQUEST, findLifecareText(response).orElse(STANDARD_TEXT));
-			case 403 -> new ClientProblem(FORBIDDEN, "Lifecare does not let the integration account do this");
-			case 404 -> new ClientProblem(NOT_FOUND, "Lifecare found nothing there");
-			case LIFECARE_REFUSAL_STATUS -> new ClientProblem(UNPROCESSABLE_CONTENT, findLifecareText(response).orElse(STANDARD_TEXT));
-			default -> new ServerProblem(BAD_GATEWAY, "Lifecare answered with status " + response.status());
+			case 400 -> new ClientProblem(BAD_REQUEST, lifecareText.orElse(STANDARD_TEXT));
+			case 403 -> new ClientProblem(FORBIDDEN, lifecareText.orElse("Lifecare does not let the integration account do this"));
+			case 404 -> new ClientProblem(NOT_FOUND, lifecareText.orElse("Lifecare found nothing there"));
+			case LIFECARE_REFUSAL_STATUS -> new ClientProblem(UNPROCESSABLE_CONTENT, lifecareText.orElse(STANDARD_TEXT));
+			default -> new ServerProblem(BAD_GATEWAY, toBadGatewayText(response.status(), lifecareText));
 		};
+	}
+
+	// Lifecare's own status is lost once every other answer becomes 502, so the text carries it
+	private static String toBadGatewayText(final int status, final Optional<String> lifecareText) {
+		return lifecareText
+			.map(text -> "Lifecare answered with status %s: %s".formatted(status, text))
+			.orElse("Lifecare answered with status " + status);
 	}
 
 	private static Optional<String> findLifecareText(final Response response) {
