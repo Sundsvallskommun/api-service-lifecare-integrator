@@ -1,0 +1,32 @@
+{
+	"request": {
+		"method": "DELETE",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Calculation/Delete",
+		"queryParameters": {
+			"businessType": {
+				"equalTo": "3"
+			},
+			"businessId": {
+				"equalTo": "7"
+			}
+		},
+		"headers": {
+			"X-LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"bodyPatterns": [
+			{
+				"absent": true
+			}
+		]
+	},
+	"response": {
+		"status": 200
+	}
+}

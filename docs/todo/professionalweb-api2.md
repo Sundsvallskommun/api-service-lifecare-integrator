@@ -38,7 +38,7 @@ Done since, on the same pattern, with unit tests per layer. Where an integration
   `ProfessionalWebDocumentsIT`.
 - Calculation: the underlag and the latest calculation of a service, reading one to show or to edit, a service's job
   stimulus, the four reckonings that change nothing in Lifecare, and creating, updating and removing a calculation, on
-  `ProfessionalWebCalculationClient`.
+  `ProfessionalWebCalculationClient`. Integration test: `ProfessionalWebCalculationsIT`.
 - Prints: Lifecare's PDF of a calculation, a decision and a document, on `ProfessionalWebPrintClient`, with the
   template ids under `integration.lifecare-professionalweb.print`. A template's parameter questions are answered with
   Lifecare's defaults and posted back as a form.
