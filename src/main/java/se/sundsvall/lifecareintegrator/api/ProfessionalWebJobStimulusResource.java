@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
-import static se.sundsvall.lifecareintegrator.api.ProfessionalWebResponses.toCreated;
+import static se.sundsvall.lifecareintegrator.api.ProfessionalWebResponses.toUpdated;
 
 @RestController
 @Validated
@@ -55,6 +56,19 @@ class ProfessionalWebJobStimulusResource {
 		this.service = service;
 	}
 
+	@GetMapping(path = "/services/{serviceId}/job-stimulus", produces = APPLICATION_JSON_VALUE)
+	@Operation(summary = "Get the job stimulus periods on a service",
+		description = "Lifecare's api2/Calculation/GetJobStimulusForService",
+		responses = @ApiResponse(responseCode = "200",
+			description = "Lifecare's answer",
+			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "object"))))
+	ResponseEntity<byte[]> getJobStimulus(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@Parameter(name = "serviceId", description = "The Lifecare service (insats) id", example = "42") @Positive @PathVariable final Long serviceId) {
+
+		return ok(service.getJobStimulus(serviceId));
+	}
+
 	@GetMapping(path = "/job-stimulus/end-date", produces = APPLICATION_JSON_VALUE)
 	@Operation(summary = "Get the end Lifecare gives a job stimulus period starting on a date",
 		description = "Lifecare's api2/Calculation/GetJobStimulusToDate. Lifecare answers with a bare JSON string",
@@ -70,11 +84,11 @@ class ProfessionalWebJobStimulusResource {
 
 	@PostMapping(path = "/job-stimulus", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 	@Operation(summary = "Save a person's job stimulus periods",
-		description = "Lifecare's api2/Calculation/SaveJobStimulus. The body is sent to Lifecare as it is",
+		description = "Lifecare's api2/Calculation/SaveJobStimulus, which replaces all of the person's periods. The body is sent to Lifecare as it is",
 		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
 			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "object"))),
 		responses = {
-			@ApiResponse(responseCode = "201",
+			@ApiResponse(responseCode = "200",
 				description = "Saved, with Lifecare's answer",
 				content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "object"))),
 			@ApiResponse(responseCode = "204", description = "Saved, without an answer from Lifecare")
@@ -83,6 +97,6 @@ class ProfessionalWebJobStimulusResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@RequestBody final byte[] body) {
 
-		return toCreated(service.saveJobStimulus(body));
+		return toUpdated(service.saveJobStimulus(body));
 	}
 }

@@ -9,13 +9,18 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import se.sundsvall.dept44.exception.ServerProblem;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebParameterForm;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebSession;
 
+import static feign.Request.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebHttp.IDENTITY_PORTAL_PATH;
 import static se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebHttp.SESSION_REQUIRED_STATUS;
 
 class ProfessionalWebSessionResponseInterceptor implements ResponseInterceptor {
+
+	static final String HTML_ANSWER_TO_WRITE = "Lifecare answered a write with an HTML page";
 
 	private final ProfessionalWebSession session;
 
@@ -30,6 +35,10 @@ class ProfessionalWebSessionResponseInterceptor implements ResponseInterceptor {
 		if (needsSession(response)) {
 			throw new SessionRequiredException(response);
 		}
+		// A write is sent again only when Lifecare refused it for the session, so an HTML page is an answer, not a lost session
+		if (!isRead(response) && isHtmlPage(response)) {
+			throw new ServerProblem(BAD_GATEWAY, HTML_ANSWER_TO_WRITE);
+		}
 		return chain.next(context);
 	}
 
@@ -40,6 +49,14 @@ class ProfessionalWebSessionResponseInterceptor implements ResponseInterceptor {
 		if (findHeader(response, "Location").stream().anyMatch(location -> location.contains(IDENTITY_PORTAL_PATH))) {
 			return true;
 		}
+		return isRead(response) && isHtmlPage(response);
+	}
+
+	private static boolean isRead(final Response response) {
+		return response.request().httpMethod() == GET;
+	}
+
+	private static boolean isHtmlPage(final Response response) {
 		return isSuccess(response) && findHeader(response, "Content-Type").stream().anyMatch(type -> type.contains("text/html")) && !isParameterQuestions(response);
 	}
 

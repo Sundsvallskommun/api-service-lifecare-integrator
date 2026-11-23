@@ -44,6 +44,16 @@ class ProfessionalWebDecisionServiceTest {
 	}
 
 	@Test
+	void getDecisionProposalPassesAnEmptyAmountTypeAndCalculationIdZeroAsTheyAre() {
+		when(clientMock.getProposalForService(8, 42, "", 0, 0)).thenReturn(LIFECARE_JSON);
+
+		assertThat(service.getDecisionProposal(42, "", 0)).isEqualTo(LIFECARE_JSON);
+
+		verify(clientMock).getProposalForService(8, 42, "", 0, 0);
+		verifyNoMoreInteractions(clientMock);
+	}
+
+	@Test
 	void getDecisionReasonsAsksWithTheDecisionCode() {
 		when(clientMock.getMappedDecisionReasons(5)).thenReturn("[]".getBytes(UTF_8));
 

@@ -33,6 +33,14 @@ class ProfessionalWebCalculationsIT extends AbstractAppTest {
 			.sendRequest();
 
 		setupCall()
+			.withServicePath("/2281/professional-web/calculations/place-persons")
+			.withHttpMethod(POST)
+			.withRequest("place-persons-request.json")
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse("place-persons-response.json")
+			.sendRequest();
+
+		setupCall()
 			.withServicePath("/2281/professional-web/calculations/amount")
 			.withHttpMethod(POST)
 			.withRequest("amount-request.json")
@@ -41,11 +49,34 @@ class ProfessionalWebCalculationsIT extends AbstractAppTest {
 			.sendRequest();
 
 		setupCall()
+			.withServicePath("/2281/professional-web/calculations/shared-cost")
+			.withHttpMethod(POST)
+			.withRequest("shared-cost-request.json")
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse("shared-cost-response.json")
+			.sendRequest();
+
+		setupCall()
+			.withServicePath("/2281/professional-web/calculations/job-stimuli")
+			.withHttpMethod(POST)
+			.withRequest("job-stimuli-request.json")
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse("job-stimuli-response.json")
+			.sendRequest();
+
+		setupCall()
 			.withServicePath("/2281/professional-web/services/42/calculations")
 			.withHttpMethod(POST)
 			.withRequest("create-request.json")
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponse("create-response.json")
+			.sendRequest();
+
+		setupCall()
+			.withServicePath("/2281/professional-web/calculations/7")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse("calculation-response.json")
 			.sendRequest();
 
 		setupCall()

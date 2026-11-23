@@ -20,6 +20,26 @@ session only with a success status.
 Check first that Lifecare's sign-in page always comes with status 200. Done when only a successful HTML answer counts
 as a lost session, with tests for a 404 and a 500 HTML page.
 
+## A print form sent again after a session renewal carries the old token
+
+`ProfessionalWebPrintService` posts a template's answered parameter questions with the `X-LEGACY-TOKEN` field read
+off the page. When Lifecare refuses that post for a missing session, the Feign retryer renews the session and sends
+the same body again, so the form still holds the token of the session that was lost. The header carries the new
+token, but whether Lifecare checks the form field is not known.
+
+Done when a print form sent again after a renewal carries the current token, or it is shown that Lifecare reads only
+the header.
+
+## A successful HTML error page on an api2 read counts as a lost session
+
+`ProfessionalWebSessionResponseInterceptor` treats any HTML answer with a success status to a GET, other than a print's
+parameter questions, as a lost session. An HTML error page that IIS or Lifecare answers with 200 therefore makes the
+client bootstrap, sign in again for the whole process, ask twice more, and answer 502 with "would not accept a
+freshly established session", which points at the session instead of the page.
+
+Done when only Lifecare's sign-in page counts as a lost session on a read, and another HTML page answers 502 with a
+text that says so, with tests for both.
+
 ## FC decision list throws on `"Result": null`
 
 `FamilyCareIntegration.getAllDecisions` adds `result.getResult()` to the list without a null check. When FamilyCare

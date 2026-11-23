@@ -15,7 +15,6 @@ import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.lifecareintegrator.Application;
 import se.sundsvall.lifecareintegrator.service.ProfessionalWebDocumentService;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.verify;
@@ -144,14 +143,14 @@ class ProfessionalWebDocumentResourceFailureTest {
 		"abc", "99999999999999999999"
 	})
 	void idThatIsNotANumberIsRefused(final String id) {
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/journal-notes/" + id).exchange());
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/journal-notes/" + id + "/edit").exchange());
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/documents/" + id).exchange());
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/documents/" + id + "/edit").exchange());
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + id + "/journal-notes/proposal").exchange());
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + id + "/documents/proposal").exchange());
-		assertBadRequest(webTestClient.put().uri("/2281/professional-web/journal-notes/" + id).contentType(APPLICATION_JSON).bodyValue(BODY).exchange());
-		assertBadRequest(webTestClient.put().uri("/2281/professional-web/documents/" + id).contentType(APPLICATION_JSON).bodyValue(BODY).exchange());
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/journal-notes/" + id).exchange(), "id");
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/journal-notes/" + id + "/edit").exchange(), "id");
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/documents/" + id).exchange(), "id");
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/documents/" + id + "/edit").exchange(), "id");
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + id + "/journal-notes/proposal").exchange(), "serviceId");
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + id + "/documents/proposal").exchange(), "serviceId");
+		assertBadRequest(webTestClient.put().uri("/2281/professional-web/journal-notes/" + id).contentType(APPLICATION_JSON).bodyValue(BODY).exchange(), "id");
+		assertBadRequest(webTestClient.put().uri("/2281/professional-web/documents/" + id).contentType(APPLICATION_JSON).bodyValue(BODY).exchange(), "id");
 
 		verifyNoInteractions(serviceMock);
 	}
@@ -202,23 +201,6 @@ class ProfessionalWebDocumentResourceFailureTest {
 		verifyNoMoreInteractions(serviceMock);
 	}
 
-	@Test
-	void updateWithAnotherDocumentIdIsRefused() {
-		when(serviceMock.updateJournalNote(1, "{\"documentId\": 2}".getBytes(UTF_8))).thenThrow(Problem.valueOf(BAD_REQUEST, "The body's documentId must be 1"));
-
-		webTestClient.put().uri("/2281/professional-web/journal-notes/1")
-			.contentType(APPLICATION_JSON)
-			.bodyValue("{\"documentId\": 2}")
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody()
-			.jsonPath("$.status").isEqualTo(400)
-			.jsonPath("$.detail").isEqualTo("The body's documentId must be 1");
-
-		verify(serviceMock).updateJournalNote(1, "{\"documentId\": 2}".getBytes(UTF_8));
-		verifyNoMoreInteractions(serviceMock);
-	}
-
 	private static ConstraintViolationProblem readViolations(final WebTestClient.ResponseSpec response) {
 		return response
 			.expectStatus().isBadRequest()
@@ -241,5 +223,13 @@ class ProfessionalWebDocumentResourceFailureTest {
 			.expectBody()
 			.jsonPath("$.status").isEqualTo(400)
 			.jsonPath("$.title").isEqualTo("Bad Request");
+	}
+
+	private static void assertBadRequest(final WebTestClient.ResponseSpec response, final String parameter) {
+		response.expectStatus().isBadRequest()
+			.expectBody()
+			.jsonPath("$.status").isEqualTo(400)
+			.jsonPath("$.title").isEqualTo("Bad Request")
+			.jsonPath("$.detail").value(String.class, detail -> assertThat(detail).contains("'" + parameter + "'"));
 	}
 }

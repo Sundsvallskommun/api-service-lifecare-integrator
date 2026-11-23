@@ -1,0 +1,49 @@
+{
+	"request": {
+		"method": "POST",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Calculation/PlacePersons",
+		"headers": {
+			"Content-Type": {
+				"contains": "application/json"
+			},
+			"X-LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"serviceId": 42,
+					"persons": [
+						{
+							"personId": "199001012385"
+						}
+					],
+					"unknownToTheIntegrator": {
+						"kept": true
+					}
+				}
+			}
+		]
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"persons": [
+				{
+					"personId": "199001012385",
+					"placed": true
+				}
+			],
+			"unknownToTheIntegrator": "kept"
+		},
+		"status": 200
+	}
+}

@@ -879,7 +879,7 @@ paths:
       - ProfessionalWeb payments
       summary: Register a payment on a service
       description: "Lifecare's api2/Payment/Create. The body is sent to Lifecare as\
-        \ it is, and never sent twice"
+        \ it is, and not sent again unless Lifecare refuses it for a missing session"
       operationId: createPayment
       parameters:
       - name: municipalityId
@@ -933,8 +933,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
         "404":
-          description: "Lifecare found nothing there, or Party knows no person by\
-            \ the partyId"
+          description: Lifecare found nothing there
           content:
             application/problem+json:
               schema:
@@ -946,8 +945,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
         "502":
-          description: "Lifecare could not be reached, would not give a session or\
-            \ answered with an error"
+          description: "Lifecare could not be reached, would not give a session, answered\
+            \ with an error or named no person for the service"
           content:
             application/problem+json:
               schema:
@@ -1221,8 +1220,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
         "404":
-          description: "Lifecare found nothing there, or Party knows no person by\
-            \ the partyId"
+          description: Lifecare found nothing there
           content:
             application/problem+json:
               schema:
@@ -1234,8 +1232,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
         "502":
-          description: "Lifecare could not be reached, would not give a session or\
-            \ answered with an error"
+          description: "Lifecare could not be reached, would not give a session, answered\
+            \ with an error or named no person for the service"
           content:
             application/problem+json:
               schema:
@@ -1315,8 +1313,8 @@ paths:
       tags:
       - ProfessionalWeb job stimulus
       summary: Save a person's job stimulus periods
-      description: Lifecare's api2/Calculation/SaveJobStimulus. The body is sent to
-        Lifecare as it is
+      description: "Lifecare's api2/Calculation/SaveJobStimulus, which replaces all\
+        \ of the person's periods. The body is sent to Lifecare as it is"
       operationId: saveJobStimulus
       parameters:
       - name: municipalityId
@@ -1333,7 +1331,7 @@ paths:
               type: object
         required: true
       responses:
-        "201":
+        "200":
           description: "Saved, with Lifecare's answer"
           content:
             application/json:
@@ -2571,8 +2569,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
         "404":
-          description: "Lifecare found nothing there, or Party knows no person by\
-            \ the partyId"
+          description: Lifecare found nothing there
           content:
             application/problem+json:
               schema:
@@ -2584,8 +2581,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
         "502":
-          description: "Lifecare could not be reached, would not give a session or\
-            \ answered with an error"
+          description: "Lifecare could not be reached, would not give a session, answered\
+            \ with an error or named no person for the service"
           content:
             application/problem+json:
               schema:
@@ -2636,8 +2633,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
         "404":
-          description: "Lifecare found nothing there, or Party knows no person by\
-            \ the partyId"
+          description: Lifecare found nothing there
           content:
             application/problem+json:
               schema:
@@ -2649,8 +2645,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
         "502":
-          description: "Lifecare could not be reached, would not give a session or\
-            \ answered with an error"
+          description: "Lifecare could not be reached, would not give a session, answered\
+            \ with an error or named no person for the service"
           content:
             application/problem+json:
               schema:
@@ -2723,7 +2719,7 @@ paths:
   /{municipalityId}/professional-web/services/{serviceId}/job-stimulus:
     get:
       tags:
-      - ProfessionalWeb calculations
+      - ProfessionalWeb job stimulus
       summary: Get the job stimulus periods on a service
       description: Lifecare's api2/Calculation/GetJobStimulusForService
       operationId: getJobStimulus
@@ -2780,6 +2776,80 @@ paths:
         "502":
           description: "Lifecare could not be reached, would not give a session or\
             \ answered with an error"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/professional-web/services/{serviceId}/household:
+    get:
+      tags:
+      - ProfessionalWeb payments
+      summary: Ask whether the person of a service has a household on a date
+      description: "Lifecare's api2/Household/HasHouseholdThisDate/, for the person\
+        \ Lifecare's api2/Payment/GetPaymentForCreate names for the service. Lifecare\
+        \ answers true or false"
+      operationId: hasHousehold
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: serviceId
+        in: path
+        description: The Lifecare service (insats) id
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: 0
+        example: 42
+      - name: date
+        in: query
+        description: The date
+        required: true
+        schema:
+          type: string
+          format: date
+        example: 2026-11-01
+      responses:
+        "200":
+          description: Lifecare's answer
+          content:
+            application/json:
+              schema:
+                type: boolean
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "403":
+          description: Lifecare does not let the integration account do this
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "404":
+          description: Lifecare found nothing there
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "422":
+          description: "Lifecare refused the request, with Lifecare's text"
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: "Lifecare could not be reached, would not give a session, answered\
+            \ with an error or named no person for the service"
           content:
             application/problem+json:
               schema:
@@ -2854,8 +2924,10 @@ paths:
       tags:
       - ProfessionalWeb decisions
       summary: "Get Lifecare's underlag for a new decision on a service, made from\
-        \ a calculation"
-      description: Lifecare's api2/Decision/GetProposalForService
+        \ a calculation or without one"
+      description: "Lifecare's api2/Decision/GetProposalForService. Without amountType\
+        \ and calculationId Lifecare is asked with an empty amountType and calculationId\
+        \ 0, for a decision made without a calculation"
       operationId: getDecisionProposal
       parameters:
       - name: municipalityId
@@ -2876,20 +2948,22 @@ paths:
         example: 42
       - name: amountType
         in: query
-        description: Which of the calculation's amounts the decision takes
-        required: true
+        description: "Which of the calculation's amounts the decision takes, empty\
+          \ without a calculation"
+        required: false
         schema:
           type: string
-          minLength: 1
+          default: ""
         example: TotalSum
       - name: calculationId
         in: query
-        description: The Lifecare calculation (beräkning) id
-        required: true
+        description: "The Lifecare calculation (beräkning) id, 0 without a calculation"
+        required: false
         schema:
           type: integer
           format: int64
-          exclusiveMinimum: 0
+          default: 0
+          minimum: 0
         example: 7
       responses:
         "200":
@@ -3042,78 +3116,6 @@ paths:
                 $ref: "#/components/schemas/Problem"
         "404":
           description: Lifecare found nothing there
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "422":
-          description: "Lifecare refused the request, with Lifecare's text"
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "502":
-          description: "Lifecare could not be reached, would not give a session or\
-            \ answered with an error"
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-  /{municipalityId}/professional-web/persons/{partyId}/household:
-    get:
-      tags:
-      - ProfessionalWeb payments
-      summary: Ask whether a person has a household on a date
-      description: Lifecare's api2/Household/HasHouseholdThisDate/. Lifecare answers
-        true or false
-      operationId: hasHousehold
-      parameters:
-      - name: municipalityId
-        in: path
-        description: Municipality id
-        required: true
-        schema:
-          type: string
-        example: 2281
-      - name: partyId
-        in: path
-        description: Party id of the person
-        required: true
-        schema:
-          type: string
-        example: 81471222-5798-11e9-ae24-57fa13b361e1
-      - name: date
-        in: query
-        description: The date
-        required: true
-        schema:
-          type: string
-          format: date
-        example: 2026-11-01
-      responses:
-        "200":
-          description: Lifecare's answer
-          content:
-            application/json:
-              schema:
-                type: boolean
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                oneOf:
-                - $ref: "#/components/schemas/Problem"
-                - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "403":
-          description: Lifecare does not let the integration account do this
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "404":
-          description: "Lifecare found nothing there, or Party knows no person by\
-            \ the partyId"
           content:
             application/problem+json:
               schema:
@@ -4603,7 +4605,38 @@ components:
           type: boolean
         container:
           type: boolean
+        string:
+          type: boolean
+        short:
+          type: boolean
+        int:
+          type: boolean
+        double:
+          type: boolean
+        textual:
+          type: boolean
+          deprecated: true
+        boolean:
+          type: boolean
+        long:
+          type: boolean
+        pojo:
+          type: boolean
+        binary:
+          type: boolean
+        number:
+          type: boolean
+        floatingPointNumber:
+          type: boolean
+        missingNode:
+          type: boolean
+        valueNode:
+          type: boolean
+        bigInteger:
+          type: boolean
         integralNumber:
+          type: boolean
+        bigDecimal:
           type: boolean
         nodeType:
           type: string
@@ -4617,37 +4650,6 @@ components:
           - OBJECT
           - POJO
           - STRING
-        missingNode:
-          type: boolean
-        valueNode:
-          type: boolean
-        bigInteger:
-          type: boolean
-        bigDecimal:
-          type: boolean
-        floatingPointNumber:
-          type: boolean
-        number:
-          type: boolean
-        long:
-          type: boolean
-        string:
-          type: boolean
-        pojo:
-          type: boolean
-        short:
-          type: boolean
-        int:
-          type: boolean
-        textual:
-          type: boolean
-          deprecated: true
-        binary:
-          type: boolean
-        boolean:
-          type: boolean
-        double:
-          type: boolean
         embeddedValue:
           type: boolean
     ProfessionalWebExchangeRequest:

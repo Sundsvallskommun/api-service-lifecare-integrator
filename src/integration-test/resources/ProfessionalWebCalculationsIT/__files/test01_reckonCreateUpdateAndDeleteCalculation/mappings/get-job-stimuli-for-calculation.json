@@ -1,0 +1,44 @@
+{
+	"request": {
+		"method": "POST",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Calculation/GetJobStimuliForCalculation",
+		"headers": {
+			"Content-Type": {
+				"contains": "application/json"
+			},
+			"X-LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"serviceId": 42,
+					"income": 10000,
+					"unknownToTheIntegrator": {
+						"kept": true
+					}
+				}
+			}
+		]
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"jobStimuli": [
+				{
+					"amount": 2500
+				}
+			],
+			"unknownToTheIntegrator": "kept"
+		},
+		"status": 200
+	}
+}

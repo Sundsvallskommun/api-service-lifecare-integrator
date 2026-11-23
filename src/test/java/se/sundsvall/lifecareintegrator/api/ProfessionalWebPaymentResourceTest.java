@@ -25,7 +25,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @ActiveProfiles("junit")
 class ProfessionalWebPaymentResourceTest {
 
-	private static final String PARTY_ID = "81471222-5798-11e9-ae24-57fa13b361e1";
 	private static final String LIFECARE_JSON = "{\"payment\":{\"amount\":1250.50},\"personnummer\":\"191212121212\"}";
 	private static final String BODY = "{ \"amount\": 1250.50,\n \"text\": \"Utbetalning åäö\", \"unknown\": {\"a\": [1]} }";
 
@@ -55,10 +54,10 @@ class ProfessionalWebPaymentResourceTest {
 
 	@Test
 	void hasHouseholdReturnsLifecaresBoolean() {
-		when(serviceMock.hasHousehold("2281", PARTY_ID, LocalDate.of(2026, 11, 1))).thenReturn("true".getBytes(UTF_8));
+		when(serviceMock.hasHousehold(42, LocalDate.of(2026, 11, 1))).thenReturn("true".getBytes(UTF_8));
 
-		assertThat(getJson("/2281/professional-web/persons/" + PARTY_ID + "/household?date=2026-11-01")).isEqualTo("true");
-		verify(serviceMock).hasHousehold("2281", PARTY_ID, LocalDate.of(2026, 11, 1));
+		assertThat(getJson("/2281/professional-web/services/42/household?date=2026-11-01")).isEqualTo("true");
+		verify(serviceMock).hasHousehold(42, LocalDate.of(2026, 11, 1));
 		verifyNoMoreInteractions(serviceMock);
 	}
 

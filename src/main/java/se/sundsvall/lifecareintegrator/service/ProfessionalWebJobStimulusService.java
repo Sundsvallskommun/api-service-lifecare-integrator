@@ -7,6 +7,7 @@ import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalW
 
 import static se.sundsvall.lifecareintegrator.service.ProfessionalWebBodies.requireJsonObject;
 import static se.sundsvall.lifecareintegrator.service.ProfessionalWebBodies.toAnswer;
+import static se.sundsvall.lifecareintegrator.service.ProfessionalWebBusinessTypes.SERVICE;
 
 @Service
 public class ProfessionalWebJobStimulusService {
@@ -15,6 +16,10 @@ public class ProfessionalWebJobStimulusService {
 
 	public ProfessionalWebJobStimulusService(final ProfessionalWebCalculationClient client) {
 		this.client = client;
+	}
+
+	public byte[] getJobStimulus(final long serviceId) {
+		return client.getJobStimulusForService(SERVICE, serviceId);
 	}
 
 	public byte[] getJobStimulusEndDate(final LocalDate fromDate) {

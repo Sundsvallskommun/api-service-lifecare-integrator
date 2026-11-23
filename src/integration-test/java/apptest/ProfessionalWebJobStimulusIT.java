@@ -10,7 +10,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @WireMockAppTestSuite(files = "classpath:/ProfessionalWebJobStimulusIT/", classes = Application.class)
@@ -20,6 +19,13 @@ class ProfessionalWebJobStimulusIT extends AbstractAppTest {
 
 	@Test
 	void test01_readEndDateAndSavePeriods() {
+		setupCall()
+			.withServicePath("/2281/professional-web/services/42/job-stimulus")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse("periods-response.json")
+			.sendRequest();
+
 		setupCall()
 			.withServicePath("/2281/professional-web/job-stimulus/end-date?fromDate=2026-11-01")
 			.withHttpMethod(GET)
@@ -31,7 +37,7 @@ class ProfessionalWebJobStimulusIT extends AbstractAppTest {
 			.withServicePath("/2281/professional-web/job-stimulus")
 			.withHttpMethod(POST)
 			.withRequest(SAVE_REQUEST)
-			.withExpectedResponseStatus(CREATED)
+			.withExpectedResponseStatus(OK)
 			.withExpectedResponse("save-response.json")
 			.sendRequest();
 

@@ -14,11 +14,14 @@ import static com.github.tomakehurst.wiremock.client.WireMock.binaryEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -27,6 +30,8 @@ import static org.assertj.core.api.InstanceOfAssertFactories.type;
 class ProfessionalWebPaymentClientTest {
 
 	private static final String API2 = "/WESE.FC.ProfessionalWeb/api2/";
+	private static final String CREATE_PAYMENT = API2 + "Payment/Create?businessType=8&businessId=42";
+	private static final String HEARTBEAT = "/WESE.FC.ProfessionalWeb/Heartbeat";
 	private static final String LIFECARE_JSON = "{\"payment\":{\"amount\":1250.50},\"personnummer\":\"191212121212\"}";
 	private static final String BODY = "{ \"amount\": 1250.50,\n \"text\": \"Utbetalning åäö\", \"unknown\": {\"a\": [1]} }";
 
@@ -106,6 +111,58 @@ class ProfessionalWebPaymentClientTest {
 			.asInstanceOf(type(ThrowableProblem.class))
 			.extracting(problem -> problem.getStatus().value(), ThrowableProblem::getDetail)
 			.containsExactly(502, "Lifecare could not be reached");
+
+		wireMock.verify(1, anyRequestedFor(anyUrl()));
+	}
+
+	@Test
+	void createPaymentRefusedForAMissingSessionIsSentAgainOnceTheSessionIsBack() {
+		wireMock.stubFor(post(urlEqualTo(CREATE_PAYMENT)).inScenario("s").whenScenarioStateIs(STARTED)
+			.willReturn(aResponse().withStatus(360)).willSetStateTo("bootstrapped"));
+		wireMock.stubFor(post(urlEqualTo(CREATE_PAYMENT)).inScenario("s").whenScenarioStateIs("bootstrapped")
+			.willReturn(okJson("{\"paymentId\":5}")));
+		wireMock.stubFor(get(urlPathEqualTo(HEARTBEAT)).willReturn(ok()));
+
+		assertThat(new String(client.createPayment(8, 42, BODY.getBytes(UTF_8)), UTF_8)).isEqualTo("{\"paymentId\":5}");
+
+		wireMock.verify(2, postRequestedFor(urlEqualTo(CREATE_PAYMENT)).withRequestBody(binaryEqualTo(BODY.getBytes(UTF_8))));
+	}
+
+	@Test
+	void createPaymentRefusedByLifecareIsNotSentAgain() {
+		wireMock.stubFor(post(urlEqualTo(CREATE_PAYMENT))
+			.willReturn(aResponse().withStatus(461).withBody("{\"exceptionMessage\":\"Beloppet saknas\"}")));
+
+		assertThatThrownBy(() -> client.createPayment(8, 42, BODY.getBytes(UTF_8)))
+			.asInstanceOf(type(ThrowableProblem.class))
+			.extracting(problem -> problem.getStatus().value(), ThrowableProblem::getDetail)
+			.containsExactly(422, "Beloppet saknas");
+
+		wireMock.verify(1, anyRequestedFor(anyUrl()));
+	}
+
+	@Test
+	void createPaymentAnsweredWithBadRequestIsNotSentAgain() {
+		wireMock.stubFor(post(urlEqualTo(CREATE_PAYMENT))
+			.willReturn(aResponse().withStatus(400).withBody("{\"Message\":\"Felaktig utbetalning\"}")));
+
+		assertThatThrownBy(() -> client.createPayment(8, 42, BODY.getBytes(UTF_8)))
+			.asInstanceOf(type(ThrowableProblem.class))
+			.extracting(problem -> problem.getStatus().value(), ThrowableProblem::getDetail)
+			.containsExactly(400, "Felaktig utbetalning");
+
+		wireMock.verify(1, anyRequestedFor(anyUrl()));
+	}
+
+	@Test
+	void createPaymentAnsweredWithAnHtmlPageIsBadGatewayAndNotSentAgain() {
+		wireMock.stubFor(post(urlEqualTo(CREATE_PAYMENT))
+			.willReturn(ok("<html>Logga in</html>").withHeader("Content-Type", "text/html; charset=utf-8")));
+
+		assertThatThrownBy(() -> client.createPayment(8, 42, BODY.getBytes(UTF_8)))
+			.asInstanceOf(type(ThrowableProblem.class))
+			.extracting(problem -> problem.getStatus().value(), ThrowableProblem::getDetail)
+			.containsExactly(502, "Lifecare answered a write with an HTML page");
 
 		wireMock.verify(1, anyRequestedFor(anyUrl()));
 	}

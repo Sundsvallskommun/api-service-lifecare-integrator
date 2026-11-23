@@ -1,0 +1,7 @@
+{
+	"serviceId": 42,
+	"rent": 6000,
+	"unknownToTheIntegrator": {
+		"kept": true
+	}
+}

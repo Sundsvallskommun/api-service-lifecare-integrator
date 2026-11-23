@@ -27,6 +27,9 @@
 		},
 		"jsonBody": {
 			"serviceId": 42,
+			"payment": {
+				"susPersonId": "199001012385"
+			},
 			"amount": 0,
 			"payees": [],
 			"unknownToTheIntegrator": "kept"

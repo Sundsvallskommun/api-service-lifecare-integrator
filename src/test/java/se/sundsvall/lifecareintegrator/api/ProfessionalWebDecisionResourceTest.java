@@ -2,6 +2,8 @@ package se.sundsvall.lifecareintegrator.api;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
@@ -39,6 +41,18 @@ class ProfessionalWebDecisionResourceTest {
 
 		assertThat(getJson("/2281/professional-web/services/42/decisions/proposal?amountType=TotalSum&calculationId=7")).isEqualTo(LIFECARE_JSON);
 		verify(serviceMock).getDecisionProposal(42, "TotalSum", 7);
+		verifyNoMoreInteractions(serviceMock);
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {
+		"", "?amountType=&calculationId=0"
+	})
+	void getDecisionProposalWithoutACalculationPassesAnEmptyAmountTypeAndCalculationIdZero(final String query) {
+		when(serviceMock.getDecisionProposal(42, "", 0)).thenReturn(LIFECARE_JSON.getBytes(UTF_8));
+
+		assertThat(getJson("/2281/professional-web/services/42/decisions/proposal" + query)).isEqualTo(LIFECARE_JSON);
+		verify(serviceMock).getDecisionProposal(42, "", 0);
 		verifyNoMoreInteractions(serviceMock);
 	}
 

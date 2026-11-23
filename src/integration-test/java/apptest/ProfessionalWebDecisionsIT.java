@@ -5,6 +5,8 @@ import se.sundsvall.dept44.test.AbstractAppTest;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.lifecareintegrator.Application;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
@@ -64,5 +66,26 @@ class ProfessionalWebDecisionsIT extends AbstractAppTest {
 			.withExpectedResponseStatus(UNPROCESSABLE_CONTENT)
 			.withExpectedResponse("refused-response.json")
 			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test03_proposeWithoutACalculation() {
+		setupCall()
+			.withServicePath("/2281/professional-web/services/42/decisions/proposal")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse("proposal-response.json")
+			.sendRequest();
+
+		setupCall()
+			.withServicePath("/2281/professional-web/services/42/decisions/proposal?amountType=&calculationId=0")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse("proposal-response.json")
+			.sendRequest();
+
+		wiremock.verify(2, getRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Decision/GetProposalForService?businessType=8&businessId=42&amountType=&calculationId=0&proposalId=0")));
+
+		verifyStubs();
 	}
 }

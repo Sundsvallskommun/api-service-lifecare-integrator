@@ -34,6 +34,16 @@ class ProfessionalWebJobStimulusServiceTest {
 	private ProfessionalWebJobStimulusService service;
 
 	@Test
+	void getJobStimulusAsksForTheServiceAsAnInsats() {
+		when(clientMock.getJobStimulusForService(8, 42)).thenReturn("{\"periods\":[]}".getBytes(UTF_8));
+
+		assertThat(new String(service.getJobStimulus(42), UTF_8)).isEqualTo("{\"periods\":[]}");
+
+		verify(clientMock).getJobStimulusForService(8, 42);
+		verifyNoMoreInteractions(clientMock);
+	}
+
+	@Test
 	void getJobStimulusEndDateAsksWithTheIsoDate() {
 		when(clientMock.getJobStimulusToDate("2026-01-05")).thenReturn("\"2028-01-04\"".getBytes(UTF_8));
 

@@ -34,6 +34,21 @@ class ProfessionalWebJobStimulusResourceTest {
 	private WebTestClient webTestClient;
 
 	@Test
+	void getJobStimulus() {
+		when(serviceMock.getJobStimulus(42)).thenReturn("{\"periods\":[]}".getBytes(UTF_8));
+
+		final var body = webTestClient.get().uri("/2281/professional-web/services/42/job-stimulus")
+			.exchange()
+			.expectStatus().isOk()
+			.expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
+			.expectBody(String.class).returnResult().getResponseBody();
+
+		assertThat(body).isEqualTo("{\"periods\":[]}");
+		verify(serviceMock).getJobStimulus(42);
+		verifyNoMoreInteractions(serviceMock);
+	}
+
+	@Test
 	void getJobStimulusEndDateReturnsLifecaresBareString() {
 		when(serviceMock.getJobStimulusEndDate(LocalDate.of(2026, 11, 1))).thenReturn("\"2028-10-31\"".getBytes(UTF_8));
 
@@ -49,14 +64,14 @@ class ProfessionalWebJobStimulusResourceTest {
 	}
 
 	@Test
-	void saveJobStimulusAnswersCreatedWithLifecaresBody() {
+	void saveJobStimulusAnswersOkWithLifecaresBody() {
 		when(serviceMock.saveJobStimulus(BODY.getBytes(UTF_8))).thenReturn(Optional.of("{\"saved\":true}".getBytes(UTF_8)));
 
 		final var body = webTestClient.post().uri("/2281/professional-web/job-stimulus")
 			.contentType(APPLICATION_JSON)
 			.bodyValue(BODY.getBytes(UTF_8))
 			.exchange()
-			.expectStatus().isCreated()
+			.expectStatus().isOk()
 			.expectHeader().contentTypeCompatibleWith(APPLICATION_JSON)
 			.expectBody(String.class).returnResult().getResponseBody();
 

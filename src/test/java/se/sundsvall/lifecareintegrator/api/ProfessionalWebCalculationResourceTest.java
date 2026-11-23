@@ -70,15 +70,6 @@ class ProfessionalWebCalculationResourceTest {
 	}
 
 	@Test
-	void getJobStimulus() {
-		when(serviceMock.getJobStimulus(42)).thenReturn(LIFECARE_JSON.getBytes(UTF_8));
-
-		assertThat(getJson("/2281/professional-web/services/42/job-stimulus")).isEqualTo(LIFECARE_JSON);
-		verify(serviceMock).getJobStimulus(42);
-		verifyNoMoreInteractions(serviceMock);
-	}
-
-	@Test
 	void placePersonsAnswersOkWithLifecaresAnswer() {
 		when(serviceMock.placePersons(BODY.getBytes(UTF_8))).thenReturn(LIFECARE_JSON.getBytes(UTF_8));
 

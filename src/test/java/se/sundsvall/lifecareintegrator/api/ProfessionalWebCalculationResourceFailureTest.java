@@ -53,7 +53,6 @@ class ProfessionalWebCalculationResourceFailureTest {
 		"GET, /services/%s/calculations/latest, getLatestCalculation.serviceId",
 		"GET, /calculations/%s, getCalculation.calculationId",
 		"GET, /calculations/%s/edit, getCalculationForEdit.calculationId",
-		"GET, /services/%s/job-stimulus, getJobStimulus.serviceId",
 		"POST, /services/%s/calculations, createCalculation.serviceId",
 		"PUT, /calculations/%s, updateCalculation.calculationId",
 		"DELETE, /calculations/%s, deleteCalculation.calculationId"
@@ -70,14 +69,13 @@ class ProfessionalWebCalculationResourceFailureTest {
 		"abc", "99999999999999999999"
 	})
 	void idThatIsNotANumberIsRefused(final String id) {
-		assertBadRequest(exchange(GET, "/2281/professional-web/services/" + id + "/calculations/proposal"));
-		assertBadRequest(exchange(GET, "/2281/professional-web/services/" + id + "/calculations/latest"));
-		assertBadRequest(exchange(GET, "/2281/professional-web/calculations/" + id));
-		assertBadRequest(exchange(GET, "/2281/professional-web/calculations/" + id + "/edit"));
-		assertBadRequest(exchange(GET, "/2281/professional-web/services/" + id + "/job-stimulus"));
-		assertBadRequest(exchange(POST, "/2281/professional-web/services/" + id + "/calculations"));
-		assertBadRequest(exchange(PUT, "/2281/professional-web/calculations/" + id));
-		assertBadRequest(exchange(DELETE, "/2281/professional-web/calculations/" + id));
+		assertBadRequest(exchange(GET, "/2281/professional-web/services/" + id + "/calculations/proposal"), "serviceId");
+		assertBadRequest(exchange(GET, "/2281/professional-web/services/" + id + "/calculations/latest"), "serviceId");
+		assertBadRequest(exchange(GET, "/2281/professional-web/calculations/" + id), "calculationId");
+		assertBadRequest(exchange(GET, "/2281/professional-web/calculations/" + id + "/edit"), "calculationId");
+		assertBadRequest(exchange(POST, "/2281/professional-web/services/" + id + "/calculations"), "serviceId");
+		assertBadRequest(exchange(PUT, "/2281/professional-web/calculations/" + id), "calculationId");
+		assertBadRequest(exchange(DELETE, "/2281/professional-web/calculations/" + id), "calculationId");
 
 		verifyNoInteractions(serviceMock);
 	}
@@ -99,7 +97,6 @@ class ProfessionalWebCalculationResourceFailureTest {
 		"GET, /services/42/calculations/latest, getLatestCalculation",
 		"GET, /calculations/7, getCalculation",
 		"GET, /calculations/7/edit, getCalculationForEdit",
-		"GET, /services/42/job-stimulus, getJobStimulus",
 		"POST, /calculations/place-persons, placePersons",
 		"POST, /calculations/amount, getAmount",
 		"POST, /calculations/shared-cost, getSharedCost",
@@ -157,5 +154,13 @@ class ProfessionalWebCalculationResourceFailureTest {
 			.expectBody()
 			.jsonPath("$.status").isEqualTo(400)
 			.jsonPath("$.title").isEqualTo("Bad Request");
+	}
+
+	private static void assertBadRequest(final WebTestClient.ResponseSpec response, final String parameter) {
+		response.expectStatus().isBadRequest()
+			.expectBody()
+			.jsonPath("$.status").isEqualTo(400)
+			.jsonPath("$.title").isEqualTo("Bad Request")
+			.jsonPath("$.detail").value(String.class, detail -> assertThat(detail).contains("'" + parameter + "'"));
 	}
 }

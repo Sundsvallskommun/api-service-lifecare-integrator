@@ -60,9 +60,9 @@ class ProfessionalWebPrintResourceFailureTest {
 		"abc", "99999999999999999999"
 	})
 	void idThatIsNotANumberIsRefused(final String id) {
-		assertBadRequest(getPdf("/2281/professional-web/calculations/" + id + "/pdf"));
-		assertBadRequest(getPdf("/2281/professional-web/decisions/" + id + "/pdf"));
-		assertBadRequest(getPdf("/2281/professional-web/documents/" + id + "/pdf"));
+		assertBadRequest(getPdf("/2281/professional-web/calculations/" + id + "/pdf"), "calculationId");
+		assertBadRequest(getPdf("/2281/professional-web/decisions/" + id + "/pdf"), "decisionId");
+		assertBadRequest(getPdf("/2281/professional-web/documents/" + id + "/pdf"), "id");
 
 		verifyNoInteractions(serviceMock);
 	}
@@ -113,10 +113,11 @@ class ProfessionalWebPrintResourceFailureTest {
 			.containsExactly(tuple(field, message));
 	}
 
-	private static void assertBadRequest(final WebTestClient.ResponseSpec response) {
+	private static void assertBadRequest(final WebTestClient.ResponseSpec response, final String parameter) {
 		response.expectStatus().isBadRequest()
 			.expectBody()
 			.jsonPath("$.status").isEqualTo(400)
-			.jsonPath("$.title").isEqualTo("Bad Request");
+			.jsonPath("$.title").isEqualTo("Bad Request")
+			.jsonPath("$.detail").value(String.class, detail -> assertThat(detail).contains("'" + parameter + "'"));
 	}
 }

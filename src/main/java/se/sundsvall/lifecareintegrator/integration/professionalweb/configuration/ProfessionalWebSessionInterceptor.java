@@ -29,7 +29,8 @@ class ProfessionalWebSessionInterceptor implements RequestInterceptor {
 		if (isForm(template)) {
 			// A form goes out the way a browser posts it, from the page that asked for it
 			headers.putAll(ProfessionalWebHttp.NAVIGATION_HEADERS);
-			headers.put("Referer", properties.baseUrl() + template.url());
+			// On a retry the template already holds the absolute url
+			headers.put("Referer", URI.create(properties.baseUrl()).resolve(template.url()).toString());
 		} else {
 			headers.putAll(ProfessionalWebHttp.AJAX_HEADERS);
 			headers.put("Referer", properties.baseUrl() + "/WE.Flow.Html/");

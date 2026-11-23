@@ -107,6 +107,43 @@ class ProfessionalWebPrintClientTest {
 	}
 
 	@Test
+	void submitParametersSentAgainAfterAMissingSessionKeepsThePrintsAddressAsReferer() {
+		wireMock.stubFor(post(urlEqualTo(PRINT_DECISION + QUERY)).inScenario("s").whenScenarioStateIs(STARTED)
+			.willReturn(aResponse().withStatus(360)).willSetStateTo("bootstrapped"));
+		wireMock.stubFor(post(urlEqualTo(PRINT_DECISION + QUERY)).inScenario("s").whenScenarioStateIs("bootstrapped")
+			.willReturn(ok().withHeader("Content-Type", "application/pdf").withBody(PDF)));
+		wireMock.stubFor(get(urlPathEqualTo(HEARTBEAT)).willReturn(ok()));
+
+		assertThat(client.submitParameters("PrintDecision", decisionQuery(), "a=b".getBytes(UTF_8))).isEqualTo(PDF);
+
+		wireMock.verify(2, postRequestedFor(urlEqualTo(PRINT_DECISION + QUERY))
+			.withHeader("Referer", equalTo(wireMock.baseUrl() + PRINT_DECISION + QUERY)));
+	}
+
+	@Test
+	void submitParametersAnsweredWithTheQuestionsAgainHandsThemBack() {
+		wireMock.stubFor(post(urlEqualTo(PRINT_DECISION + QUERY)).willReturn(ok(PARAMETER_PAGE).withHeader("Content-Type", "text/html; charset=utf-8")));
+
+		assertThat(new String(client.submitParameters("PrintDecision", decisionQuery(), "a=b".getBytes(UTF_8)), UTF_8)).isEqualTo(PARAMETER_PAGE);
+
+		wireMock.verify(1, postRequestedFor(urlPathEqualTo(PRINT_DECISION)));
+		wireMock.verify(0, getRequestedFor(urlPathEqualTo(HEARTBEAT)));
+	}
+
+	@Test
+	void submitParametersAnsweredWithAnotherHtmlPageIsBadGatewayAndNotSentAgain() {
+		wireMock.stubFor(post(urlEqualTo(PRINT_DECISION + QUERY)).willReturn(ok("<html>Logga in</html>").withHeader("Content-Type", "text/html")));
+
+		assertThatThrownBy(() -> client.submitParameters("PrintDecision", decisionQuery(), "a=b".getBytes(UTF_8)))
+			.asInstanceOf(type(ThrowableProblem.class))
+			.extracting(problem -> problem.getStatus().value(), ThrowableProblem::getDetail)
+			.containsExactly(502, "Lifecare answered a write with an HTML page");
+
+		wireMock.verify(1, postRequestedFor(urlPathEqualTo(PRINT_DECISION)));
+		wireMock.verify(0, getRequestedFor(urlPathEqualTo(HEARTBEAT)));
+	}
+
+	@Test
 	void submitParametersRefusedByLifecareIsTheSameProblemAsOtherRefusals() {
 		wireMock.stubFor(post(urlEqualTo(PRINT_DECISION + QUERY))
 			.willReturn(aResponse().withStatus(461).withBody("{\"exceptionMessage\":\"Mallen saknas\"}")));

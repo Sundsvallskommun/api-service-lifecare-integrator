@@ -29,7 +29,7 @@ public final class Api2Clients {
 			.contract(new SpringMvcContract())
 			// The form encoder dept44 gives every Feign client, which the customizer has to override
 			.encoder(new SpringFormEncoder())
-			.client(new ProfessionalWebHtmlBufferingClient(new OkHttpClient()));
+			.client(new ProfessionalWebHtmlBufferingClient(new ProfessionalWebEmptyQueryValueClient(new OkHttpClient())));
 		new ProfessionalWebApi2Configuration().feignBuilderCustomizer(properties, session).customize(builder);
 		return builder.target(type, baseUrl);
 	}

@@ -27,17 +27,20 @@ Reminders is done as the pilot (HYDRAN-3431), and the pattern for the other area
 Done since, on the same pattern, with unit tests per layer. Where an integration test is named, it is under
 `src/integration-test/java/apptest/` and runs the area end to end against WireMock:
 
-- Job stimulus: the end date of a period and saving a person's periods, on `ProfessionalWebCalculationClient`.
+- Job stimulus: a service's periods, the end date of a period and saving a person's periods, on
+  `ProfessionalWebCalculationClient`.
   Integration test: `ProfessionalWebJobStimulusIT`.
-- Payment, Payee and Household: the underlag and the latest payments of a service, a person's household on a date,
-  and creating a payment and a payee, on `ProfessionalWebPaymentClient`. Integration test: `ProfessionalWebPaymentsIT`.
-- Decision: the underlag for a decision made from a calculation, the reasons of a decision type, and reading,
+- Payment, Payee and Household: the underlag and the latest payments of a service, whether the service's person has a
+  household on a date, and creating a payment and a payee, on `ProfessionalWebPaymentClient`. The person is the one
+  Lifecare's payment underlag names, as caremanagement does it, so no Party lookup is needed.
+  Integration test: `ProfessionalWebPaymentsIT`.
+- Decision: the underlag for a decision with or without a calculation, the reasons of a decision type, and reading,
   creating and updating a decision, on `ProfessionalWebDecisionClient`. Integration test: `ProfessionalWebDecisionsIT`.
 - Document: a person's journal notes and documents, reading one to show or to edit, the proposals of a service, and
   creating and updating a journal note or a document, on `ProfessionalWebDocumentClient`. Integration test:
   `ProfessionalWebDocumentsIT`.
-- Calculation: the underlag and the latest calculation of a service, reading one to show or to edit, a service's job
-  stimulus, the four reckonings that change nothing in Lifecare, and creating, updating and removing a calculation, on
+- Calculation: the underlag and the latest calculation of a service, reading one to show or to edit, the four
+  reckonings that change nothing in Lifecare, and creating, updating and removing a calculation, on
   `ProfessionalWebCalculationClient`. Integration test: `ProfessionalWebCalculationsIT`.
 - Prints: Lifecare's PDF of a calculation, a decision and a document, on `ProfessionalWebPrintClient`, with the
   template ids under `integration.lifecare-professionalweb.print`. A template's parameter questions are answered with
@@ -82,5 +85,8 @@ Decided along the way:
 ## Open
 
 - `@CircuitBreaker` does not seem to take effect on any Feign client in this service. See [bugs.md](bugs.md).
-- Exchange still reads an HTML error page as a lost session. The Feign clients do not. See [bugs.md](bugs.md).
+- Exchange still reads an HTML error page as a lost session. The Feign clients do not, apart from a successful one on a
+  read. See [bugs.md](bugs.md).
+- caremanagement fetches prints through exchange today. When it moves to the `pdf` resources it has to send
+  `Accept: application/pdf`, since they answer 406 to `Accept: */*`. Done when caremanagement's print calls send it.
 

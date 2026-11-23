@@ -74,16 +74,6 @@ class ProfessionalWebCalculationServiceTest {
 	}
 
 	@Test
-	void getJobStimulusAsksForTheServiceAsAnInsats() {
-		when(clientMock.getJobStimulusForService(8, 42)).thenReturn(LIFECARE_JSON);
-
-		assertThat(service.getJobStimulus(42)).isEqualTo(LIFECARE_JSON);
-
-		verify(clientMock).getJobStimulusForService(8, 42);
-		verifyNoMoreInteractions(clientMock);
-	}
-
-	@Test
 	void placePersonsSendsTheBodyUnchanged() {
 		when(clientMock.placePersons(BODY)).thenReturn(LIFECARE_JSON);
 

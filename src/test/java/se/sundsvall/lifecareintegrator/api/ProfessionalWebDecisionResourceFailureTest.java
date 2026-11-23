@@ -44,29 +44,18 @@ class ProfessionalWebDecisionResourceFailureTest {
 
 	@ParameterizedTest
 	@ValueSource(strings = {
-		"?calculationId=7", "?amountType=TotalSum", "?amountType=TotalSum&calculationId=", "?amountType=TotalSum&calculationId=abc", ""
+		"abc", "99999999999999999999"
 	})
-	void getDecisionProposalWithoutAmountTypeAndCalculationIdIsRefused(final String query) {
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/42/decisions/proposal" + query).exchange());
+	void getDecisionProposalWithACalculationIdThatIsNotANumberIsRefused(final String calculationId) {
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/42/decisions/proposal?amountType=TotalSum&calculationId=" + calculationId).exchange(), "calculationId");
 
 		verifyNoInteractions(serviceMock);
 	}
 
 	@Test
-	void getDecisionProposalWithABlankAmountType() {
-		assertViolation(readViolations(webTestClient.get().uri("/2281/professional-web/services/42/decisions/proposal?amountType=&calculationId=7").exchange()),
-			"getDecisionProposal.amountType", "must not be blank");
-
-		verifyNoInteractions(serviceMock);
-	}
-
-	@ParameterizedTest
-	@ValueSource(strings = {
-		"0", "-1"
-	})
-	void getDecisionProposalWithCalculationIdThatIsNotPositive(final String calculationId) {
-		assertViolation(readViolations(webTestClient.get().uri("/2281/professional-web/services/42/decisions/proposal?amountType=TotalSum&calculationId=" + calculationId).exchange()),
-			"getDecisionProposal.calculationId", NOT_POSITIVE);
+	void getDecisionProposalWithANegativeCalculationIdIsRefused() {
+		assertViolation(readViolations(webTestClient.get().uri("/2281/professional-web/services/42/decisions/proposal?amountType=TotalSum&calculationId=-1").exchange()),
+			"getDecisionProposal.calculationId", "must be greater than or equal to 0");
 
 		verifyNoInteractions(serviceMock);
 	}
@@ -131,11 +120,11 @@ class ProfessionalWebDecisionResourceFailureTest {
 		"abc", "99999999999999999999"
 	})
 	void idThatIsNotANumberIsRefused(final String id) {
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + id + "/decisions/proposal?amountType=TotalSum&calculationId=7").exchange());
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/decision-codes/" + id + "/reasons").exchange());
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/decisions/" + id).exchange());
-		assertBadRequest(webTestClient.post().uri("/2281/professional-web/services/" + id + "/decisions").contentType(APPLICATION_JSON).bodyValue("{}").exchange());
-		assertBadRequest(webTestClient.put().uri("/2281/professional-web/decisions/" + id).contentType(APPLICATION_JSON).bodyValue("{}").exchange());
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + id + "/decisions/proposal?amountType=TotalSum&calculationId=7").exchange(), "serviceId");
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/decision-codes/" + id + "/reasons").exchange(), "decisionCode");
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/decisions/" + id).exchange(), "decisionId");
+		assertBadRequest(webTestClient.post().uri("/2281/professional-web/services/" + id + "/decisions").contentType(APPLICATION_JSON).bodyValue("{}").exchange(), "serviceId");
+		assertBadRequest(webTestClient.put().uri("/2281/professional-web/decisions/" + id).contentType(APPLICATION_JSON).bodyValue("{}").exchange(), "decisionId");
 
 		verifyNoInteractions(serviceMock);
 	}
@@ -202,5 +191,13 @@ class ProfessionalWebDecisionResourceFailureTest {
 			.expectBody()
 			.jsonPath("$.status").isEqualTo(400)
 			.jsonPath("$.title").isEqualTo("Bad Request");
+	}
+
+	private static void assertBadRequest(final WebTestClient.ResponseSpec response, final String parameter) {
+		response.expectStatus().isBadRequest()
+			.expectBody()
+			.jsonPath("$.status").isEqualTo(400)
+			.jsonPath("$.title").isEqualTo("Bad Request")
+			.jsonPath("$.detail").value(String.class, detail -> assertThat(detail).contains("'" + parameter + "'"));
 	}
 }

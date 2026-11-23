@@ -27,7 +27,7 @@ final class ProfessionalWebBodies {
 			.filter(bytes -> bytes.length > 0);
 	}
 
-	private static Optional<JsonNode> parse(final byte[] body) {
+	static Optional<JsonNode> parse(final byte[] body) {
 		try {
 			return Optional.ofNullable(JSON.readTree(body));
 		} catch (final JacksonException _) {

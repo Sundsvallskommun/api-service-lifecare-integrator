@@ -108,19 +108,6 @@ class ProfessionalWebCalculationResource {
 		return ok(service.getCalculationForEdit(calculationId));
 	}
 
-	@GetMapping(path = "/services/{serviceId}/job-stimulus", produces = APPLICATION_JSON_VALUE)
-	@Operation(summary = "Get the job stimulus periods on a service",
-		description = "Lifecare's api2/Calculation/GetJobStimulusForService",
-		responses = @ApiResponse(responseCode = "200",
-			description = "Lifecare's answer",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "object"))))
-	ResponseEntity<byte[]> getJobStimulus(
-		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Parameter(name = "serviceId", description = "The Lifecare service (insats) id", example = "42") @Positive @PathVariable final Long serviceId) {
-
-		return ok(service.getJobStimulus(serviceId));
-	}
-
 	@PostMapping(path = "/calculations/place-persons", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 	@Operation(summary = "Let Lifecare place the household's members on a norm's rows",
 		description = "Lifecare's api2/Calculation/PlacePersons. Changes nothing in Lifecare. The body is sent to Lifecare as it is",

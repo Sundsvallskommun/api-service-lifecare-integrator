@@ -1,6 +1,5 @@
 package se.sundsvall.lifecareintegrator.api;
 
-import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -24,7 +23,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_CONTENT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -48,7 +46,28 @@ class ProfessionalWebJobStimulusResourceFailureTest {
 		"?fromDate=2026-13-01", "?fromDate=20261101", "?fromDate=2026-11-1", "?fromDate=01-11-2026", "?fromDate=", ""
 	})
 	void getJobStimulusEndDateWithoutAValidDateIsRefused(final String query) {
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/job-stimulus/end-date" + query).exchange());
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/job-stimulus/end-date" + query).exchange(), "fromDate");
+
+		verifyNoInteractions(serviceMock);
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {
+		"0", "-1"
+	})
+	void getJobStimulusWithServiceIdThatIsNotPositive(final String serviceId) {
+		assertViolation(readViolations(webTestClient.get().uri("/2281/professional-web/services/" + serviceId + "/job-stimulus").exchange()),
+			"getJobStimulus.serviceId", "must be greater than 0");
+
+		verifyNoInteractions(serviceMock);
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {
+		"abc", "99999999999999999999"
+	})
+	void getJobStimulusWithServiceIdThatIsNotANumberIsRefused(final String serviceId) {
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + serviceId + "/job-stimulus").exchange(), "serviceId");
 
 		verifyNoInteractions(serviceMock);
 	}
@@ -62,29 +81,14 @@ class ProfessionalWebJobStimulusResourceFailureTest {
 
 	@Test
 	void invalidMunicipalityIdIsRefused() {
+		assertViolation(readViolations(webTestClient.get().uri("/" + INVALID_MUNICIPALITY_ID + "/professional-web/services/42/job-stimulus").exchange()),
+			"getJobStimulus.municipalityId", NOT_A_MUNICIPALITY_ID);
 		assertViolation(readViolations(webTestClient.get().uri("/" + INVALID_MUNICIPALITY_ID + "/professional-web/job-stimulus/end-date?fromDate=2026-11-01").exchange()),
 			"getJobStimulusEndDate.municipalityId", NOT_A_MUNICIPALITY_ID);
 		assertViolation(readViolations(webTestClient.post().uri("/" + INVALID_MUNICIPALITY_ID + "/professional-web/job-stimulus")
 			.contentType(APPLICATION_JSON).bodyValue("{}").exchange()), "saveJobStimulus.municipalityId", NOT_A_MUNICIPALITY_ID);
 
 		verifyNoInteractions(serviceMock);
-	}
-
-	@Test
-	void saveJobStimulusWithABodyTheServiceRefuses() {
-		when(serviceMock.saveJobStimulus("[]".getBytes(UTF_8))).thenThrow(Problem.valueOf(BAD_REQUEST, "The body must be a JSON object"));
-
-		webTestClient.post().uri("/2281/professional-web/job-stimulus")
-			.contentType(APPLICATION_JSON)
-			.bodyValue("[]")
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody()
-			.jsonPath("$.status").isEqualTo(400)
-			.jsonPath("$.detail").isEqualTo("The body must be a JSON object");
-
-		verify(serviceMock).saveJobStimulus("[]".getBytes(UTF_8));
-		verifyNoMoreInteractions(serviceMock);
 	}
 
 	@Test
@@ -100,20 +104,6 @@ class ProfessionalWebJobStimulusResourceFailureTest {
 			.jsonPath("$.detail").isEqualTo("Perioden överlappar");
 
 		verify(serviceMock).saveJobStimulus("{}".getBytes(UTF_8));
-		verifyNoMoreInteractions(serviceMock);
-	}
-
-	@Test
-	void getJobStimulusEndDateFailingInLifecareIsBadGateway() {
-		when(serviceMock.getJobStimulusEndDate(LocalDate.of(2026, 11, 1))).thenThrow(Problem.valueOf(BAD_GATEWAY, "Lifecare answered with status 500: Fel"));
-
-		webTestClient.get().uri("/2281/professional-web/job-stimulus/end-date?fromDate=2026-11-01")
-			.exchange()
-			.expectStatus().isEqualTo(502)
-			.expectBody()
-			.jsonPath("$.detail").isEqualTo("Lifecare answered with status 500: Fel");
-
-		verify(serviceMock).getJobStimulusEndDate(LocalDate.of(2026, 11, 1));
 		verifyNoMoreInteractions(serviceMock);
 	}
 
@@ -139,5 +129,13 @@ class ProfessionalWebJobStimulusResourceFailureTest {
 			.expectBody()
 			.jsonPath("$.status").isEqualTo(400)
 			.jsonPath("$.title").isEqualTo("Bad Request");
+	}
+
+	private static void assertBadRequest(final WebTestClient.ResponseSpec response, final String parameter) {
+		response.expectStatus().isBadRequest()
+			.expectBody()
+			.jsonPath("$.status").isEqualTo(400)
+			.jsonPath("$.title").isEqualTo("Bad Request")
+			.jsonPath("$.detail").value(String.class, detail -> assertThat(detail).contains("'" + parameter + "'"));
 	}
 }

@@ -4,6 +4,14 @@ Every change to the service, newest date first. One short line per change.
 
 ## 2026-11-23
 
+- Make amountType and calculationId optional on the ProfessionalWeb decision proposal, so a decision without a calculation reaches Lifecare as `amountType=&calculationId=0` like caremanagement sends it today (HYDRAN-3431).
+- Ask for the household of a service instead of a partyId, with the person Lifecare names in the service's payment underlag, answering 502 when it names none (HYDRAN-3431).
+- Answer 502 without a retry when Lifecare answers a ProfessionalWeb write with an HTML page, so only a refusal for a missing session sends a write again (HYDRAN-3431).
+- Fix the Referer of a print form sent again after a session renewal, which carried the host twice (HYDRAN-3431).
+- Document that the ProfessionalWeb prints need `Accept: application/pdf` and answer 406 to `*/*` (HYDRAN-3431).
+- Move a service's job stimulus periods to the job stimulus resource, and answer a saved job stimulus with 200 or 204 like an update (HYDRAN-3431).
+- Add the calculation read, the place-persons, shared-cost and job-stimuli reckonings and a service's job stimulus periods to the integration tests (HYDRAN-3431).
+- Check that the ProfessionalWeb failure tests name the parameter in a type error, keep one refusal test per resource, correct the description of the ProfessionalWeb services and record the work left (HYDRAN-3431).
 - Fix the ProfessionalWeb prints posting a template's answered parameter questions as an empty form, and add integration tests that print a decision, a calculation and a document (HYDRAN-3431).
 - Add an integration test that reads a service's calculation underlag and latest calculation, reckons an amount, and creates, reads, updates and removes a calculation (HYDRAN-3431).
 - Add integration tests that read a person's documents and a service's proposals, and create, read and update a journal note and a document, with an update whose documentId differs from the path answering 400 without calling Lifecare (HYDRAN-3431).

@@ -1,0 +1,10 @@
+{
+	"serviceId": 42,
+	"periods": [
+		{
+			"fromDate": "2026-11-01",
+			"toDate": "2028-10-31"
+		}
+	],
+	"unknownToTheIntegrator": "kept"
+}

@@ -6,8 +6,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,16 +57,16 @@ class ProfessionalWebDecisionResource {
 	}
 
 	@GetMapping(path = "/services/{serviceId}/decisions/proposal", produces = APPLICATION_JSON_VALUE)
-	@Operation(summary = "Get Lifecare's underlag for a new decision on a service, made from a calculation",
-		description = "Lifecare's api2/Decision/GetProposalForService",
+	@Operation(summary = "Get Lifecare's underlag for a new decision on a service, made from a calculation or without one",
+		description = "Lifecare's api2/Decision/GetProposalForService. Without amountType and calculationId Lifecare is asked with an empty amountType and calculationId 0, for a decision made without a calculation",
 		responses = @ApiResponse(responseCode = "200",
 			description = "Lifecare's answer",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "object"))))
 	ResponseEntity<byte[]> getDecisionProposal(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "serviceId", description = "The Lifecare service (insats) id", example = "42") @Positive @PathVariable final Long serviceId,
-		@Parameter(name = "amountType", description = "Which of the calculation's amounts the decision takes", example = "TotalSum") @NotBlank @RequestParam final String amountType,
-		@Parameter(name = "calculationId", description = "The Lifecare calculation (beräkning) id", example = "7") @Positive @RequestParam final Long calculationId) {
+		@Parameter(name = "amountType", description = "Which of the calculation's amounts the decision takes, empty without a calculation", example = "TotalSum") @RequestParam(defaultValue = "") final String amountType,
+		@Parameter(name = "calculationId", description = "The Lifecare calculation (beräkning) id, 0 without a calculation", example = "7") @PositiveOrZero @RequestParam(defaultValue = "0") final Long calculationId) {
 
 		return ok(service.getDecisionProposal(serviceId, amountType, calculationId));
 	}

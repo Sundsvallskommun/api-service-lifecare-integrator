@@ -1,7 +1,6 @@
 package se.sundsvall.lifecareintegrator.service;
 
 import java.time.LocalDate;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -9,44 +8,34 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.ThrowableProblem;
-import se.sundsvall.lifecareintegrator.integration.party.PartyIntegration;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebPaymentClient;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static se.sundsvall.lifecareintegrator.service.ProfessionalWebBodies.BODY_NOT_A_JSON_OBJECT;
 
 @ExtendWith(MockitoExtension.class)
 class ProfessionalWebPaymentServiceTest {
 
-	private static final String MUNICIPALITY_ID = "2281";
-	private static final String PARTY_ID = "81471222-5798-11e9-ae24-57fa13b361e1";
 	private static final byte[] LIFECARE_JSON = "{\"payment\":{\"amount\":1250.50},\"personnummer\":\"191212121212\"}".getBytes(UTF_8);
 	private static final byte[] BODY = "{ \"amount\": 1250.50,\n \"text\": \"Utbetalning åäö\", \"unknown\": {\"a\": [1]} }".getBytes(UTF_8);
 
 	@Mock
 	private ProfessionalWebPaymentClient clientMock;
 
-	@Mock
-	private PartyIntegration partyIntegrationMock;
-
 	@InjectMocks
 	private ProfessionalWebPaymentService service;
-
-	@AfterEach
-	void verifyNoUnexpectedPartyLookups() {
-		verifyNoMoreInteractions(partyIntegrationMock);
-	}
 
 	@Test
 	void getPaymentProposalAsksForTheServiceAsAnInsats() {
@@ -69,28 +58,31 @@ class ProfessionalWebPaymentServiceTest {
 	}
 
 	@Test
-	void hasHouseholdAsksWithThePersonsPersonnummerAndTheIsoDate() {
-		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn("191212121212");
+	void hasHouseholdAsksWithThePersonLifecareNamesForTheServiceAndTheIsoDate() {
+		when(clientMock.getPaymentForCreate(8, 42)).thenReturn("{\"payment\":{\"susPersonId\":\"191212121212\",\"amount\":0},\"payees\":[]}".getBytes(UTF_8));
 		when(clientMock.hasHouseholdThisDate("191212121212", "2026-01-05")).thenReturn("false".getBytes(UTF_8));
 
-		assertThat(new String(service.hasHousehold(MUNICIPALITY_ID, PARTY_ID, LocalDate.of(2026, 1, 5)), UTF_8)).isEqualTo("false");
+		assertThat(new String(service.hasHousehold(42, LocalDate.of(2026, 1, 5)), UTF_8)).isEqualTo("false");
 
-		verify(partyIntegrationMock).getPersonNumber(MUNICIPALITY_ID, PARTY_ID);
+		verify(clientMock).getPaymentForCreate(8, 42);
 		verify(clientMock).hasHouseholdThisDate("191212121212", "2026-01-05");
 		verifyNoMoreInteractions(clientMock);
 	}
 
-	@Test
-	void hasHouseholdForAPartyIdPartyDoesNotKnowAsksNothingOfLifecare() {
-		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenThrow(Problem.valueOf(NOT_FOUND, "No person number found for partyId '" + PARTY_ID + "'"));
+	@ParameterizedTest
+	@ValueSource(strings = {
+		"{\"payment\":{\"susPersonId\":\"\"}}", "{\"payment\":{\"susPersonId\":\"  \"}}", "{\"payment\":{\"susPersonId\":null}}",
+		"{\"payment\":{}}", "{\"payment\":null}", "{}", "[]", "not json", ""
+	})
+	void hasHouseholdWhenLifecareNamesNoPersonForTheServiceIsBadGateway(final String paymentForCreate) {
+		when(clientMock.getPaymentForCreate(8, 42)).thenReturn(paymentForCreate.getBytes(UTF_8));
 
-		assertThatThrownBy(() -> service.hasHousehold(MUNICIPALITY_ID, PARTY_ID, LocalDate.of(2026, 1, 5)))
+		assertThatThrownBy(() -> service.hasHousehold(42, LocalDate.of(2026, 1, 5)))
 			.asInstanceOf(type(ThrowableProblem.class))
 			.extracting(ThrowableProblem::getStatus, ThrowableProblem::getDetail)
-			.containsExactly(NOT_FOUND, "No person number found for partyId '" + PARTY_ID + "'");
+			.containsExactly(BAD_GATEWAY, "Lifecare named no person for the service");
 
-		verify(partyIntegrationMock).getPersonNumber(MUNICIPALITY_ID, PARTY_ID);
-		verifyNoInteractions(clientMock);
+		verify(clientMock, never()).hasHouseholdThisDate(anyString(), anyString());
 	}
 
 	@Test

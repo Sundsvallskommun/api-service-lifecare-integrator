@@ -1,0 +1,40 @@
+{
+	"request": {
+		"method": "POST",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Calculation/GetSharedCost",
+		"headers": {
+			"Content-Type": {
+				"contains": "application/json"
+			},
+			"X-LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"serviceId": 42,
+					"rent": 6000,
+					"unknownToTheIntegrator": {
+						"kept": true
+					}
+				}
+			}
+		]
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"sharedCost": 3000,
+			"unknownToTheIntegrator": "kept"
+		},
+		"status": 200
+	}
+}

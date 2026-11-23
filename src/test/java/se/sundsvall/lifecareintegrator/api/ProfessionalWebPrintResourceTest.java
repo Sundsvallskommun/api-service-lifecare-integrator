@@ -16,6 +16,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
+import static org.springframework.http.MediaType.ALL;
 import static org.springframework.http.MediaType.APPLICATION_PDF;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
@@ -56,6 +58,16 @@ class ProfessionalWebPrintResourceTest {
 		assertThat(getPdf("/2281/professional-web/documents/1/pdf")).isEqualTo(PDF);
 		verify(serviceMock).getDocumentPdf(1);
 		verifyNoMoreInteractions(serviceMock);
+	}
+
+	@Test
+	void printAskedForWithAnyMediaTypeIsNotAcceptable() {
+		when(serviceMock.getDecisionPdf(9)).thenReturn(PDF);
+
+		webTestClient.get().uri("/2281/professional-web/decisions/9/pdf")
+			.accept(ALL)
+			.exchange()
+			.expectStatus().isEqualTo(NOT_ACCEPTABLE);
 	}
 
 	private byte[] getPdf(final String uri) {

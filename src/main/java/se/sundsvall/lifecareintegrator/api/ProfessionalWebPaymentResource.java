@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
-import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.lifecareintegrator.service.ProfessionalWebPaymentService;
@@ -41,13 +40,13 @@ import static se.sundsvall.lifecareintegrator.api.ProfessionalWebResponses.toCre
 	description = "Lifecare does not let the integration account do this",
 	content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 @ApiResponse(responseCode = "404",
-	description = "Lifecare found nothing there, or Party knows no person by the partyId",
+	description = "Lifecare found nothing there",
 	content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 @ApiResponse(responseCode = "422",
 	description = "Lifecare refused the request, with Lifecare's text",
 	content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 @ApiResponse(responseCode = "502",
-	description = "Lifecare could not be reached, would not give a session or answered with an error",
+	description = "Lifecare could not be reached, would not give a session, answered with an error or named no person for the service",
 	content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 class ProfessionalWebPaymentResource {
 
@@ -83,23 +82,23 @@ class ProfessionalWebPaymentResource {
 		return ok(service.getLatestPayments(serviceId));
 	}
 
-	@GetMapping(path = "/persons/{partyId}/household", produces = APPLICATION_JSON_VALUE)
-	@Operation(summary = "Ask whether a person has a household on a date",
-		description = "Lifecare's api2/Household/HasHouseholdThisDate/. Lifecare answers true or false",
+	@GetMapping(path = "/services/{serviceId}/household", produces = APPLICATION_JSON_VALUE)
+	@Operation(summary = "Ask whether the person of a service has a household on a date",
+		description = "Lifecare's api2/Household/HasHouseholdThisDate/, for the person Lifecare's api2/Payment/GetPaymentForCreate names for the service. Lifecare answers true or false",
 		responses = @ApiResponse(responseCode = "200",
 			description = "Lifecare's answer",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "boolean"))))
 	ResponseEntity<byte[]> hasHousehold(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Parameter(name = "partyId", description = "Party id of the person", example = "81471222-5798-11e9-ae24-57fa13b361e1") @ValidUuid @PathVariable final String partyId,
+		@Parameter(name = "serviceId", description = "The Lifecare service (insats) id", example = "42") @Positive @PathVariable final Long serviceId,
 		@Parameter(name = "date", description = "The date", example = "2026-11-01") @RequestParam @DateTimeFormat(iso = DATE) final LocalDate date) {
 
-		return ok(service.hasHousehold(municipalityId, partyId, date));
+		return ok(service.hasHousehold(serviceId, date));
 	}
 
 	@PostMapping(path = "/services/{serviceId}/payments", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 	@Operation(summary = "Register a payment on a service",
-		description = "Lifecare's api2/Payment/Create. The body is sent to Lifecare as it is, and never sent twice",
+		description = "Lifecare's api2/Payment/Create. The body is sent to Lifecare as it is, and not sent again unless Lifecare refuses it for a missing session",
 		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
 			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "object"))),
 		responses = {

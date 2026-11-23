@@ -37,10 +37,6 @@ public class ProfessionalWebCalculationService {
 		return client.getCalculationForEdit(CALCULATION, calculationId);
 	}
 
-	public byte[] getJobStimulus(final long serviceId) {
-		return client.getJobStimulusForService(SERVICE, serviceId);
-	}
-
 	public byte[] placePersons(final byte[] body) {
 		requireJsonObject(body);
 		return client.placePersons(body);

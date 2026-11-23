@@ -54,6 +54,16 @@ class ProfessionalWebDecisionClientTest {
 	}
 
 	@Test
+	void proposalForServiceWithoutACalculationSendsTheEmptyAmountType() {
+		final var url = DECISION + "GetProposalForService?businessType=8&businessId=42&amountType=&calculationId=0&proposalId=0";
+		wireMock.stubFor(get(urlEqualTo(url)).willReturn(okJson(LIFECARE_JSON)));
+
+		assertThat(new String(client.getProposalForService(8, 42, "", 0, 0), UTF_8)).isEqualTo(LIFECARE_JSON);
+
+		wireMock.verify(1, getRequestedFor(urlEqualTo(url)));
+	}
+
+	@Test
 	void mappedDecisionReasonsAreReadWithTheDecisionCodeAsId() {
 		wireMock.stubFor(get(urlEqualTo(DECISION + "GetMappedDecisionReasons?id=5")).willReturn(okJson("[]")));
 

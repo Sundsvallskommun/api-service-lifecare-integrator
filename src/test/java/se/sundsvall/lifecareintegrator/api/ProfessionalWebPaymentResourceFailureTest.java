@@ -1,6 +1,5 @@
 package se.sundsvall.lifecareintegrator.api;
 
-import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -26,7 +25,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @SpringBootTest(classes = Application.class, webEnvironment = RANDOM_PORT)
@@ -34,7 +32,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @ActiveProfiles("junit")
 class ProfessionalWebPaymentResourceFailureTest {
 
-	private static final String PARTY_ID = "81471222-5798-11e9-ae24-57fa13b361e1";
 	private static final String INVALID_MUNICIPALITY_ID = "bad-municipality";
 	private static final String NOT_A_MUNICIPALITY_ID = "not a valid municipality ID";
 	private static final String NOT_POSITIVE = "must be greater than 0";
@@ -83,20 +80,21 @@ class ProfessionalWebPaymentResourceFailureTest {
 		"abc", "99999999999999999999"
 	})
 	void serviceIdThatIsNotANumberIsRefused(final String serviceId) {
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + serviceId + "/payments/proposal").exchange());
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + serviceId + "/payments/latest").exchange());
-		assertBadRequest(webTestClient.post().uri("/2281/professional-web/services/" + serviceId + "/payments").contentType(APPLICATION_JSON).bodyValue("{}").exchange());
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + serviceId + "/payments/proposal").exchange(), "serviceId");
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + serviceId + "/payments/latest").exchange(), "serviceId");
+		assertBadRequest(webTestClient.post().uri("/2281/professional-web/services/" + serviceId + "/payments").contentType(APPLICATION_JSON).bodyValue("{}").exchange(), "serviceId");
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + serviceId + "/household?date=2026-11-01").exchange(), "serviceId");
 
 		verifyNoInteractions(serviceMock);
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = {
-		"not-a-uuid", "12345", "81471222-5798-11e9-ae24-57fa13b361e"
+		"0", "-1"
 	})
-	void hasHouseholdWithAPartyIdThatIsNotAUuidIsRefused(final String partyId) {
-		assertViolation(readViolations(webTestClient.get().uri("/2281/professional-web/persons/" + partyId + "/household?date=2026-11-01").exchange()),
-			"hasHousehold.partyId", "not a valid UUID");
+	void hasHouseholdWithServiceIdThatIsNotPositive(final String serviceId) {
+		assertViolation(readViolations(webTestClient.get().uri("/2281/professional-web/services/" + serviceId + "/household?date=2026-11-01").exchange()),
+			"hasHousehold.serviceId", NOT_POSITIVE);
 
 		verifyNoInteractions(serviceMock);
 	}
@@ -106,7 +104,7 @@ class ProfessionalWebPaymentResourceFailureTest {
 		"?date=2026-02-30", "?date=2026/11/01", "?date=", ""
 	})
 	void hasHouseholdWithoutAValidDateIsRefused(final String query) {
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/persons/" + PARTY_ID + "/household" + query).exchange());
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/42/household" + query).exchange(), "date");
 
 		verifyNoInteractions(serviceMock);
 	}
@@ -125,7 +123,7 @@ class ProfessionalWebPaymentResourceFailureTest {
 			"getPaymentProposal.municipalityId", NOT_A_MUNICIPALITY_ID);
 		assertViolation(readViolations(webTestClient.get().uri("/" + INVALID_MUNICIPALITY_ID + "/professional-web/services/42/payments/latest").exchange()),
 			"getLatestPayments.municipalityId", NOT_A_MUNICIPALITY_ID);
-		assertViolation(readViolations(webTestClient.get().uri("/" + INVALID_MUNICIPALITY_ID + "/professional-web/persons/" + PARTY_ID + "/household?date=2026-11-01").exchange()),
+		assertViolation(readViolations(webTestClient.get().uri("/" + INVALID_MUNICIPALITY_ID + "/professional-web/services/42/household?date=2026-11-01").exchange()),
 			"hasHousehold.municipalityId", NOT_A_MUNICIPALITY_ID);
 		assertViolation(readViolations(webTestClient.post().uri("/" + INVALID_MUNICIPALITY_ID + "/professional-web/services/42/payments")
 			.contentType(APPLICATION_JSON).bodyValue("{}").exchange()), "createPayment.municipalityId", NOT_A_MUNICIPALITY_ID);
@@ -133,20 +131,6 @@ class ProfessionalWebPaymentResourceFailureTest {
 			.contentType(APPLICATION_JSON).bodyValue("{}").exchange()), "createPayee.municipalityId", NOT_A_MUNICIPALITY_ID);
 
 		verifyNoInteractions(serviceMock);
-	}
-
-	@Test
-	void hasHouseholdForAPartyIdPartyDoesNotKnowIsNotFound() {
-		when(serviceMock.hasHousehold("2281", PARTY_ID, LocalDate.of(2026, 11, 1))).thenThrow(Problem.valueOf(NOT_FOUND, "No person number found for partyId '" + PARTY_ID + "'"));
-
-		webTestClient.get().uri("/2281/professional-web/persons/" + PARTY_ID + "/household?date=2026-11-01")
-			.exchange()
-			.expectStatus().isNotFound()
-			.expectBody()
-			.jsonPath("$.detail").isEqualTo("No person number found for partyId '" + PARTY_ID + "'");
-
-		verify(serviceMock).hasHousehold("2281", PARTY_ID, LocalDate.of(2026, 11, 1));
-		verifyNoMoreInteractions(serviceMock);
 	}
 
 	@Test
@@ -187,5 +171,13 @@ class ProfessionalWebPaymentResourceFailureTest {
 			.expectBody()
 			.jsonPath("$.status").isEqualTo(400)
 			.jsonPath("$.title").isEqualTo("Bad Request");
+	}
+
+	private static void assertBadRequest(final WebTestClient.ResponseSpec response, final String parameter) {
+		response.expectStatus().isBadRequest()
+			.expectBody()
+			.jsonPath("$.status").isEqualTo(400)
+			.jsonPath("$.title").isEqualTo("Bad Request")
+			.jsonPath("$.detail").value(String.class, detail -> assertThat(detail).contains("'" + parameter + "'"));
 	}
 }

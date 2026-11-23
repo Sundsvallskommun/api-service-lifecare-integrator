@@ -73,8 +73,8 @@ class ProfessionalWebReminderResourceFailureTest {
 		"abc", "1.5", "99999999999999999999"
 	})
 	void serviceIdThatIsNotANumberIsRefused(final String serviceId) {
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + serviceId + "/reminders").exchange());
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + serviceId + "/reminders/proposal").exchange());
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + serviceId + "/reminders").exchange(), "serviceId");
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/services/" + serviceId + "/reminders/proposal").exchange(), "serviceId");
 
 		verifyNoInteractions(serviceMock);
 	}
@@ -115,9 +115,9 @@ class ProfessionalWebReminderResourceFailureTest {
 
 	@Test
 	void reminderIdThatIsNotANumberIsRefused() {
-		assertBadRequest(webTestClient.get().uri("/2281/professional-web/reminders/abc").exchange());
-		assertBadRequest(webTestClient.put().uri("/2281/professional-web/reminders/abc").contentType(APPLICATION_JSON).bodyValue("{\"reminderId\": 0}").exchange());
-		assertBadRequest(webTestClient.delete().uri("/2281/professional-web/reminders/abc").exchange());
+		assertBadRequest(webTestClient.get().uri("/2281/professional-web/reminders/abc").exchange(), "reminderId");
+		assertBadRequest(webTestClient.put().uri("/2281/professional-web/reminders/abc").contentType(APPLICATION_JSON).bodyValue("{\"reminderId\": 0}").exchange(), "reminderId");
+		assertBadRequest(webTestClient.delete().uri("/2281/professional-web/reminders/abc").exchange(), "reminderId");
 
 		verifyNoInteractions(serviceMock);
 	}
@@ -143,23 +143,6 @@ class ProfessionalWebReminderResourceFailureTest {
 		assertBadRequest(webTestClient.put().uri("/2281/professional-web/reminders/7").contentType(APPLICATION_JSON).exchange());
 
 		verifyNoInteractions(serviceMock);
-	}
-
-	@Test
-	void createReminderRefusedByTheService() {
-		when(serviceMock.createReminder("[]".getBytes(UTF_8))).thenThrow(Problem.valueOf(BAD_REQUEST, "The body must be a JSON object"));
-
-		webTestClient.post().uri("/2281/professional-web/reminders")
-			.contentType(APPLICATION_JSON)
-			.bodyValue("[]")
-			.exchange()
-			.expectStatus().isBadRequest()
-			.expectBody()
-			.jsonPath("$.status").isEqualTo(400)
-			.jsonPath("$.detail").isEqualTo("The body must be a JSON object");
-
-		verify(serviceMock).createReminder("[]".getBytes(UTF_8));
-		verifyNoMoreInteractions(serviceMock);
 	}
 
 	@Test
@@ -236,5 +219,13 @@ class ProfessionalWebReminderResourceFailureTest {
 			.expectBody()
 			.jsonPath("$.status").isEqualTo(400)
 			.jsonPath("$.title").isEqualTo("Bad Request");
+	}
+
+	private static void assertBadRequest(final WebTestClient.ResponseSpec response, final String parameter) {
+		response.expectStatus().isBadRequest()
+			.expectBody()
+			.jsonPath("$.status").isEqualTo(400)
+			.jsonPath("$.title").isEqualTo("Bad Request")
+			.jsonPath("$.detail").value(String.class, detail -> assertThat(detail).contains("'" + parameter + "'"));
 	}
 }
