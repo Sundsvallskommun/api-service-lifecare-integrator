@@ -30,7 +30,7 @@ Done since, on the same pattern, with unit tests per layer. Where an integration
 - Job stimulus: the end date of a period and saving a person's periods, on `ProfessionalWebCalculationClient`.
   Integration test: `ProfessionalWebJobStimulusIT`.
 - Payment, Payee and Household: the underlag and the latest payments of a service, a person's household on a date,
-  and creating a payment and a payee, on `ProfessionalWebPaymentClient`.
+  and creating a payment and a payee, on `ProfessionalWebPaymentClient`. Integration test: `ProfessionalWebPaymentsIT`.
 - Decision: the underlag for a decision made from a calculation, the reasons of a decision type, and reading,
   creating and updating a decision, on `ProfessionalWebDecisionClient`.
 - Document: a person's journal notes and documents, reading one to show or to edit, the proposals of a service, and

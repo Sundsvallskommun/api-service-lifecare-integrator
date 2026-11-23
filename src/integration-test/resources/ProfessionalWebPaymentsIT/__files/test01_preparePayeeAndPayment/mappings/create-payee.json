@@ -1,0 +1,40 @@
+{
+	"request": {
+		"method": "POST",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Payee/Create",
+		"headers": {
+			"Content-Type": {
+				"contains": "application/json"
+			},
+			"X-LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"name": "Påhittad Mottagare",
+					"accountNumber": "1234-5678",
+					"unknownToTheIntegrator": {
+						"kept": true
+					}
+				}
+			}
+		]
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"payeeId": 3,
+			"unknownToTheIntegrator": "kept"
+		},
+		"status": 200
+	}
+}

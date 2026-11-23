@@ -4,6 +4,7 @@ Every change to the service, newest date first. One short line per change.
 
 ## 2026-11-23
 
+- Add an integration test that reads a service's payment underlag, its latest payments and a person's household, and creates a payee and a payment, checking that each write reaches Lifecare once (HYDRAN-3431).
 - Add an integration test that reads a job stimulus end date and saves periods through ProfessionalWeb, checking that Lifecare gets the body byte for byte (HYDRAN-3431).
 
 ## 2026-11-20

@@ -1,0 +1,36 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Payment/GetPaymentForCreate",
+		"queryParameters": {
+			"businessType": {
+				"equalTo": "8"
+			},
+			"businessId": {
+				"equalTo": "42"
+			}
+		},
+		"headers": {
+			"X-Requested-With": {
+				"equalTo": "XMLHttpRequest"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"serviceId": 42,
+			"amount": 0,
+			"payees": [],
+			"unknownToTheIntegrator": "kept"
+		},
+		"status": 200
+	}
+}
