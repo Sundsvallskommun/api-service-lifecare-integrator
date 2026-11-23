@@ -41,9 +41,9 @@ Done since, on the same pattern, with unit tests per layer. Where an integration
   `ProfessionalWebCalculationClient`. Integration test: `ProfessionalWebCalculationsIT`.
 - Prints: Lifecare's PDF of a calculation, a decision and a document, on `ProfessionalWebPrintClient`, with the
   template ids under `integration.lifecare-professionalweb.print`. A template's parameter questions are answered with
-  Lifecare's defaults and posted back as a form.
+  Lifecare's defaults and posted back as a form. Integration test: `ProfessionalWebPrintsIT`.
 
-All areas caremanagement uses now have resources. What is left is the integration tests for the areas that name none.
+All areas caremanagement uses now have resources and an integration test.
 
 Decided along the way:
 

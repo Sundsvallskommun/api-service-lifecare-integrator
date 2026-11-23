@@ -50,6 +50,8 @@ configured instead. See the comment on `integration.lifecare-professionalweb` in
   Lifecare's defaults (`ProfessionalWebParameterForm`) and posts the form back to the same path and query. The request
   interceptor sends a form the way a browser does: navigation headers and the print's own address as Referer. Asked
   again, or answered with something that is not a PDF, the print answers 502.
+- The Feign clients send every body as the bytes they are given, with Feign's plain encoder set in
+  `ProfessionalWebApi2Configuration`. dept44's encoder would post a print's form as an empty body.
 - Exchange hands back every answer as data. The Feign clients turn a refusal into a problem instead, in
   `ProfessionalWebErrorDecoder`, and their circuit breaker `lifecare-professionalweb` ignores the 4xx ones:
 

@@ -1,0 +1,18 @@
+{
+	"request": {
+		"method": "GET",
+		"url": "/WESE.FC.ProfessionalWeb/RenderPdf/PrintContainer?templateId=7936e9ec-e32a-40cf-9dea-d95b16e021f0&ownerType=BERAK&ownerCode=999999999&objectId=7",
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/pdf"
+		},
+		"bodyFileName": "test02_printCalculationAndDocument/print.pdf",
+		"status": 200
+	}
+}

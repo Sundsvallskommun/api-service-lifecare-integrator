@@ -3,6 +3,7 @@ package se.sundsvall.lifecareintegrator.integration.professionalweb.configuratio
 import feign.Client;
 import feign.Logger;
 import feign.Request;
+import feign.codec.Encoder;
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -33,6 +34,8 @@ public class ProfessionalWebApi2Configuration {
 			.withRequestOptions(new Request.Options(properties.connectTimeout(), SECONDS, properties.readTimeout(), SECONDS, false))
 			.withCustomizer(builder -> builder
 				.logLevel(Logger.Level.NONE)
+				// Every body is bytes sent as they are. dept44's form encoder would post a byte[] form as an empty one
+				.encoder(new Encoder.Default())
 				.responseInterceptor(new ProfessionalWebSessionResponseInterceptor(session))
 				.retryer(new ProfessionalWebSessionRetryer(session)))
 			.composeCustomizersToOne();

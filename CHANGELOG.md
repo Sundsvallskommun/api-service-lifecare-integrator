@@ -4,6 +4,7 @@ Every change to the service, newest date first. One short line per change.
 
 ## 2026-11-23
 
+- Fix the ProfessionalWeb prints posting a template's answered parameter questions as an empty form, and add integration tests that print a decision, a calculation and a document (HYDRAN-3431).
 - Add an integration test that reads a service's calculation underlag and latest calculation, reckons an amount, and creates, reads, updates and removes a calculation (HYDRAN-3431).
 - Add integration tests that read a person's documents and a service's proposals, and create, read and update a journal note and a document, with an update whose documentId differs from the path answering 400 without calling Lifecare (HYDRAN-3431).
 - Add an integration test that reads a decision's underlag and reasons, creates, reads and updates a decision, and one that a decision update Lifecare refuses with 461 answers 422 with Lifecare's text (HYDRAN-3431).

@@ -1,6 +1,7 @@
 package se.sundsvall.lifecareintegrator.integration.professionalweb.configuration;
 
 import feign.Feign;
+import feign.form.spring.SpringFormEncoder;
 import feign.okhttp.OkHttpClient;
 import java.time.Clock;
 import java.time.Duration;
@@ -26,6 +27,8 @@ public final class Api2Clients {
 		final var session = new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC());
 		final var builder = Feign.builder()
 			.contract(new SpringMvcContract())
+			// The form encoder dept44 gives every Feign client, which the customizer has to override
+			.encoder(new SpringFormEncoder())
 			.client(new ProfessionalWebHtmlBufferingClient(new OkHttpClient()));
 		new ProfessionalWebApi2Configuration().feignBuilderCustomizer(properties, session).customize(builder);
 		return builder.target(type, baseUrl);

@@ -1,0 +1,18 @@
+{
+	"request": {
+		"method": "GET",
+		"url": "/WESE.FC.ProfessionalWeb/RenderPdf/PrintDecision?templateId=885bfb68-c97b-47c0-921d-ef00caaa2423&decisionId=9&hideRevisions=true",
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "text/html; charset=utf-8"
+		},
+		"body": "<html><body><form id=\"myForm\" method=\"post\"><input type=\"hidden\" name=\"X-LEGACY-TOKEN\" value=\"page-token\"><input type=\"checkbox\" name=\"51_0_2_1\" value=\"true\" checked><input type=\"hidden\" name=\"51_0_2_1\" value=\"false\"><select name=\"52_0_1_1\"><option value=\"1\">Kort</option><option value=\"2\" selected>Lång</option></select><input type=\"text\" name=\"53_0_1_1\" value=\"Handlaggare\"><input type=\"submit\" name=\"print\" value=\"Skriv ut\"></form></body></html>",
+		"status": 200
+	}
+}

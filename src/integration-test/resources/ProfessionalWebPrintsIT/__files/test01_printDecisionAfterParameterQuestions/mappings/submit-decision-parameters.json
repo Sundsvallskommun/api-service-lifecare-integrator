@@ -1,0 +1,28 @@
+{
+	"request": {
+		"method": "POST",
+		"url": "/WESE.FC.ProfessionalWeb/RenderPdf/PrintDecision?templateId=885bfb68-c97b-47c0-921d-ef00caaa2423&decisionId=9&hideRevisions=true",
+		"headers": {
+			"Content-Type": {
+				"equalTo": "application/x-www-form-urlencoded"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"bodyPatterns": [
+			{
+				"equalTo": "X-LEGACY-TOKEN=page-token&51_0_2_1=true&51_0_2_1=false&52_0_1_1=2&53_0_1_1=Handlaggare"
+			}
+		]
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/pdf"
+		},
+		"bodyFileName": "test01_printDecisionAfterParameterQuestions/decision.pdf",
+		"status": 200
+	}
+}
