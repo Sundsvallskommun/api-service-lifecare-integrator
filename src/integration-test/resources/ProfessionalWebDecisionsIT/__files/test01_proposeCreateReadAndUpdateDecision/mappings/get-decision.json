@@ -1,0 +1,36 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Decision/GetDecision",
+		"queryParameters": {
+			"businessType": {
+				"equalTo": "4"
+			},
+			"businessId": {
+				"equalTo": "9"
+			}
+		},
+		"headers": {
+			"X-Requested-With": {
+				"equalTo": "XMLHttpRequest"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"decisionId": 9,
+			"decisionCode": 12,
+			"amount": 1500.5,
+			"unknownToTheIntegrator": "kept"
+		},
+		"status": 200
+	}
+}

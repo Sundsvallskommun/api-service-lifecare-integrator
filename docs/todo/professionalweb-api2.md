@@ -32,7 +32,7 @@ Done since, on the same pattern, with unit tests per layer. Where an integration
 - Payment, Payee and Household: the underlag and the latest payments of a service, a person's household on a date,
   and creating a payment and a payee, on `ProfessionalWebPaymentClient`. Integration test: `ProfessionalWebPaymentsIT`.
 - Decision: the underlag for a decision made from a calculation, the reasons of a decision type, and reading,
-  creating and updating a decision, on `ProfessionalWebDecisionClient`.
+  creating and updating a decision, on `ProfessionalWebDecisionClient`. Integration test: `ProfessionalWebDecisionsIT`.
 - Document: a person's journal notes and documents, reading one to show or to edit, the proposals of a service, and
   creating and updating a journal note or a document, on `ProfessionalWebDocumentClient`.
 - Calculation: the underlag and the latest calculation of a service, reading one to show or to edit, a service's job

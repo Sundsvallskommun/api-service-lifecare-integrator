@@ -1,0 +1,50 @@
+{
+	"request": {
+		"method": "POST",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Decision/Update",
+		"queryParameters": {
+			"businessType": {
+				"equalTo": "4"
+			},
+			"businessId": {
+				"equalTo": "9"
+			}
+		},
+		"headers": {
+			"Content-Type": {
+				"contains": "application/json"
+			},
+			"X-LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"decisionId": 9,
+					"decisionCode": 12,
+					"reasonId": 1,
+					"amount": 1600.0,
+					"unknownToTheIntegrator": {
+						"kept": true
+					}
+				}
+			}
+		]
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"decisionId": 9,
+			"amount": 1600.0
+		},
+		"status": 200
+	}
+}
