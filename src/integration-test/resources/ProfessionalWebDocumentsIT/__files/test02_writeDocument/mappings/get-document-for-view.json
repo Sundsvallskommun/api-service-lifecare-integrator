@@ -1,0 +1,40 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Document/GetDocumentWithContent/",
+		"queryParameters": {
+			"id": {
+				"equalTo": "22"
+			},
+			"hideRevisions": {
+				"equalTo": "true"
+			},
+			"inEdit": {
+				"equalTo": "false"
+			}
+		},
+		"headers": {
+			"X-Requested-With": {
+				"equalTo": "XMLHttpRequest"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"documentId": 22,
+			"title": "Uppföljning",
+			"content": "Brukaren är nöjd",
+			"revisions": [],
+			"unknownToTheIntegrator": "kept"
+		},
+		"status": 200
+	}
+}

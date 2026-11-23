@@ -4,6 +4,7 @@ Every change to the service, newest date first. One short line per change.
 
 ## 2026-11-23
 
+- Add integration tests that read a person's documents and a service's proposals, and create, read and update a journal note and a document, with an update whose documentId differs from the path answering 400 without calling Lifecare (HYDRAN-3431).
 - Add an integration test that reads a decision's underlag and reasons, creates, reads and updates a decision, and one that a decision update Lifecare refuses with 461 answers 422 with Lifecare's text (HYDRAN-3431).
 - Add an integration test that reads a service's payment underlag, its latest payments and a person's household, and creates a payee and a payment, checking that each write reaches Lifecare once (HYDRAN-3431).
 - Add an integration test that reads a job stimulus end date and saves periods through ProfessionalWeb, checking that Lifecare gets the body byte for byte (HYDRAN-3431).

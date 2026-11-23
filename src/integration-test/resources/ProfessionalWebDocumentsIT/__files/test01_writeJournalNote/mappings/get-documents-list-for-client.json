@@ -1,0 +1,34 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Document/GetDocumentsListForClient/",
+		"queryParameters": {
+			"id": {
+				"equalTo": "199001012385"
+			}
+		},
+		"headers": {
+			"X-Requested-With": {
+				"equalTo": "XMLHttpRequest"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": [
+			{
+				"documentId": 20,
+				"title": "Utredning",
+				"isJournalNote": false
+			}
+		],
+		"status": 200
+	}
+}

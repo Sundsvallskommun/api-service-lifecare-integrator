@@ -1,0 +1,44 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Document/GetJournalNoteWithContent/",
+		"queryParameters": {
+			"id": {
+				"equalTo": "21"
+			},
+			"hideRevisions": {
+				"equalTo": "false"
+			},
+			"inEdit": {
+				"equalTo": "true"
+			}
+		},
+		"headers": {
+			"X-Requested-With": {
+				"equalTo": "XMLHttpRequest"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"documentId": 21,
+			"title": "Uppföljning",
+			"content": "Brukaren är nöjd",
+			"revisions": [
+				{
+					"revision": 1
+				}
+			],
+			"unknownToTheIntegrator": "kept"
+		},
+		"status": 200
+	}
+}

@@ -34,7 +34,8 @@ Done since, on the same pattern, with unit tests per layer. Where an integration
 - Decision: the underlag for a decision made from a calculation, the reasons of a decision type, and reading,
   creating and updating a decision, on `ProfessionalWebDecisionClient`. Integration test: `ProfessionalWebDecisionsIT`.
 - Document: a person's journal notes and documents, reading one to show or to edit, the proposals of a service, and
-  creating and updating a journal note or a document, on `ProfessionalWebDocumentClient`.
+  creating and updating a journal note or a document, on `ProfessionalWebDocumentClient`. Integration test:
+  `ProfessionalWebDocumentsIT`.
 - Calculation: the underlag and the latest calculation of a service, reading one to show or to edit, a service's job
   stimulus, the four reckonings that change nothing in Lifecare, and creating, updating and removing a calculation, on
   `ProfessionalWebCalculationClient`.

@@ -1,0 +1,41 @@
+{
+	"request": {
+		"method": "POST",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Document/CreateJournalNote/",
+		"headers": {
+			"Content-Type": {
+				"contains": "application/json"
+			},
+			"X-LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"serviceId": 42,
+					"title": "Uppföljning",
+					"content": "Brukaren är nöjd",
+					"unknownToTheIntegrator": {
+						"kept": true
+					}
+				}
+			}
+		]
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"documentId": 21,
+			"unknownToTheIntegrator": "kept"
+		},
+		"status": 200
+	}
+}
