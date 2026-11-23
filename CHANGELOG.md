@@ -2,6 +2,10 @@
 
 Every change to the service, newest date first. One short line per change.
 
+## 2026-11-23
+
+- Add an integration test that reads a job stimulus end date and saves periods through ProfessionalWeb, checking that Lifecare gets the body byte for byte (HYDRAN-3431).
+
 ## 2026-11-20
 
 - Tidy the ProfessionalWeb print code and give each new ProfessionalWeb resource a failure test that checks the exact violation (HYDRAN-3431).

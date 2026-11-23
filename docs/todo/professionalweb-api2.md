@@ -24,9 +24,11 @@ Reminders is done as the pilot (HYDRAN-3431), and the pattern for the other area
 - Unit tests per layer, and `src/integration-test/java/apptest/ProfessionalWebRemindersIT.java` runs every flow end to
   end against WireMock, exchange and a resource sharing the session included.
 
-Done since, on the same pattern, with unit tests per layer and no integration test yet:
+Done since, on the same pattern, with unit tests per layer. Where an integration test is named, it is under
+`src/integration-test/java/apptest/` and runs the area end to end against WireMock:
 
 - Job stimulus: the end date of a period and saving a person's periods, on `ProfessionalWebCalculationClient`.
+  Integration test: `ProfessionalWebJobStimulusIT`.
 - Payment, Payee and Household: the underlag and the latest payments of a service, a person's household on a date,
   and creating a payment and a payee, on `ProfessionalWebPaymentClient`.
 - Decision: the underlag for a decision made from a calculation, the reasons of a decision type, and reading,
@@ -40,7 +42,7 @@ Done since, on the same pattern, with unit tests per layer and no integration te
   template ids under `integration.lifecare-professionalweb.print`. A template's parameter questions are answered with
   Lifecare's defaults and posted back as a form.
 
-All areas caremanagement uses now have resources. What is left is the integration tests for them.
+All areas caremanagement uses now have resources. What is left is the integration tests for the areas that name none.
 
 Decided along the way:
 
