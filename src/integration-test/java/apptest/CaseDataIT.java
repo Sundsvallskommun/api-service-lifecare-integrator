@@ -15,7 +15,7 @@ class CaseDataIT extends AbstractAppTest {
 	private static final String RESPONSE_FILE = "response.json";
 
 	@Test
-	void test1_getPayments() {
+	void test01_getPayments() {
 		setupCall()
 			.withServicePath("/2281/payments?partyId=" + PARTY_ID + "&from=2025-01-01&to=2026-12-31")
 			.withHttpMethod(GET)
@@ -25,7 +25,7 @@ class CaseDataIT extends AbstractAppTest {
 	}
 
 	@Test
-	void test2_getInvestigations() {
+	void test02_getInvestigations() {
 		setupCall()
 			.withServicePath("/2281/investigations?partyId=" + PARTY_ID + "&from=2025-01-01&to=2026-12-31")
 			.withHttpMethod(GET)
@@ -35,7 +35,7 @@ class CaseDataIT extends AbstractAppTest {
 	}
 
 	@Test
-	void test3_getServices() {
+	void test03_getServices() {
 		setupCall()
 			.withServicePath("/2281/services?partyId=" + PARTY_ID + "&from=2025-01-01&to=2026-12-31")
 			.withHttpMethod(GET)
@@ -45,7 +45,7 @@ class CaseDataIT extends AbstractAppTest {
 	}
 
 	@Test
-	void test4_getExecutions() {
+	void test04_getExecutions() {
 		setupCall()
 			.withServicePath("/2281/executions?partyId=" + PARTY_ID + "&from=2025-01-01&to=2026-12-31")
 			.withHttpMethod(GET)
@@ -55,7 +55,7 @@ class CaseDataIT extends AbstractAppTest {
 	}
 
 	@Test
-	void test5_getResourceAllocations() {
+	void test05_getResourceAllocations() {
 		setupCall()
 			.withServicePath("/2281/resource-allocations?partyId=" + PARTY_ID + "&from=2025-01-01&to=2026-12-31")
 			.withHttpMethod(GET)

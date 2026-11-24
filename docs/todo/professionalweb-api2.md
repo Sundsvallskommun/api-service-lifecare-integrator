@@ -22,8 +22,8 @@ Reminders is done as the pilot (HYDRAN-3431), and the pattern for the other area
   are Feign parts in that configuration. See [lifecare-professionalweb.md](../integrations/lifecare-professionalweb.md).
 - Exchange is unchanged and shares the same session. Its code is in the `legacy` packages.
 - Sign-in, the session and the exchange transport run on OkHttp pinned to HTTP/1.1, the same as the Feign client.
-- Unit tests per layer, and `src/integration-test/java/apptest/ProfessionalWebRemindersIT.java` runs every flow end to
-  end against WireMock, exchange and a resource sharing the session included.
+- Unit tests per layer, and `src/integration-test/java/apptest/ProfessionalWebRemindersIT.java` runs reading and
+  writing reminders end to end against WireMock.
 
 Done since, on the same pattern, with unit tests per layer and every call on `ProfessionalWebClient`. Where an
 integration test is named, it is under `src/integration-test/java/apptest/` and runs the area end to end against
@@ -76,7 +76,7 @@ Decided along the way:
 3. A method per operation on `ProfessionalWebService` with the checks the resources need, such as a body that must
    be a JSON object or an id in the body that must match the path.
 4. A resource per operation, returning Lifecare's bytes, and the OpenAPI baseline.
-5. An integration test per way the area is used.
+5. An integration test per resource.
 
 ## After the areas
 

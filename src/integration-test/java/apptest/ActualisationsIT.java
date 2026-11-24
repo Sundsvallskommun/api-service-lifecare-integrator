@@ -28,7 +28,7 @@ class ActualisationsIT extends AbstractAppTest {
 	private static final String RESPONSE_FILE = "response.json";
 
 	@Test
-	void test1_getActualisations() {
+	void test01_getActualisations() {
 		setupCall()
 			.withServicePath("/2281/actualisations?partyId=" + PARTY_ID + "&from=2025-01-01&to=2026-12-31")
 			.withHttpMethod(GET)
@@ -38,7 +38,7 @@ class ActualisationsIT extends AbstractAppTest {
 	}
 
 	@Test
-	void test2_getActualisationProposal() {
+	void test02_getActualisationProposal() {
 		setupCall()
 			.withServicePath("/2281/actualisations/proposal?partyId=" + PARTY_ID)
 			.withHttpMethod(GET)
@@ -48,7 +48,7 @@ class ActualisationsIT extends AbstractAppTest {
 	}
 
 	@Test
-	void test3_createActualisation() {
+	void test03_createActualisation() {
 		setupCall()
 			.withServicePath("/2281/actualisations")
 			.withHttpMethod(POST)
@@ -60,7 +60,7 @@ class ActualisationsIT extends AbstractAppTest {
 	}
 
 	@Test
-	void test4_addActualisationAttachment() {
+	void test04_addActualisationAttachment() {
 		final var fileHeaders = new HttpHeaders();
 		fileHeaders.setContentType(MediaType.APPLICATION_PDF);
 		fileHeaders.setContentDispositionFormData("file", "attachment.pdf");

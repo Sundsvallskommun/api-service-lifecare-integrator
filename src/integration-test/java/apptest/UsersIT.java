@@ -14,7 +14,7 @@ class UsersIT extends AbstractAppTest {
 	private static final String RESPONSE_FILE = "response.json";
 
 	@Test
-	void test1_getUsers() {
+	void test01_getUsers() {
 		setupCall()
 			.withServicePath("/2281/users?limit=100")
 			.withHttpMethod(GET)

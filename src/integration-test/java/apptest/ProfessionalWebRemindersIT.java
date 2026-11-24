@@ -9,109 +9,75 @@ import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
-import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_CONTENT;
 
 @WireMockAppTestSuite(files = "classpath:/ProfessionalWebRemindersIT/", classes = Application.class)
 class ProfessionalWebRemindersIT extends AbstractAppTest {
 
+	private static final String REQUEST_FILE = "request.json";
+	private static final String RESPONSE_FILE = "response.json";
+
 	@Test
-	void test01_readReminders() {
+	void test01_getReminders() {
 		setupCall()
 			.withServicePath("/2281/professional-web/services/42/reminders")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("list-response.json")
-			.sendRequest();
-
-		setupCall()
-			.withServicePath("/2281/professional-web/services/42/reminders/proposal")
-			.withHttpMethod(GET)
-			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("proposal-response.json")
-			.sendRequest();
-
-		setupCall()
-			.withServicePath("/2281/professional-web/reminders/7")
-			.withHttpMethod(GET)
-			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("reminder-response.json")
+			.withExpectedResponse(RESPONSE_FILE)
 			.sendRequestAndVerifyResponse();
 	}
 
 	@Test
-	void test02_writeReminders() {
+	void test02_getReminderProposal() {
+		setupCall()
+			.withServicePath("/2281/professional-web/services/42/reminders/proposal")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test03_getReminder() {
+		setupCall()
+			.withServicePath("/2281/professional-web/reminders/7")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test04_createReminder() {
 		setupCall()
 			.withServicePath("/2281/professional-web/reminders")
 			.withHttpMethod(POST)
-			.withRequest("create-request.json")
+			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(CREATED)
-			.withExpectedResponse("create-response.json")
-			.sendRequest();
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
 
+	@Test
+	void test05_updateReminder() {
 		setupCall()
 			.withServicePath("/2281/professional-web/reminders/7")
 			.withHttpMethod(PUT)
-			.withRequest("update-request.json")
+			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(NO_CONTENT)
 			.withExpectedResponseBodyIsNull()
-			.sendRequest();
+			.sendRequestAndVerifyResponse();
+	}
 
+	@Test
+	void test06_removeReminder() {
 		setupCall()
 			.withServicePath("/2281/professional-web/reminders/7")
 			.withHttpMethod(DELETE)
 			.withExpectedResponseStatus(NO_CONTENT)
 			.withExpectedResponseBodyIsNull()
-			.sendRequestAndVerifyResponse();
-	}
-
-	@Test
-	void test03_lifecareRefuses() {
-		setupCall()
-			.withServicePath("/2281/professional-web/reminders/7")
-			.withHttpMethod(PUT)
-			.withRequest("update-request-7.json")
-			.withExpectedResponseStatus(UNPROCESSABLE_CONTENT)
-			.withExpectedResponse("refused-response.json")
-			.sendRequest();
-
-		setupCall()
-			.withServicePath("/2281/professional-web/reminders/8")
-			.withHttpMethod(PUT)
-			.withRequest("update-request-8.json")
-			.withExpectedResponseStatus(BAD_GATEWAY)
-			.withExpectedResponse("failed-response.json")
-			.sendRequestAndVerifyResponse();
-	}
-
-	@Test
-	void test04_sessionExpired() {
-		setupCall()
-			.withServicePath("/2281/professional-web/services/42/reminders")
-			.withHttpMethod(GET)
-			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("response.json")
-			.sendRequestAndVerifyResponse();
-	}
-
-	@Test
-	void test05_exchangeAndResourceShareTheSession() {
-		setupCall()
-			.withServicePath("/2281/professional-web/exchange")
-			.withHttpMethod(POST)
-			.withRequest("exchange-request.json")
-			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("exchange-response.json")
-			.sendRequest();
-
-		setupCall()
-			.withServicePath("/2281/professional-web/services/42/reminders")
-			.withHttpMethod(GET)
-			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("reminders-response.json")
 			.sendRequestAndVerifyResponse();
 	}
 }

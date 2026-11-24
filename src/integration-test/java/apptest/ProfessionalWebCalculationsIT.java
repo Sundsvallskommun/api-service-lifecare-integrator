@@ -16,84 +16,117 @@ import static org.springframework.http.HttpStatus.OK;
 @WireMockAppTestSuite(files = "classpath:/ProfessionalWebCalculationsIT/", classes = Application.class)
 class ProfessionalWebCalculationsIT extends AbstractAppTest {
 
+	private static final String REQUEST_FILE = "request.json";
+	private static final String RESPONSE_FILE = "response.json";
+
 	@Test
-	void test01_reckonCreateUpdateAndDeleteCalculation() {
+	void test01_getCalculationProposal() {
 		setupCall()
 			.withServicePath("/2281/professional-web/services/42/calculations/proposal")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("proposal-response.json")
-			.sendRequest();
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
 
+	@Test
+	void test02_getLatestCalculation() {
 		setupCall()
 			.withServicePath("/2281/professional-web/services/42/calculations/latest")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("latest-response.json")
-			.sendRequest();
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
 
+	@Test
+	void test03_placePersons() {
 		setupCall()
 			.withServicePath("/2281/professional-web/calculations/place-persons")
 			.withHttpMethod(POST)
-			.withRequest("place-persons-request.json")
+			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("place-persons-response.json")
-			.sendRequest();
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
 
+	@Test
+	void test04_getCalculationAmount() {
 		setupCall()
 			.withServicePath("/2281/professional-web/calculations/amount")
 			.withHttpMethod(POST)
-			.withRequest("amount-request.json")
+			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("amount-response.json")
-			.sendRequest();
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
 
+	@Test
+	void test05_getCalculationSharedCost() {
 		setupCall()
 			.withServicePath("/2281/professional-web/calculations/shared-cost")
 			.withHttpMethod(POST)
-			.withRequest("shared-cost-request.json")
+			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("shared-cost-response.json")
-			.sendRequest();
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
 
+	@Test
+	void test06_getCalculationJobStimuli() {
 		setupCall()
 			.withServicePath("/2281/professional-web/calculations/job-stimuli")
 			.withHttpMethod(POST)
-			.withRequest("job-stimuli-request.json")
+			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("job-stimuli-response.json")
-			.sendRequest();
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
 
+	@Test
+	void test07_createCalculation() {
 		setupCall()
 			.withServicePath("/2281/professional-web/services/42/calculations")
 			.withHttpMethod(POST)
-			.withRequest("create-request.json")
+			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(CREATED)
-			.withExpectedResponse("create-response.json")
-			.sendRequest();
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
 
+	@Test
+	void test08_getCalculation() {
 		setupCall()
 			.withServicePath("/2281/professional-web/calculations/7")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("calculation-response.json")
-			.sendRequest();
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
 
+	@Test
+	void test09_getCalculationForEdit() {
 		setupCall()
 			.withServicePath("/2281/professional-web/calculations/7/edit")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("edit-response.json")
-			.sendRequest();
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
 
+	@Test
+	void test10_updateCalculation() {
 		setupCall()
 			.withServicePath("/2281/professional-web/calculations/7")
 			.withHttpMethod(PUT)
-			.withRequest("update-request.json")
+			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("update-response.json")
-			.sendRequest();
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
 
+	@Test
+	void test11_deleteCalculation() {
 		setupCall()
 			.withServicePath("/2281/professional-web/calculations/7")
 			.withHttpMethod(DELETE)

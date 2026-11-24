@@ -29,7 +29,7 @@ class ProfessionalWebPrintsIT extends AbstractAppTest {
 	}
 
 	@Test
-	void test02_printCalculationAndDocument() throws IOException {
+	void test02_printCalculation() throws IOException {
 		setupCall()
 			.withServicePath("/2281/professional-web/calculations/7/pdf")
 			.withHttpMethod(GET)
@@ -37,8 +37,11 @@ class ProfessionalWebPrintsIT extends AbstractAppTest {
 			.withExpectedResponseStatus(OK)
 			.withExpectedResponseHeader(CONTENT_TYPE, List.of(APPLICATION_PDF_VALUE))
 			.withExpectedBinaryResponse("print.pdf")
-			.sendRequest();
+			.sendRequestAndVerifyResponse();
+	}
 
+	@Test
+	void test03_printDocument() throws IOException {
 		setupCall()
 			.withServicePath("/2281/professional-web/documents/22/pdf")
 			.withHttpMethod(GET)
