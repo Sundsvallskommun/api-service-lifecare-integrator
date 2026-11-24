@@ -42,12 +42,7 @@ class PartyIntegrationTest {
 
 	@BeforeEach
 	void setUp() {
-		partyIntegration = integration(1000, 1000);
-	}
-
-	private PartyIntegration integration(final int maxPartyIdsPerCall, final int maxLegalIdsPerCall) {
-		final var properties = new PartyProperties(5, 30, maxPartyIdsPerCall, maxLegalIdsPerCall, TIME_TO_LIVE, 100);
-		return new PartyIntegration(partyClientMock, properties, nanos::get);
+		partyIntegration = new PartyIntegration(partyClientMock, new PartyProperties(5, 30, TIME_TO_LIVE, 100), nanos::get);
 	}
 
 	@Test
@@ -242,6 +237,16 @@ class PartyIntegrationTest {
 	}
 
 	@Test
+	void aBlankAnswerIsNeitherReturnedNorCached() {
+		when(partyClientMock.getPartyIds(MUNICIPALITY_ID, List.of(PERSON_NUMBER))).thenReturn(Map.of(PERSON_NUMBER, " ")).thenReturn(Map.of(PERSON_NUMBER, PARTY_ID));
+
+		assertThat(partyIntegration.getPartyIds(MUNICIPALITY_ID, List.of(PERSON_NUMBER))).isEmpty();
+		assertThat(partyIntegration.getPartyIds(MUNICIPALITY_ID, List.of(PERSON_NUMBER))).containsOnly(Map.entry(PERSON_NUMBER, PARTY_ID));
+
+		verify(partyClientMock, times(2)).getPartyIds(MUNICIPALITY_ID, List.of(PERSON_NUMBER));
+	}
+
+	@Test
 	void anEntryExpiresAfterItsTimeToLive() {
 		when(partyClientMock.getPersonNumbers(MUNICIPALITY_ID, List.of(PARTY_ID))).thenReturn(Map.of(PARTY_ID, PERSON_NUMBER));
 		partyIntegration.getPersonNumber(MUNICIPALITY_ID, PARTY_ID);
@@ -262,20 +267,6 @@ class PartyIntegrationTest {
 
 		verify(partyClientMock).getPersonNumbers(MUNICIPALITY_ID, List.of(PARTY_ID));
 		verify(partyClientMock).getPersonNumbers(OTHER_MUNICIPALITY_ID, List.of(PARTY_ID));
-	}
-
-	@Test
-	void missesAreFetchedInBatchesOfTheConfiguredSize() {
-		final var integration = integration(1, 1);
-		when(partyClientMock.getPartyIds(MUNICIPALITY_ID, List.of(PERSON_NUMBER))).thenReturn(Map.of(PERSON_NUMBER, PARTY_ID));
-		when(partyClientMock.getPartyIds(MUNICIPALITY_ID, List.of(OTHER_PERSON_NUMBER))).thenReturn(Map.of(OTHER_PERSON_NUMBER, OTHER_PARTY_ID));
-
-		final var result = integration.getPartyIds(MUNICIPALITY_ID, List.of(PERSON_NUMBER, OTHER_PERSON_NUMBER));
-
-		assertThat(result).containsOnly(Map.entry(PERSON_NUMBER, PARTY_ID), Map.entry(OTHER_PERSON_NUMBER, OTHER_PARTY_ID));
-		verify(partyClientMock).getPartyIds(MUNICIPALITY_ID, List.of(PERSON_NUMBER));
-		verify(partyClientMock).getPartyIds(MUNICIPALITY_ID, List.of(OTHER_PERSON_NUMBER));
-		verifyNoMoreInteractions(partyClientMock);
 	}
 
 	@Test

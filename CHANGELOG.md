@@ -4,6 +4,7 @@ Every change to the service, newest date first. One short line per change.
 
 ## 2026-11-23
 
+- Split the Party lookup into one method per direction and ask Party once per lookup, dropping the max-party-ids-per-call and max-legal-ids-per-call settings.
 - Make amountType and calculationId optional on the ProfessionalWeb decision proposal, so a decision without a calculation reaches Lifecare as `amountType=&calculationId=0` like caremanagement sends it today (HYDRAN-3431).
 - Ask for the household of a service instead of a partyId, with the person Lifecare names in the service's payment underlag, answering 502 when it names none (HYDRAN-3431).
 - Answer 502 without a retry when Lifecare answers a ProfessionalWeb write with an HTML page, so only a refusal for a missing session sends a write again (HYDRAN-3431).

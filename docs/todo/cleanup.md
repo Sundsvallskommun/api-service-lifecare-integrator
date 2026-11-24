@@ -7,14 +7,12 @@ Code and documentation that work but should be simpler or more accurate.
 - The eight `Paged*Response` classes become records, from about 580 lines to 70. Code: `api/model/*/Paged*Response.java`.
 - `ElderlyCareDecisionMapper.toBaseDecision` copies an LSS decision into a SoL object that is thrown away straight
   after. Map the shared fields directly.
-- `PartyIntegration.resolve` takes a `forward` flag to tell partyIds from personnummer, and `resolvePersonNumbers`
-  forwards to it. Split it into two plain methods.
 - `ElderlyCareClient` reads a single decision with `dismiss404` and a `null` answer. An `Optional` would say "maybe
   missing" in the type.
 - `DecisionService`: `SourceResult` could carry its status directly, and `overlapsWindow` has a branch that cannot be
   reached.
 - Block lambdas: the three `.map(decision -> { … })` in `DecisionService.findDecision` and
-  `findFamilyCareDecision`, and the `forEach` in `PartyIntegration.resolve`. Use named methods.
+  `findFamilyCareDecision`. Use named methods.
 - `FamilyCareService.createCalculation` still maps persons with `.map(persons -> persons.stream()…).orElse(List.of())`
   instead of `Optional.ofNullable(list).orElse(emptyList()).stream()`.
 - `ProfessionalWebReminderService` has its own `requireJsonObject` and `parse`, copies of `ProfessionalWebBodies`.
