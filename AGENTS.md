@@ -13,9 +13,11 @@ holds. The usual cases:
 - A configuration property added, renamed or removed → `README.md`.
 - Work found but left for later → an item in `docs/todo/`; work that finishes an item → that item deleted.
 
-Every change adds one line to `CHANGELOG.md` under today's date (`## YYYY-MM-DD`), newest date first. Create the
-heading if today has none. One short sentence in English, in the imperative ("Add …", "Fix …"), with the Jira key in
-parentheses when there is one.
+A change a client or an operator notices (an endpoint, a response, a status, configuration, a dependency bump) adds
+one line to `CHANGELOG.md` under today's date (`## YYYY-MM-DD`), newest date first. A refactoring adds one line
+naming what was reworked, not each change in it. Tests and documentation add none. Create the heading if today has
+none. One short sentence in English, in the imperative ("Add …", "Fix …"), saying what changed rather than how, with
+the Jira key in parentheses when there is one.
 
 Read `docs/AGENTS.md` before editing anything under `docs/`.
 
