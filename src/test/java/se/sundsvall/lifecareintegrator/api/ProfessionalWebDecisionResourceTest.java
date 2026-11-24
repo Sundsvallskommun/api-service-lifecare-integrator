@@ -11,7 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.lifecareintegrator.Application;
-import se.sundsvall.lifecareintegrator.service.ProfessionalWebDecisionService;
+import se.sundsvall.lifecareintegrator.service.ProfessionalWebService;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,7 +30,7 @@ class ProfessionalWebDecisionResourceTest {
 	private static final String BODY = "{ \"decisionId\": 9,\n \"text\": \"Beslut åäö\", \"unknown\": {\"a\": [1, 2.50]} }";
 
 	@MockitoBean
-	private ProfessionalWebDecisionService serviceMock;
+	private ProfessionalWebService serviceMock;
 
 	@Autowired
 	private WebTestClient webTestClient;

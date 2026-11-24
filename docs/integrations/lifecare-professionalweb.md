@@ -13,10 +13,12 @@ are passed on as Lifecare's JSON, not interpreted. Where it is heading: [todo/pr
 Two ways in, sharing one session:
 
 1. Exchange passes any api2 or RenderPdf path through, named by the caller, in `ProfessionalWebExchange`.
-2. One Feign client per api2 area, such as `ProfessionalWebReminderClient`, with one method per operation that has its
-   own resource. They share `ProfessionalWebApi2Configuration`: OkHttp pinned to HTTP/1.1, redirects not followed,
-   the session added by a request interceptor and checked by a response interceptor, and a retryer that bootstraps,
-   then signs in again, then answers 502. `ProfessionalWebPrintClient` reaches the `RenderPdf` prints the same way.
+2. One Feign client, `ProfessionalWebClient`, with one method per api2 operation that has its own resource, and the
+   two `RenderPdf` calls a print needs. Its configuration is `ProfessionalWebApi2Configuration`: OkHttp pinned to
+   HTTP/1.1, redirects not followed, the session added by a request interceptor and checked by a response
+   interceptor, and a retryer that bootstraps, then signs in again, then answers 502. `ProfessionalWebService` calls
+   it through `ProfessionalWebIntegration`, which holds what api2 expects: the businessType codes, the fixed
+   parameters Lifecare's web app sends, the print queries, and the person a household is asked for.
 
 There is no spec. The client is written by hand, not generated.
 
@@ -29,10 +31,10 @@ configured instead. See the comment on `integration.lifecare-professionalweb` in
 ## Code and configuration
 
 - Code, under `src/main/java/se/sundsvall/lifecareintegrator/integration/professionalweb/`:
-  - the package itself: the api2 Feign clients, one per area;
-  - `configuration/`: their Feign configuration (interceptors, retryer, error decoder) and the properties;
+  - the package itself: `ProfessionalWebClient`, `ProfessionalWebIntegration` and the print's parameter form;
+  - `configuration/`: the client's Feign configuration (interceptors, retryer, error decoder) and the properties;
   - `session/`: sign-in, the session and its cookies, keep-alive, the health indicator, and the HTTP client sign-in
-    uses, OkHttp pinned to HTTP/1.1 like the Feign clients;
+    uses, OkHttp pinned to HTTP/1.1 like the Feign client;
   - `legacy/`: `ProfessionalWebExchange`, behind exchange. Its resource and models are in `api/legacy/` and
     `api/model/professionalweb/legacy/`. All of `legacy/` goes when exchange does.
 - Configuration: `integration.lifecare-professionalweb` in `application.yml`. Leaving `url` unset makes every exchange
@@ -43,7 +45,7 @@ configured instead. See the comment on `integration.lifecare-professionalweb` in
 - Session lifecycle (sign-in, bootstrap, keep-alive, replacement): `session/ProfessionalWebSession`.
 - When an answer says a session is needed, the call is retried after a bootstrap, then after a fresh sign-in, and
   otherwise answered with 502: `ProfessionalWebExchange` for exchange, `ProfessionalWebSessionRetryer` for the Feign
-  clients. On the Feign clients an HTML answer counts as a lost session only on a read (GET) with a success status, and
+  client. On the Feign client an HTML answer counts as a lost session only on a read (GET) with a success status, and
   never when it is a print's parameter questions. HTML answers are read into memory for that check, in
   `ProfessionalWebHtmlBufferingClient`.
 - A write (POST, PUT, DELETE) is sent again only when Lifecare refuses it for a missing session: 360, 401 or a redirect
@@ -52,15 +54,15 @@ configured instead. See the comment on `integration.lifecare-professionalweb` in
   money.
 - Feign sends a query parameter with an empty value as its bare name. `ProfessionalWebEmptyQueryValueClient` puts the
   `=` back, so Lifecare gets `amountType=` as its web app sends it.
-- Some print templates ask parameter questions before they render. `ProfessionalWebPrintService` answers them with
+- Some print templates ask parameter questions before they render. `ProfessionalWebIntegration` answers them with
   Lifecare's defaults (`ProfessionalWebParameterForm`) and posts the form back to the same path and query. The request
   interceptor sends a form the way a browser does: navigation headers and the print's own address as Referer, also when
   the form is sent again after a session renewal. Asked
   again, or answered with something that is not a PDF, the print answers 502.
-- The Feign clients send every body as the bytes they are given, with Feign's plain encoder set in
+- The Feign client sends every body as the bytes it is given, with Feign's plain encoder set in
   `ProfessionalWebApi2Configuration`. dept44's encoder would post a print's form as an empty body.
-- Exchange hands back every answer as data. The Feign clients turn a refusal into a problem instead, in
-  `ProfessionalWebErrorDecoder`, and their circuit breaker `lifecare-professionalweb` ignores the 4xx ones:
+- Exchange hands back every answer as data. The Feign client turns a refusal into a problem instead, in
+  `ProfessionalWebErrorDecoder`, and its circuit breaker `lifecare-professionalweb` ignores the 4xx ones:
 
   |   Lifecare    |                      Answer                      |
   |---------------|--------------------------------------------------|

@@ -16,7 +16,7 @@ import static se.sundsvall.lifecareintegrator.integration.professionalweb.config
 
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("junit")
-class ProfessionalWebReminderClientCircuitBreakerTest {
+class ProfessionalWebClientCircuitBreakerTest {
 
 	@Autowired
 	private CircuitBreakerRegistry circuitBreakerRegistry;

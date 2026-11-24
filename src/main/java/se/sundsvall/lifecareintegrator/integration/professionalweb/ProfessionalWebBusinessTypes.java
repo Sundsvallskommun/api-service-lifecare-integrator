@@ -1,4 +1,4 @@
-package se.sundsvall.lifecareintegrator.service;
+package se.sundsvall.lifecareintegrator.integration.professionalweb;
 
 /** Lifecare's businessType codes: what kind of object a businessId names. */
 final class ProfessionalWebBusinessTypes {

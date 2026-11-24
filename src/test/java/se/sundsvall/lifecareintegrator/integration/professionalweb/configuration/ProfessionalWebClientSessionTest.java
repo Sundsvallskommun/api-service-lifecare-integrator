@@ -18,17 +18,14 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.openfeign.support.SpringMvcContract;
 import se.sundsvall.dept44.problem.ThrowableProblem;
-import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebReminderClient;
+import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebClient;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.legacy.ProfessionalWebExchange;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebHttp;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebSession;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebSignIn;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.binaryEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.containing;
-import static com.github.tomakehurst.wiremock.client.WireMock.delete;
-import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
@@ -47,7 +44,7 @@ import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
-class ProfessionalWebReminderClientTest {
+class ProfessionalWebClientSessionTest {
 
 	private static final String LIST_REMINDERS = "/WESE.FC.ProfessionalWeb/api2/Reminders/ListRemindersByServiceId";
 	private static final String HEARTBEAT = "/WESE.FC.ProfessionalWeb/Heartbeat";
@@ -56,7 +53,7 @@ class ProfessionalWebReminderClientTest {
 
 	private WireMockServer wireMock;
 	private ProfessionalWebExchange exchange;
-	private ProfessionalWebReminderClient client;
+	private ProfessionalWebClient client;
 
 	@BeforeEach
 	void setUp() {
@@ -89,85 +86,6 @@ class ProfessionalWebReminderClientTest {
 			.withHeader("X-Requested-With", equalTo("XMLHttpRequest"))
 			.withHeader("ajax-no-cross-domain-redirect", equalTo("true")));
 		wireMock.verify(1, postRequestedFor(urlPathEqualTo(SIGN_IN)));
-	}
-
-	@Test
-	void proposalForServiceIsReadWithTheServiceId() {
-		wireMock.stubFor(get(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/GetProposalForService?id=42")).willReturn(okJson(LIFECARE_JSON)));
-
-		assertThat(new String(client.getProposalForService(42), UTF_8)).isEqualTo(LIFECARE_JSON);
-		wireMock.verify(1, getRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/GetProposalForService?id=42")));
-	}
-
-	@Test
-	void reminderEditCompositeIsReadWithTheReminderIdThenReadOptionsFalse() {
-		wireMock.stubFor(get(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/GetReminderEditComposite?reminderId=7&readOptions=false"))
-			.willReturn(okJson(LIFECARE_JSON)));
-
-		assertThat(new String(client.getReminderEditComposite(7, false), UTF_8)).isEqualTo(LIFECARE_JSON);
-		wireMock.verify(1, getRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/GetReminderEditComposite?reminderId=7&readOptions=false")));
-	}
-
-	@Test
-	void createReminderPostsTheBodyAsItIsAndReturnsLifecaresAnswer() {
-		final var body = "{ \"serviceId\": 42, \"text\": \"Påminnelse åäö\", \"personnummer\": \"191212121212\", \"unknown\": {\"a\": [1]} }";
-		wireMock.stubFor(post(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/CreateReminder/")).willReturn(okJson("{\"id\":9}")));
-
-		final var answer = client.createReminder(body.getBytes(UTF_8));
-
-		assertThat(new String(answer, UTF_8)).isEqualTo("{\"id\":9}");
-		wireMock.verify(1, postRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/CreateReminder/"))
-			.withHeader("Content-Type", equalTo("application/json; charset=UTF-8"))
-			.withHeader("X-LEGACY-TOKEN", equalTo("tok"))
-			.withRequestBody(binaryEqualTo(body.getBytes(UTF_8))));
-	}
-
-	@Test
-	void createReminderWithAnEmptyAnswerReturnsNoBytes() {
-		wireMock.stubFor(post(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/CreateReminder/")).willReturn(ok()));
-
-		assertThat(client.createReminder("{}".getBytes(UTF_8))).isEmpty();
-	}
-
-	@Test
-	void createReminderAnsweredWithNoContentReturnsNoBytes() {
-		wireMock.stubFor(post(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/CreateReminder/")).willReturn(aResponse().withStatus(204)));
-
-		assertThat(client.createReminder("{}".getBytes(UTF_8))).isEmpty();
-	}
-
-	@Test
-	void updateReminderPostsTheBodyAsItIs() {
-		final var body = "{\"reminderId\":7, \"text\":\"Ring\"}";
-		wireMock.stubFor(post(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/UpdateReminder/")).willReturn(ok()));
-
-		client.updateReminder(body.getBytes(UTF_8));
-
-		wireMock.verify(1, postRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/UpdateReminder/"))
-			.withHeader("Content-Type", equalTo("application/json; charset=UTF-8"))
-			.withRequestBody(equalTo(body)));
-	}
-
-	@Test
-	void removeReminderSendsADeleteWithTheBody() {
-		wireMock.stubFor(delete(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/RemoveReminder/")).willReturn(ok()));
-
-		client.removeReminder("{\"id\":7}".getBytes(UTF_8));
-
-		wireMock.verify(1, deleteRequestedFor(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/RemoveReminder/"))
-			.withHeader("Content-Type", equalTo("application/json; charset=UTF-8"))
-			.withRequestBody(equalTo("{\"id\":7}")));
-	}
-
-	@Test
-	void updateReminderRefusedByLifecareIsUnprocessable() {
-		wireMock.stubFor(post(urlEqualTo("/WESE.FC.ProfessionalWeb/api2/Reminders/UpdateReminder/"))
-			.willReturn(aResponse().withStatus(461).withBody("{\"exceptionMessage\":\"Påminnelsen är klar\"}")));
-
-		assertThatThrownBy(() -> client.updateReminder("{\"reminderId\":7}".getBytes(UTF_8)))
-			.asInstanceOf(type(ThrowableProblem.class))
-			.extracting(problem -> problem.getStatus().value(), ThrowableProblem::getDetail)
-			.containsExactly(422, "Påminnelsen är klar");
 	}
 
 	@Test
@@ -377,12 +295,12 @@ class ProfessionalWebReminderClientTest {
 			"user", "pw", Duration.ofMinutes(20), 1, 5, sessionCookie, Duration.ofMinutes(5));
 	}
 
-	private static ProfessionalWebReminderClient client(final ProfessionalWebProperties properties, final ProfessionalWebSession session, final String target) {
+	private static ProfessionalWebClient client(final ProfessionalWebProperties properties, final ProfessionalWebSession session, final String target) {
 		final var builder = Feign.builder()
 			.contract(new SpringMvcContract())
 			.client(new OkHttpClient());
 		new ProfessionalWebApi2Configuration().feignBuilderCustomizer(properties, session).customize(builder);
-		return builder.target(ProfessionalWebReminderClient.class, target);
+		return builder.target(ProfessionalWebClient.class, target);
 	}
 
 	private void stubSignIn() {

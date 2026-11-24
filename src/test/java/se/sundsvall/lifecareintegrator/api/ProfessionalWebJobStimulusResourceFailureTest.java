@@ -13,7 +13,7 @@ import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.lifecareintegrator.Application;
-import se.sundsvall.lifecareintegrator.service.ProfessionalWebJobStimulusService;
+import se.sundsvall.lifecareintegrator.service.ProfessionalWebService;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +36,7 @@ class ProfessionalWebJobStimulusResourceFailureTest {
 	private static final String NOT_A_MUNICIPALITY_ID = "not a valid municipality ID";
 
 	@MockitoBean
-	private ProfessionalWebJobStimulusService serviceMock;
+	private ProfessionalWebService serviceMock;
 
 	@Autowired
 	private WebTestClient webTestClient;

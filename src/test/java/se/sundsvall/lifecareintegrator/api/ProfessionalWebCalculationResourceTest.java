@@ -9,7 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.lifecareintegrator.Application;
-import se.sundsvall.lifecareintegrator.service.ProfessionalWebCalculationService;
+import se.sundsvall.lifecareintegrator.service.ProfessionalWebService;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +28,7 @@ class ProfessionalWebCalculationResourceTest {
 	private static final String BODY = "{ \"calculationId\": 7,\n \"text\": \"Beräkning åäö\", \"unknown\": {\"a\": [1, 2.50]} }";
 
 	@MockitoBean
-	private ProfessionalWebCalculationService serviceMock;
+	private ProfessionalWebService serviceMock;
 
 	@Autowired
 	private WebTestClient webTestClient;
@@ -80,28 +80,28 @@ class ProfessionalWebCalculationResourceTest {
 
 	@Test
 	void getAmountAnswersOkWithLifecaresAnswer() {
-		when(serviceMock.getAmount(BODY.getBytes(UTF_8))).thenReturn("{\"amount\":12.50}".getBytes(UTF_8));
+		when(serviceMock.getCalculationAmount(BODY.getBytes(UTF_8))).thenReturn("{\"amount\":12.50}".getBytes(UTF_8));
 
 		assertThat(postOk("/2281/professional-web/calculations/amount")).isEqualTo("{\"amount\":12.50}");
-		verify(serviceMock).getAmount(BODY.getBytes(UTF_8));
+		verify(serviceMock).getCalculationAmount(BODY.getBytes(UTF_8));
 		verifyNoMoreInteractions(serviceMock);
 	}
 
 	@Test
 	void getSharedCostAnswersOkWithLifecaresBareNumber() {
-		when(serviceMock.getSharedCost(BODY.getBytes(UTF_8))).thenReturn("1250.50".getBytes(UTF_8));
+		when(serviceMock.getCalculationSharedCost(BODY.getBytes(UTF_8))).thenReturn("1250.50".getBytes(UTF_8));
 
 		assertThat(postOk("/2281/professional-web/calculations/shared-cost")).isEqualTo("1250.50");
-		verify(serviceMock).getSharedCost(BODY.getBytes(UTF_8));
+		verify(serviceMock).getCalculationSharedCost(BODY.getBytes(UTF_8));
 		verifyNoMoreInteractions(serviceMock);
 	}
 
 	@Test
 	void getJobStimuliAnswersOkWithLifecaresAnswer() {
-		when(serviceMock.getJobStimuli(BODY.getBytes(UTF_8))).thenReturn(LIFECARE_JSON.getBytes(UTF_8));
+		when(serviceMock.getCalculationJobStimuli(BODY.getBytes(UTF_8))).thenReturn(LIFECARE_JSON.getBytes(UTF_8));
 
 		assertThat(postOk("/2281/professional-web/calculations/job-stimuli")).isEqualTo(LIFECARE_JSON);
-		verify(serviceMock).getJobStimuli(BODY.getBytes(UTF_8));
+		verify(serviceMock).getCalculationJobStimuli(BODY.getBytes(UTF_8));
 		verifyNoMoreInteractions(serviceMock);
 	}
 

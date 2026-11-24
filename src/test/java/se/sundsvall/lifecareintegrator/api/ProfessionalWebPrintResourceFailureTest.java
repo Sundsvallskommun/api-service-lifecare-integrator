@@ -14,7 +14,7 @@ import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.dept44.problem.violations.Violation;
 import se.sundsvall.lifecareintegrator.Application;
-import se.sundsvall.lifecareintegrator.service.ProfessionalWebPrintService;
+import se.sundsvall.lifecareintegrator.service.ProfessionalWebService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -37,7 +37,7 @@ class ProfessionalWebPrintResourceFailureTest {
 	private static final String NOT_POSITIVE = "must be greater than 0";
 
 	@MockitoBean
-	private ProfessionalWebPrintService serviceMock;
+	private ProfessionalWebService serviceMock;
 
 	@Autowired
 	private WebTestClient webTestClient;

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
-import se.sundsvall.lifecareintegrator.service.ProfessionalWebCalculationService;
+import se.sundsvall.lifecareintegrator.service.ProfessionalWebService;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
@@ -50,9 +50,9 @@ import static se.sundsvall.lifecareintegrator.api.ProfessionalWebResponses.toUpd
 	content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 class ProfessionalWebCalculationResource {
 
-	private final ProfessionalWebCalculationService service;
+	private final ProfessionalWebService service;
 
-	ProfessionalWebCalculationResource(final ProfessionalWebCalculationService service) {
+	ProfessionalWebCalculationResource(final ProfessionalWebService service) {
 		this.service = service;
 	}
 
@@ -135,7 +135,7 @@ class ProfessionalWebCalculationResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@RequestBody final byte[] body) {
 
-		return ok(service.getAmount(body));
+		return ok(service.getCalculationAmount(body));
 	}
 
 	@PostMapping(path = "/calculations/shared-cost", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -150,7 +150,7 @@ class ProfessionalWebCalculationResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@RequestBody final byte[] body) {
 
-		return ok(service.getSharedCost(body));
+		return ok(service.getCalculationSharedCost(body));
 	}
 
 	@PostMapping(path = "/calculations/job-stimuli", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -165,7 +165,7 @@ class ProfessionalWebCalculationResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@RequestBody final byte[] body) {
 
-		return ok(service.getJobStimuli(body));
+		return ok(service.getCalculationJobStimuli(body));
 	}
 
 	@PostMapping(path = "/services/{serviceId}/calculations", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)

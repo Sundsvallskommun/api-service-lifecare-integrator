@@ -8,7 +8,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.lifecareintegrator.Application;
-import se.sundsvall.lifecareintegrator.service.ProfessionalWebPrintService;
+import se.sundsvall.lifecareintegrator.service.ProfessionalWebService;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +28,7 @@ class ProfessionalWebPrintResourceTest {
 	private static final byte[] PDF = "%PDF-1.4\nbinaryå".getBytes(UTF_8);
 
 	@MockitoBean
-	private ProfessionalWebPrintService serviceMock;
+	private ProfessionalWebService serviceMock;
 
 	@Autowired
 	private WebTestClient webTestClient;

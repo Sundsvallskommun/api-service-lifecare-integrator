@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
-import se.sundsvall.lifecareintegrator.service.ProfessionalWebPrintService;
+import se.sundsvall.lifecareintegrator.service.ProfessionalWebService;
 
 import static org.springframework.http.MediaType.APPLICATION_PDF;
 import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
@@ -44,9 +44,9 @@ import static org.springframework.http.ResponseEntity.ok;
 	content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 class ProfessionalWebPrintResource {
 
-	private final ProfessionalWebPrintService service;
+	private final ProfessionalWebService service;
 
-	ProfessionalWebPrintResource(final ProfessionalWebPrintService service) {
+	ProfessionalWebPrintResource(final ProfessionalWebService service) {
 		this.service = service;
 	}
 

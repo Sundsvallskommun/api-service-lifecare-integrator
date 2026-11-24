@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
-import se.sundsvall.lifecareintegrator.service.ProfessionalWebReminderService;
+import se.sundsvall.lifecareintegrator.service.ProfessionalWebService;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -50,9 +50,9 @@ import static org.springframework.http.ResponseEntity.status;
 	content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 class ProfessionalWebReminderResource {
 
-	private final ProfessionalWebReminderService service;
+	private final ProfessionalWebService service;
 
-	ProfessionalWebReminderResource(final ProfessionalWebReminderService service) {
+	ProfessionalWebReminderResource(final ProfessionalWebService service) {
 		this.service = service;
 	}
 

@@ -9,7 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.lifecareintegrator.Application;
-import se.sundsvall.lifecareintegrator.service.ProfessionalWebDocumentService;
+import se.sundsvall.lifecareintegrator.service.ProfessionalWebService;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +29,7 @@ class ProfessionalWebDocumentResourceTest {
 	private static final String BODY = "{\"documentId\": 1,\n \"content\": \"Anteckning åäö\", \"unknown\": {\"a\": [1, 2.50]}}";
 
 	@MockitoBean
-	private ProfessionalWebDocumentService serviceMock;
+	private ProfessionalWebService serviceMock;
 
 	@Autowired
 	private WebTestClient webTestClient;

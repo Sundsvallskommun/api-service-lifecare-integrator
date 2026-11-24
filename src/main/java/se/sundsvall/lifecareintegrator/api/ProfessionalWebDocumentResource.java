@@ -20,7 +20,7 @@ import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
-import se.sundsvall.lifecareintegrator.service.ProfessionalWebDocumentService;
+import se.sundsvall.lifecareintegrator.service.ProfessionalWebService;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
@@ -49,9 +49,9 @@ import static se.sundsvall.lifecareintegrator.api.ProfessionalWebResponses.toUpd
 	content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 class ProfessionalWebDocumentResource {
 
-	private final ProfessionalWebDocumentService service;
+	private final ProfessionalWebService service;
 
-	ProfessionalWebDocumentResource(final ProfessionalWebDocumentService service) {
+	ProfessionalWebDocumentResource(final ProfessionalWebService service) {
 		this.service = service;
 	}
 

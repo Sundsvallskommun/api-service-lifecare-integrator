@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
-import se.sundsvall.lifecareintegrator.service.ProfessionalWebJobStimulusService;
+import se.sundsvall.lifecareintegrator.service.ProfessionalWebService;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -50,9 +50,9 @@ import static se.sundsvall.lifecareintegrator.api.ProfessionalWebResponses.toUpd
 	content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 class ProfessionalWebJobStimulusResource {
 
-	private final ProfessionalWebJobStimulusService service;
+	private final ProfessionalWebService service;
 
-	ProfessionalWebJobStimulusResource(final ProfessionalWebJobStimulusService service) {
+	ProfessionalWebJobStimulusResource(final ProfessionalWebService service) {
 		this.service = service;
 	}
 

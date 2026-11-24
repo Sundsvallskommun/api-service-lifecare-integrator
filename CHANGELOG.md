@@ -6,6 +6,7 @@ Every change to the service, newest date first. One short line per change.
 
 - FamilyCare: pass a 404 for a person or document content through with Lifecare's message.
 - Remove null guards in the mappers and the error decoder that never trigger.
+- ProfessionalWeb: put the api2 calls behind one client, one integration and one service (HYDRAN-3431).
 
 ## 2026-11-23
 

@@ -2,10 +2,10 @@
 
 ## `@CircuitBreaker` does not seem to take effect on the Feign clients
 
-A probe on 2026-11-20 called `FamilyCareClient` and `ProfessionalWebReminderClient` in a `junit` context and found
-no call buffered in their circuit breakers (`familycare`, `lifecare-professionalweb`), although both instances exist
-with their `ignoreExceptions`. The annotation sits on the Feign interfaces, as in the other api-service-* services.
-Check whether the resilience4j aspect applies to the Feign proxies here at all.
+A probe on 2026-11-20 called `FamilyCareClient` and the reminder calls now on `ProfessionalWebClient` in a `junit`
+context and found no call buffered in their circuit breakers (`familycare`, `lifecare-professionalweb`), although
+both instances exist with their `ignoreExceptions`. The annotation sits on the Feign interfaces, as in the other
+api-service-* services. Check whether the resilience4j aspect applies to the Feign proxies here at all.
 
 Done when a test shows a failing call counted by the breaker of a Feign client, or the reason it is not is known.
 
@@ -14,7 +14,7 @@ Done when a test shows a failing call counted by the breaker of a Feign client, 
 `ProfessionalWebHttp.needsSession` treats every `text/html` answer as "session needed", whatever the status. A 404
 or 500 page in HTML from Lifecare or IIS makes `ProfessionalWebExchange` bootstrap, sign in again for the whole
 process, and send the call up to three times before answering 502. For a write such as `CreateReminder` that can
-create the same thing more than once. It applies to exchange only: the api2 Feign clients count HTML as a lost
+create the same thing more than once. It applies to exchange only: the api2 Feign client counts HTML as a lost
 session only with a success status.
 
 Check first that Lifecare's sign-in page always comes with status 200. Done when only a successful HTML answer counts
@@ -22,7 +22,7 @@ as a lost session, with tests for a 404 and a 500 HTML page.
 
 ## A print form sent again after a session renewal carries the old token
 
-`ProfessionalWebPrintService` posts a template's answered parameter questions with the `X-LEGACY-TOKEN` field read
+`ProfessionalWebIntegration` posts a template's answered parameter questions with the `X-LEGACY-TOKEN` field read
 off the page. When Lifecare refuses that post for a missing session, the Feign retryer renews the session and sends
 the same body again, so the form still holds the token of the session that was lost. The header carries the new
 token, but whether Lifecare checks the form field is not known.
