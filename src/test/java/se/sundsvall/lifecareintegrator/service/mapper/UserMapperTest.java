@@ -19,11 +19,6 @@ class UserMapperTest {
 	private static final OffsetDateTime VALID_TO = OffsetDateTime.parse("2026-12-31T00:00:00+01:00");
 
 	@Test
-	void toCaseworkersWithNull() {
-		assertThat(UserMapper.toCaseworkers(null)).isEmpty();
-	}
-
-	@Test
 	void toCaseworkers() {
 		// Arrange: personId, vrkId, password and logonTypes must never survive — the model has no such fields
 		final var source = new User()

@@ -34,8 +34,6 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 
 	private static final String TRUNCATION_MARKER = "…(truncated)";
 
-	private static final String UNKNOWN_REQUEST = "<unknown request>";
-
 	/** A sentence or two of explanation is all a Lifecare message is; anything longer is not one. */
 	private static final int MAX_MESSAGE_CHARACTERS = 500;
 
@@ -224,16 +222,7 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 		return bypassResponseCodes.contains(status);
 	}
 
-	/**
-	 * The request line to log, without ever dereferencing a null {@link Response#request()}. Feign's own builder
-	 * enforces a non-null request on every {@code Response} it constructs, but nothing here should rely on that
-	 * invariant holding for every {@code Response} implementation that could ever reach this decoder — a null request
-	 * must degrade the log line, not throw out of {@link #logFailure(Response)}.
-	 */
 	static String describeRequest(final Request request) {
-		if (request == null) {
-			return UNKNOWN_REQUEST;
-		}
 		return "%s %s".formatted(request.httpMethod(), redact(request.url()));
 	}
 

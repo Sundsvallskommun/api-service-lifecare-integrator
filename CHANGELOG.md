@@ -2,6 +2,11 @@
 
 Every change to the service, newest date first. One short line per change.
 
+## 2026-11-24
+
+- Pass FamilyCare's 404 on a person and on document content through as it comes, with Lifecare's message as the detail, instead of replacing it with a text of our own.
+- Remove null guards on mapper and decoder inputs that are never null, and the reminder service's copy of the shared body checks.
+
 ## 2026-11-23
 
 - Split the Party lookup into one method per direction and ask Party once per lookup, dropping the max-party-ids-per-call and max-legal-ids-per-call settings.

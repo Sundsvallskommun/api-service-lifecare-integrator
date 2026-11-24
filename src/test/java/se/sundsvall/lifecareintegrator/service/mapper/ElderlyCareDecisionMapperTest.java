@@ -99,11 +99,6 @@ class ElderlyCareDecisionMapperTest {
 	}
 
 	@Test
-	void toDecisionFromSolDecisionWithNull() {
-		assertThat(ElderlyCareDecisionMapper.toDecision((WEECIntegrationContractsDecisionV1Decision) null, NO_NAMES)).isNull();
-	}
-
-	@Test
 	void toDecisionFromSolDecisionWithMinimalInput() {
 		// Act
 		final var result = ElderlyCareDecisionMapper.toDecision(new WEECIntegrationContractsDecisionV1Decision(), NO_NAMES);
@@ -156,11 +151,6 @@ class ElderlyCareDecisionMapperTest {
 		assertThat(details.getIncreasedHourlyAmount()).isEqualByComparingTo(BigDecimal.valueOf(150.0));
 		assertThat(details.getStandardAmount()).isEqualByComparingTo(BigDecimal.valueOf(300.0));
 		assertThat(details.getSfbCaseworker()).isEqualTo("Bo Bengtsson");
-	}
-
-	@Test
-	void toDecisionFromLssDecisionWithNull() {
-		assertThat(ElderlyCareDecisionMapper.toDecision((WEECIntegrationContractsDecisionV1LssDecision) null, NO_NAMES)).isNull();
 	}
 
 	private static WEECIntegrationContractsCommonV1CodeText codeText(final String text) {
@@ -244,7 +234,6 @@ class ElderlyCareDecisionMapperTest {
 			new WEECIntegrationContractsDecisionV1Decision());
 
 		assertThat(ElderlyCareDecisionMapper.collectUnnamedSolCaseworkerIds(decisions)).containsExactly("LOHE", "BEBE");
-		assertThat(ElderlyCareDecisionMapper.collectUnnamedSolCaseworkerIds(null)).isEmpty();
 	}
 
 	@Test
@@ -258,6 +247,5 @@ class ElderlyCareDecisionMapperTest {
 				.sfbCaseworker(new WEECIntegrationContractsCommonV1Caseworker().id("LOHE")));
 
 		assertThat(ElderlyCareDecisionMapper.collectUnnamedLssCaseworkerIds(decisions)).containsExactly("LOHE", "BEBE");
-		assertThat(ElderlyCareDecisionMapper.collectUnnamedLssCaseworkerIds(null)).isEmpty();
 	}
 }

@@ -30,42 +30,38 @@ public final class RequestMapper {
 	private RequestMapper() {}
 
 	public static PostAktualiseringsBodyRequest toPostAktualiseringsBodyRequest(final CreateActualisationRequest request, final String personNumber) {
-		return Optional.ofNullable(request)
-			.map(source -> new PostAktualiseringsBodyRequest()
-				.personId(personNumber)
-				.date(startOfDay(source.getDate()))
-				.type(source.getTypeId())
-				.fromWho(source.getFromWhoId())
-				.reason(source.getReasonId())
-				.organisationId(source.getOrganisationId())
-				.organisationUnitId(source.getOrganisationUnitId())
-				.caseworkerId(source.getCaseworkerId())
-				.specifies(source.getSpecifiesId())
-				.serviceId(source.getServiceId())
-				.investigationId(source.getInvestigationId())
-				.workingStatus(source.getWorkingStatusId()))
-			.orElse(null);
+		return new PostAktualiseringsBodyRequest()
+			.personId(personNumber)
+			.date(startOfDay(request.getDate()))
+			.type(request.getTypeId())
+			.fromWho(request.getFromWhoId())
+			.reason(request.getReasonId())
+			.organisationId(request.getOrganisationId())
+			.organisationUnitId(request.getOrganisationUnitId())
+			.caseworkerId(request.getCaseworkerId())
+			.specifies(request.getSpecifiesId())
+			.serviceId(request.getServiceId())
+			.investigationId(request.getInvestigationId())
+			.workingStatus(request.getWorkingStatusId());
 	}
 
 	public static PostCalculationBodyRequest toPostCalculationBodyRequest(final CreateCalculationRequest request, final String personNumber,
 		final Map<String, String> personNumbersByPartyId) {
-		return Optional.ofNullable(request)
-			.map(source -> new PostCalculationBodyRequest()
-				.personId(personNumber)
-				.serviceId(source.getServiceId())
-				.investigationId(source.getInvestigationId())
-				.normId(source.getNormId())
-				.aktualiseringId(source.getActualisationId())
-				.calculationDate(startOfDay(source.getCalculationDate()))
-				.calculationFromDate(startOfDay(source.getCalculationFromDate()))
-				.calculationToDate(startOfDay(source.getCalculationToDate()))
-				.hasCustomHouseholdSize(source.getHasCustomHouseholdSize())
-				.householdSize(source.getHouseholdSize())
-				.calculationPersons(toCalculationPersons(source.getPersons(), personNumbersByPartyId))
-				.calculationIncomes(toCalculationIncomes(source.getIncomes()))
-				.calculationExpenses(toCalculationExpenses(source.getExpenses()))
-				.calculationSpecialExpenses(toCalculationSpecialExpenses(source.getSpecialExpenses())))
-			.orElse(null);
+		return new PostCalculationBodyRequest()
+			.personId(personNumber)
+			.serviceId(request.getServiceId())
+			.investigationId(request.getInvestigationId())
+			.normId(request.getNormId())
+			.aktualiseringId(request.getActualisationId())
+			.calculationDate(startOfDay(request.getCalculationDate()))
+			.calculationFromDate(startOfDay(request.getCalculationFromDate()))
+			.calculationToDate(startOfDay(request.getCalculationToDate()))
+			.hasCustomHouseholdSize(request.getHasCustomHouseholdSize())
+			.householdSize(request.getHouseholdSize())
+			.calculationPersons(toCalculationPersons(request.getPersons(), personNumbersByPartyId))
+			.calculationIncomes(toCalculationIncomes(request.getIncomes()))
+			.calculationExpenses(toCalculationExpenses(request.getExpenses()))
+			.calculationSpecialExpenses(toCalculationSpecialExpenses(request.getSpecialExpenses()));
 	}
 
 	private static List<PersonBasedCalculationPersonPostDTO> toCalculationPersons(final List<CalculationPersonRequest> persons, final Map<String, String> personNumbersByPartyId) {

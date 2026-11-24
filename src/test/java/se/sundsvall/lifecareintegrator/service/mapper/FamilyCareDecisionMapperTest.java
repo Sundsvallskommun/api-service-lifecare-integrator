@@ -84,11 +84,6 @@ class FamilyCareDecisionMapperTest {
 		assertThat(result.getFamilyCareDetails().getPersons()).isEmpty();
 	}
 
-	@Test
-	void toDecisionFromFcDecisionWithNull() {
-		assertThat(FamilyCareDecisionMapper.toDecision(null, PARTY_IDS)).isNull();
-	}
-
 	@ParameterizedTest
 	@NullAndEmptySource
 	@ValueSource(strings = {
@@ -119,6 +114,5 @@ class FamilyCareDecisionMapperTest {
 			new PersonBasedDecisionDTO().decisionPersonDTOs(null));
 
 		assertThat(FamilyCareDecisionMapper.collectPersonNumbers(decisions)).containsExactly("199001011234", "201001011234");
-		assertThat(FamilyCareDecisionMapper.collectPersonNumbers(null)).isEmpty();
 	}
 }

@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,33 +50,21 @@ class FamilyCareIntegrationTest {
 		final var result = familyCareIntegration.getPerson(PERSON_NUMBER);
 
 		// Verify
-		assertThat(result).hasValue(person);
+		assertThat(result).isSameAs(person);
 		verify(familyCareClientMock).getPerson(PERSON_NUMBER);
 		verifyNoMoreInteractions(familyCareClientMock);
 	}
 
 	@Test
-	void getPersonNotFound() {
+	void getPersonNotFoundIsPassedOn() {
 		// Mock
 		when(familyCareClientMock.getPerson(PERSON_NUMBER)).thenThrow(new ClientProblem(NOT_FOUND, "Not Found"));
-
-		// Act
-		final var result = familyCareIntegration.getPerson(PERSON_NUMBER);
-
-		// Verify
-		assertThat(result).isEmpty();
-	}
-
-	@Test
-	void getPersonOtherClientProblemIsRethrown() {
-		// Mock
-		when(familyCareClientMock.getPerson(PERSON_NUMBER)).thenThrow(new ClientProblem(BAD_GATEWAY, "Bad Gateway"));
 
 		// Act
 		final var exception = assertThrows(ClientProblem.class, () -> familyCareIntegration.getPerson(PERSON_NUMBER));
 
 		// Verify
-		assertThat(exception.getStatus()).isEqualTo(BAD_GATEWAY);
+		assertThat(exception.getStatus()).isEqualTo(NOT_FOUND);
 	}
 
 	@Test
@@ -94,19 +81,19 @@ class FamilyCareIntegrationTest {
 		final var result = familyCareIntegration.getDocumentContent(DOCUMENT_ID);
 
 		// Verify
-		assertThat(result).hasValue(content);
+		assertThat(result).isSameAs(content);
 	}
 
 	@Test
-	void getDocumentContentNotFound() {
+	void getDocumentContentNotFoundIsPassedOn() {
 		// Mock
 		when(familyCareClientMock.getDocumentContent(DOCUMENT_ID)).thenThrow(new ClientProblem(NOT_FOUND, "Not Found"));
 
 		// Act
-		final var result = familyCareIntegration.getDocumentContent(DOCUMENT_ID);
+		final var exception = assertThrows(ClientProblem.class, () -> familyCareIntegration.getDocumentContent(DOCUMENT_ID));
 
 		// Verify
-		assertThat(result).isEmpty();
+		assertThat(exception.getStatus()).isEqualTo(NOT_FOUND);
 	}
 
 	/** FamilyCare's first page is 0, so a single-page result is fetched once, as page 0. */

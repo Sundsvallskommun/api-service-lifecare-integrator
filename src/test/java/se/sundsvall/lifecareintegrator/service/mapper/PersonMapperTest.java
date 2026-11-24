@@ -68,11 +68,6 @@ class PersonMapperTest {
 	}
 
 	@Test
-	void toContactsWithNull() {
-		assertThat(PersonMapper.toContacts(null)).isEmpty();
-	}
-
-	@Test
 	void toContacts() {
 		// Arrange — the vendor-internal address id must never be mapped
 		final var contact = new PersonBasedContactDTO()

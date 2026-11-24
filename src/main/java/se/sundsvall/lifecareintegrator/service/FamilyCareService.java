@@ -2,11 +2,9 @@ package se.sundsvall.lifecareintegrator.service;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.lifecareintegrator.api.model.familycare.ActualisationProposal;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationPersonRequest;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationProposal;
@@ -35,17 +33,12 @@ import se.sundsvall.lifecareintegrator.service.mapper.ProposalMapper;
 import se.sundsvall.lifecareintegrator.service.mapper.RequestMapper;
 import se.sundsvall.lifecareintegrator.service.mapper.UserMapper;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 /**
  * All single-source family care (FC) operations. Every person-scoped operation resolves the public partyId to a person
  * number first — the person number is forwarded to FC but never exposed in the public API.
  */
 @Service
 public class FamilyCareService {
-
-	static final String PERSON_NOT_FOUND = "No person found for partyId '%s'";
-	static final String DOCUMENT_CONTENT_NOT_FOUND = "No document content found for document '%s'";
 
 	private final PartyIntegration partyIntegration;
 	private final FamilyCareIntegration familyCareIntegration;
@@ -59,9 +52,7 @@ public class FamilyCareService {
 
 	public Person getPerson(final String municipalityId, final String partyId) {
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
-		return familyCareIntegration.getPerson(personNumber)
-			.map(PersonMapper::toPerson)
-			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, PERSON_NOT_FOUND.formatted(partyId)));
+		return PersonMapper.toPerson(familyCareIntegration.getPerson(personNumber));
 	}
 
 	public List<Contact> getContacts(final String municipalityId, final String partyId) {
@@ -124,8 +115,7 @@ public class FamilyCareService {
 	}
 
 	public byte[] getDocumentContent(final String documentId) {
-		return familyCareIntegration.getDocumentContent(documentId)
-			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, DOCUMENT_CONTENT_NOT_FOUND.formatted(documentId)));
+		return familyCareIntegration.getDocumentContent(documentId);
 	}
 
 	// ---- Users -------------------------------------------------------------------------------------------------------
@@ -161,7 +151,6 @@ public class FamilyCareService {
 		final var memberPartyIds = Optional.ofNullable(request.getPersons())
 			.map(persons -> persons.stream()
 				.map(CalculationPersonRequest::getPartyId)
-				.filter(Objects::nonNull)
 				.distinct()
 				.toList())
 			.orElse(List.of());

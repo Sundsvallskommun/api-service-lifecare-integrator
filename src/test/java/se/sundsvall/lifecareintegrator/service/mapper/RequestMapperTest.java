@@ -62,11 +62,6 @@ class RequestMapperTest {
 	}
 
 	@Test
-	void toPostAktualiseringsBodyRequestWithNull() {
-		assertThat(RequestMapper.toPostAktualiseringsBodyRequest(null, PERSON_NUMBER)).isNull();
-	}
-
-	@Test
 	void toPostCalculationBodyRequest() {
 		// Arrange
 		final var request = CreateCalculationRequest.create()
@@ -141,11 +136,6 @@ class RequestMapperTest {
 
 		// Assert: applicant person number injected, top-level fields mapped
 		assertThat(result).usingRecursiveComparison().isEqualTo(expected);
-	}
-
-	@Test
-	void toPostCalculationBodyRequestWithNull() {
-		assertThat(RequestMapper.toPostCalculationBodyRequest(null, PERSON_NUMBER, Map.of())).isNull();
 	}
 
 	@Test

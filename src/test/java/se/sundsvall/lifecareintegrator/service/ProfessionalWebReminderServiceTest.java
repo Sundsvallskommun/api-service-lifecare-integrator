@@ -19,7 +19,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static se.sundsvall.lifecareintegrator.service.ProfessionalWebReminderService.BODY_NOT_A_JSON_OBJECT;
+import static se.sundsvall.lifecareintegrator.service.ProfessionalWebBodies.BODY_NOT_A_JSON_OBJECT;
 
 @ExtendWith(MockitoExtension.class)
 class ProfessionalWebReminderServiceTest {

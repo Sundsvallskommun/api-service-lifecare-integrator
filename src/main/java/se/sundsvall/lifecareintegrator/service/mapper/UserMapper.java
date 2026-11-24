@@ -2,10 +2,8 @@ package se.sundsvall.lifecareintegrator.service.mapper;
 
 import generated.se.sundsvall.familycare.User;
 import java.util.List;
-import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Caseworker;
 
-import static java.util.Collections.emptyList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toOffsetDateTime;
 
 public final class UserMapper {
@@ -13,7 +11,7 @@ public final class UserMapper {
 	private UserMapper() {}
 
 	public static List<Caseworker> toCaseworkers(final List<User> users) {
-		return Optional.ofNullable(users).orElse(emptyList()).stream()
+		return users.stream()
 			.map(UserMapper::toCaseworker)
 			.toList();
 	}

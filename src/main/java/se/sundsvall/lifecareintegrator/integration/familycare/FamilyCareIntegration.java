@@ -21,22 +21,18 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-import se.sundsvall.dept44.problem.ThrowableProblem;
 
 import static java.util.Collections.emptyList;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareDates.atUtc;
 import static se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareDates.endOfDay;
 import static se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareDates.startOfDay;
 
 /**
- * Wrapper around {@link FamilyCareClient}. Normalizes the FC quirks: 404 on single-resource reads becomes
- * {@link Optional#empty()}, the date-window reads take {@link LocalDate} instead of the RFC 3339 date-times FC insists
- * on (see {@link FamilyCareDates}), and the unified
- * decision fetch pages through all result pages.
+ * Wrapper around {@link FamilyCareClient}. Normalizes the FC quirks: the date-window reads take {@link LocalDate}
+ * instead of the RFC 3339 date-times FC insists on (see {@link FamilyCareDates}), and the unified decision fetch pages
+ * through all result pages.
  */
 @Component
 public class FamilyCareIntegration {
@@ -52,8 +48,8 @@ public class FamilyCareIntegration {
 		this.familyCareClient = familyCareClient;
 	}
 
-	public Optional<PersonBasedPersonDTO> getPerson(final String personNumber) {
-		return dismissNotFound(() -> familyCareClient.getPerson(personNumber));
+	public PersonBasedPersonDTO getPerson(final String personNumber) {
+		return familyCareClient.getPerson(personNumber);
 	}
 
 	public List<PersonBasedContactDTO> getContacts(final String personNumber) {
@@ -121,8 +117,8 @@ public class FamilyCareIntegration {
 		return familyCareClient.getDocuments(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
-	public Optional<byte[]> getDocumentContent(final String documentId) {
-		return dismissNotFound(() -> familyCareClient.getDocumentContent(documentId));
+	public byte[] getDocumentContent(final String documentId) {
+		return familyCareClient.getDocumentContent(documentId);
 	}
 
 	public List<User> getUsers(final Integer limit, final Integer offset, final OffsetDateTime modifiedAfter, final OffsetDateTime modifiedBefore) {
@@ -149,17 +145,6 @@ public class FamilyCareIntegration {
 	public void addActualisationAttachment(final Integer actualisationId, final String documentType, final String senderType,
 		final String title, final String senderName, final MultipartFile content) {
 		familyCareClient.postActualisationAttachment(actualisationId, documentType, senderType, title, senderName, content);
-	}
-
-	private static <T> Optional<T> dismissNotFound(final Supplier<T> supplier) {
-		try {
-			return Optional.ofNullable(supplier.get());
-		} catch (final ThrowableProblem e) {
-			if (NOT_FOUND.equals(e.getStatus())) {
-				return Optional.empty();
-			}
-			throw e;
-		}
 	}
 
 	/**

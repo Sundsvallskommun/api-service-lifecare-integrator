@@ -13,7 +13,6 @@ import org.springframework.util.StringUtils;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
 import se.sundsvall.lifecareintegrator.api.model.elderlycare.ElderlyCareDecisionDetails;
 
-import static java.util.Collections.emptyList;
 import static org.springframework.util.StringUtils.hasText;
 import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.LAW_LSS;
 import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.LAW_SFB;
@@ -35,20 +34,18 @@ public final class ElderlyCareDecisionMapper {
 	 *                        {@link #collectUnnamedSolCaseworkerIds(List)}
 	 */
 	public static Decision toDecision(final WEECIntegrationContractsDecisionV1Decision decision, final Map<String, String> caseworkerNames) {
-		return Optional.ofNullable(decision)
-			.map(source -> Decision.create()
-				.withSource(SOURCE_ELDERLY_CARE)
-				.withLaw(LAW_SOL)
-				.withDecisionId(toStringValue(source.getId()))
-				.withDecided(toLocalDate(source.getDate()))
-				.withValidFrom(toLocalDate(source.getFromDate()))
-				.withValidTo(toLocalDate(source.getToDate()))
-				.withType(toText(source.getType()))
-				.withReason(toText(source.getReason()))
-				.withDecisionMaker(toFullName(source.getCaseworker(), caseworkerNames))
-				.withAmount(toBigDecimal(source.getAmount()))
-				.withElderlyCareDetails(toElderlyCareDecisionDetails(source)))
-			.orElse(null);
+		return Decision.create()
+			.withSource(SOURCE_ELDERLY_CARE)
+			.withLaw(LAW_SOL)
+			.withDecisionId(toStringValue(decision.getId()))
+			.withDecided(toLocalDate(decision.getDate()))
+			.withValidFrom(toLocalDate(decision.getFromDate()))
+			.withValidTo(toLocalDate(decision.getToDate()))
+			.withType(toText(decision.getType()))
+			.withReason(toText(decision.getReason()))
+			.withDecisionMaker(toFullName(decision.getCaseworker(), caseworkerNames))
+			.withAmount(toBigDecimal(decision.getAmount()))
+			.withElderlyCareDetails(toElderlyCareDecisionDetails(decision));
 	}
 
 	/**
@@ -56,28 +53,26 @@ public final class ElderlyCareDecisionMapper {
 	 *                        caseworker is the usual reason it is needed.
 	 */
 	public static Decision toDecision(final WEECIntegrationContractsDecisionV1LssDecision decision, final Map<String, String> caseworkerNames) {
-		return Optional.ofNullable(decision)
-			.map(source -> Decision.create()
-				.withSource(SOURCE_ELDERLY_CARE)
-				.withLaw(toLaw(source.getLaw()))
-				.withDecisionId(toStringValue(source.getId()))
-				.withDecided(toLocalDate(source.getDate()))
-				.withValidFrom(toLocalDate(source.getFromDate()))
-				.withValidTo(toLocalDate(source.getToDate()))
-				.withType(toText(source.getType()))
-				.withReason(toText(source.getReason()))
-				.withDecisionMaker(toFullName(source.getCaseworker(), caseworkerNames))
-				.withAmount(toBigDecimal(source.getAmount()))
-				.withElderlyCareDetails(toElderlyCareDecisionDetails(toBaseDecision(source))
-					// LSS-only fields on top of the shared elderly-care details
-					.withPersonCategory1(source.getPersonCategory1())
-					.withPersonCategory2(source.getPersonCategory2())
-					.withPersonCategory3(source.getPersonCategory3())
-					.withPersonCategory3P(source.getPersonCategory3P())
-					.withIncreasedHourlyAmount(toBigDecimal(source.getIncreasedHourlyAmount()))
-					.withStandardAmount(toBigDecimal(source.getStandardAmount()))
-					.withSfbCaseworker(toFullName(source.getSfbCaseworker(), caseworkerNames))))
-			.orElse(null);
+		return Decision.create()
+			.withSource(SOURCE_ELDERLY_CARE)
+			.withLaw(toLaw(decision.getLaw()))
+			.withDecisionId(toStringValue(decision.getId()))
+			.withDecided(toLocalDate(decision.getDate()))
+			.withValidFrom(toLocalDate(decision.getFromDate()))
+			.withValidTo(toLocalDate(decision.getToDate()))
+			.withType(toText(decision.getType()))
+			.withReason(toText(decision.getReason()))
+			.withDecisionMaker(toFullName(decision.getCaseworker(), caseworkerNames))
+			.withAmount(toBigDecimal(decision.getAmount()))
+			.withElderlyCareDetails(toElderlyCareDecisionDetails(toBaseDecision(decision))
+				// LSS-only fields on top of the shared elderly-care details
+				.withPersonCategory1(decision.getPersonCategory1())
+				.withPersonCategory2(decision.getPersonCategory2())
+				.withPersonCategory3(decision.getPersonCategory3())
+				.withPersonCategory3P(decision.getPersonCategory3P())
+				.withIncreasedHourlyAmount(toBigDecimal(decision.getIncreasedHourlyAmount()))
+				.withStandardAmount(toBigDecimal(decision.getStandardAmount()))
+				.withSfbCaseworker(toFullName(decision.getSfbCaseworker(), caseworkerNames)));
 	}
 
 	/**
@@ -138,8 +133,7 @@ public final class ElderlyCareDecisionMapper {
 	 * The ids of the caseworkers EC sent without a name, so the caller can look the names up before mapping.
 	 */
 	public static List<String> collectUnnamedSolCaseworkerIds(final List<WEECIntegrationContractsDecisionV1Decision> decisions) {
-		return Optional.ofNullable(decisions)
-			.orElse(emptyList()).stream()
+		return decisions.stream()
 			.map(WEECIntegrationContractsDecisionV1Decision::getCaseworker)
 			.filter(Objects::nonNull)
 			.filter(ElderlyCareDecisionMapper::lacksName)
@@ -153,8 +147,7 @@ public final class ElderlyCareDecisionMapper {
 	 * As {@link #collectUnnamedSolCaseworkerIds(List)}, for both the caseworker and the SFB caseworker of LSS decisions.
 	 */
 	public static List<String> collectUnnamedLssCaseworkerIds(final List<WEECIntegrationContractsDecisionV1LssDecision> decisions) {
-		return Optional.ofNullable(decisions)
-			.orElse(emptyList()).stream()
+		return decisions.stream()
 			.flatMap(decision -> Stream.of(decision.getCaseworker(), decision.getSfbCaseworker()))
 			.filter(Objects::nonNull)
 			.filter(ElderlyCareDecisionMapper::lacksName)

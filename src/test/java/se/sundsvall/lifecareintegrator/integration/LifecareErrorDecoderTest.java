@@ -175,16 +175,6 @@ class LifecareErrorDecoderTest {
 	}
 
 	@Test
-	void describeRequestIsNullSafe() {
-		// Feign's own builder always sets a request, but logFailure must never NPE if some Response implementation
-		// ever hands back a null one.
-		assertThat(LifecareErrorDecoder.describeRequest(null)).isEqualTo("<unknown request>");
-
-		final var request = Request.create(Request.HttpMethod.GET, "https://lifecare-test.sundsvall.se/health", Map.of(), null, new RequestTemplate());
-		assertThat(LifecareErrorDecoder.describeRequest(request)).isEqualTo("GET https://lifecare-test.sundsvall.se/health");
-	}
-
-	@Test
 	void aOneShotBodyReallyIsOneShot() throws IOException {
 		// Guards the fixture itself: if this ever passes twice, the one-shot decode tests prove nothing.
 		final var oneShot = oneShotResponse(400, PROBLEM_BODY).body();

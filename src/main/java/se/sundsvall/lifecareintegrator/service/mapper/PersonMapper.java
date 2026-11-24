@@ -9,8 +9,6 @@ import se.sundsvall.lifecareintegrator.api.model.familycare.Address;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Contact;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Person;
 
-import static java.util.Collections.emptyList;
-
 public final class PersonMapper {
 
 	private PersonMapper() {}
@@ -36,7 +34,7 @@ public final class PersonMapper {
 	}
 
 	public static List<Contact> toContacts(final List<PersonBasedContactDTO> contacts) {
-		return Optional.ofNullable(contacts).orElse(emptyList()).stream()
+		return contacts.stream()
 			.map(PersonMapper::toContact)
 			.toList();
 	}

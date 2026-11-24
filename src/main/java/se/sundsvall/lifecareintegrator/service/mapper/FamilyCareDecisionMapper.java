@@ -22,26 +22,24 @@ public final class FamilyCareDecisionMapper {
 	private FamilyCareDecisionMapper() {}
 
 	public static Decision toDecision(final PersonBasedDecisionDTO decision, final Map<String, String> partyIdsByPersonNumber) {
-		return Optional.ofNullable(decision)
-			.map(source -> Decision.create()
-				.withSource(SOURCE_FAMILY_CARE)
-				.withDecisionId(toStringValue(source.getId()))
-				.withDecided(toLocalDate(source.getDate()))
-				.withValidFrom(toLocalDate(source.getFromDate()))
-				.withValidTo(toLocalDate(source.getToDate()))
-				.withType(source.getType())
-				.withReason(source.getReason())
-				.withDecisionMaker(source.getDecisionMaker())
-				.withAmount(toBigDecimal(source.getAmount()))
-				.withFamilyCareDetails(FamilyCareDecisionDetails.create()
-					.withInvestigationExecutionId(source.getInvestigationExecutionId())
-					.withServiceId(source.getServiceId())
-					.withOrganization(source.getOrganization())
-					.withCoApplicant(source.getCoApplicant())
-					.withReasonCoApplicant(source.getReasonCoApplicant())
-					.withConnectedApplication(source.getConnectedApplication())
-					.withPersons(toRelatedPersons(source.getDecisionPersonDTOs(), partyIdsByPersonNumber))))
-			.orElse(null);
+		return Decision.create()
+			.withSource(SOURCE_FAMILY_CARE)
+			.withDecisionId(toStringValue(decision.getId()))
+			.withDecided(toLocalDate(decision.getDate()))
+			.withValidFrom(toLocalDate(decision.getFromDate()))
+			.withValidTo(toLocalDate(decision.getToDate()))
+			.withType(decision.getType())
+			.withReason(decision.getReason())
+			.withDecisionMaker(decision.getDecisionMaker())
+			.withAmount(toBigDecimal(decision.getAmount()))
+			.withFamilyCareDetails(FamilyCareDecisionDetails.create()
+				.withInvestigationExecutionId(decision.getInvestigationExecutionId())
+				.withServiceId(decision.getServiceId())
+				.withOrganization(decision.getOrganization())
+				.withCoApplicant(decision.getCoApplicant())
+				.withReasonCoApplicant(decision.getReasonCoApplicant())
+				.withConnectedApplication(decision.getConnectedApplication())
+				.withPersons(toRelatedPersons(decision.getDecisionPersonDTOs(), partyIdsByPersonNumber)));
 	}
 
 	/** An unresolvable person keeps a null party id, so a consumer still sees that the decision concerned someone. */
@@ -55,8 +53,7 @@ public final class FamilyCareDecisionMapper {
 	}
 
 	public static List<String> collectPersonNumbers(final List<PersonBasedDecisionDTO> decisions) {
-		return Optional.ofNullable(decisions)
-			.orElse(emptyList()).stream()
+		return decisions.stream()
 			.map(PersonBasedDecisionDTO::getDecisionPersonDTOs)
 			.filter(Objects::nonNull)
 			.flatMap(List::stream)

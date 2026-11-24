@@ -23,7 +23,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
-import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationPersonRequest;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationRequest;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateCalculationRequest;
@@ -31,14 +30,11 @@ import se.sundsvall.lifecareintegrator.api.model.familycare.PeriodParameters;
 import se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareIntegration;
 import se.sundsvall.lifecareintegrator.integration.party.PartyIntegration;
 
-import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @ExtendWith(MockitoExtension.class)
 class FamilyCareServiceTest {
@@ -62,7 +58,7 @@ class FamilyCareServiceTest {
 	void getPerson() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(familyCareIntegrationMock.getPerson(PERSON_NUMBER)).thenReturn(java.util.Optional.of(new PersonBasedPersonDTO().name("Test Person")));
+		when(familyCareIntegrationMock.getPerson(PERSON_NUMBER)).thenReturn(new PersonBasedPersonDTO().name("Test Person"));
 
 		// Act
 		final var result = familyCareService.getPerson(MUNICIPALITY_ID, PARTY_ID);
@@ -71,20 +67,6 @@ class FamilyCareServiceTest {
 		assertThat(result.getName()).isEqualTo("Test Person");
 		verify(partyIntegrationMock).getPersonNumber(MUNICIPALITY_ID, PARTY_ID);
 		verify(familyCareIntegrationMock).getPerson(PERSON_NUMBER);
-	}
-
-	@Test
-	void getPersonNotFound() {
-		// Mock
-		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(familyCareIntegrationMock.getPerson(PERSON_NUMBER)).thenReturn(empty());
-
-		// Act
-		final var exception = assertThrows(ThrowableProblem.class, () -> familyCareService.getPerson(MUNICIPALITY_ID, PARTY_ID));
-
-		// Verify
-		assertThat(exception.getStatus()).isEqualTo(NOT_FOUND);
-		assertThat(exception.getDetail()).isEqualTo("No person found for partyId '%s'".formatted(PARTY_ID));
 	}
 
 	@Test
@@ -155,7 +137,7 @@ class FamilyCareServiceTest {
 		};
 
 		// Mock
-		when(familyCareIntegrationMock.getDocumentContent("doc-1")).thenReturn(java.util.Optional.of(content));
+		when(familyCareIntegrationMock.getDocumentContent("doc-1")).thenReturn(content);
 
 		// Act
 		final var result = familyCareService.getDocumentContent("doc-1");
@@ -163,19 +145,6 @@ class FamilyCareServiceTest {
 		// Verify: no party resolution for document content
 		assertThat(result).isEqualTo(content);
 		verifyNoInteractions(partyIntegrationMock);
-	}
-
-	@Test
-	void getDocumentContentNotFound() {
-		// Mock
-		when(familyCareIntegrationMock.getDocumentContent("doc-1")).thenReturn(empty());
-
-		// Act
-		final var exception = assertThrows(ThrowableProblem.class, () -> familyCareService.getDocumentContent("doc-1"));
-
-		// Verify
-		assertThat(exception.getStatus()).isEqualTo(NOT_FOUND);
-		assertThat(exception.getDetail()).isEqualTo("No document content found for document 'doc-1'");
 	}
 
 	@Test
