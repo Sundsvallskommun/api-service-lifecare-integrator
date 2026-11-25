@@ -20,9 +20,13 @@ public final class LogSanitizer {
 	private static final Pattern API_KEY_PARAMETER = Pattern.compile("(?i)([?&]key=)[^&\\s]*");
 	private static final String REDACTED_API_KEY = "$1[REDACTED]";
 
-	// No word boundaries: dept44 misses a number inside percent-encoding, where it sits next to hex digits, and the
-	// letter suffix of test personnummer (19900101TF03)
-	private static final Pattern TWELVE_DIGIT_PERSON_NUMBER = Pattern.compile("(?:19|20)\\d{6}(?:%2[Dd]|[-+])?[0-9A-Za-z]{4}");
+	// Covers what dept44 misses: a number right after a percent-escape, whose hex digits defeat a word boundary, and
+	// the letter suffix of test personnummer (19900101TF03). A digit or hyphen on either side means a longer id, such
+	// as a UUID group, unless the digit ends a percent-escape
+	private static final String NOT_JOINED_BEFORE = "(?:(?<=%[0-9A-Fa-f]{2})|(?<![-0-9]))";
+	private static final String NOT_JOINED_AFTER = "(?![-0-9])";
+	private static final Pattern TWELVE_DIGIT_PERSON_NUMBER = Pattern.compile(
+		NOT_JOINED_BEFORE + "(?:19|20)\\d{6}(?:%2[Dd]|[-+])?[0-9A-Za-z]{4}" + NOT_JOINED_AFTER);
 	private static final String REDACTED_PERSON_NUMBER = "[REDACTED-PNR]";
 
 	// A partyId stays readable: it is opaque, and incidents are traced by it

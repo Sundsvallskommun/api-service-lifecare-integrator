@@ -5,6 +5,7 @@ Every change to the service, newest date first. One short line per change.
 ## 2026-11-25
 
 - Read everything before `to` or after `from`, or everything when both are left out, instead of a ten-year window ending today.
+- Stop masking parts of UUIDs and long numeric ids as personnummer in logs and problem details.
 
 ## 2026-11-24
 
