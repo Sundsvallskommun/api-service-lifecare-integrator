@@ -78,42 +78,42 @@ public class FamilyCareIntegration {
 	}
 
 	public ApiPaginationCompositePersonBasedAktualiseringDTO getActualisations(final String personNumber, final LocalDate startDate, final LocalDate endDate,
-		final Integer pageSize, final Integer page, final Boolean ascending) {
+		final Integer pageSize, final int page, final Boolean ascending) {
 		return familyCareClient.getActualisation(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedCalculationDTO getCalculations(final String personNumber, final LocalDate startDate, final LocalDate endDate,
-		final Integer pageSize, final Integer page, final Boolean ascending) {
+		final Integer pageSize, final int page, final Boolean ascending) {
 		return familyCareClient.getCalculations(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedPaymentDTO getPayments(final String personNumber, final LocalDate startDate, final LocalDate endDate,
-		final Integer pageSize, final Integer page, final Boolean ascending) {
+		final Integer pageSize, final int page, final Boolean ascending) {
 		return familyCareClient.getPayments(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedInvestigationDTO getInvestigations(final String personNumber, final LocalDate startDate, final LocalDate endDate,
-		final Integer pageSize, final Integer page, final Boolean ascending) {
+		final Integer pageSize, final int page, final Boolean ascending) {
 		return familyCareClient.getInvestigations(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedServiceDTO getServices(final String personNumber, final LocalDate startDate, final LocalDate endDate,
-		final Integer pageSize, final Integer page, final Boolean ascending) {
+		final Integer pageSize, final int page, final Boolean ascending) {
 		return familyCareClient.getServices(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedExecutionDTO getExecutions(final String personNumber, final LocalDate startDate, final LocalDate endDate,
-		final Integer pageSize, final Integer page, final Boolean ascending) {
+		final Integer pageSize, final int page, final Boolean ascending) {
 		return familyCareClient.getExecutions(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedResourceAllocationDTO getResourceAllocations(final String personNumber, final LocalDate startDate, final LocalDate endDate,
-		final Integer pageSize, final Integer page, final Boolean ascending) {
+		final Integer pageSize, final int page, final Boolean ascending) {
 		return familyCareClient.getResourceAllocations(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 
 	public ApiPaginationCompositePersonBasedDocumentDTO getDocuments(final String personNumber, final LocalDate startDate, final LocalDate endDate,
-		final Integer pageSize, final Integer page, final Boolean ascending) {
+		final Integer pageSize, final int page, final Boolean ascending) {
 		return familyCareClient.getDocuments(personNumber, startOfDay(startDate), endOfDay(endDate), pageSize, toFcPageNr(page), ascending);
 	}
 

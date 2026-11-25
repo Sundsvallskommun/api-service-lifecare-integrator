@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,6 +70,17 @@ class ProfessionalWebSessionTest {
 			.containsEntry("X-LEGACY-TOKEN", "seeded")
 			.hasEntrySatisfying("Cookie", cookie -> assertThat(cookie).contains("ASP.NET_SessionId=s1"));
 		wireMock.verify(0, getRequestedFor(urlPathEqualTo("/WE.Flow.Html")));
+	}
+
+	@Test
+	void theConfiguredValuesAreSentOnEveryCall() {
+		final var seeded = seededSession("LEGACY-TOKEN=seeded; metadomain=Pasted", Clock.systemUTC());
+
+		assertThat(seeded.prepare().get("Cookie")).contains("metadomain=Domain").doesNotContain("Pasted");
+
+		seeded.absorbSetCookies(List.of("metadomain=; Max-Age=0"));
+
+		assertThat(seeded.prepare().get("Cookie")).contains("metadomain=Domain");
 	}
 
 	@Test

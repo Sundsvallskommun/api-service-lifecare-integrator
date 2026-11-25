@@ -37,6 +37,11 @@ object whose id field holds a whole number equal to the path's id. Anything else
 decimal such as `7.0` or `7.5`, a number out of range, a missing or nested field) is answered with 400, and nothing is
 sent to Lifecare.
 
+A body that also has the id field in another case, such as `ReminderId` beside `reminderId`, is refused too. Lifecare
+runs on ASP.NET and may read field names without regard to case, taking the last one. The check would then pass on
+`reminderId` while Lifecare acted on `ReminderId`. How Lifecare reads them is not verified, so the check does not rely
+on it.
+
 ## Consequences
 
 - The body still passes through as the client sent it.

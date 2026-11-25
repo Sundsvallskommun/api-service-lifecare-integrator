@@ -80,6 +80,9 @@ public class ProfessionalWebSession {
 			reset();
 		}
 		authenticate();
+		// After authenticate, so the configured values win over a pasted session cookie and come back if Lifecare drops
+		// one
+		seedConfiguration();
 
 		final var headers = new LinkedHashMap<String, String>();
 		headers.put("Cookie", cookies.toHeader());

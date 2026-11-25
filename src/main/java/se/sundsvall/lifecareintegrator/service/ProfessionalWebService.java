@@ -223,11 +223,21 @@ public class ProfessionalWebService {
 	}
 
 	private static void requireSameId(final byte[] body, final String field, final long id, final String mismatch) {
-		Optional.ofNullable(requireJsonObject(body).get(field))
+		final var object = requireJsonObject(body);
+		if (hasFieldInOtherCase(object, field)) {
+			throw Problem.valueOf(BAD_REQUEST, mismatch.formatted(id));
+		}
+		Optional.ofNullable(object.get(field))
 			.filter(JsonNode::isIntegralNumber)
 			.filter(JsonNode::canConvertToLong)
 			.filter(bodyId -> bodyId.longValue() == id)
 			.orElseThrow(() -> Problem.valueOf(BAD_REQUEST, mismatch.formatted(id)));
+	}
+
+	// Lifecare may read field names without regard to case, so a second spelling could name another object
+	private static boolean hasFieldInOtherCase(final JsonNode object, final String field) {
+		return object.propertyNames().stream()
+			.anyMatch(name -> name.equalsIgnoreCase(field) && !name.equals(field));
 	}
 
 	private static JsonNode requireJsonObject(final byte[] body) {

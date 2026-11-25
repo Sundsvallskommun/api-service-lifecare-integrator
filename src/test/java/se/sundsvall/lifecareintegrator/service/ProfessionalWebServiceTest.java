@@ -410,7 +410,8 @@ class ProfessionalWebServiceTest {
 	@ParameterizedTest
 	@ValueSource(strings = {
 		"{\"documentId\": 2}", "{\"content\": \"x\"}", "{\"documentId\": \"1\"}", "{\"documentId\": null}", "{\"documentId\": 1.5}", "{\"documentId\": 1.0}",
-		"{\"documentId\": 99999999999999999999}", "{\"documentId\": true}", "{\"nested\": {\"documentId\": 1}}"
+		"{\"documentId\": 99999999999999999999}", "{\"documentId\": true}", "{\"nested\": {\"documentId\": 1}}",
+		"{\"documentId\": 1, \"DocumentId\": 2}"
 	})
 	void updateWhoseBodyDoesNotNameTheSameDocumentAsksNothingOfLifecare(final String body) {
 		assertThatThrownBy(() -> service.updateJournalNote(1, body.getBytes(UTF_8)))
@@ -704,7 +705,8 @@ class ProfessionalWebServiceTest {
 	@ParameterizedTest
 	@ValueSource(strings = {
 		"{\"reminderId\": 8}", "{\"text\": \"x\"}", "{\"reminderId\": \"7\"}", "{\"reminderId\": null}", "{\"reminderId\": 7.5}", "{\"reminderId\": 7.0}",
-		"{\"reminderId\": 99999999999999999999}", "{\"reminderId\": true}", "{\"nested\": {\"reminderId\": 7}}"
+		"{\"reminderId\": 99999999999999999999}", "{\"reminderId\": true}", "{\"nested\": {\"reminderId\": 7}}",
+		"{\"reminderId\": 7, \"ReminderId\": 8}", "{\"REMINDERID\": 8, \"reminderId\": 7}"
 	})
 	void updateReminderWhoseBodyDoesNotNameTheSameReminder(final String body) {
 		assertThatThrownBy(() -> service.updateReminder(7, body.getBytes(UTF_8)))

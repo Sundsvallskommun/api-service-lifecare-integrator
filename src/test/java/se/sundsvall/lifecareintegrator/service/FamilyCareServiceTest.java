@@ -31,6 +31,7 @@ import se.sundsvall.lifecareintegrator.integration.party.PartyIntegration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -117,7 +118,7 @@ class FamilyCareServiceTest {
 
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(familyCareIntegrationMock.getActualisations(any(), any(), any(), any(), any(), any()))
+		when(familyCareIntegrationMock.getActualisations(any(), any(), any(), any(), anyInt(), any()))
 			.thenReturn(new ApiPaginationCompositePersonBasedAktualiseringDTO());
 
 		// Act
@@ -233,7 +234,7 @@ class FamilyCareServiceTest {
 
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(familyCareIntegrationMock.getCalculations(any(), any(), any(), any(), any(), any())).thenReturn(new ApiPaginationCompositePersonBasedCalculationDTO()
+		when(familyCareIntegrationMock.getCalculations(any(), any(), any(), any(), anyInt(), any())).thenReturn(new ApiPaginationCompositePersonBasedCalculationDTO()
 			.result(List.of(new PersonBasedCalculationDTO().id(1).calculationPersonDTOs(List.of(
 				new PersonBasedCalculationPersonDTO().personId(MEMBER_PERSON_NUMBER).name("Member"))))));
 		when(partyIntegrationMock.getPartyIds(MUNICIPALITY_ID, List.of(MEMBER_PERSON_NUMBER))).thenReturn(Map.of(MEMBER_PERSON_NUMBER, MEMBER_PARTY_ID));

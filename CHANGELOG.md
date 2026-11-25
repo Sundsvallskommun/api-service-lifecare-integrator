@@ -16,6 +16,8 @@ Every change to the service, newest date first. One short line per change.
 - Fail at startup when `integration.party.url` is unset, as the other integrations do.
 - Rework the FamilyCare mappers and the decision code.
 - Answer 400 with its own message when only `from` lies after 2100-12-31 or only `to` before 1900-01-01.
+- Refuse a reminder, journal note or document update whose body repeats the id field in another case.
+- Send the configured ProfessionalWeb identity cookies on every call, over any value a pasted session cookie carries.
 
 ## 2026-11-24
 
