@@ -7,7 +7,6 @@ import generated.se.sundsvall.familycare.PersonBasedDecisionDTO;
 import generated.se.sundsvall.familycare.PersonBasedDecisionPersonDTO;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -92,9 +91,8 @@ class DecisionServiceTest {
 				tuple("ELDERLY_CARE", "LSS", "OK"),
 				tuple("FAMILY_CARE", null, "OK"));
 
-		// Default FC window: 10 years back until today
-		final var today = LocalDate.now(ZoneId.of("Europe/Stockholm"));
-		verify(familyCareIntegrationMock).getAllDecisions(PERSON_NUMBER, today.minusYears(10), today);
+		// No bounds: FC is asked for everything
+		verify(familyCareIntegrationMock).getAllDecisions(PERSON_NUMBER, LocalDate.parse("1900-01-01"), LocalDate.parse("2100-12-31"));
 	}
 
 	/**
@@ -436,13 +434,12 @@ class DecisionServiceTest {
 		// Act
 		final var result = decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "FAMILY_CARE", null);
 
-		// Verify: the party's decisions are listed over the default window and the one with the id picked out
+		// Verify: all the party's decisions are listed and the one with the id picked out
 		assertThat(result.getSource()).isEqualTo("FAMILY_CARE");
 		assertThat(result.getLaw()).isNull();
 		assertThat(result.getDecisionId()).isEqualTo(DECISION_ID);
 		assertThat(result.getDecided()).isEqualTo(LocalDate.parse("2026-02-01"));
-		final var today = LocalDate.now(ZoneId.of("Europe/Stockholm"));
-		verify(familyCareIntegrationMock).getAllDecisions(PERSON_NUMBER, today.minusYears(10), today);
+		verify(familyCareIntegrationMock).getAllDecisions(PERSON_NUMBER, LocalDate.parse("1900-01-01"), LocalDate.parse("2100-12-31"));
 		verifyNoInteractions(elderlyCareIntegrationMock, employeeIntegrationMock);
 	}
 

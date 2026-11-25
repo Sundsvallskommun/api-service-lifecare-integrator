@@ -38,8 +38,8 @@ Configuration in `README.md`.
 ## Behaviour worth knowing
 
 - Dates must be sent as RFC 3339 with a time component. See `integration/familycare/FamilyCareDates.java`.
-- The period reads require both dates. An open window in our API falls back to a ten-year default. See
-  `service/DateWindow.java`.
+- The period reads require both dates. A bound left open in our API is sent as 1900-01-01 or 2100-12-31, so it reads
+  everything on that side. See `service/DateWindow.java`.
 - Errors arrive as `{"Message": "…"}` and are kept as the problem's `detail`. See `integration/LifecareErrorDecoder.java`.
 - A 404, such as a missing person or a document without a PDF, reaches the caller as 404 rather than 502, with
   Lifecare's message as the `detail`.

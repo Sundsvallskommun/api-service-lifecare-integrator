@@ -12,9 +12,8 @@ Code: `DocumentResource`, `FamilyCareService.getDocumentContent`, `FamilyCareSer
 
 ## `from` and `to` mean different things per source
 
-EC decisions are filtered locally on overlap with the window. FC decisions are filtered by FamilyCare itself, with a
-ten-year default window. A by-id lookup in FC always uses the default window, so a decision shown in the list can
-answer 404 on `GET /decisions/{decisionId}`.
+EC decisions are filtered locally on overlap with the window. FC decisions are filtered by FamilyCare itself, on its
+own reading of the dates.
 
 Code: `DecisionService`, `DateWindow`.
 

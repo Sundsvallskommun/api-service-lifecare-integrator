@@ -13,7 +13,6 @@ import generated.se.sundsvall.familycare.PostAktualiseringsBodyRequest;
 import generated.se.sundsvall.familycare.PostCalculationBodyRequest;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -111,7 +110,7 @@ class FamilyCareServiceTest {
 	}
 
 	@Test
-	void getActualisationsUsesDefaultWindowWhenDatesMissing() {
+	void getActualisationsUsesOpenWindowWhenDatesMissing() {
 		// Parameter values: no dates or ascending set — page/limit default to 1/100
 		final var parameters = new PeriodParameters();
 		parameters.setPartyId(PARTY_ID);
@@ -124,9 +123,8 @@ class FamilyCareServiceTest {
 		// Act
 		familyCareService.getActualisations(MUNICIPALITY_ID, parameters);
 
-		// Verify: default 10-year lookback window, default paging (page 1, limit 100)
-		final var today = LocalDate.now(ZoneId.of("Europe/Stockholm"));
-		verify(familyCareIntegrationMock).getActualisations(PERSON_NUMBER, today.minusYears(10), today, 100, 1, null);
+		// Verify: everything is asked for, with default paging (page 1, limit 100)
+		verify(familyCareIntegrationMock).getActualisations(PERSON_NUMBER, LocalDate.parse("1900-01-01"), LocalDate.parse("2100-12-31"), 100, 1, null);
 	}
 
 	@Test

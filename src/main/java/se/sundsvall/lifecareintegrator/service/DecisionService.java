@@ -157,8 +157,8 @@ public class DecisionService {
 	}
 
 	/**
-	 * FC has no by-id decision read, so the party's decisions are listed over the default window and the one with the
-	 * id is picked out. The list is person-scoped by construction, so no ownership check is needed here.
+	 * FC has no by-id decision read, so all the party's decisions are listed and the one with the id is picked out. The
+	 * list is person-scoped by construction, so no ownership check is needed here.
 	 */
 	private Optional<Decision> findFamilyCareDecision(final String municipalityId, final String personNumber, final String decisionId) {
 		final var window = DateWindow.of(null, null);
