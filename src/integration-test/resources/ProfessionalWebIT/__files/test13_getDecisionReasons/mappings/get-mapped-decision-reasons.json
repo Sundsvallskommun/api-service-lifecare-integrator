@@ -24,8 +24,17 @@
 		},
 		"jsonBody": [
 			{
-				"reasonId": 1,
-				"text": "Bifall enligt ansökan"
+				"header": "Bifall",
+				"name": null,
+				"reasonCode": null,
+				"options": [
+					{
+						"header": null,
+						"name": "Försörjningsstöd",
+						"reasonCode": 1,
+						"options": []
+					}
+				]
 			}
 		],
 		"status": 200

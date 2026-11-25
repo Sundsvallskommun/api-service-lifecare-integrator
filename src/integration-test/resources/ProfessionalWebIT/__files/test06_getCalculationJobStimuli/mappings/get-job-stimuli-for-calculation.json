@@ -32,12 +32,8 @@
 			"Content-Type": "application/json; charset=utf-8"
 		},
 		"jsonBody": {
-			"jobStimuli": [
-				{
-					"amount": 2500
-				}
-			],
-			"unknownToTheIntegrator": "kept"
+			"hasApplicantJobStimuli": true,
+			"hasCoApplicantJobStimuli": false
 		},
 		"status": 200
 	}

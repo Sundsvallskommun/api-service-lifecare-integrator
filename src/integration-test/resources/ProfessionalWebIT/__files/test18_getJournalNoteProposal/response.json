@@ -1,5 +1,18 @@
 {
-	"serviceId": 42,
-	"title": "",
-	"unknownToTheIntegrator": "kept"
+	"documentJournalNote": {
+		"documentId": 0,
+		"serviceId": 42,
+		"title": "",
+		"content": "",
+		"occurenceDate": "2026-11-01",
+		"occurenceTime": "10:00",
+		"protected": false
+	},
+	"documentNoteTypes": [
+		{
+			"code": 1,
+			"text": "Journalanteckning",
+			"isActive": true
+		}
+	]
 }

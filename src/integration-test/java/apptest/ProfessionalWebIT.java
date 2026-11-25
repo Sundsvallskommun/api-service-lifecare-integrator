@@ -7,9 +7,6 @@ import se.sundsvall.dept44.test.AbstractAppTest;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.lifecareintegrator.Application;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpMethod.DELETE;
@@ -338,12 +335,7 @@ class ProfessionalWebIT extends AbstractAppTest {
 			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(OK)
 			.withExpectedResponse(RESPONSE_FILE)
-			.sendRequest();
-
-		wiremock.verify(1, postRequestedFor(urlPathEqualTo("/WESE.FC.ProfessionalWeb/api2/Calculation/SaveJobStimulus"))
-			.withRequestBody(equalTo(fromTestFile(REQUEST_FILE))));
-
-		verifyStubs();
+			.sendRequestAndVerifyResponse();
 	}
 
 	@Test
@@ -395,12 +387,7 @@ class ProfessionalWebIT extends AbstractAppTest {
 			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponse(RESPONSE_FILE)
-			.sendRequest();
-
-		wiremock.verify(1, postRequestedFor(urlPathEqualTo("/WESE.FC.ProfessionalWeb/api2/Payment/Create"))
-			.withRequestBody(equalTo(fromTestFile(REQUEST_FILE))));
-
-		verifyStubs();
+			.sendRequestAndVerifyResponse();
 	}
 
 	@Test

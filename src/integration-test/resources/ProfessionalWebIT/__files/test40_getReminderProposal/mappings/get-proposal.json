@@ -23,10 +23,61 @@
 			"Content-Type": "application/json; charset=utf-8"
 		},
 		"jsonBody": {
-			"serviceId": 42,
-			"text": "",
-			"dueDate": "2026-12-15T00:00:00",
-			"unknownToTheIntegrator": "kept"
+			"reminderTypeObjects": [
+				{
+					"id": 7083,
+					"text": "IFO.Insats",
+					"associations": [
+						{
+							"key": 42,
+							"value": "2026-11-01 : EK Ekonomiskt bistånd",
+							"caseworkerId": "TEST",
+							"reminderTypes": [
+								{
+									"id": 3,
+									"text": "Manuell bevakning insats",
+									"activeStatus": 1,
+									"objectId": 7083,
+									"isActive": true
+								}
+							]
+						}
+					]
+				}
+			],
+			"options": {
+				"reminderCaseworkers": [
+					{
+						"id": "TEST",
+						"name": "Test Handläggare",
+						"isCaseworker": true
+					}
+				],
+				"reminderPriorityTypes": [
+					{
+						"code": 2,
+						"text": "Normal",
+						"isActive": true
+					}
+				],
+				"reminderStatusTypes": [
+					{
+						"code": 3,
+						"text": "Ej påbörjad",
+						"isActive": true
+					}
+				]
+			},
+			"reminderForAdd": {
+				"reminderId": 0,
+				"receiverType": 1,
+				"mainObjectType": 7083,
+				"mainObjectId": "42",
+				"reminderDate": "",
+				"status": 3,
+				"priority": 2,
+				"text": null
+			}
 		},
 		"status": 200
 	}

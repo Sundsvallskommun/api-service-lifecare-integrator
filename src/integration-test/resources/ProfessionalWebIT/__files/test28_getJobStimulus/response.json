@@ -1,10 +1,14 @@
 {
-	"serviceId": 42,
-	"periods": [
-		{
-			"fromDate": "2026-11-01",
-			"toDate": "2028-10-31"
-		}
-	],
-	"unknownToTheIntegrator": "kept"
+	"applicant": {
+		"periods": [
+			{
+				"fromDate": "2026-11-01T00:00:00",
+				"toDate": "2027-04-30T00:00:00",
+				"amount": 1500.5
+			}
+		]
+	},
+	"coApplicant": {
+		"periods": []
+	}
 }

@@ -33,8 +33,17 @@
 			"Content-Type": "application/json; charset=utf-8"
 		},
 		"jsonBody": {
-			"documentId": 22,
-			"unknownToTheIntegrator": "kept"
+			"id": 22,
+			"title": "Utredning",
+			"date": "2026-11-01",
+			"time": "10:00",
+			"type": 1,
+			"ownerTypeText": "Insats",
+			"updateSignature": "RPA_031DEV",
+			"updateDate": "2026-11-01",
+			"locked": false,
+			"protected": false,
+			"documentType_Name": "Utredning"
 		},
 		"status": 200
 	}
