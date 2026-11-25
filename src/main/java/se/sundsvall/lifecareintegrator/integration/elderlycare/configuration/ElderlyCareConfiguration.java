@@ -3,7 +3,6 @@ package se.sundsvall.lifecareintegrator.integration.elderlycare.configuration;
 import feign.Client;
 import feign.Logger;
 import feign.RequestTemplate;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -14,7 +13,6 @@ import se.sundsvall.lifecareintegrator.integration.LifecareErrorDecoder;
 import se.sundsvall.lifecareintegrator.integration.LifecareOkHttpClientFactory;
 
 @Import(FeignConfiguration.class)
-@EnableConfigurationProperties(ElderlyCareProperties.class)
 public class ElderlyCareConfiguration {
 
 	public static final String CLIENT_ID = "elderlycare";

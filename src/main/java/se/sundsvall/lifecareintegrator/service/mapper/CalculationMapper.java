@@ -32,6 +32,7 @@ public final class CalculationMapper {
 		}
 
 		final var calculations = Optional.ofNullable(composite.getResult()).orElse(emptyList()).stream()
+			.filter(Objects::nonNull)
 			.map(calculation -> toCalculation(calculation, partyIdsByPersonNumber))
 			.toList();
 		return PagedCalculationResponse.create()

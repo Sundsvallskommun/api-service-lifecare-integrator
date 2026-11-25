@@ -4,7 +4,6 @@ import feign.Client;
 import feign.Logger;
 import feign.RequestTemplate;
 import java.util.List;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -18,7 +17,6 @@ import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Import(FeignConfiguration.class)
-@EnableConfigurationProperties(FamilyCareProperties.class)
 public class FamilyCareConfiguration {
 
 	public static final String CLIENT_ID = "familycare";

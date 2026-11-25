@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
@@ -218,10 +217,6 @@ public class DecisionService {
 	}
 
 	private record SourceResult(String source, String law, List<Decision> decisions, boolean ok) {
-
-		private SourceResult {
-			Objects.requireNonNull(decisions);
-		}
 
 		private SourceStatus toSourceStatus() {
 			return SourceStatus.create()

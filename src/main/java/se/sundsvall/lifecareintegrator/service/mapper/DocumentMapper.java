@@ -2,6 +2,7 @@ package se.sundsvall.lifecareintegrator.service.mapper;
 
 import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedDocumentDTO;
 import generated.se.sundsvall.familycare.PersonBasedDocumentDTO;
+import java.util.Objects;
 import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.familycare.DocumentMetadata;
 import se.sundsvall.lifecareintegrator.api.model.familycare.PagedDocumentResponse;
@@ -20,6 +21,7 @@ public final class DocumentMapper {
 		}
 
 		final var documentList = Optional.ofNullable(documents.getResult()).orElse(emptyList()).stream()
+			.filter(Objects::nonNull)
 			.map(DocumentMapper::toDocumentMetadata)
 			.toList();
 		return PagedDocumentResponse.create()
@@ -27,15 +29,13 @@ public final class DocumentMapper {
 			.withMetaData(toPagingMetaData(documents.getPageNumber(), documents.getPageSize(), documents.getTotalNumberOfPages(), documents.getTotalNumberOfRecords(), documentList.size()));
 	}
 
-	private static DocumentMetadata toDocumentMetadata(final PersonBasedDocumentDTO document) {
+	private static DocumentMetadata toDocumentMetadata(final PersonBasedDocumentDTO source) {
 		// Intentionally drops the ownerId — it may hold a personnummer, which never leaves this service
-		return Optional.ofNullable(document)
-			.map(source -> DocumentMetadata.create()
-				.withId(source.getId())
-				.withTitle(source.getTitle())
-				.withDate(toLocalDate(source.getDate()))
-				.withDocumentType(source.getDocumentType())
-				.withOwnerType(source.getOwnerType()))
-			.orElse(null);
+		return DocumentMetadata.create()
+			.withId(source.getId())
+			.withTitle(source.getTitle())
+			.withDate(toLocalDate(source.getDate()))
+			.withDocumentType(source.getDocumentType())
+			.withOwnerType(source.getOwnerType());
 	}
 }

@@ -9,6 +9,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.Optional;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
+import se.sundsvall.lifecareintegrator.configuration.ClockConfiguration;
 
 import static java.time.Month.DECEMBER;
 import static java.time.Month.JANUARY;
@@ -22,7 +23,7 @@ final class MapperUtil {
 	private static final int ISO_DATE_LENGTH = 10;
 
 	/** The clock FC's zone-less date-times are on — see {@link #toOffsetDateTime(LocalDateTime)}. */
-	private static final ZoneId FC_ZONE = ZoneId.of("Europe/Stockholm");
+	private static final ZoneId FC_ZONE = ClockConfiguration.STOCKHOLM;
 
 	/**
 	 * The EC date part meaning "not set" — a decision that has not been scheduled carries year 1 rather than null.

@@ -2,6 +2,7 @@ package se.sundsvall.lifecareintegrator.service.mapper;
 
 import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedAktualiseringDTO;
 import generated.se.sundsvall.familycare.PersonBasedAktualiseringDTO;
+import java.util.Objects;
 import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Actualisation;
 import se.sundsvall.lifecareintegrator.api.model.familycare.PagedActualisationResponse;
@@ -20,6 +21,7 @@ public final class ActualisationMapper {
 		}
 
 		final var actualisations = Optional.ofNullable(composite.getResult()).orElse(emptyList()).stream()
+			.filter(Objects::nonNull)
 			.map(ActualisationMapper::toActualisation)
 			.toList();
 		return PagedActualisationResponse.create()

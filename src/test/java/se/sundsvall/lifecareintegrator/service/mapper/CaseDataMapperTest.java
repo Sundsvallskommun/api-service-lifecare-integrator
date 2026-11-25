@@ -15,6 +15,7 @@ import generated.se.sundsvall.familycare.PersonBasedServiceDTO;
 import generated.se.sundsvall.familycare.PersonBasedServicePersonDTO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
@@ -105,6 +106,17 @@ class CaseDataMapperTest {
 		final var result = CaseDataMapper.toPayments(composite);
 
 		assertThat(result.getPayments().getFirst().getPayDate()).isNull();
+	}
+
+	@Test
+	void toPaymentsLeavesOutANullElement() {
+		final var composite = new ApiPaginationCompositePersonBasedPaymentDTO()
+			.result(Arrays.asList(new PersonBasedPaymentDTO().id(1), null));
+
+		final var result = CaseDataMapper.toPayments(composite);
+
+		assertThat(result.getPayments()).hasSize(1);
+		assertThat(result.getPayments().getFirst().getId()).isEqualTo(1);
 	}
 
 	@Test

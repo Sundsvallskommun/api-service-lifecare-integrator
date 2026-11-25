@@ -48,8 +48,6 @@ public class FamilyCareService {
 		this.familyCareIntegration = familyCareIntegration;
 	}
 
-	// ---- Person master data ------------------------------------------------------------------------------------------
-
 	public Person getPerson(final String municipalityId, final String partyId) {
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
 		return PersonMapper.toPerson(familyCareIntegration.getPerson(personNumber));
@@ -59,8 +57,6 @@ public class FamilyCareService {
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);
 		return PersonMapper.toContacts(familyCareIntegration.getContacts(personNumber));
 	}
-
-	// ---- Period reads ------------------------------------------------------------------------------------------------
 
 	public PagedActualisationResponse getActualisations(final String municipalityId, final PeriodParameters parameters) {
 		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
@@ -106,8 +102,6 @@ public class FamilyCareService {
 		return CaseDataMapper.toResourceAllocations(familyCareIntegration.getResourceAllocations(personNumber, window.start(), window.end(), parameters.getLimit(), parameters.getPage(), parameters.getAscending()));
 	}
 
-	// ---- Documents ---------------------------------------------------------------------------------------------------
-
 	public PagedDocumentResponse getDocuments(final String municipalityId, final PeriodParameters parameters) {
 		final var window = DateWindow.of(parameters.getFrom(), parameters.getTo());
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, parameters.getPartyId());
@@ -118,14 +112,10 @@ public class FamilyCareService {
 		return familyCareIntegration.getDocumentContent(documentId);
 	}
 
-	// ---- Users -------------------------------------------------------------------------------------------------------
-
 	public List<Caseworker> getUsers(final Integer limit, final Integer offset,
 		final OffsetDateTime modifiedAfter, final OffsetDateTime modifiedBefore) {
 		return UserMapper.toCaseworkers(familyCareIntegration.getUsers(limit, offset, modifiedAfter, modifiedBefore));
 	}
-
-	// ---- Proposals and write-back ------------------------------------------------------------------------------------
 
 	public ActualisationProposal getActualisationProposal(final String municipalityId, final String partyId) {
 		final var personNumber = partyIntegration.getPersonNumber(municipalityId, partyId);

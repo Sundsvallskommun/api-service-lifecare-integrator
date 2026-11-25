@@ -1,6 +1,5 @@
 package se.sundsvall.lifecareintegrator.integration.employee.configuration;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -18,7 +17,6 @@ import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
  * this error decoder. Many Lifecare caseworker ids are not employees at all.
  */
 @Import(FeignConfiguration.class)
-@EnableConfigurationProperties(EmployeeProperties.class)
 public class EmployeeConfiguration {
 
 	public static final String CLIENT_ID = "employee";

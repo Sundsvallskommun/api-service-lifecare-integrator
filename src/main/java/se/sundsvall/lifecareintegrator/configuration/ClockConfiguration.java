@@ -13,9 +13,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ClockConfiguration {
 
+	/** Sundsvall's time zone, for the clock and for the zone-less date-times Lifecare sends. */
+	public static final ZoneId STOCKHOLM = ZoneId.of("Europe/Stockholm");
+
 	@Bean
 	Clock clock() {
-		return Clock.system(ZoneId.of("Europe/Stockholm"));
+		return Clock.system(STOCKHOLM);
 	}
 
 	@Bean

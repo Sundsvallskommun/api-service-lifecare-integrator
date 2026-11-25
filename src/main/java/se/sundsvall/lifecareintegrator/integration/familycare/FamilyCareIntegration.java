@@ -149,8 +149,6 @@ public class FamilyCareIntegration {
 
 	/** FamilyCare counts pages from 0, this service from 1. */
 	private static Integer toFcPageNr(final Integer page) {
-		return Optional.ofNullable(page)
-			.map(value -> Math.max(FIRST_PAGE, value - 1))
-			.orElse(null);
+		return page - 1;
 	}
 }

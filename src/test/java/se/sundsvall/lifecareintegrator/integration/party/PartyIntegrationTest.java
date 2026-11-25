@@ -42,7 +42,7 @@ class PartyIntegrationTest {
 
 	@BeforeEach
 	void setUp() {
-		partyIntegration = new PartyIntegration(partyClientMock, new PartyProperties(5, 30, TIME_TO_LIVE, 100), nanos::get);
+		partyIntegration = new PartyIntegration(partyClientMock, new PartyProperties("http://party", 5, 30, TIME_TO_LIVE, 100), nanos::get);
 	}
 
 	@Test

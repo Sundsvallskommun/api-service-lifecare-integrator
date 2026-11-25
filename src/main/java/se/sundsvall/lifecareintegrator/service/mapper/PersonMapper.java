@@ -4,6 +4,7 @@ import generated.se.sundsvall.familycare.PersonBasedAddressDTO;
 import generated.se.sundsvall.familycare.PersonBasedContactDTO;
 import generated.se.sundsvall.familycare.PersonBasedPersonDTO;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Address;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Contact;
@@ -35,22 +36,21 @@ public final class PersonMapper {
 
 	public static List<Contact> toContacts(final List<PersonBasedContactDTO> contacts) {
 		return contacts.stream()
+			.filter(Objects::nonNull)
 			.map(PersonMapper::toContact)
 			.toList();
 	}
 
-	private static Contact toContact(final PersonBasedContactDTO contact) {
-		return Optional.ofNullable(contact)
-			.map(source -> Contact.create()
-				.withId(source.getId())
-				.withName(source.getName())
-				.withEmploymentTitle(source.getEmploymentTitle())
-				.withOrganizationName(source.getOrganizationName())
-				.withPhone(source.getPhone())
-				.withEmail(source.getEmail())
-				.withAddress(toAddress(source.getAddress()))
-				.withTypeOfContact(source.getTypeOfContact()))
-			.orElse(null);
+	private static Contact toContact(final PersonBasedContactDTO source) {
+		return Contact.create()
+			.withId(source.getId())
+			.withName(source.getName())
+			.withEmploymentTitle(source.getEmploymentTitle())
+			.withOrganizationName(source.getOrganizationName())
+			.withPhone(source.getPhone())
+			.withEmail(source.getEmail())
+			.withAddress(toAddress(source.getAddress()))
+			.withTypeOfContact(source.getTypeOfContact());
 	}
 
 	private static Address toAddress(final PersonBasedAddressDTO address) {
