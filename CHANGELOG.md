@@ -10,6 +10,7 @@ Every change to the service, newest date first. One short line per change.
 - Describe the answer of `GET /professional-web/persons/{partyId}/documents` as an object in the OpenAPI, as Lifecare sends it.
 - Answer 400 to a negative `offset` on `GET /users` instead of passing it to FamilyCare.
 - Rename the OpenAPI operations `getAmount`, `getSharedCost` and `getJobStimuli` to `getCalculationAmount`, `getCalculationSharedCost` and `getCalculationJobStimuli`.
+- Name the helper methods in the integrations with a verb.
 
 ## 2026-11-24
 
