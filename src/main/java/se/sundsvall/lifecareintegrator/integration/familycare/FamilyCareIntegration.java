@@ -147,17 +147,7 @@ public class FamilyCareIntegration {
 		familyCareClient.postActualisationAttachment(actualisationId, documentType, senderType, title, senderName, content);
 	}
 
-	/**
-	 * This service's page number as FamilyCare's {@code pageNr}.
-	 *
-	 * <p>
-	 * The two disagree on where counting starts: dept44's {@code AbstractParameterPagingBase} declares
-	 * {@code page = 1} with {@code @Min(1)}, while FamilyCare documents {@code pageNr} as "Default is 0 for the first
-	 * page". Passing ours through unchanged asked FamilyCare for the second page of every read — and since a person's
-	 * decisions, calculations and actualisations all fit on the first, every one of them came back empty, with the
-	 * source reporting OK because nothing had failed. Translating here keeps this service's own API 1-based, as the
-	 * rest of the fleet is.
-	 */
+	/** FamilyCare counts pages from 0, this service from 1. */
 	private static Integer toFcPageNr(final Integer page) {
 		return Optional.ofNullable(page)
 			.map(value -> Math.max(FIRST_PAGE, value - 1))

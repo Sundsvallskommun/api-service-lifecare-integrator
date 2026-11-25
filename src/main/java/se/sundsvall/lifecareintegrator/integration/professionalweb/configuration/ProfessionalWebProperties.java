@@ -6,39 +6,8 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.util.StringUtils;
 
 /**
- * Configuration for the Lifecare ProfessionalWeb integration: the internal api2 surface Lifecare's own web client
- * talks to, reached with a signed-in session of an integration account rather than an API key.
- *
- * <p>
- * {@code sessionCookie} is a stopgap. Signing in needs the identity provider (MobilityGuard), which not every network
- * can reach; api2 itself only needs the Lifecare host. When it is set, the integrator uses that session (the Cookie
- * header of a session the integration account signed in to elsewhere) instead of signing in, and keeps it alive every
- * {@code keepAliveInterval}. It is a live credential: a secret, never logged, replaced when Lifecare stops accepting
- * it.
- * </p>
- *
- * <p>
- * {@code url} is the Lifecare host (for example {@code https://lifecare.sundsvall.se}), without a module path. Leaving
- * it unset turns the integration off: every call then answers 502 instead of the application failing to start, so
- * environments that never talk to ProfessionalWeb need none of this.
- * </p>
- *
- * <p>
- * {@code domain}, {@code actor}, {@code idpMethod} and {@code federationProfile} are what Lifecare's identity portal
- * normally reads off the entry URL on a browser's first visit. {@code username} and {@code password} are the
- * integration account; both are secrets and belong in the environment, never in committed config or a log line.
- * </p>
- *
- * @param url               the Lifecare host
- * @param domain            the Lifecare domain, e.g. SundsvallVoO_PLUS
- * @param actor             the Lifecare actor
- * @param idpMethod         the identity provider method
- * @param federationProfile the federation profile, e.g. Sundsvall_Intra
- * @param username          the integration account
- * @param password          the integration account's password
- * @param sessionTtl        how long a session is used before signing in afresh
- * @param connectTimeout    connect timeout in seconds
- * @param readTimeout       read timeout in seconds
+ * Configuration for Lifecare ProfessionalWeb. Nothing is required: without a {@code url} the integration is off and
+ * every call answers 502, so environments that never talk to ProfessionalWeb start without any of it.
  */
 @ConfigurationProperties("integration.lifecare-professionalweb")
 public record ProfessionalWebProperties(

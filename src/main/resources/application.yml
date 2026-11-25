@@ -1,6 +1,3 @@
-#========================================
-# General settings
-#========================================
 logging:
   level:
     root: INFO
@@ -22,58 +19,29 @@ spring:
             authorization-grant-type: client_credentials
             provider: employee
 
-#========================================
-# Integrations
-#========================================
 integration:
-  # Lifecare Welfare API Services / Elderly care (EC) — WE.EC.Integration.Host. Auth is domain + key as query
-  # parameters, and the key goes nowhere else — EC rejects the request if it finds the key in a header too.
-  # Give the key percent-encoded (%2B, %2F, %3D, never a raw '+', '/' or '='); it is sent as it is and a decoded key
-  # stops the service at startup. The key is a secret: override per environment, never commit it.
   elderlycare:
     url: override-me
     domain: override-me
     key: override-me
-  # api-service-party — partyId <-> personnummer. Both directions are cached in memory (never logged or persisted);
-  # a partyId and its personnummer belong together for life, so the time to live only bounds how long the heap holds
-  # them. A lookup Party cannot answer is never cached.
   party:
     url: override-me
     cache-time-to-live: PT15M
     cache-maximum-size: 10000
-  # api-service-employee — puts a name to a Lifecare caseworker id. Only consulted when Lifecare sends a caseworker
-  # without one, and never allowed to fail a decision read.
   employee:
     url: override-me
-  # Lifecare FamilyCare (FC) — WESE.FC.Api.FC. Auth is domain + key. The /Users/* directory is licensed to a
-  # SEPARATE consumer ("Användarinformation IFO") from the person-based case APIs ("API IFO Personbaserade").
-  # Set user-key to that second key where the split applies; leave it unset (mocks, single-consumer tenants) and
-  # key is used for every call. The two surfaces refuse the wrong key DIFFERENTLY, which is worth knowing before
-  # debugging one of them: /Users answers 403 to a case key (observed 2026-09-22), while the person-based reads
-  # answer 200 with an empty body to a user key — no status, no log line, nothing to notice. Give key and user-key
-  # percent-encoded, as for elderlycare. Both are secrets: override per environment, never commit them.
   familycare:
     url: override-me
     domain: override-me
     key: override-me
-    # user-key: override-me
-  # Lifecare ProfessionalWeb — the internal api2 surface Lifecare's own web client uses, passed through for
-  # api-service-caremanagement (POST /{municipalityId}/professional-web/exchange). Reached with a signed-in session of an
-  # integration account (SAML via MobilityGuard), not an API key. url is the Lifecare host without a module path; unset
-  # means every exchange answers 502. username/password are secrets.
   lifecare-professionalweb:
     url:
     domain:
     federation-profile:
     username:
     password:
-    # Stopgap while the identity provider (MobilityGuard) cannot be reached from here: the Cookie header of a session
-    # the integration account signed in to elsewhere. Used instead of signing in and kept alive every
-    # keep-alive-interval. A live credential - secret only. Unset means sign in with username/password.
     session-cookie:
     keep-alive-interval: 5m
-    # The Lifecare print templates the print resources render a decision, a calculation and a document with: the
-    # ones api-service-caremanagement uses. Lifecare refuses a document template the document's owner lacks.
     print:
       decision-template-id: 885bfb68-c97b-47c0-921d-ef00caaa2423
       calculation-template-id: 7936e9ec-e32a-40cf-9dea-d95b16e021f0
@@ -91,8 +59,6 @@ resilience4j:
       lifecare-professionalweb:
         ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
 
-# The ProfessionalWeb paths carry whatever the caseworker wrote and Lifecare's answers, personnummer
-# included, in both directions. Keep it out of dept44's request/response payload logging entirely.
 logbook:
   excluded:
     paths: /**/professional-web/**

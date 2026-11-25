@@ -33,7 +33,7 @@ public class ProfessionalWebSignIn {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ProfessionalWebSignIn.class);
 
-	/** Post the SAML request onwards, sign in, post the assertion back: three hops, plus slack for one more. */
+	/** Post the SAML request onwards, sign in, post the assertion back. Three hops, the rest is slack. */
 	private static final int MAX_FORM_HOPS = 6;
 
 	private final ProfessionalWebProperties properties;

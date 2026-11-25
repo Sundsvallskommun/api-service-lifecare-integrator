@@ -8,14 +8,8 @@ import java.time.format.DateTimeFormatter;
 import static java.util.Optional.ofNullable;
 
 /**
- * Renders dates in the format the Lifecare FamilyCare API accepts: RFC 3339 <em>with</em> a time component, e.g.
- * {@code 2020-01-01T00:00:00}. A bare {@code yyyy-MM-dd} is rejected with {@code 400 "… is not entered in a valid
- * format."}, so every date leaving us for FamilyCare — read windows and write bodies alike — goes through here.
- *
- * <p>
- * Note that {@link DateTimeFormatter#ISO_LOCAL_DATE_TIME} cannot be used: it drops the seconds field when it is zero
- * ({@code 2020-01-01T00:00}), which FamilyCare rejects. Ported from api-service-caremanagement, whose FamilyCare
- * integration established the format against the live API.
+ * Renders the dates FamilyCare takes as strings, with a time component ({@code 2020-01-01T00:00:00}). A bare
+ * {@code yyyy-MM-dd} is rejected with {@code 400 "… is not entered in a valid format."}.
  */
 public final class FamilyCareDates {
 

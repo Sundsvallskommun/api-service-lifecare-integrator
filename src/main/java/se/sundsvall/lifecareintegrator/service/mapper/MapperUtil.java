@@ -14,14 +14,8 @@ import static java.time.Month.DECEMBER;
 import static java.time.Month.JANUARY;
 
 /**
- * Shared mapping helpers for the vendor models. Both vendor APIs send date-times without a zone or an offset
- * ({@code "2024-02-07T00:00:00"}), so both are generated with {@code dateLibrary=java8-localdatetime} — FC was on the
- * offset-bearing default until 2026-09-22, which made every FC response with a date on it fail to deserialize.
- *
- * <p>
- * This service's own API keeps {@link OffsetDateTime}, so the two conversions here sit on opposite sides of the vendor
- * boundary: {@link #toLocalDateTime(LocalDate)} on the way out to FC, {@link #toOffsetDateTime(LocalDateTime)} on the
- * way back in.
+ * Shared mapping helpers for the vendor models. The vendors send date-times without a zone or an offset, and this
+ * service's API uses {@link OffsetDateTime}, read as Stockholm time.
  */
 final class MapperUtil {
 

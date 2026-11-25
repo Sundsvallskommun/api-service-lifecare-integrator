@@ -5,7 +5,7 @@ payments, documents and users.
 
 ## Used by
 
-Every endpoint except `/professional-web/exchange`. See [architecture.md](../architecture.md).
+Every endpoint outside `/professional-web`. See [architecture.md](../architecture.md).
 
 ## Calls
 
@@ -26,8 +26,8 @@ All under `/apifc/v1`.
 
 `domain` and `key` as query parameters (`integration/familycare/configuration/FamilyCareConfiguration.java`), with both keys configured percent-encoded
 ([ADR 0002](../adr/0002-lifecare-keys-configured-encoded.md)). `/Users/*` is licensed to a separate
-consumer and may need its own `user-key`. The two surfaces refuse the wrong key in different ways; the comment on
-`integration.familycare` in `application.yml` describes how.
+consumer and may need its own `user-key`. The two refuse the wrong key in different ways, described under
+Configuration in `README.md`.
 
 ## Code and configuration
 
@@ -43,7 +43,6 @@ consumer and may need its own `user-key`. The two surfaces refuse the wrong key 
 - Errors arrive as `{"Message": "…"}` and are kept as the problem's `detail`. See `integration/LifecareErrorDecoder.java`.
 - A 404, such as a missing person or a document without a PDF, reaches the caller as 404 rather than 502, with
   Lifecare's message as the `detail`.
-- Feign logging defaults to `NONE` (`log-level`). Request URLs carry the personnummer and the API key, so any higher
-  level writes both to the log.
+- Feign logging is off by default (`log-level`), since request URLs carry the personnummer and the key.
 
 TODO: field mapping notes and code values not documented in the spec.

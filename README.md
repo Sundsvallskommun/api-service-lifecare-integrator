@@ -8,9 +8,8 @@ _Integration service towards Lifecare (Tieto/TietoEvry care management system) f
 
 - **Java 25 or higher**
 - **Maven**
-- **MariaDB**(if applicable)
 - **Git**
-- **[Dependent Microservices](#dependencies)** (if applicable)
+- **[Dependent Microservices](#dependencies)**
 
 ### Installation
 
@@ -20,19 +19,9 @@ _Integration service towards Lifecare (Tieto/TietoEvry care management system) f
    git clone https://github.com/Sundsvallskommun/api-service-lifecare-integrator.git
    cd api-service-lifecare-integrator
    ```
-2. **Configure the application:**
-
-   Before running the application, you need to set up configuration settings.
-   See [Configuration](#Configuration)
-
-   **Note:** Ensure all required configurations are set; otherwise, the application may fail to start.
-
-3. **Ensure dependent services are running:**
-
-   If this microservice depends on other services, make sure they are up and accessible.
-   See [Dependencies](#dependencies) for more details.
-
-4. **Build and run the application:**
+2. **Configure the application.** See [Configuration](#configuration). The service does not start without the EC,
+   FamilyCare, Party and Employee settings.
+3. **Build and run the application:**
 
    ```bash
    mvn spring-boot:run
@@ -40,14 +29,13 @@ _Integration service towards Lifecare (Tieto/TietoEvry care management system) f
 
 ## Dependencies
 
-This microservice depends on the following services:
+- **[api-service-party](https://github.com/Sundsvallskommun/api-service-party)** translates between partyId and
+  personnummer. OAuth2 client credentials, registration `party`.
+- **[api-service-employee](https://github.com/Sundsvallskommun/api-service-employee)** puts a name to a Lifecare
+  caseworker id when Lifecare sends none. OAuth2 client credentials, registration `employee`.
+- **Lifecare elderly care (EC)**, **Lifecare FamilyCare (FC)** and **Lifecare ProfessionalWeb**, run by the vendor.
 
-- **Service Name**
-  - **Purpose:** Brief description of what the dependent service does.
-  - **Repository:** [Link to the repository](https://github.com/Sundsvallskommun/service_name)
-  - **Setup Instructions:** Refer to its documentation for installation and configuration steps.
-
-Ensure that these services are running and properly configured before starting this microservice.
+How each one is called is in [docs/integrations/](docs/integrations/).
 
 ## API Documentation
 
@@ -61,87 +49,103 @@ Architecture and integration notes are in [docs/](docs/README.md).
 
 ## Usage
 
-### API Endpoints
-
-Refer to the [API Documentation](#api-documentation) for detailed information on available endpoints.
-
 ### Example Request
 
 ```bash
-curl -X GET http://localhost:8080/api/resource
+curl -X GET "http://localhost:8080/2281/person?partyId=81471222-5798-11e9-ae24-57fa13b361e1"
 ```
 
 ## Configuration
 
-Configuration is crucial for the application to run successfully. Ensure all necessary settings are configured in
-`application.yml`.
+The keys live in `src/main/resources/application.yml`, which carries no comments. What each key means is here.
+Override every secret per environment and never commit one.
 
-### Key Configuration Parameters
+The OAuth2 clients for Party and Employee are the usual `spring.security.oauth2.client.registration.party` and
+`.employee` settings (`client-id`, `client-secret`) with a matching `provider` token URL.
 
-- **Server Port:**
+### `integration.elderlycare`
 
-  ```yaml
-  server:
-    port: 8080
-  ```
-- **Database Settings:**
+|        Key        | Default |                                                       Meaning                                                       |
+|-------------------|---------|---------------------------------------------------------------------------------------------------------------------|
+| `url`             |         | Host plus module path, ending in `/WE.EC.Integration.Host`. Required.                                               |
+| `domain`          |         | Lifecare domain, sent as a query parameter. Required.                                                               |
+| `key`             |         | API key, sent as a query parameter. Required. Secret.                                                               |
+| `connect-timeout` | `5`     | Seconds.                                                                                                            |
+| `read-timeout`    | `30`    | Seconds.                                                                                                            |
+| `log-level`       | `NONE`  | Feign log level. Request URLs carry the personnummer and the key, so any level above `NONE` writes both to the log. |
 
-  ```yaml
-  spring:
-    datasource:
-      url: jdbc:mysql://localhost:3306/your_database
-      username: your_db_username
-      password: your_db_password
-  ```
-- **External Service URLs:**
+EC rejects a request that has the key in a header as well, so the key goes in the query and nowhere else. Give it
+percent-encoded (`%2B`, `%2F`, `%3D`, never a raw `+`, `/` or `=`). It is sent as it is, and a decoded key stops the
+service at startup.
 
-  ```yaml
-  integration:
-    service:
-      url: http://dependency_service_url
-      oauth2:
-        client-id: some-client-id
-        client-secret: some-client-secret
+### `integration.familycare`
 
-  service:
-    oauth2:
-      token-url: http://dependecy_service_token_url
-  ```
-- **Lifecare print templates:** the templates the ProfessionalWeb print resources render with. Each defaults to the
-  template api-service-caremanagement uses.
+|        Key        | Default |                                Meaning                                 |
+|-------------------|---------|------------------------------------------------------------------------|
+| `url`             |         | Host plus module path, ending in `/WESE.FC.Api.FC`. Required.          |
+| `domain`          |         | Lifecare domain. Required.                                             |
+| `key`             |         | API key for the person-based reads. Required. Secret, percent-encoded. |
+| `user-key`        | `key`   | API key for `/Users/*`. Secret, percent-encoded.                       |
+| `connect-timeout` | `5`     | Seconds.                                                               |
+| `read-timeout`    | `30`    | Seconds.                                                               |
+| `log-level`       | `NONE`  | Feign log level, as for EC.                                            |
 
-  ```yaml
-  integration:
-    lifecare-professionalweb:
-      print:
-        decision-template-id: 885bfb68-c97b-47c0-921d-ef00caaa2423
-        calculation-template-id: 7936e9ec-e32a-40cf-9dea-d95b16e021f0
-        document-template-id: b9f20b49-c8ba-4c44-ad33-b2bf8f0b688a
-  ```
+`/Users/*` is licensed to a separate consumer ("Användarinformation IFO") from the person-based case APIs ("API IFO
+Personbaserade"). Set `user-key` where that split applies. The two refuse the wrong key in different ways. `/Users`
+answers 403 to a case key. The person-based reads answer 200 with an empty body to a user key, and nothing in the log
+says so.
 
-### Database Initialization
+### `integration.party`
 
-The project is set up with [Flyway](https://github.com/flyway/flyway) for database migrations. Flyway is disabled by
-default so you will have to enable it to automatically populate the database schema upon application startup.
+|         Key          | Default |                     Meaning                     |
+|----------------------|---------|-------------------------------------------------|
+| `url`                |         | api-service-party. Required.                    |
+| `connect-timeout`    | `5`     | Seconds.                                        |
+| `read-timeout`       | `30`    | Seconds.                                        |
+| `cache-time-to-live` | `PT15M` | How long a lookup stays in the in-memory cache. |
+| `cache-maximum-size` | `10000` | Most lookups held per direction.                |
 
-```yaml
-spring:
-  flyway:
-    enabled: true
-```
+A partyId and its personnummer belong together for life, so the time to live only bounds how long the heap holds
+them. A lookup Party cannot answer is never cached.
 
-- **No additional setup is required** for database initialization, as long as the database connection settings are
-  correctly configured.
+### `integration.employee`
 
-### Additional Notes
+|        Key        |  Default   |              Meaning              |
+|-------------------|------------|-----------------------------------|
+| `url`             |            | api-service-employee. Required.   |
+| `domain`          | `personal` | Employee's domain for the lookup. |
+| `connect-timeout` | `5`        | Seconds.                          |
+| `read-timeout`    | `10`       | Seconds.                          |
 
-- **Application Profiles:**
+Employee is asked only when Lifecare sends a caseworker without a name. A failure leaves the name out and never fails
+the decision read.
 
-  Use Spring profiles (`dev`, `prod`, etc.) to manage different configurations for different environments.
+### `integration.lifecare-professionalweb`
 
-- **Logging Configuration:**
+|                                             Key                                             |                    Default                    |                                                                Meaning                                                                |
+|---------------------------------------------------------------------------------------------|-----------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| `url`                                                                                       |                                               | Lifecare host without a module path. Unset turns the integration off, and every ProfessionalWeb call, exchange included, answers 502. |
+| `domain`                                                                                    |                                               | Lifecare domain, such as `SundsvallVoO_PLUS`.                                                                                         |
+| `actor`                                                                                     | `Actor_Professional`                          | Lifecare actor.                                                                                                                       |
+| `idp-method`                                                                                | `saml`                                        | Identity provider method.                                                                                                             |
+| `federation-profile`                                                                        |                                               | Federation profile, such as `Sundsvall_Intra`.                                                                                        |
+| `username`, `password`                                                                      |                                               | The integration account. Secrets.                                                                                                     |
+| `session-ttl`                                                                               | `20m`                                         | How long a session is used before the service signs in again.                                                                         |
+| `connect-timeout`                                                                           | `10`                                          | Seconds.                                                                                                                              |
+| `read-timeout`                                                                              | `30`                                          | Seconds.                                                                                                                              |
+| `session-cookie`                                                                            |                                               | Cookie header of a session the integration account signed in to elsewhere. Secret.                                                    |
+| `keep-alive-interval`                                                                       | `5m`                                          | How often a held session is kept alive.                                                                                               |
+| `print.decision-template-id`, `print.calculation-template-id`, `print.document-template-id` | the templates api-service-caremanagement uses | The Lifecare print templates the `pdf` resources render with. Lifecare refuses a document template the document's owner lacks.        |
 
-  Adjust logging levels if necessary.
+`domain`, `actor`, `idp-method` and `federation-profile` are what Lifecare's identity portal reads off the entry URL
+on a browser's first visit. The service signs in with `username` and `password` through MobilityGuard. Where
+MobilityGuard cannot be reached, set `session-cookie` instead. The service then uses that session rather than signing
+in. It is a live credential, and it has to be replaced when Lifecare stops accepting it.
+
+### Logging
+
+`logbook.excluded.paths` keeps `/**/professional-web/**` out of dept44's request and response payload log. Those paths
+carry what caseworkers wrote and Lifecare's answers, personnummer included, in both directions.
 
 ## Contributing
 

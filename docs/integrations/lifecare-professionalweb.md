@@ -26,7 +26,7 @@ There is no spec. The client is written by hand, not generated.
 
 A signed-in session of an integration account (SAML via MobilityGuard), not an API key. One session is shared by the
 whole process and kept in memory. While MobilityGuard cannot be reached, a session cookie signed in elsewhere can be
-configured instead. See the comment on `integration.lifecare-professionalweb` in `application.yml`.
+configured instead. See `integration.lifecare-professionalweb` under Configuration in `README.md`.
 
 ## Code and configuration
 

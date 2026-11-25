@@ -41,8 +41,8 @@ Code: `CalculationResource`, `ActualisationResource`.
 
 ## A handed-in ProfessionalWeb session stops being kept alive (on hold)
 
-A session cookie configured by hand is no longer kept alive after its time to live (20 minutes), which contradicts
-the comment in `application.yml`. A reset also throws away the cookies Lifecare has rotated. On hold until the api2
+A session cookie configured by hand is no longer kept alive after its time to live (20 minutes), although it is
+meant to be used until Lifecare stops accepting it. A reset also throws away the cookies Lifecare has rotated. On hold until the api2
 work in [professionalweb-api2.md](professionalweb-api2.md) reaches the session code.
 
 Code: `ProfessionalWebSession`.
