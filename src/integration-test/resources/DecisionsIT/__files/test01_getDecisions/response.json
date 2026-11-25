@@ -16,20 +16,6 @@
 			"validFrom": "2025-02-15"
 		},
 		{
-			"amount": 0.0,
-			"decided": "2025-02-14",
-			"decisionId": "2004",
-			"decisionMaker": "Försäkringskassan",
-			"elderlyCareDetails": {
-				"orderIds": []
-			},
-			"law": "SFB",
-			"reason": "",
-			"source": "ELDERLY_CARE",
-			"type": "Beslut att verkställa",
-			"validFrom": "2025-02-14"
-		},
-		{
 			"amount": 3000.0,
 			"decided": "2025-04-01",
 			"decisionId": "3003",
