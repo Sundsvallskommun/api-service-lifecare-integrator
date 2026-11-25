@@ -22,29 +22,25 @@ Reminders is done as the pilot (HYDRAN-3431), and the pattern for the other area
   are Feign parts in that configuration. See [lifecare-professionalweb.md](../integrations/lifecare-professionalweb.md).
 - Exchange is unchanged and shares the same session. Its code is in the `legacy` packages.
 - Sign-in, the session and the exchange transport run on OkHttp pinned to HTTP/1.1, the same as the Feign client.
-- Unit tests per layer, and `src/integration-test/java/apptest/ProfessionalWebRemindersIT.java` runs reading and
-  writing reminders end to end against WireMock.
+- Unit tests per layer, and an integration test per endpoint in
+  `src/integration-test/java/apptest/ProfessionalWebIT.java`, end to end against WireMock.
 
-Done since, on the same pattern, with unit tests per layer and every call on `ProfessionalWebClient`. Where an
-integration test is named, it is under `src/integration-test/java/apptest/` and runs the area end to end against
-WireMock:
+Done since, on the same pattern, with unit tests per layer, every call on `ProfessionalWebClient` and every endpoint
+in `ProfessionalWebIT`:
 
 - Job stimulus: a service's periods, the end date of a period and saving a person's periods.
-  Integration test: `ProfessionalWebJobStimulusIT`.
 - Payment, Payee and Household: the underlag and the latest payments of a service, whether the service's person has a
   household on a date, and creating a payment and a payee. The person is the one Lifecare's payment underlag names, as
   caremanagement does it, so no Party lookup is needed.
-  Integration test: `ProfessionalWebPaymentsIT`.
 - Decision: the underlag for a decision with or without a calculation, the reasons of a decision type, and reading,
-  creating and updating a decision. Integration test: `ProfessionalWebDecisionsIT`.
+  creating and updating a decision.
 - Document: a person's journal notes and documents, reading one to show or to edit, the proposals of a service, and
-  creating and updating a journal note or a document. Integration test: `ProfessionalWebDocumentsIT`.
+  creating and updating a journal note or a document.
 - Calculation: the underlag and the latest calculation of a service, reading one to show or to edit, the four
-  reckonings that change nothing in Lifecare, and creating, updating and removing a calculation. Integration test:
-  `ProfessionalWebCalculationsIT`.
+  reckonings that change nothing in Lifecare, and creating, updating and removing a calculation.
 - Prints: Lifecare's PDF of a calculation, a decision and a document, with the template ids under
   `integration.lifecare-professionalweb.print`. A template's parameter questions are answered with Lifecare's defaults
-  and posted back as a form. Integration test: `ProfessionalWebPrintsIT`.
+  and posted back as a form.
 
 All areas caremanagement uses now have resources and an integration test.
 
@@ -64,8 +60,9 @@ Decided along the way:
 - The session renewal exists twice while exchange lives, once in `ProfessionalWebExchange` and once in the Feign
   configuration. That is accepted for the transition.
 - One `@FeignClient`, one `ProfessionalWebIntegration` and one `ProfessionalWebService` for every area, with one
-  resource class per area. The integration holds what api2 expects, such as the businessType codes and the fixed
-  parameters. The service holds the checks that are this service's own.
+  resource class per area ([ADR 0003](../adr/0003-professionalweb-resource-per-area.md)). The integration holds what
+  api2 expects, such as the businessType codes and the fixed parameters. The service holds the checks that are this
+  service's own.
 
 ## Adding an area
 
@@ -76,7 +73,7 @@ Decided along the way:
 3. A method per operation on `ProfessionalWebService` with the checks the resources need, such as a body that must
    be a JSON object or an id in the body that must match the path.
 4. A resource per operation, returning Lifecare's bytes, and the OpenAPI baseline.
-5. An integration test per resource.
+5. An integration test per endpoint, appended to `ProfessionalWebIT`.
 
 ## After the areas
 

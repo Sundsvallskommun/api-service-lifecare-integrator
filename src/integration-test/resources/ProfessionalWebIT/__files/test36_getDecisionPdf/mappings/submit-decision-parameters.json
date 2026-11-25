@@ -22,7 +22,7 @@
 		"headers": {
 			"Content-Type": "application/pdf"
 		},
-		"bodyFileName": "test01_printDecisionAfterParameterQuestions/decision.pdf",
+		"bodyFileName": "test36_getDecisionPdf/decision.pdf",
 		"status": 200
 	}
 }

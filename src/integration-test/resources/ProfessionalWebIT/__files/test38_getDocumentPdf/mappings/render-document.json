@@ -12,7 +12,7 @@
 		"headers": {
 			"Content-Type": "application/pdf"
 		},
-		"bodyFileName": "test03_printDocument/print.pdf",
+		"bodyFileName": "test38_getDocumentPdf/print.pdf",
 		"status": 200
 	}
 }
