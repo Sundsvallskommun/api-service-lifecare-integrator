@@ -131,7 +131,7 @@ class ProfessionalWebCalculationResource {
 		responses = @ApiResponse(responseCode = "200",
 			description = "Lifecare's answer",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "object"))))
-	ResponseEntity<byte[]> getAmount(
+	ResponseEntity<byte[]> getCalculationAmount(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@RequestBody final byte[] body) {
 
@@ -146,7 +146,7 @@ class ProfessionalWebCalculationResource {
 		responses = @ApiResponse(responseCode = "200",
 			description = "Lifecare's answer",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "number"))))
-	ResponseEntity<byte[]> getSharedCost(
+	ResponseEntity<byte[]> getCalculationSharedCost(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@RequestBody final byte[] body) {
 
@@ -161,7 +161,7 @@ class ProfessionalWebCalculationResource {
 		responses = @ApiResponse(responseCode = "200",
 			description = "Lifecare's answer",
 			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "object"))))
-	ResponseEntity<byte[]> getJobStimuli(
+	ResponseEntity<byte[]> getCalculationJobStimuli(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@RequestBody final byte[] body) {
 

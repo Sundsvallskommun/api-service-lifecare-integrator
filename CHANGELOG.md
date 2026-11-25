@@ -8,6 +8,8 @@ Every change to the service, newest date first. One short line per change.
 - Stop masking parts of UUIDs and long numeric ids as personnummer in logs and problem details.
 - Refuse a reminder update whose body gives the id as a decimal such as `7.0`, as document updates already do.
 - Describe the answer of `GET /professional-web/persons/{partyId}/documents` as an object in the OpenAPI, as Lifecare sends it.
+- Answer 400 to a negative `offset` on `GET /users` instead of passing it to FamilyCare.
+- Rename the OpenAPI operations `getAmount`, `getSharedCost` and `getJobStimuli` to `getCalculationAmount`, `getCalculationSharedCost` and `getCalculationJobStimuli`.
 
 ## 2026-11-24
 

@@ -98,9 +98,9 @@ class ProfessionalWebCalculationResourceFailureTest {
 		"GET, /calculations/7, getCalculation",
 		"GET, /calculations/7/edit, getCalculationForEdit",
 		"POST, /calculations/place-persons, placePersons",
-		"POST, /calculations/amount, getAmount",
-		"POST, /calculations/shared-cost, getSharedCost",
-		"POST, /calculations/job-stimuli, getJobStimuli",
+		"POST, /calculations/amount, getCalculationAmount",
+		"POST, /calculations/shared-cost, getCalculationSharedCost",
+		"POST, /calculations/job-stimuli, getCalculationJobStimuli",
 		"POST, /services/42/calculations, createCalculation",
 		"PUT, /calculations/7, updateCalculation",
 		"DELETE, /calculations/7, deleteCalculation"

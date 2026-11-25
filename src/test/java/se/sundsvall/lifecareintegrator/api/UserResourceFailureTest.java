@@ -88,4 +88,22 @@ class UserResourceFailureTest {
 
 		verifyNoInteractions(familyCareServiceMock);
 	}
+
+	@Test
+	void getUsersWithNegativeOffset() {
+		final var response = webTestClient.get()
+			.uri(builder -> builder.path(PATH).queryParam("limit", 100).queryParam("offset", -1).build(Map.of("municipalityId", MUNICIPALITY_ID)))
+			.exchange()
+			.expectStatus().isBadRequest()
+			.expectBody(ConstraintViolationProblem.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isNotNull();
+		assertThat(response.getViolations())
+			.extracting(Violation::field, Violation::message)
+			.containsExactly(tuple("getUsers.offset", "must be greater than or equal to 0"));
+
+		verifyNoInteractions(familyCareServiceMock);
+	}
 }

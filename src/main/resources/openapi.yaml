@@ -1503,7 +1503,7 @@ paths:
       summary: Let Lifecare count a household's shared costs for a period
       description: Lifecare's api2/Calculation/GetSharedCost. Changes nothing in Lifecare.
         The body is sent to Lifecare as it is
-      operationId: getSharedCost
+      operationId: getCalculationSharedCost
       parameters:
       - name: municipalityId
         in: path
@@ -1627,7 +1627,7 @@ paths:
       summary: Let Lifecare mark which members of a calculation have job stimulus
       description: Lifecare's api2/Calculation/GetJobStimuliForCalculation. Changes
         nothing in Lifecare. The body is sent to Lifecare as it is
-      operationId: getJobStimuli
+      operationId: getCalculationJobStimuli
       parameters:
       - name: municipalityId
         in: path
@@ -1689,7 +1689,7 @@ paths:
       summary: Let Lifecare count a member's amount for a period
       description: Lifecare's api2/Calculation/GetAmount. Changes nothing in Lifecare.
         The body is sent to Lifecare as it is
-      operationId: getAmount
+      operationId: getCalculationAmount
       parameters:
       - name: municipalityId
         in: path
@@ -2150,6 +2150,7 @@ paths:
         schema:
           type: integer
           format: int32
+          minimum: 0
         example: 0
       - name: modifiedAfter
         in: query

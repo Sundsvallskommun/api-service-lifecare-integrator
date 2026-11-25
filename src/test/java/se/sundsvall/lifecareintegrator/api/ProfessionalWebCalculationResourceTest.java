@@ -79,7 +79,7 @@ class ProfessionalWebCalculationResourceTest {
 	}
 
 	@Test
-	void getAmountAnswersOkWithLifecaresAnswer() {
+	void getCalculationAmountAnswersOkWithLifecaresAnswer() {
 		when(serviceMock.getCalculationAmount(BODY.getBytes(UTF_8))).thenReturn("{\"amount\":12.50}".getBytes(UTF_8));
 
 		assertThat(postOk("/2281/professional-web/calculations/amount")).isEqualTo("{\"amount\":12.50}");
@@ -88,7 +88,7 @@ class ProfessionalWebCalculationResourceTest {
 	}
 
 	@Test
-	void getSharedCostAnswersOkWithLifecaresBareNumber() {
+	void getCalculationSharedCostAnswersOkWithLifecaresBareNumber() {
 		when(serviceMock.getCalculationSharedCost(BODY.getBytes(UTF_8))).thenReturn("1250.50".getBytes(UTF_8));
 
 		assertThat(postOk("/2281/professional-web/calculations/shared-cost")).isEqualTo("1250.50");
@@ -97,7 +97,7 @@ class ProfessionalWebCalculationResourceTest {
 	}
 
 	@Test
-	void getJobStimuliAnswersOkWithLifecaresAnswer() {
+	void getCalculationJobStimuliAnswersOkWithLifecaresAnswer() {
 		when(serviceMock.getCalculationJobStimuli(BODY.getBytes(UTF_8))).thenReturn(LIFECARE_JSON.getBytes(UTF_8));
 
 		assertThat(postOk("/2281/professional-web/calculations/job-stimuli")).isEqualTo(LIFECARE_JSON);
