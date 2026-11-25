@@ -21,6 +21,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static se.sundsvall.lifecareintegrator.integration.professionalweb.session.SignInStubs.SESSION_TTL;
 import static se.sundsvall.lifecareintegrator.integration.professionalweb.session.SignInStubs.http;
 import static se.sundsvall.lifecareintegrator.integration.professionalweb.session.SignInStubs.properties;
 import static se.sundsvall.lifecareintegrator.integration.professionalweb.session.SignInStubs.stubSignIn;
@@ -33,7 +34,6 @@ class ProfessionalWebSessionTest {
 	void setUp() {
 		wireMock = new WireMockServer(options().dynamicPort());
 		wireMock.start();
-		stubSignIn(wireMock);
 	}
 
 	@AfterEach
@@ -51,10 +51,11 @@ class ProfessionalWebSessionTest {
 	@Test
 	void sessionPastItsTtlIsReplaced() {
 		final var clock = new MutableClock(Instant.parse("2026-09-25T08:00:00Z"));
+		stubSignIn(wireMock);
 		final var timed = session(properties(wireMock, "user", "pw", null), clock);
 
 		timed.prepare();
-		clock.now = clock.now.plus(Duration.ofMinutes(20));
+		clock.now = clock.now.plus(SESSION_TTL);
 		timed.prepare();
 
 		wireMock.verify(2, postRequestedFor(urlPathEqualTo("/idp/login/post")));
@@ -98,7 +99,7 @@ class ProfessionalWebSessionTest {
 		final var seeded = seededSession("LEGACY-TOKEN=seeded", clock);
 
 		seeded.prepare();
-		clock.now = clock.now.plus(Duration.ofMinutes(20));
+		clock.now = clock.now.plus(SESSION_TTL);
 
 		seeded.keepAlive();
 

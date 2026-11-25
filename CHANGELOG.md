@@ -11,10 +11,11 @@ Every change to the service, newest date first. One short line per change.
 - Answer 400 to a negative `offset` on `GET /users` instead of passing it to FamilyCare.
 - Rename the OpenAPI operations `getAmount`, `getSharedCost` and `getJobStimuli` to `getCalculationAmount`, `getCalculationSharedCost` and `getCalculationJobStimuli`.
 - Name the helper methods in the integrations with a verb.
-- Tidy the ProfessionalWeb session code: exchange-only checks move to exchange, form encoding gets its own class, and each default has one place.
-- Leave a missing entry out of a FamilyCare list instead of returning it as `null`.
+- Rework the ProfessionalWeb session code.
+- Leave a missing entry out of a page of FamilyCare results instead of returning it as `null`.
 - Fail at startup when `integration.party.url` is unset, as the other integrations do.
-- Tidy the FamilyCare and decision code: drop guards that never trigger, divider comments and a second copy of the time zone.
+- Rework the FamilyCare mappers and the decision code.
+- Answer 400 with its own message when only `from` lies after 2100-12-31 or only `to` before 1900-01-01.
 
 ## 2026-11-24
 

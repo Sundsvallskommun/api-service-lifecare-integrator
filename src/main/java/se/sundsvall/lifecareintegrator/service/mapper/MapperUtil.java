@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.Optional;
@@ -21,9 +20,6 @@ import static java.time.Month.JANUARY;
 final class MapperUtil {
 
 	private static final int ISO_DATE_LENGTH = 10;
-
-	/** The clock FC's zone-less date-times are on — see {@link #toOffsetDateTime(LocalDateTime)}. */
-	private static final ZoneId FC_ZONE = ClockConfiguration.STOCKHOLM;
 
 	/**
 	 * The EC date part meaning "not set" — a decision that has not been scheduled carries year 1 rather than null.
@@ -97,7 +93,7 @@ final class MapperUtil {
 	 */
 	static OffsetDateTime toOffsetDateTime(final LocalDateTime dateTime) {
 		return Optional.ofNullable(dateTime)
-			.map(value -> value.atZone(FC_ZONE).toOffsetDateTime())
+			.map(value -> value.atZone(ClockConfiguration.STOCKHOLM).toOffsetDateTime())
 			.orElse(null);
 	}
 

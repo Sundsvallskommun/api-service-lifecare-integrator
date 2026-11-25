@@ -61,5 +61,14 @@ class DateWindowTest {
 		final var exception = assertThrows(ThrowableProblem.class, () -> DateWindow.of(null, LocalDate.parse("1800-01-01")));
 
 		assertThat(exception.getStatus()).isEqualTo(BAD_REQUEST);
+		assertThat(exception.getDetail()).isEqualTo("'to' must be on or after 1900-01-01 when 'from' is left out");
+	}
+
+	@Test
+	void ofWithOnlyFromAfterTheLatestDateIsRefused() {
+		final var exception = assertThrows(ThrowableProblem.class, () -> DateWindow.of(LocalDate.parse("2101-01-01"), null));
+
+		assertThat(exception.getStatus()).isEqualTo(BAD_REQUEST);
+		assertThat(exception.getDetail()).isEqualTo("'from' must be on or before 2100-12-31 when 'to' is left out");
 	}
 }

@@ -1,12 +1,14 @@
 package apptest;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.dept44.test.AbstractAppTest;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.lifecareintegrator.Application;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpHeaders.ACCEPT;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpMethod.DELETE;
@@ -68,14 +70,19 @@ class ProfessionalWebIT extends AbstractAppTest {
 	}
 
 	@Test
-	void test05_getCalculationSharedCost() {
-		setupCall()
+	void test05_getCalculationSharedCost() throws ClassNotFoundException {
+		final var sharedCost = setupCall()
 			.withServicePath("/2281/professional-web/calculations/shared-cost")
 			.withHttpMethod(POST)
 			.withRequest(REQUEST_FILE)
 			.withExpectedResponseStatus(OK)
 			.withExpectedResponse(RESPONSE_FILE)
-			.sendRequestAndVerifyResponse();
+			.sendRequestAndVerifyResponse()
+			.andReturnBody(BigDecimal.class);
+
+		// The JSON comparison above is numeric. BigDecimal.equals also compares the scale, so the bare number has to
+		// arrive as Lifecare wrote it
+		assertThat(sharedCost).isEqualTo(new BigDecimal("2030.50"));
 	}
 
 	@Test

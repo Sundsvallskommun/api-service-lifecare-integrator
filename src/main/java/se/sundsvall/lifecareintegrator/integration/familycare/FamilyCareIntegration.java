@@ -148,7 +148,7 @@ public class FamilyCareIntegration {
 	}
 
 	/** FamilyCare counts pages from 0, this service from 1. */
-	private static Integer toFcPageNr(final Integer page) {
+	private static int toFcPageNr(final int page) {
 		return page - 1;
 	}
 }

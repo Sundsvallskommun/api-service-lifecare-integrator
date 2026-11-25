@@ -109,7 +109,7 @@ public class DecisionService {
 			.toList();
 	}
 
-	/** FC filters on the date window itself, and requires one: an open window falls back to a wide default. */
+	/** FC filters on the date window itself, and requires one: a bound left open reads everything on that side. */
 	private List<Decision> getFamilyCareDecisions(final String municipalityId, final String personNumber, final DateWindow window) {
 		final var familyCareDecisions = familyCareIntegration.getAllDecisions(personNumber, window.start(), window.end());
 		final var partyIdsByPersonNumber = partyIntegration.getPartyIds(municipalityId, FamilyCareDecisionMapper.collectPersonNumbers(familyCareDecisions));

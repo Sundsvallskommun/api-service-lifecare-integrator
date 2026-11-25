@@ -6,7 +6,6 @@ import java.net.http.HttpHeaders;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -75,7 +74,7 @@ public class ProfessionalWebHttp {
 	 * @param  method  the HTTP method
 	 * @param  uri     the absolute URI
 	 * @param  headers the request headers
-	 * @param  body    the body, or null for none
+	 * @param  body    the body, or null for none; a POST or PUT needs one
 	 * @return         the response
 	 */
 	public ProfessionalWebResponse send(final String method, final URI uri, final Map<String, String> headers, final byte[] body) {
@@ -94,9 +93,10 @@ public class ProfessionalWebHttp {
 	}
 
 	private static RequestBody toRequestBody(final byte[] body) {
-		return Optional.ofNullable(body)
-			.map(bytes -> RequestBody.create(bytes))
-			.orElse(null);
+		if (body == null) {
+			return null;
+		}
+		return RequestBody.create(body);
 	}
 
 	/**

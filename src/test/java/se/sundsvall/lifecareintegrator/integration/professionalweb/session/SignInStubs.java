@@ -17,6 +17,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
  */
 public final class SignInStubs {
 
+	/** The session time to live every properties() carries. */
+	public static final Duration SESSION_TTL = Duration.ofMinutes(20);
+
 	private SignInStubs() {}
 
 	public static void stubSignIn(final WireMockServer wireMock) {
@@ -43,7 +46,7 @@ public final class SignInStubs {
 
 	public static ProfessionalWebProperties properties(final WireMockServer wireMock, final String username, final String password, final String sessionCookie) {
 		return new ProfessionalWebProperties(wireMock.baseUrl() + "/", "Domain", "Actor_Professional", "saml", "Sundsvall_Intra",
-			username, password, Duration.ofMinutes(20), 1, 5, sessionCookie);
+			username, password, SESSION_TTL, 1, 5, sessionCookie);
 	}
 
 	public static ProfessionalWebHttp http() {

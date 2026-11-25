@@ -234,6 +234,19 @@ class ProfessionalWebExchangeTest {
 	}
 
 	@Test
+	void seededSessionGoesOutWithTheCall() {
+		wireMock.stubFor(get(urlPathEqualTo(API)).willReturn(okJson("{\"ok\":1}")));
+
+		final var response = seededExchange("ASP.NET_SessionId=s1; LEGACY-TOKEN=seeded").exchange("GET", "api2/Thing/Get", Map.of(), null);
+
+		assertThat(response.status()).isEqualTo(200);
+		wireMock.verify(0, getRequestedFor(urlPathEqualTo("/WE.Flow.Html")));
+		wireMock.verify(getRequestedFor(urlPathEqualTo(API))
+			.withHeader("X-LEGACY-TOKEN", equalTo("seeded"))
+			.withHeader("Cookie", containing("ASP.NET_SessionId=s1")));
+	}
+
+	@Test
 	void deadSeededSessionIsReported() {
 		wireMock.stubFor(get(urlPathEqualTo(API)).willReturn(aResponse().withStatus(360)));
 		wireMock.stubFor(get(urlPathEqualTo("/WESE.FC.ProfessionalWeb/Heartbeat")).willReturn(ok()));

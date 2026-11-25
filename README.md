@@ -57,7 +57,8 @@ curl -X GET "http://localhost:8080/2281/person?partyId=81471222-5798-11e9-ae24-5
 
 ## Configuration
 
-The keys live in `src/main/resources/application.yml`, which carries no comments. What each key means is here.
+`src/main/resources/application.yml` holds only the keys every environment overrides, without comments. Every other
+key has its default in code. The tables below list every key, its default and what it means.
 Override every secret per environment and never commit one.
 
 The OAuth2 clients for Party and Employee are the usual `spring.security.oauth2.client.registration.party` and
