@@ -3,6 +3,7 @@ package se.sundsvall.lifecareintegrator.util;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -145,6 +146,19 @@ class LogSanitizerTest {
 	@Test
 	void aPersonNumberAfterAnEncodedSpaceIsCovered() {
 		assertThat(redact("?q=x%2019900101-1234%27")).isEqualTo("?q=x%20[REDACTED-PNR]%27");
+	}
+
+	@ParameterizedTest
+	@CsvSource({
+		"file 19900101TF03-utredning.pdf, 19900101TF03",
+		"file utredning-19900101TF03.pdf, 19900101TF03",
+		"q=19900101%2d1234-x, 19900101%2d1234",
+		"id-199001011234, 199001011234"
+	})
+	void aPersonNumberNextToAHyphenIsCovered(final String text, final String personNumber) {
+		assertThat(redact(text))
+			.doesNotContain(personNumber)
+			.contains("[REDACTED-PNR]");
 	}
 
 	@Test

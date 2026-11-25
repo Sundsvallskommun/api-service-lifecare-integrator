@@ -21,10 +21,10 @@ public final class LogSanitizer {
 	private static final String REDACTED_API_KEY = "$1[REDACTED]";
 
 	// Covers what dept44 misses: a number right after a percent-escape, whose hex digits defeat a word boundary, and
-	// the letter suffix of test personnummer (19900101TF03). A digit or hyphen on either side means a longer id, such
-	// as a UUID group, unless the digit ends a percent-escape
-	private static final String NOT_JOINED_BEFORE = "(?:(?<=%[0-9A-Fa-f]{2})|(?<![-0-9]))";
-	private static final String NOT_JOINED_AFTER = "(?![-0-9])";
+	// the letter suffix of test personnummer (19900101TF03). A digit on either side, or a UUID group (four hex digits
+	// and a hyphen) next to it, means a longer id, unless the digit ends a percent-escape
+	private static final String NOT_JOINED_BEFORE = "(?:(?<=%[0-9A-Fa-f]{2})|(?<![0-9])(?<![0-9A-Fa-f]{4}-))";
+	private static final String NOT_JOINED_AFTER = "(?![0-9])(?!-[0-9A-Fa-f]{4}-)";
 	private static final Pattern TWELVE_DIGIT_PERSON_NUMBER = Pattern.compile(
 		NOT_JOINED_BEFORE + "(?:19|20)\\d{6}(?:%2[Dd]|[-+])?[0-9A-Za-z]{4}" + NOT_JOINED_AFTER);
 	private static final String REDACTED_PERSON_NUMBER = "[REDACTED-PNR]";
