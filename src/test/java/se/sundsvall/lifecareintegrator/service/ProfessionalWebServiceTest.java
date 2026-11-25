@@ -15,6 +15,7 @@ import se.sundsvall.lifecareintegrator.integration.party.PartyIntegration;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebIntegration;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.time.Month.JANUARY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
@@ -456,11 +457,11 @@ class ProfessionalWebServiceTest {
 
 	@Test
 	void getJobStimulusEndDate() {
-		when(integrationMock.getJobStimulusEndDate(LocalDate.of(2026, 1, 5))).thenReturn("\"2028-01-04\"".getBytes(UTF_8));
+		when(integrationMock.getJobStimulusEndDate(LocalDate.of(2026, JANUARY, 5))).thenReturn("\"2028-01-04\"".getBytes(UTF_8));
 
-		assertThat(new String(service.getJobStimulusEndDate(LocalDate.of(2026, 1, 5)), UTF_8)).isEqualTo("\"2028-01-04\"");
+		assertThat(new String(service.getJobStimulusEndDate(LocalDate.of(2026, JANUARY, 5)), UTF_8)).isEqualTo("\"2028-01-04\"");
 
-		verify(integrationMock).getJobStimulusEndDate(LocalDate.of(2026, 1, 5));
+		verify(integrationMock).getJobStimulusEndDate(LocalDate.of(2026, JANUARY, 5));
 		verifyNoMoreInteractions(integrationMock);
 	}
 
@@ -523,11 +524,11 @@ class ProfessionalWebServiceTest {
 
 	@Test
 	void hasHousehold() {
-		when(integrationMock.hasHousehold(42, LocalDate.of(2026, 1, 5))).thenReturn("false".getBytes(UTF_8));
+		when(integrationMock.hasHousehold(42, LocalDate.of(2026, JANUARY, 5))).thenReturn("false".getBytes(UTF_8));
 
-		assertThat(new String(service.hasHousehold(42, LocalDate.of(2026, 1, 5)), UTF_8)).isEqualTo("false");
+		assertThat(new String(service.hasHousehold(42, LocalDate.of(2026, JANUARY, 5)), UTF_8)).isEqualTo("false");
 
-		verify(integrationMock).hasHousehold(42, LocalDate.of(2026, 1, 5));
+		verify(integrationMock).hasHousehold(42, LocalDate.of(2026, JANUARY, 5));
 		verifyNoMoreInteractions(integrationMock);
 	}
 

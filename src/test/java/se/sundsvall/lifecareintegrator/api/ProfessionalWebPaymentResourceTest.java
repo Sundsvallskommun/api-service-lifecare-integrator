@@ -13,6 +13,7 @@ import se.sundsvall.lifecareintegrator.Application;
 import se.sundsvall.lifecareintegrator.service.ProfessionalWebService;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.time.Month.NOVEMBER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -54,10 +55,10 @@ class ProfessionalWebPaymentResourceTest {
 
 	@Test
 	void hasHouseholdReturnsLifecaresBoolean() {
-		when(serviceMock.hasHousehold(42, LocalDate.of(2026, 11, 1))).thenReturn("true".getBytes(UTF_8));
+		when(serviceMock.hasHousehold(42, LocalDate.of(2026, NOVEMBER, 1))).thenReturn("true".getBytes(UTF_8));
 
 		assertThat(getJson("/2281/professional-web/services/42/household?date=2026-11-01")).isEqualTo("true");
-		verify(serviceMock).hasHousehold(42, LocalDate.of(2026, 11, 1));
+		verify(serviceMock).hasHousehold(42, LocalDate.of(2026, NOVEMBER, 1));
 		verifyNoMoreInteractions(serviceMock);
 	}
 

@@ -64,41 +64,61 @@ public class ProfessionalWebSignIn {
 				break;
 			}
 			final var action = form.get().action();
-			if (action.equals(lastAction)) {
-				// A page that posts itself back to the same place is a waiting room, not a step: the identity provider is
-				// polling while something outside the page authenticates. Posting again only hammers it.
-				throw Problem.valueOf(BAD_GATEWAY, "The identity provider is waiting at " + URI.create(action).getPath()
-					+ " rather than asking for a password - the account is not being offered password sign-in");
-			}
+			requireNotWaiting(action, lastAction);
 			lastAction = action;
 
 			final var fields = new LinkedHashMap<>(form.get().fields());
 			if (form.get().isSignIn()) {
-				if (credentialsSent) {
-					// Asked a second time: either the credentials are wrong, or the account is asked for something a server
-					// cannot give.
-					throw Problem.valueOf(BAD_GATEWAY,
-						"Lifecare asked the integration account to sign in a second time - check the credentials, or whether the account is enrolled for a one-time code");
-				}
+				requireFirstSignIn(credentialsSent);
 				fillCredentials(form.get(), fields);
 				credentialsSent = true;
 			}
 
-			// Names the step without naming what is in it, so a flow that stalls says where it stalled.
-			if (LOG.isInfoEnabled()) {
-				final var actionUri = URI.create(action);
-				LOG.info("Lifecare sign-in: posting {} to {}{}", describeStep(form.get()), actionUri.getHost(), actionUri.getPath());
-			}
+			logStep(form.get(), action);
 			response = http.followRedirects(action, cookies, fields);
 		}
 
-		if (!cookies.has(SIGNED_IN_COOKIE)) {
-			if (credentialsSent) {
-				throw Problem.valueOf(BAD_GATEWAY, "Lifecare never issued a session after the integration account signed in");
-			}
-			throw Problem.valueOf(BAD_GATEWAY, "The Lifecare sign-in page had no password field - the flow may be asking for a one-time code");
-		}
+		requireSignedIn(cookies, credentialsSent);
 		LOG.info("Lifecare accepted the integration account");
+	}
+
+	/**
+	 * A page that posts itself back to the same place is a waiting room, not a step: the identity provider is polling
+	 * while something outside the page authenticates. Posting again only hammers it.
+	 */
+	private static void requireNotWaiting(final String action, final String lastAction) {
+		if (action.equals(lastAction)) {
+			throw Problem.valueOf(BAD_GATEWAY, "The identity provider is waiting at " + URI.create(action).getPath()
+				+ " rather than asking for a password - the account is not being offered password sign-in");
+		}
+	}
+
+	/**
+	 * Asked a second time: either the credentials are wrong, or the account is asked for something a server cannot give.
+	 */
+	private static void requireFirstSignIn(final boolean credentialsSent) {
+		if (credentialsSent) {
+			throw Problem.valueOf(BAD_GATEWAY,
+				"Lifecare asked the integration account to sign in a second time - check the credentials, or whether the account is enrolled for a one-time code");
+		}
+	}
+
+	private static void requireSignedIn(final ProfessionalWebCookies cookies, final boolean credentialsSent) {
+		if (cookies.has(SIGNED_IN_COOKIE)) {
+			return;
+		}
+		if (credentialsSent) {
+			throw Problem.valueOf(BAD_GATEWAY, "Lifecare never issued a session after the integration account signed in");
+		}
+		throw Problem.valueOf(BAD_GATEWAY, "The Lifecare sign-in page had no password field - the flow may be asking for a one-time code");
+	}
+
+	/** Names the step without naming what is in it, so a flow that stalls says where it stalled. */
+	private static void logStep(final SignInForm form, final String action) {
+		if (LOG.isInfoEnabled()) {
+			final var actionUri = URI.create(action);
+			LOG.info("Lifecare sign-in: posting {} to {}{}", describeStep(form), actionUri.getHost(), actionUri.getPath());
+		}
 	}
 
 	private void fillCredentials(final SignInForm form, final LinkedHashMap<String, String> fields) {

@@ -228,6 +228,8 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 
 	/** Redaction runs before capping, so the cap cannot cut a personnummer into a fragment redaction no longer finds. */
 	static String redactAndCap(final String body) {
-		return cap(redact(body), MAX_BODY_CHARACTERS);
+		return ofNullable(redact(body))
+			.map(redacted -> cap(redacted, MAX_BODY_CHARACTERS))
+			.orElse(null);
 	}
 }

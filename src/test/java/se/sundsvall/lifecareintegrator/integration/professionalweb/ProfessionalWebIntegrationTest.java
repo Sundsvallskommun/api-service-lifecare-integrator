@@ -16,6 +16,7 @@ import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.configuration.ProfessionalWebPrintProperties;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.time.Month.JANUARY;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -196,7 +197,7 @@ class ProfessionalWebIntegrationTest {
 	void getJobStimulusEndDateAsksWithTheIsoDate() {
 		when(clientMock.getJobStimulusToDate("2026-01-05")).thenReturn("\"2028-01-04\"".getBytes(UTF_8));
 
-		assertThat(new String(integration.getJobStimulusEndDate(LocalDate.of(2026, 1, 5)), UTF_8)).isEqualTo("\"2028-01-04\"");
+		assertThat(new String(integration.getJobStimulusEndDate(LocalDate.of(2026, JANUARY, 5)), UTF_8)).isEqualTo("\"2028-01-04\"");
 
 		verify(clientMock).getJobStimulusToDate("2026-01-05");
 		verifyNoMoreInteractions(clientMock);
@@ -379,7 +380,7 @@ class ProfessionalWebIntegrationTest {
 		when(clientMock.getPaymentForCreate(8, 42)).thenReturn("{\"payment\":{\"susPersonId\":\"191212121212\",\"amount\":0},\"payees\":[]}".getBytes(UTF_8));
 		when(clientMock.hasHouseholdThisDate("191212121212", "2026-01-05")).thenReturn("false".getBytes(UTF_8));
 
-		assertThat(new String(integration.hasHousehold(42, LocalDate.of(2026, 1, 5)), UTF_8)).isEqualTo("false");
+		assertThat(new String(integration.hasHousehold(42, LocalDate.of(2026, JANUARY, 5)), UTF_8)).isEqualTo("false");
 
 		verify(clientMock).getPaymentForCreate(8, 42);
 		verify(clientMock).hasHouseholdThisDate("191212121212", "2026-01-05");
@@ -394,7 +395,7 @@ class ProfessionalWebIntegrationTest {
 	void hasHouseholdWhenLifecareNamesNoPersonForTheServiceIsBadGateway(final String paymentForCreate) {
 		when(clientMock.getPaymentForCreate(8, 42)).thenReturn(paymentForCreate.getBytes(UTF_8));
 
-		assertThatThrownBy(() -> integration.hasHousehold(42, LocalDate.of(2026, 1, 5)))
+		assertThatThrownBy(() -> integration.hasHousehold(42, LocalDate.of(2026, JANUARY, 5)))
 			.asInstanceOf(type(ThrowableProblem.class))
 			.extracting(ThrowableProblem::getStatus, ThrowableProblem::getDetail)
 			.containsExactly(BAD_GATEWAY, "Lifecare named no person for the service");

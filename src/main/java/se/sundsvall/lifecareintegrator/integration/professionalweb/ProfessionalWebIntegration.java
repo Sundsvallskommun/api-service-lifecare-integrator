@@ -34,6 +34,7 @@ public class ProfessionalWebIntegration {
 	private static final int NEW_PROPOSAL = 0;
 
 	/** The print container's owner for a calculation, as Lifecare's web app asks for it. */
+	private static final String TEMPLATE_ID = "templateId";
 	private static final String CALCULATION_OWNER_TYPE = "BERAK";
 	private static final String CALCULATION_OWNER_CODE = "999999999";
 	private static final byte[] PDF_SIGNATURE = "%PDF".getBytes(US_ASCII);
@@ -192,7 +193,7 @@ public class ProfessionalWebIntegration {
 
 	public byte[] getCalculationPdf(final long calculationId) {
 		final var query = new LinkedHashMap<String, String>();
-		query.put("templateId", printProperties.calculationTemplateId());
+		query.put(TEMPLATE_ID, printProperties.calculationTemplateId());
 		query.put("ownerType", CALCULATION_OWNER_TYPE);
 		query.put("ownerCode", CALCULATION_OWNER_CODE);
 		query.put("objectId", String.valueOf(calculationId));
@@ -201,7 +202,7 @@ public class ProfessionalWebIntegration {
 
 	public byte[] getDecisionPdf(final long decisionId) {
 		final var query = new LinkedHashMap<String, String>();
-		query.put("templateId", printProperties.decisionTemplateId());
+		query.put(TEMPLATE_ID, printProperties.decisionTemplateId());
 		query.put("decisionId", String.valueOf(decisionId));
 		query.put("hideRevisions", "true");
 		return print("PrintDecision", query);
@@ -209,7 +210,7 @@ public class ProfessionalWebIntegration {
 
 	public byte[] getDocumentPdf(final long documentId) {
 		final var query = new LinkedHashMap<String, String>();
-		query.put("templateId", printProperties.documentTemplateId());
+		query.put(TEMPLATE_ID, printProperties.documentTemplateId());
 		query.put("documentId", String.valueOf(documentId));
 		query.put("hideRevisions", "true");
 		return print("PrintDocument", query);

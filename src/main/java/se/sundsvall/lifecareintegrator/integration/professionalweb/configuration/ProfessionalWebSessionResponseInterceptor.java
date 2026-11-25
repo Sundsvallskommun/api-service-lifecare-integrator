@@ -81,6 +81,8 @@ class ProfessionalWebSessionResponseInterceptor implements ResponseInterceptor {
 	}
 
 	/** Lifecare wants a session for this call; the retryer establishes one and lets Feign ask again. */
+	// Feign retries only a RetryableException, whose own hierarchy is already five deep
+	@SuppressWarnings("java:S110")
 	static final class SessionRequiredException extends RetryableException {
 
 		private static final long serialVersionUID = 1L;

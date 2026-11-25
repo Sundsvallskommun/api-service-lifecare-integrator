@@ -13,6 +13,7 @@ import se.sundsvall.lifecareintegrator.Application;
 import se.sundsvall.lifecareintegrator.service.ProfessionalWebService;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.time.Month.NOVEMBER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -50,7 +51,7 @@ class ProfessionalWebJobStimulusResourceTest {
 
 	@Test
 	void getJobStimulusEndDateReturnsLifecaresBareString() {
-		when(serviceMock.getJobStimulusEndDate(LocalDate.of(2026, 11, 1))).thenReturn("\"2028-10-31\"".getBytes(UTF_8));
+		when(serviceMock.getJobStimulusEndDate(LocalDate.of(2026, NOVEMBER, 1))).thenReturn("\"2028-10-31\"".getBytes(UTF_8));
 
 		final var body = webTestClient.get().uri("/2281/professional-web/job-stimulus/end-date?fromDate=2026-11-01")
 			.exchange()
@@ -59,7 +60,7 @@ class ProfessionalWebJobStimulusResourceTest {
 			.expectBody(String.class).returnResult().getResponseBody();
 
 		assertThat(body).isEqualTo("\"2028-10-31\"");
-		verify(serviceMock).getJobStimulusEndDate(LocalDate.of(2026, 11, 1));
+		verify(serviceMock).getJobStimulusEndDate(LocalDate.of(2026, NOVEMBER, 1));
 		verifyNoMoreInteractions(serviceMock);
 	}
 

@@ -175,6 +175,11 @@ class LifecareErrorDecoderTest {
 	}
 
 	@Test
+	void redactAndCapOfNoBodyIsNull() {
+		assertThat(LifecareErrorDecoder.redactAndCap(null)).isNull();
+	}
+
+	@Test
 	void aOneShotBodyReallyIsOneShot() throws IOException {
 		// Guards the fixture itself: if this ever passes twice, the one-shot decode tests prove nothing.
 		final var oneShot = oneShotResponse(400, PROBLEM_BODY).body();
@@ -261,8 +266,10 @@ class LifecareErrorDecoderTest {
 		final var logged = capturingLogs(Level.DEBUG, () -> new LifecareErrorDecoder("familycare", List.of(NOT_FOUND.value()))
 			.decode("FamilyCareClient#getPerson(String)", oneShotResponse(404, PROBLEM_BODY)));
 
-		assertThat(logged).isNotEmpty().noneMatch(event -> event.getLevel() == Level.WARN);
-		assertThat(logged).noneMatch(event -> event.getFormattedMessage().contains("response body was"));
+		assertThat(logged)
+			.isNotEmpty()
+			.noneMatch(event -> event.getLevel() == Level.WARN)
+			.noneMatch(event -> event.getFormattedMessage().contains("response body was"));
 	}
 
 	@Test

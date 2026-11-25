@@ -44,6 +44,10 @@ class ProfessionalWebSessionRetryer implements Retryer {
 		throw new ServerProblem(BAD_GATEWAY, SESSION_REFUSED.formatted(exception.status()));
 	}
 
+	// Feign's Retryer contract: clone() hands each call a fresh retryer with its own attempt count
+	@SuppressWarnings({
+		"java:S2975", "java:S1182"
+	})
 	@Override
 	public Retryer clone() {
 		return new ProfessionalWebSessionRetryer(session);

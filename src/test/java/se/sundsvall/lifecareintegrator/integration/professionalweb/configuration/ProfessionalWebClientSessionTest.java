@@ -60,7 +60,7 @@ class ProfessionalWebClientSessionTest {
 		wireMock = new WireMockServer(options().dynamicPort());
 		wireMock.start();
 		final var properties = properties(wireMock.baseUrl() + "/");
-		final var http = http(properties);
+		final var http = http();
 		final var session = new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC());
 		exchange = new ProfessionalWebExchange(properties, session, http);
 		client = client(properties, session, wireMock.baseUrl());
@@ -198,7 +198,7 @@ class ProfessionalWebClientSessionTest {
 	@Test
 	void unreachableLifecareIsBadGateway() {
 		final var properties = properties("http://localhost:1", "ASP.NET_SessionId=s; LEGACY-TOKEN=tok");
-		final var http = http(properties);
+		final var http = http();
 		final var unreachable = client(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC()), "http://localhost:1");
 
 		assertThatThrownBy(() -> unreachable.listRemindersByServiceId(42))
@@ -211,7 +211,7 @@ class ProfessionalWebClientSessionTest {
 	@Test
 	void unconfiguredProfessionalWebIsBadGatewayWithoutAnyCall() {
 		final var properties = properties(null);
-		final var http = http(properties);
+		final var http = http();
 		final var unconfigured = client(properties, new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC()), wireMock.baseUrl());
 
 		assertThatThrownBy(() -> unconfigured.listRemindersByServiceId(42))
@@ -282,7 +282,7 @@ class ProfessionalWebClientSessionTest {
 		}
 	}
 
-	private static ProfessionalWebHttp http(final ProfessionalWebProperties properties) {
+	private static ProfessionalWebHttp http() {
 		return new ProfessionalWebHttp(new okhttp3.OkHttpClient.Builder().followRedirects(false).followSslRedirects(false).build());
 	}
 
