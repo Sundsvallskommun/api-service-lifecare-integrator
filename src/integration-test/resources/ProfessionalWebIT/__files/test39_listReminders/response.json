@@ -1,11 +1,14 @@
-[
-	{
-		"reminderId": 7,
-		"serviceId": 42,
-		"text": "Följ upp insatsen",
-		"dueDate": "2026-12-01T00:00:00",
-		"unknownToTheIntegrator": {
-			"kept": true
+{
+	"reminders": [
+		{
+			"reminderId": 7,
+			"reminderDate": "2026-12-01T00:00:00",
+			"status": 1,
+			"statusText": "Aktiv",
+			"text": "Följ upp insatsen",
+			"unknownToTheIntegrator": {
+				"kept": true
+			}
 		}
-	}
-]
+	]
+}

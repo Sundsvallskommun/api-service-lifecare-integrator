@@ -31,10 +31,7 @@
 		"headers": {
 			"Content-Type": "application/json; charset=utf-8"
 		},
-		"jsonBody": {
-			"sharedCost": 3000,
-			"unknownToTheIntegrator": "kept"
-		},
+		"body": "2030.50",
 		"status": 200
 	}
 }

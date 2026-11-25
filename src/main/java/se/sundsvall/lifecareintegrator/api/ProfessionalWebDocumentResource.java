@@ -60,7 +60,7 @@ class ProfessionalWebDocumentResource {
 		description = "Lifecare's api2/Document/GetDocumentsListForClient/",
 		responses = @ApiResponse(responseCode = "200",
 			description = "Lifecare's answer",
-			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "array"))))
+			content = @Content(mediaType = APPLICATION_JSON_VALUE, schema = @Schema(type = "object"))))
 	ResponseEntity<byte[]> getDocuments(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "partyId", description = "Party id of the person", example = "81471222-5798-11e9-ae24-57fa13b361e1") @ValidUuid @PathVariable final String partyId) {
