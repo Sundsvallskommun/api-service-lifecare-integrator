@@ -20,7 +20,7 @@ class ProfessionalWebCookiesTest {
 		assertThat(cookies.get("ASP.NET_SessionId")).contains("def");
 		assertThat(cookies.get("LEGACY-TOKEN")).contains("a=b=c");
 		assertThat(cookies.toHeader()).isEqualTo("ASP.NET_SessionId=def; LEGACY-TOKEN=a=b=c");
-		assertThat(cookies.names()).containsExactly("ASP.NET_SessionId", "LEGACY-TOKEN");
+		assertThat(cookies.getNames()).containsExactly("ASP.NET_SessionId", "LEGACY-TOKEN");
 	}
 
 	@Test
@@ -46,7 +46,7 @@ class ProfessionalWebCookiesTest {
 
 		cookies.absorbSetCookie(List.of("no-separator", "=novalue", "name=value; Max-Age=soon; expires=not a date; flag"));
 
-		assertThat(cookies.names()).containsExactly("name");
+		assertThat(cookies.getNames()).containsExactly("name");
 	}
 
 	@Test
@@ -88,7 +88,7 @@ class ProfessionalWebCookiesTest {
 
 		cookies.absorbCookieHeader("ASP.NET_SessionId=s; LEGACY-TOKEN=a=b ;broken; IDP=x");
 
-		assertThat(cookies.names()).containsExactly("ASP.NET_SessionId", "LEGACY-TOKEN", "IDP");
+		assertThat(cookies.getNames()).containsExactly("ASP.NET_SessionId", "LEGACY-TOKEN", "IDP");
 		assertThat(cookies.get("LEGACY-TOKEN")).contains("a=b");
 	}
 }

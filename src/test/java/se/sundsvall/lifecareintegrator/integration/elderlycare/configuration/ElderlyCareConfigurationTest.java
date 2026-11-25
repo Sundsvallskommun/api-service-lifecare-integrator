@@ -81,7 +81,7 @@ class ElderlyCareConfigurationTest {
 		final var configuration = new ElderlyCareConfiguration();
 
 		try (final MockedStatic<LifecareOkHttpClientFactory> factoryMock = Mockito.mockStatic(LifecareOkHttpClientFactory.class)) {
-			factoryMock.when(() -> LifecareOkHttpClientFactory.http11Client(truststoreMock)).thenReturn(clientMock);
+			factoryMock.when(() -> LifecareOkHttpClientFactory.createHttp11Client(truststoreMock)).thenReturn(clientMock);
 
 			assertThat(configuration.okHttpClient(truststoreMock)).isSameAs(clientMock);
 		}

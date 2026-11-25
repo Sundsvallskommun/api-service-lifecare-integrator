@@ -78,17 +78,17 @@ class FamilyCareConfigurationTest {
 
 	@Test
 	void testKeyForPicksTheUserKeyForTheUsersDirectory() {
-		when(propertiesMock.userKeyOrDefault()).thenReturn("the-user-key");
+		when(propertiesMock.getUserKeyOrDefault()).thenReturn("the-user-key");
 
-		assertThat(FamilyCareConfiguration.keyFor("/apifc/v1/Users/GetUsers", propertiesMock)).isEqualTo("the-user-key");
+		assertThat(FamilyCareConfiguration.selectKey("/apifc/v1/Users/GetUsers", propertiesMock)).isEqualTo("the-user-key");
 	}
 
 	@Test
 	void testKeyForPicksTheMainKeyForEverythingElse() {
 		when(propertiesMock.key()).thenReturn("the-key");
 
-		assertThat(FamilyCareConfiguration.keyFor("/apifc/v1/Persons", propertiesMock)).isEqualTo("the-key");
-		assertThat(FamilyCareConfiguration.keyFor(null, propertiesMock)).isEqualTo("the-key");
+		assertThat(FamilyCareConfiguration.selectKey("/apifc/v1/Persons", propertiesMock)).isEqualTo("the-key");
+		assertThat(FamilyCareConfiguration.selectKey(null, propertiesMock)).isEqualTo("the-key");
 	}
 
 	@Test
@@ -96,7 +96,7 @@ class FamilyCareConfigurationTest {
 		final var configuration = new FamilyCareConfiguration();
 
 		try (final MockedStatic<LifecareOkHttpClientFactory> factoryMock = Mockito.mockStatic(LifecareOkHttpClientFactory.class)) {
-			factoryMock.when(() -> LifecareOkHttpClientFactory.http11Client(truststoreMock)).thenReturn(clientMock);
+			factoryMock.when(() -> LifecareOkHttpClientFactory.createHttp11Client(truststoreMock)).thenReturn(clientMock);
 
 			assertThat(configuration.okHttpClient(truststoreMock)).isSameAs(clientMock);
 		}

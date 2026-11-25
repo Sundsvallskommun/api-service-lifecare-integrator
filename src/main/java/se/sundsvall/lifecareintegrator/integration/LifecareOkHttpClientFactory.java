@@ -25,12 +25,12 @@ public final class LifecareOkHttpClientFactory {
 	 * @param  truststore the dept44 truststore
 	 * @return            a Feign client that never negotiates HTTP/2
 	 */
-	public static Client http11Client(final Truststore truststore) {
-		return new OkHttpClient(http11OkHttp(truststore));
+	public static Client createHttp11Client(final Truststore truststore) {
+		return new OkHttpClient(createHttp11OkHttpClient(truststore));
 	}
 
 	/** The underlying OkHttp client — the dept44 truststore configuration plus the HTTP/1.1 protocol pinning. */
-	public static okhttp3.OkHttpClient http11OkHttp(final Truststore truststore) {
+	public static okhttp3.OkHttpClient createHttp11OkHttpClient(final Truststore truststore) {
 		final var trustManager = (X509TrustManager) truststore.getTrustManagerFactory().getTrustManagers()[0];
 
 		return new okhttp3.OkHttpClient.Builder()

@@ -22,7 +22,7 @@ class ProfessionalWebConfiguration {
 
 	@Bean
 	OkHttpClient professionalWebHttpClient(final ProfessionalWebProperties properties, final Truststore truststore) {
-		return LifecareOkHttpClientFactory.http11OkHttp(truststore).newBuilder()
+		return LifecareOkHttpClientFactory.createHttp11OkHttpClient(truststore).newBuilder()
 			// Redirects are walked by hand, carrying the cookies from one hop to the next
 			.followRedirects(false)
 			.followSslRedirects(false)

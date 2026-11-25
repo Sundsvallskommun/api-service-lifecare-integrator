@@ -45,18 +45,18 @@ class FamilyCarePropertiesTest {
 	}
 
 	@Test
-	void userKeyOrDefaultUsesTheUserKeyWhenConfigured() {
+	void getUserKeyOrDefaultUsesTheUserKeyWhenConfigured() {
 		final var properties = new FamilyCareProperties("http://fc", "the-domain", "the-key", "the-user-key", 5, 30, "NONE");
 
-		assertThat(properties.userKeyOrDefault()).isEqualTo("the-user-key");
+		assertThat(properties.getUserKeyOrDefault()).isEqualTo("the-user-key");
 	}
 
 	@Test
-	void userKeyOrDefaultFallsBackToTheMainKeyWhenUnsetOrBlank() {
+	void getUserKeyOrDefaultFallsBackToTheMainKeyWhenUnsetOrBlank() {
 		final var unset = new FamilyCareProperties("http://fc", "the-domain", "the-key", null, 5, 30, "NONE");
 		final var blank = new FamilyCareProperties("http://fc", "the-domain", "the-key", "   ", 5, 30, "NONE");
 
-		assertThat(unset.userKeyOrDefault()).isEqualTo("the-key");
-		assertThat(blank.userKeyOrDefault()).isEqualTo("the-key");
+		assertThat(unset.getUserKeyOrDefault()).isEqualTo("the-key");
+		assertThat(blank.getUserKeyOrDefault()).isEqualTo("the-key");
 	}
 }

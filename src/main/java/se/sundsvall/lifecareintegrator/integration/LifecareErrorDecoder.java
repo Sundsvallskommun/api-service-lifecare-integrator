@@ -91,7 +91,7 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 		final var errorInfo = new TreeMap<String, Object>();
 		errorInfo.put(KEY_STATUS, status + " " + reasonPhrase);
 		errorInfo.put(KEY_TITLE, reasonPhrase);
-		lifecareMessage(body)
+		extractLifecareMessage(body)
 			.map(LogSanitizer::redact)
 			.map(message -> cap(message, MAX_MESSAGE_CHARACTERS))
 			.ifPresent(message -> errorInfo.put(KEY_DETAIL, message));
@@ -117,30 +117,30 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 	 * validation errors appended), a bare JSON string, or plain text. An HTML page — a gateway's, not Lifecare's — has no
 	 * message worth carrying, and neither has JSON of any other shape.
 	 */
-	static Optional<String> lifecareMessage(final String body) {
+	static Optional<String> extractLifecareMessage(final String body) {
 		final var json = parse(body);
 		if (json.isEmpty()) {
-			return plainText(body);
+			return extractPlainText(body);
 		}
 
 		final var node = json.get();
 		if (node.isString()) {
-			return nonBlank(node.stringValue());
+			return toNonBlank(node.stringValue());
 		}
 		if (!node.isObject()) {
 			return empty();
 		}
 
-		return textField(node, "Message").map(message -> textField(node, "MessageDetail")
+		return findTextField(node, "Message").map(message -> findTextField(node, "MessageDetail")
 			.map(detail -> "%s (%s)".formatted(message, detail))
 			.orElse(message))
-			.map(message -> modelState(node)
+			.map(message -> extractModelState(node)
 				.map(errors -> "%s: %s".formatted(message, errors))
 				.orElse(message));
 	}
 
 	/** ASP.NET's validation errors, as {@code field: error} pairs — the same shape dept44 gives constraint violations. */
-	private static Optional<String> modelState(final JsonNode node) {
+	private static Optional<String> extractModelState(final JsonNode node) {
 		return ofNullable(node.get("ModelState"))
 			.filter(JsonNode::isObject)
 			.map(state -> state.properties().stream()
@@ -148,27 +148,27 @@ public class LifecareErrorDecoder extends ProblemErrorDecoder {
 					.filter(JsonNode::isString)
 					.map(error -> "%s: %s".formatted(field.getKey(), error.stringValue())))
 				.collect(Collectors.joining(", ")))
-			.flatMap(LifecareErrorDecoder::nonBlank);
+			.flatMap(LifecareErrorDecoder::toNonBlank);
 	}
 
 	/** A text field, matched case-insensitively — FC and EC do not agree on casing. */
-	private static Optional<String> textField(final JsonNode node, final String name) {
+	private static Optional<String> findTextField(final JsonNode node, final String name) {
 		return node.properties().stream()
 			.filter(field -> field.getKey().equalsIgnoreCase(name))
 			.map(Map.Entry::getValue)
 			.filter(JsonNode::isString)
 			.map(JsonNode::stringValue)
-			.flatMap(value -> nonBlank(value).stream())
+			.flatMap(value -> toNonBlank(value).stream())
 			.findFirst();
 	}
 
-	private static Optional<String> plainText(final String body) {
-		return nonBlank(body)
+	private static Optional<String> extractPlainText(final String body) {
+		return toNonBlank(body)
 			.map(String::strip)
 			.filter(text -> !text.startsWith("<"));
 	}
 
-	private static Optional<String> nonBlank(final String text) {
+	private static Optional<String> toNonBlank(final String text) {
 		return ofNullable(text).filter(value -> !value.isBlank());
 	}
 

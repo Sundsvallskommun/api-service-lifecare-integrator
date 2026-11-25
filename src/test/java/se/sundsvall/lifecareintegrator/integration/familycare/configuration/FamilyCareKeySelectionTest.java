@@ -74,7 +74,7 @@ class FamilyCareKeySelectionTest {
 	private RequestInterceptor interceptor(final String key, final String userKey) {
 		when(propertiesMock.domain()).thenReturn("the-domain");
 		when(propertiesMock.key()).thenReturn(key);
-		lenient().when(propertiesMock.userKeyOrDefault()).thenReturn(userKey);
+		lenient().when(propertiesMock.getUserKeyOrDefault()).thenReturn(userKey);
 		when(propertiesMock.connectTimeout()).thenReturn(1);
 		when(propertiesMock.readTimeout()).thenReturn(2);
 		when(feignMultiCustomizerSpy.composeCustomizersToOne()).thenReturn(feignBuilderCustomizerMock);

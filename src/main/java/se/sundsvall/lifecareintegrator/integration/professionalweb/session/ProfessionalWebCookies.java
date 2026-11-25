@@ -113,7 +113,7 @@ public class ProfessionalWebCookies {
 	 *
 	 * @return the cookie names
 	 */
-	public synchronized List<String> names() {
+	public synchronized List<String> getNames() {
 		return new ArrayList<>(cookies.keySet());
 	}
 

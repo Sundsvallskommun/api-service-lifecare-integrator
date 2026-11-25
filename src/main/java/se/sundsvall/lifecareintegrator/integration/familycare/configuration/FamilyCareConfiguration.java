@@ -27,7 +27,7 @@ public class FamilyCareConfiguration {
 
 	@Bean
 	Client okHttpClient(final Truststore truststore) {
-		return LifecareOkHttpClientFactory.http11Client(truststore);
+		return LifecareOkHttpClientFactory.createHttp11Client(truststore);
 	}
 
 	@Bean
@@ -42,12 +42,12 @@ public class FamilyCareConfiguration {
 
 	private static void addAuthentication(final RequestTemplate template, final FamilyCareProperties properties) {
 		template.query("domain", properties.domain());
-		template.query("key", keyFor(template.path(), properties));
+		template.query("key", selectKey(template.path(), properties));
 	}
 
-	static String keyFor(final String path, final FamilyCareProperties properties) {
+	static String selectKey(final String path, final FamilyCareProperties properties) {
 		if (ofNullable(path).orElse("").contains(USERS_PATH_SEGMENT)) {
-			return properties.userKeyOrDefault();
+			return properties.getUserKeyOrDefault();
 		}
 		return properties.key();
 	}

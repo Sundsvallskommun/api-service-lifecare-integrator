@@ -5,12 +5,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 /**
- * Keeps the ProfessionalWeb session alive between calls.
- *
- * <p>
- * Plain Spring scheduling rather than a dept44 scheduler with ShedLock: the integrator has no database to lock in, and
- * each instance holds its own session, so every instance keeping its own session alive is exactly right.
- * </p>
+ * Keeps the ProfessionalWeb session alive between calls. Plain Spring scheduling: there is no database to lock in, and
+ * every instance keeps its own session alive.
  */
 @Configuration
 @EnableScheduling

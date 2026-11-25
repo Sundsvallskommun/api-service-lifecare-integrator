@@ -21,7 +21,7 @@ public class ElderlyCareConfiguration {
 
 	@Bean
 	Client okHttpClient(final Truststore truststore) {
-		return LifecareOkHttpClientFactory.http11Client(truststore);
+		return LifecareOkHttpClientFactory.createHttp11Client(truststore);
 	}
 
 	@Bean

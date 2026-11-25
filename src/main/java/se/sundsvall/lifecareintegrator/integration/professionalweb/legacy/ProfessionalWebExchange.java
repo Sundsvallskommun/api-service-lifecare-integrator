@@ -61,7 +61,7 @@ public class ProfessionalWebExchange {
 	 * @return        the answer
 	 */
 	public ProfessionalWebResponse exchange(final String method, final String path, final Map<String, String> params, final byte[] body) {
-		return escalating(method, path, () -> send(method, path, params, body));
+		return sendEscalating(method, path, () -> send(method, path, params, body));
 	}
 
 	/**
@@ -81,10 +81,10 @@ public class ProfessionalWebExchange {
 	 * @return        the answer
 	 */
 	public ProfessionalWebResponse exchangeForm(final String path, final Map<String, String> params, final List<? extends Map.Entry<String, String>> fields) {
-		return escalating("POST", path, () -> sendForm(path, params, fields));
+		return sendEscalating("POST", path, () -> sendForm(path, params, fields));
 	}
 
-	private ProfessionalWebResponse escalating(final String method, final String path, final Supplier<ProfessionalWebResponse> send) {
+	private ProfessionalWebResponse sendEscalating(final String method, final String path, final Supplier<ProfessionalWebResponse> send) {
 		var response = send.get();
 
 		if (ProfessionalWebHttp.needsSession(response)) {
@@ -110,7 +110,7 @@ public class ProfessionalWebExchange {
 		final var headers = new LinkedHashMap<String, String>();
 		headers.putAll(ProfessionalWebHttp.BROWSER_HEADERS);
 		headers.putAll(ProfessionalWebHttp.AJAX_HEADERS);
-		headers.put("Origin", origin());
+		headers.put("Origin", buildOrigin());
 		headers.put("Referer", properties.baseUrl() + "/WE.Flow.Html/");
 		byte[] bytes = null;
 		if (!"GET".equals(method)) {
@@ -122,17 +122,17 @@ public class ProfessionalWebExchange {
 		}
 		headers.putAll(session.prepare());
 
-		final var response = http.send(method, uri(path, params), headers, bytes);
+		final var response = http.send(method, buildUri(path, params), headers, bytes);
 		session.absorb(response);
 		return response;
 	}
 
 	private ProfessionalWebResponse sendForm(final String path, final Map<String, String> params, final List<? extends Map.Entry<String, String>> fields) {
-		final var uri = uri(path, params);
+		final var uri = buildUri(path, params);
 		final var headers = new LinkedHashMap<String, String>();
 		headers.putAll(ProfessionalWebHttp.BROWSER_HEADERS);
 		headers.putAll(ProfessionalWebHttp.NAVIGATION_HEADERS);
-		headers.put("Origin", origin());
+		headers.put("Origin", buildOrigin());
 		headers.put("Referer", uri.toString());
 		headers.put("Content-Type", "application/x-www-form-urlencoded");
 		headers.putAll(session.prepare());
@@ -142,7 +142,7 @@ public class ProfessionalWebExchange {
 		return response;
 	}
 
-	private URI uri(final String path, final Map<String, String> params) {
+	private URI buildUri(final String path, final Map<String, String> params) {
 		final var base = properties.baseUrl() + "/" + MODULE + "/" + path.replaceAll("^/+", "");
 		requireNoEscapeFromModule(base, path);
 		if (params == null || params.isEmpty()) {
@@ -167,7 +167,7 @@ public class ProfessionalWebExchange {
 		}
 	}
 
-	private String origin() {
+	private String buildOrigin() {
 		final var uri = URI.create(properties.baseUrl());
 		return uri.getScheme() + "://" + uri.getRawAuthority();
 	}

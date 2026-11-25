@@ -54,7 +54,7 @@ public class ProfessionalWebSignIn {
 			throw Problem.valueOf(BAD_GATEWAY, "No Lifecare account configured (integration.lifecare-professionalweb.username/password)");
 		}
 
-		var response = http.followRedirects(entryUrl(), cookies, null);
+		var response = http.followRedirects(buildEntryUrl(), cookies, null);
 		var credentialsSent = false;
 		String lastAction = null;
 
@@ -117,7 +117,7 @@ public class ProfessionalWebSignIn {
 	}
 
 	/** Lifecare's entry point for a caseworker, the URL a browser is pointed at to start the flow. */
-	String entryUrl() {
+	private String buildEntryUrl() {
 		return properties.baseUrl() + "/WE.Flow.Html"
 			+ "?domain=" + encode(properties.domain())
 			+ "&Actor=" + encode(properties.actor())

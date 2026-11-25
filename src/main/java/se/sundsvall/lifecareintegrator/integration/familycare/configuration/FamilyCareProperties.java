@@ -27,7 +27,7 @@ public record FamilyCareProperties(
 
 	@DefaultValue("NONE") String logLevel) {
 
-	public String userKeyOrDefault() {
+	public String getUserKeyOrDefault() {
 		return ofNullable(userKey).filter(StringUtils::hasText).orElse(key);
 	}
 }

@@ -232,7 +232,7 @@ public class ProfessionalWebSession {
 			}
 			establishedAt = clock.instant();
 			// Names only, never values.
-			LOG.atInfo().addArgument(() -> String.join(", ", cookies.names())).log("Lifecare session holds: {}");
+			LOG.atInfo().addArgument(() -> String.join(", ", cookies.getNames())).log("Lifecare session holds: {}");
 		}
 	}
 }

@@ -30,11 +30,11 @@ public class PartyIntegration {
 
 	public PartyIntegration(final PartyClient partyClient, final PartyProperties properties, final Ticker ticker) {
 		this.partyClient = partyClient;
-		this.personNumbersByPartyId = newCache(properties, ticker);
-		this.partyIdsByPersonNumber = newCache(properties, ticker);
+		this.personNumbersByPartyId = createCache(properties, ticker);
+		this.partyIdsByPersonNumber = createCache(properties, ticker);
 	}
 
-	private static Cache<CacheKey, String> newCache(final PartyProperties properties, final Ticker ticker) {
+	private static Cache<CacheKey, String> createCache(final PartyProperties properties, final Ticker ticker) {
 		return Caffeine.newBuilder()
 			.expireAfterWrite(properties.cacheTimeToLive())
 			.maximumSize(properties.cacheMaximumSize())

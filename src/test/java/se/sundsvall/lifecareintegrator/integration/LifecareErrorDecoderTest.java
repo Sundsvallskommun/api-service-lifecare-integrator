@@ -112,8 +112,8 @@ class LifecareErrorDecoderTest {
 
 	@ParameterizedTest(name = "{0}")
 	@MethodSource("lifecareBodies")
-	void lifecareMessageReadsTheShapesLifecareAnswersIn(final String description, final String body, final Optional<String> expected) {
-		assertThat(LifecareErrorDecoder.lifecareMessage(body)).isEqualTo(expected);
+	void extractLifecareMessageReadsTheShapesLifecareAnswersIn(final String description, final String body, final Optional<String> expected) {
+		assertThat(LifecareErrorDecoder.extractLifecareMessage(body)).isEqualTo(expected);
 	}
 
 	private static Stream<Arguments> lifecareBodies() {
