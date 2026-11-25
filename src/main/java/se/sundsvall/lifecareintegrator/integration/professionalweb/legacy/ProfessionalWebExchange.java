@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.lifecareintegrator.api.model.professionalweb.legacy.ProfessionalWebExchangeRequest;
+import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebForms;
+import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebParameterForm;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.configuration.ProfessionalWebProperties;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebHttp;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebResponse;
@@ -20,6 +22,8 @@ import se.sundsvall.lifecareintegrator.integration.professionalweb.session.Profe
 
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebHttp.IDENTITY_PORTAL_PATH;
+import static se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebHttp.SESSION_REQUIRED_STATUS;
 import static se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebSession.MODULE;
 
 /**
@@ -87,23 +91,41 @@ public class ProfessionalWebExchange {
 	private ProfessionalWebResponse sendEscalating(final String method, final String path, final Supplier<ProfessionalWebResponse> send) {
 		var response = send.get();
 
-		if (ProfessionalWebHttp.needsSession(response)) {
+		if (needsSession(response)) {
 			LOG.atWarn().addArgument(MODULE).addArgument(response::describe).log("Lifecare wants a session for {} ({}) - bootstrapping it");
 			session.bootstrapModule(MODULE);
 			response = send.get();
 		}
-		if (ProfessionalWebHttp.needsSession(response)) {
+		if (needsSession(response)) {
 			LOG.atWarn().addArgument(path).addArgument(response::describe).log("Lifecare still refuses {} ({}) - signing in again");
 			session.reset();
 			response = send.get();
 		}
-		if (ProfessionalWebHttp.needsSession(response)) {
+		if (needsSession(response)) {
 			throw Problem.valueOf(BAD_GATEWAY, "Lifecare would not accept a freshly established session (" + response.describe() + ")");
 		}
 		if (!response.isSuccess()) {
 			LOG.atInfo().addArgument(method).addArgument(path).addArgument(response::describe).log("Lifecare answered {} {} with {}");
 		}
 		return response;
+	}
+
+	/**
+	 * Whether an answer means the session is gone: the 360 signal, a 401, a redirect to the identity portal, or an HTML
+	 * page that is not a print's parameter questions. A 403 is not: that is the account lacking permission, and a new
+	 * session would only hide it behind a second failure.
+	 */
+	static boolean needsSession(final ProfessionalWebResponse response) {
+		if (response.status() == SESSION_REQUIRED_STATUS || response.status() == 401) {
+			return true;
+		}
+		if (response.location().filter(location -> location.contains(IDENTITY_PORTAL_PATH)).isPresent()) {
+			return true;
+		}
+		if (!response.contentType().contains("text/html")) {
+			return false;
+		}
+		return !ProfessionalWebParameterForm.isParameterQuestions(response.body());
 	}
 
 	private ProfessionalWebResponse send(final String method, final String path, final Map<String, String> params, final byte[] body) {
@@ -137,7 +159,7 @@ public class ProfessionalWebExchange {
 		headers.put("Content-Type", "application/x-www-form-urlencoded");
 		headers.putAll(session.prepare());
 
-		final var response = http.send("POST", uri, headers, ProfessionalWebHttp.encodeForm(fields));
+		final var response = http.send("POST", uri, headers, ProfessionalWebForms.encode(fields));
 		session.absorb(response);
 		return response;
 	}

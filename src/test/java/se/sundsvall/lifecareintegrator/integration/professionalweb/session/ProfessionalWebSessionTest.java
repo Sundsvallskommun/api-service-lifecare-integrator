@@ -43,7 +43,7 @@ class ProfessionalWebSessionTest {
 
 	@Test
 	void unconfigured() {
-		final var properties = new ProfessionalWebProperties(null, null, "a", "saml", null, null, null, Duration.ofMinutes(1), 1, 1, null, Duration.ofMinutes(5));
+		final var properties = new ProfessionalWebProperties(null, null, "a", "saml", null, null, null, Duration.ofMinutes(1), 1, 1, null);
 
 		assertThatThrownBy(() -> session(properties, Clock.systemUTC()).prepare()).hasMessageContaining("not configured");
 	}
@@ -111,7 +111,7 @@ class ProfessionalWebSessionTest {
 	@Test
 	void keepAliveFailureIsSwallowed() {
 		final var properties = new ProfessionalWebProperties("http://localhost:1", "d", "a", "saml", null, null, null, Duration.ofMinutes(1), 1, 1,
-			"LEGACY-TOKEN=x", Duration.ofMinutes(5));
+			"LEGACY-TOKEN=x");
 		final var seeded = session(properties, Clock.systemUTC());
 		seeded.prepare();
 

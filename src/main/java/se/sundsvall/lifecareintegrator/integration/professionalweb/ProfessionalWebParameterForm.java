@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.springframework.util.StringUtils;
-import se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebHttp;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -42,7 +41,7 @@ public final class ProfessionalWebParameterForm {
 			.map(form -> form.select("input[name], select[name], textarea[name]").stream()
 				.flatMap(element -> toSubmittedValue(element).map(value -> Map.entry(element.attr("name"), value)).stream())
 				.toList())
-			.map(ProfessionalWebHttp::encodeForm);
+			.map(ProfessionalWebForms::encode);
 	}
 
 	private static Optional<String> toSubmittedValue(final Element element) {

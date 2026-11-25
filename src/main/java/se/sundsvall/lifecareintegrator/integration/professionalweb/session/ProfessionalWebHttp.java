@@ -2,19 +2,18 @@ package se.sundsvall.lifecareintegrator.integration.professionalweb.session;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.net.http.HttpHeaders;
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import se.sundsvall.dept44.problem.Problem;
+import se.sundsvall.lifecareintegrator.integration.professionalweb.ProfessionalWebForms;
 
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
@@ -82,7 +81,7 @@ public class ProfessionalWebHttp {
 	public ProfessionalWebResponse send(final String method, final URI uri, final Map<String, String> headers, final byte[] body) {
 		final var builder = new Request.Builder().url(uri.toString());
 		headers.forEach(builder::header);
-		builder.method(method, toRequestBody(method, body));
+		builder.method(method, toRequestBody(body));
 
 		try (var response = client.newCall(builder.build()).execute()) {
 			final var responseHeaders = HttpHeaders.of(response.headers().toMultimap(), (name, value) -> true);
@@ -94,15 +93,10 @@ public class ProfessionalWebHttp {
 		}
 	}
 
-	private static RequestBody toRequestBody(final String method, final byte[] body) {
-		if (body != null) {
-			return RequestBody.create(body);
-		}
-		// OkHttp refuses a POST or PUT without a body
-		if ("POST".equals(method) || "PUT".equals(method)) {
-			return RequestBody.create(new byte[0]);
-		}
-		return null;
+	private static RequestBody toRequestBody(final byte[] body) {
+		return Optional.ofNullable(body)
+			.map(bytes -> RequestBody.create(bytes))
+			.orElse(null);
 	}
 
 	/**
@@ -136,7 +130,7 @@ public class ProfessionalWebHttp {
 			if (remainingFormFields != null) {
 				method = "POST";
 				headers.put("Content-Type", "application/x-www-form-urlencoded");
-				body = encodeForm(remainingFormFields);
+				body = ProfessionalWebForms.encode(List.copyOf(remainingFormFields.entrySet()));
 			}
 
 			final var response = send(method, uri, headers, body);
@@ -151,64 +145,5 @@ public class ProfessionalWebHttp {
 		}
 
 		throw Problem.valueOf(BAD_GATEWAY, "Lifecare kept redirecting while a session was being established");
-	}
-
-	/**
-	 * Whether a response means the session is gone and must be established again.
-	 *
-	 * <p>
-	 * Lifecare says it three ways depending on the endpoint: the 360 signal, a redirect back to the identity portal, and
-	 * the login page delivered as HTML where JSON was expected. A 401 joins them because an expired ASP.NET session
-	 * surfaces that way too. A 403 deliberately does not: that is Lifecare saying the account may not see this, and a
-	 * new session would only hide a real permission problem behind a second failure.
-	 * </p>
-	 *
-	 * <p>
-	 * One HTML answer is not the login page: the parameter query Lifecare puts in front of a print whose template asks a
-	 * question (see {@code isParameterQuery}). It is a form the caller answers, so it is handed back like any other
-	 * answer.
-	 * </p>
-	 *
-	 * @param  response the response
-	 * @return          true when a new session is needed
-	 */
-	public static boolean needsSession(final ProfessionalWebResponse response) {
-		if (response.status() == SESSION_REQUIRED_STATUS || response.status() == 401) {
-			return true;
-		}
-		if (response.location().filter(location -> location.contains(IDENTITY_PORTAL_PATH)).isPresent()) {
-			return true;
-		}
-		if (!response.contentType().contains("text/html")) {
-			return false;
-		}
-		return !isParameterQuery(response);
-	}
-
-	/**
-	 * Whether an HTML answer is Lifecare's parameter query page: the "Parameterfrågor" form a print template shows when
-	 * it asks something before it renders. Recognised by the form's id and by the hidden X-LEGACY-TOKEN field that a
-	 * browser posts back with it, two things the sign-in pages do not have.
-	 */
-	private static boolean isParameterQuery(final ProfessionalWebResponse response) {
-		final var html = response.bodyAsString();
-		return html.contains("id=\"myForm\"") && html.contains("name=\"X-LEGACY-TOKEN\"");
-	}
-
-	static byte[] encodeForm(final Map<String, String> fields) {
-		return encodeForm(List.copyOf(fields.entrySet()));
-	}
-
-	/**
-	 * Encodes form fields in the order given, so a name may occur more than once as it does in a browser form.
-	 *
-	 * @param  fields the name and value of each field
-	 * @return        the application/x-www-form-urlencoded body
-	 */
-	public static byte[] encodeForm(final List<? extends Map.Entry<String, String>> fields) {
-		return fields.stream()
-			.map(field -> URLEncoder.encode(field.getKey(), StandardCharsets.UTF_8) + "=" + URLEncoder.encode(field.getValue(), StandardCharsets.UTF_8))
-			.collect(Collectors.joining("&"))
-			.getBytes(StandardCharsets.UTF_8);
 	}
 }

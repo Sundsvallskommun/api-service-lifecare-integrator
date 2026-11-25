@@ -74,7 +74,14 @@ public class ProfessionalWebSignIn {
 
 			final var fields = new LinkedHashMap<>(form.get().fields());
 			if (form.get().isSignIn()) {
-				credentialsSent = fillCredentials(form.get(), fields, credentialsSent);
+				if (credentialsSent) {
+					// Asked a second time: either the credentials are wrong, or the account is asked for something a server
+					// cannot give.
+					throw Problem.valueOf(BAD_GATEWAY,
+						"Lifecare asked the integration account to sign in a second time - check the credentials, or whether the account is enrolled for a one-time code");
+				}
+				fillCredentials(form.get(), fields);
+				credentialsSent = true;
 			}
 
 			// Names the step without naming what is in it, so a flow that stalls says where it stalled.
@@ -94,19 +101,12 @@ public class ProfessionalWebSignIn {
 		LOG.info("Lifecare accepted the integration account");
 	}
 
-	private boolean fillCredentials(final SignInForm form, final LinkedHashMap<String, String> fields, final boolean credentialsSent) {
-		if (credentialsSent) {
-			// Asked a second time: either the credentials are wrong, or the account is asked for something a server
-			// cannot give.
-			throw Problem.valueOf(BAD_GATEWAY,
-				"Lifecare asked the integration account to sign in a second time - check the credentials, or whether the account is enrolled for a one-time code");
-		}
+	private void fillCredentials(final SignInForm form, final LinkedHashMap<String, String> fields) {
 		if (form.usernameField() == null) {
 			throw Problem.valueOf(BAD_GATEWAY, "Could not tell which field the Lifecare username belongs in on the sign-in page");
 		}
 		fields.put(form.usernameField(), properties.username());
 		fields.put(form.passwordField(), properties.password());
-		return true;
 	}
 
 	private static String describeStep(final SignInForm form) {

@@ -1,6 +1,8 @@
 package se.sundsvall.lifecareintegrator.integration.professionalweb.legacy;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import java.net.URI;
+import java.net.http.HttpHeaders;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.util.LinkedHashMap;
@@ -9,7 +11,10 @@ import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.configuration.ProfessionalWebProperties;
+import se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebResponse;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebSession;
 import se.sundsvall.lifecareintegrator.integration.professionalweb.session.ProfessionalWebSignIn;
 
@@ -41,6 +46,7 @@ class ProfessionalWebExchangeTest {
 
 	private static final String API = "/WESE.FC.ProfessionalWeb/api2/Thing/Get";
 	private static final String PRINT = "/WESE.FC.ProfessionalWeb/RenderPdf/PrintDecision";
+	private static final URI PRINT_URI = URI.create("https://lifecare.sundsvall.se" + PRINT);
 	private static final String FORM_BODY = "51_0_2_1=true&51_0_2_1=false&X-LEGACY-TOKEN=tok";
 	private static final String PARAMETER_QUERY = """
 		<form id="myForm" method="post"><input type="checkbox" name="51_0_2_1" value="true" checked><input type="hidden" name="51_0_2_1" value="false"><input type="hidden" name="X-LEGACY-TOKEN" value="tok"></form>
@@ -235,6 +241,64 @@ class ProfessionalWebExchangeTest {
 		assertThatThrownBy(() -> seededExchange("LEGACY-TOKEN=dead").exchange("GET", "api2/Thing/Get", Map.of(), null))
 			.hasMessageContaining("would not accept a freshly established session");
 		wireMock.verify(0, getRequestedFor(urlPathEqualTo("/WE.Flow.Html")));
+	}
+
+	@Test
+	void parameterQueryPageIsAnAnswerNotALostSession() {
+		assertThat(ProfessionalWebExchange.needsSession(response(200, "text/html; charset=utf-8", PARAMETER_QUERY))).isFalse();
+	}
+
+	@Test
+	void signInPageIsALostSession() {
+		final var signIn = """
+			<form action="/IdentityPortalWeb/login" method="post">
+			  <input type="hidden" name="uid" value="">
+			  <input type="hidden" name="otp" value="">
+			</form>""";
+
+		assertThat(ProfessionalWebExchange.needsSession(response(200, "text/html; charset=utf-8", signIn))).isTrue();
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = {
+		"<form id=\"myForm\" method=\"post\"><input type=\"text\" name=\"a\" value=\"b\"></form>",
+		"<form method=\"post\"><input type=\"hidden\" name=\"X-LEGACY-TOKEN\" value=\"TOKEN\"></form>",
+		"<p>myForm X-LEGACY-TOKEN</p>"
+	})
+	void htmlThatIsNotTheParameterQueryIsALostSession(final String html) {
+		assertThat(ProfessionalWebExchange.needsSession(response(200, "text/html", html))).isTrue();
+	}
+
+	@Test
+	void nonHtmlAnswerIsNeverALostSessionWhateverItsBodyHolds() {
+		assertThat(ProfessionalWebExchange.needsSession(response(200, "application/json", PARAMETER_QUERY))).isFalse();
+	}
+
+	@Test
+	void redirectToTheIdentityPortalIsALostSessionEvenOnTheParameterQueryPage() {
+		final var headers = HttpHeaders.of(Map.of("Content-Type", List.of("text/html"), "Location", List.of("/IdentityPortalWeb/login")), (name, value) -> true);
+
+		assertThat(ProfessionalWebExchange.needsSession(new ProfessionalWebResponse(302, headers, PARAMETER_QUERY.getBytes(StandardCharsets.UTF_8), PRINT_URI))).isTrue();
+	}
+
+	@ParameterizedTest
+	@ValueSource(ints = {
+		360, 401
+	})
+	void sessionStatusesAreALostSession(final int status) {
+		assertThat(ProfessionalWebExchange.needsSession(response(status, "application/json", "{}"))).isTrue();
+	}
+
+	@Test
+	void otherAnswersAreNotALostSession() {
+		assertThat(ProfessionalWebExchange.needsSession(response(200, "application/pdf", "%PDF"))).isFalse();
+		assertThat(ProfessionalWebExchange.needsSession(response(403, "application/json", "{}"))).isFalse();
+		assertThat(ProfessionalWebExchange.needsSession(response(461, "application/json", "{}"))).isFalse();
+	}
+
+	private static ProfessionalWebResponse response(final int status, final String contentType, final String body) {
+		final var headers = HttpHeaders.of(Map.of("Content-Type", List.of(contentType)), (name, value) -> true);
+		return new ProfessionalWebResponse(status, headers, body.getBytes(StandardCharsets.UTF_8), PRINT_URI);
 	}
 
 	private static Map<String, String> printParams() {

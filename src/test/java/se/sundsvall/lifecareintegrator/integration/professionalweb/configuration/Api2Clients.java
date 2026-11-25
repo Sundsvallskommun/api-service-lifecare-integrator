@@ -22,7 +22,7 @@ public final class Api2Clients {
 
 	public static <T> T client(final Class<T> type, final String baseUrl) {
 		final var properties = new ProfessionalWebProperties(baseUrl, "Domain", "Actor_Professional", "saml", "Sundsvall_Intra",
-			"user", "pw", Duration.ofMinutes(20), 1, 5, SESSION_COOKIE, Duration.ofMinutes(5));
+			"user", "pw", Duration.ofMinutes(20), 1, 5, SESSION_COOKIE);
 		final var http = new ProfessionalWebHttp(new okhttp3.OkHttpClient.Builder().followRedirects(false).followSslRedirects(false).build());
 		final var session = new ProfessionalWebSession(properties, new ProfessionalWebSignIn(properties, http), http, Clock.systemUTC());
 		final var builder = Feign.builder()

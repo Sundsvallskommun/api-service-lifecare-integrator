@@ -11,7 +11,7 @@ Done when a test shows a failing call counted by the breaker of a Feign client, 
 
 ## An HTML error page is read as a lost ProfessionalWeb session
 
-`ProfessionalWebHttp.needsSession` treats every `text/html` answer as "session needed", whatever the status. A 404
+`ProfessionalWebExchange.needsSession` treats every `text/html` answer as "session needed", whatever the status. A 404
 or 500 page in HTML from Lifecare or IIS makes `ProfessionalWebExchange` bootstrap, sign in again for the whole
 process, and send the call up to three times before answering 502. For a write such as `CreateReminder` that can
 create the same thing more than once. It applies to exchange only: the api2 Feign client counts HTML as a lost

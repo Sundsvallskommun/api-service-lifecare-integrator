@@ -18,7 +18,7 @@ class ProfessionalWebKeepAlive {
 		this.session = session;
 	}
 
-	@Scheduled(fixedDelayString = "${integration.lifecare-professionalweb.keep-alive-interval:5m}", initialDelayString = "${integration.lifecare-professionalweb.keep-alive-interval:5m}")
+	@Scheduled(fixedDelayString = "${integration.lifecare-professionalweb.keep-alive-interval}", initialDelayString = "${integration.lifecare-professionalweb.keep-alive-interval}")
 	void keepAlive() {
 		session.keepAlive();
 	}

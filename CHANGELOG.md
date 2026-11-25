@@ -11,6 +11,7 @@ Every change to the service, newest date first. One short line per change.
 - Answer 400 to a negative `offset` on `GET /users` instead of passing it to FamilyCare.
 - Rename the OpenAPI operations `getAmount`, `getSharedCost` and `getJobStimuli` to `getCalculationAmount`, `getCalculationSharedCost` and `getCalculationJobStimuli`.
 - Name the helper methods in the integrations with a verb.
+- Tidy the ProfessionalWeb session code: exchange-only checks move to exchange, form encoding gets its own class, and each default has one place.
 
 ## 2026-11-24
 

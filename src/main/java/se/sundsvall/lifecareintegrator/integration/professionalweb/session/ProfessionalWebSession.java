@@ -75,7 +75,6 @@ public class ProfessionalWebSession {
 		if (!properties.isConfigured()) {
 			throw Problem.valueOf(BAD_GATEWAY, "Lifecare ProfessionalWeb is not configured (integration.lifecare-professionalweb.url is unset)");
 		}
-		seedConfiguration();
 		if (isExpired()) {
 			LOG.info("Lifecare session has passed its TTL - signing in again");
 			reset();

@@ -26,8 +26,6 @@ integration:
     key: override-me
   party:
     url: override-me
-    cache-time-to-live: PT15M
-    cache-maximum-size: 10000
   employee:
     url: override-me
   familycare:
@@ -42,10 +40,6 @@ integration:
     password:
     session-cookie:
     keep-alive-interval: 5m
-    print:
-      decision-template-id: 885bfb68-c97b-47c0-921d-ef00caaa2423
-      calculation-template-id: 7936e9ec-e32a-40cf-9dea-d95b16e021f0
-      document-template-id: b9f20b49-c8ba-4c44-ad33-b2bf8f0b688a
 
 resilience4j:
   circuitbreaker:

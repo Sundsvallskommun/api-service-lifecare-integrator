@@ -292,7 +292,7 @@ class ProfessionalWebClientSessionTest {
 
 	private static ProfessionalWebProperties properties(final String url, final String sessionCookie) {
 		return new ProfessionalWebProperties(url, "Domain", "Actor_Professional", "saml", "Sundsvall_Intra",
-			"user", "pw", Duration.ofMinutes(20), 1, 5, sessionCookie, Duration.ofMinutes(5));
+			"user", "pw", Duration.ofMinutes(20), 1, 5, sessionCookie);
 	}
 
 	private static ProfessionalWebClient client(final ProfessionalWebProperties properties, final ProfessionalWebSession session, final String target) {

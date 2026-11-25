@@ -21,8 +21,7 @@ public record ProfessionalWebProperties(
 	@DefaultValue("20m") Duration sessionTtl,
 	@DefaultValue("10") int connectTimeout,
 	@DefaultValue("30") int readTimeout,
-	String sessionCookie,
-	@DefaultValue("5m") Duration keepAliveInterval) {
+	String sessionCookie) {
 
 	/**
 	 * Whether this environment talks to ProfessionalWeb at all.

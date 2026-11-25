@@ -43,7 +43,7 @@ public final class SignInStubs {
 
 	public static ProfessionalWebProperties properties(final WireMockServer wireMock, final String username, final String password, final String sessionCookie) {
 		return new ProfessionalWebProperties(wireMock.baseUrl() + "/", "Domain", "Actor_Professional", "saml", "Sundsvall_Intra",
-			username, password, Duration.ofMinutes(20), 1, 5, sessionCookie, Duration.ofMinutes(5));
+			username, password, Duration.ofMinutes(20), 1, 5, sessionCookie);
 	}
 
 	public static ProfessionalWebHttp http() {

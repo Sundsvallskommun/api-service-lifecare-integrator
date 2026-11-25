@@ -69,7 +69,7 @@ class ProfessionalWebSignInTest {
 
 	@Test
 	void unreachable() {
-		final var properties = new ProfessionalWebProperties("http://localhost:1", "d", "a", "saml", null, "u", "p", Duration.ofMinutes(1), 1, 1, null, Duration.ofMinutes(5));
+		final var properties = new ProfessionalWebProperties("http://localhost:1", "d", "a", "saml", null, "u", "p", Duration.ofMinutes(1), 1, 1, null);
 		final var broken = new ProfessionalWebSignIn(properties, http());
 
 		assertThatThrownBy(() -> broken.signIn(cookies())).hasMessageContaining("could not be reached");

@@ -48,6 +48,6 @@ class ProfessionalWebPropertiesTest {
 	}
 
 	private static ProfessionalWebProperties properties(final String url) {
-		return new ProfessionalWebProperties(url, null, "Actor_Professional", "saml", null, null, null, Duration.ofMinutes(20), 10, 30, null, Duration.ofMinutes(5));
+		return new ProfessionalWebProperties(url, null, "Actor_Professional", "saml", null, null, null, Duration.ofMinutes(20), 10, 30, null);
 	}
 }

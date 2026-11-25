@@ -28,7 +28,7 @@ class ProfessionalWebConfigurationTest {
 		trustManagerFactory.init((KeyStore) null);
 		when(truststoreMock.getSSLContext()).thenReturn(sslContext);
 		when(truststoreMock.getTrustManagerFactory()).thenReturn(trustManagerFactory);
-		final var properties = new ProfessionalWebProperties(null, null, "a", "saml", null, null, null, Duration.ofMinutes(20), 3, 30, null, Duration.ofMinutes(5));
+		final var properties = new ProfessionalWebProperties(null, null, "a", "saml", null, null, null, Duration.ofMinutes(20), 3, 30, null);
 
 		final var client = new ProfessionalWebConfiguration().professionalWebHttpClient(properties, truststoreMock);
 
