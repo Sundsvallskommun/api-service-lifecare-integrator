@@ -153,12 +153,12 @@ public class ProfessionalWebService {
 	}
 
 	public Optional<byte[]> updateJournalNote(final long id, final byte[] body) {
-		requireSameDocumentId(id, body);
+		requireSameId(body, "documentId", id, DOCUMENT_ID_MISMATCH);
 		return toAnswer(integration.updateJournalNote(body));
 	}
 
 	public Optional<byte[]> updateDocument(final long id, final byte[] body) {
-		requireSameDocumentId(id, body);
+		requireSameId(body, "documentId", id, DOCUMENT_ID_MISMATCH);
 		return toAnswer(integration.updateDocument(body));
 	}
 
@@ -214,10 +214,7 @@ public class ProfessionalWebService {
 	}
 
 	public void updateReminder(final long reminderId, final byte[] body) {
-		Optional.ofNullable(requireJsonObject(body).get("reminderId"))
-			.filter(JsonNode::canConvertToLong)
-			.filter(bodyReminderId -> bodyReminderId.longValue() == reminderId)
-			.orElseThrow(() -> Problem.valueOf(BAD_REQUEST, REMINDER_ID_MISMATCH.formatted(reminderId)));
+		requireSameId(body, "reminderId", reminderId, REMINDER_ID_MISMATCH);
 		integration.updateReminder(body);
 	}
 
@@ -225,12 +222,12 @@ public class ProfessionalWebService {
 		integration.removeReminder(reminderId);
 	}
 
-	private static void requireSameDocumentId(final long id, final byte[] body) {
-		Optional.ofNullable(requireJsonObject(body).get("documentId"))
+	private static void requireSameId(final byte[] body, final String field, final long id, final String mismatch) {
+		Optional.ofNullable(requireJsonObject(body).get(field))
 			.filter(JsonNode::isIntegralNumber)
 			.filter(JsonNode::canConvertToLong)
-			.filter(documentId -> documentId.longValue() == id)
-			.orElseThrow(() -> Problem.valueOf(BAD_REQUEST, DOCUMENT_ID_MISMATCH.formatted(id)));
+			.filter(bodyId -> bodyId.longValue() == id)
+			.orElseThrow(() -> Problem.valueOf(BAD_REQUEST, mismatch.formatted(id)));
 	}
 
 	private static JsonNode requireJsonObject(final byte[] body) {

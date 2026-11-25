@@ -6,6 +6,7 @@ Every change to the service, newest date first. One short line per change.
 
 - Read everything before `to` or after `from`, or everything when both are left out, instead of a ten-year window ending today.
 - Stop masking parts of UUIDs and long numeric ids as personnummer in logs and problem details.
+- Refuse a reminder update whose body gives the id as a decimal such as `7.0`, as document updates already do.
 
 ## 2026-11-24
 

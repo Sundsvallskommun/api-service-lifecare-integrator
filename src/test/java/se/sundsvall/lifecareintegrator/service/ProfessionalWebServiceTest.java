@@ -703,7 +703,8 @@ class ProfessionalWebServiceTest {
 
 	@ParameterizedTest
 	@ValueSource(strings = {
-		"{\"reminderId\": 8}", "{\"text\": \"x\"}", "{\"reminderId\": \"7\"}", "{\"reminderId\": null}", "{\"reminderId\": 7.5}", "{\"nested\": {\"reminderId\": 7}}"
+		"{\"reminderId\": 8}", "{\"text\": \"x\"}", "{\"reminderId\": \"7\"}", "{\"reminderId\": null}", "{\"reminderId\": 7.5}", "{\"reminderId\": 7.0}",
+		"{\"reminderId\": 99999999999999999999}", "{\"reminderId\": true}", "{\"nested\": {\"reminderId\": 7}}"
 	})
 	void updateReminderWhoseBodyDoesNotNameTheSameReminder(final String body) {
 		assertThatThrownBy(() -> service.updateReminder(7, body.getBytes(UTF_8)))
