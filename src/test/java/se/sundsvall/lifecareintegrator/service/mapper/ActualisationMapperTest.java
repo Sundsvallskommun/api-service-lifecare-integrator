@@ -1,7 +1,7 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedAktualiseringDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedAktualiseringDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringDTO;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;

@@ -1,20 +1,21 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedExecutionDTO;
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedInvestigationDTO;
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedPaymentDTO;
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedResourceAllocationDTO;
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedServiceDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedExecutionDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedInvestigationDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedInvestigationPersonDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedPaymentDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedPaymentPersonDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedResourceAllocationDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedServiceDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedServicePersonDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedExecutionDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedInvestigationDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedPaymentDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedResourceAllocationDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedServiceDTO;
+import generated.se.sundsvall.familycare.PersonBasedExecutionDTO;
+import generated.se.sundsvall.familycare.PersonBasedInvestigationDTO;
+import generated.se.sundsvall.familycare.PersonBasedInvestigationPersonDTO;
+import generated.se.sundsvall.familycare.PersonBasedPaymentDTO;
+import generated.se.sundsvall.familycare.PersonBasedPaymentPersonDTO;
+import generated.se.sundsvall.familycare.PersonBasedResourceAllocationDTO;
+import generated.se.sundsvall.familycare.PersonBasedServiceDTO;
+import generated.se.sundsvall.familycare.PersonBasedServicePersonDTO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
@@ -105,6 +106,31 @@ class CaseDataMapperTest {
 		final var result = CaseDataMapper.toPayments(composite);
 
 		assertThat(result.getPayments().getFirst().getPayDate()).isNull();
+	}
+
+	@Test
+	void toPaymentsLeavesOutANullElement() {
+		final var composite = new ApiPaginationCompositePersonBasedPaymentDTO()
+			.result(Arrays.asList(new PersonBasedPaymentDTO().id(1), null));
+
+		final var result = CaseDataMapper.toPayments(composite);
+
+		assertThat(result.getPayments()).hasSize(1);
+		assertThat(result.getPayments().getFirst().getId()).isEqualTo(1);
+	}
+
+	@Test
+	void toCaseDataWithoutPersons() {
+		final var payments = CaseDataMapper.toPayments(new ApiPaginationCompositePersonBasedPaymentDTO()
+			.result(List.of(new PersonBasedPaymentDTO().paymentPersonDTOs(null))));
+		final var investigations = CaseDataMapper.toInvestigations(new ApiPaginationCompositePersonBasedInvestigationDTO()
+			.result(List.of(new PersonBasedInvestigationDTO().investigationPersonDTOs(null))));
+		final var services = CaseDataMapper.toCaseServices(new ApiPaginationCompositePersonBasedServiceDTO()
+			.result(List.of(new PersonBasedServiceDTO().servicePersonDTOs(null))));
+
+		assertThat(payments.getPayments().getFirst().getPersons()).isEmpty();
+		assertThat(investigations.getInvestigations().getFirst().getPersons()).isEmpty();
+		assertThat(services.getServices().getFirst().getPersons()).isEmpty();
 	}
 
 	@Test

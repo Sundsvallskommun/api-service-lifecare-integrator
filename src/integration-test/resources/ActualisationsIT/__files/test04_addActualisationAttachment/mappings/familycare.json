@@ -1,0 +1,9 @@
+{
+	"request": {
+		"method": "POST",
+		"urlPath": "/familycare/apifc/v1/Actualisations/98765/Attachments"
+	},
+	"response": {
+		"status": 204
+	}
+}

@@ -1,16 +1,18 @@
 package se.sundsvall.lifecareintegrator.service;
 
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedAktualiseringDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationHouseholdMemberDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationProposalDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedContactDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedPersonDTO;
-import generated.se.sundsvall.lifecarefc.PostAktualiseringsBodyRequest;
-import generated.se.sundsvall.lifecarefc.PostCalculationBodyRequest;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedAktualiseringDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedCalculationDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationHouseholdMemberDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationPersonDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationProposalDTO;
+import generated.se.sundsvall.familycare.PersonBasedContactDTO;
+import generated.se.sundsvall.familycare.PersonBasedPersonDTO;
+import generated.se.sundsvall.familycare.PostAktualiseringsBodyRequest;
+import generated.se.sundsvall.familycare.PostCalculationBodyRequest;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -20,22 +22,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
-import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationPersonRequest;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateActualisationRequest;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CreateCalculationRequest;
 import se.sundsvall.lifecareintegrator.api.model.familycare.PeriodParameters;
-import se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcIntegration;
+import se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareIntegration;
 import se.sundsvall.lifecareintegrator.integration.party.PartyIntegration;
 
-import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @ExtendWith(MockitoExtension.class)
 class FamilyCareServiceTest {
@@ -50,7 +49,7 @@ class FamilyCareServiceTest {
 	private PartyIntegration partyIntegrationMock;
 
 	@Mock
-	private LifecareFcIntegration lifecareFcIntegrationMock;
+	private FamilyCareIntegration familyCareIntegrationMock;
 
 	@InjectMocks
 	private FamilyCareService familyCareService;
@@ -59,7 +58,7 @@ class FamilyCareServiceTest {
 	void getPerson() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareFcIntegrationMock.getPerson(PERSON_NUMBER)).thenReturn(java.util.Optional.of(new PersonBasedPersonDTO().name("Test Person")));
+		when(familyCareIntegrationMock.getPerson(PERSON_NUMBER)).thenReturn(new PersonBasedPersonDTO().name("Test Person"));
 
 		// Act
 		final var result = familyCareService.getPerson(MUNICIPALITY_ID, PARTY_ID);
@@ -67,28 +66,14 @@ class FamilyCareServiceTest {
 		// Verify: personnummer is what gets forwarded to FC, and it is not exposed
 		assertThat(result.getName()).isEqualTo("Test Person");
 		verify(partyIntegrationMock).getPersonNumber(MUNICIPALITY_ID, PARTY_ID);
-		verify(lifecareFcIntegrationMock).getPerson(PERSON_NUMBER);
-	}
-
-	@Test
-	void getPersonNotFound() {
-		// Mock
-		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareFcIntegrationMock.getPerson(PERSON_NUMBER)).thenReturn(empty());
-
-		// Act
-		final var exception = assertThrows(ThrowableProblem.class, () -> familyCareService.getPerson(MUNICIPALITY_ID, PARTY_ID));
-
-		// Verify
-		assertThat(exception.getStatus()).isEqualTo(NOT_FOUND);
-		assertThat(exception.getDetail()).isEqualTo("No person found for partyId '%s'".formatted(PARTY_ID));
+		verify(familyCareIntegrationMock).getPerson(PERSON_NUMBER);
 	}
 
 	@Test
 	void getContacts() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareFcIntegrationMock.getContacts(PERSON_NUMBER)).thenReturn(List.of(new PersonBasedContactDTO().name("Contact")));
+		when(familyCareIntegrationMock.getContacts(PERSON_NUMBER)).thenReturn(List.of(new PersonBasedContactDTO().name("Contact")));
 
 		// Act
 		final var result = familyCareService.getContacts(MUNICIPALITY_ID, PARTY_ID);
@@ -96,7 +81,7 @@ class FamilyCareServiceTest {
 		// Verify
 		assertThat(result).hasSize(1);
 		assertThat(result.getFirst().getName()).isEqualTo("Contact");
-		verify(lifecareFcIntegrationMock).getContacts(PERSON_NUMBER);
+		verify(familyCareIntegrationMock).getContacts(PERSON_NUMBER);
 	}
 
 	@Test
@@ -114,7 +99,7 @@ class FamilyCareServiceTest {
 
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareFcIntegrationMock.getActualisations(PERSON_NUMBER, from, to, 20, 1, true))
+		when(familyCareIntegrationMock.getActualisations(PERSON_NUMBER, from, to, 20, 1, true))
 			.thenReturn(new ApiPaginationCompositePersonBasedAktualiseringDTO().pageNumber(1).result(List.of(new PersonBasedAktualiseringDTO().id(1))));
 
 		// Act
@@ -122,26 +107,25 @@ class FamilyCareServiceTest {
 
 		// Verify: the resolved person number (not partyId) is forwarded
 		assertThat(result.getActualisations()).hasSize(1);
-		verify(lifecareFcIntegrationMock).getActualisations(PERSON_NUMBER, from, to, 20, 1, true);
+		verify(familyCareIntegrationMock).getActualisations(PERSON_NUMBER, from, to, 20, 1, true);
 	}
 
 	@Test
-	void getActualisationsUsesDefaultWindowWhenDatesMissing() {
+	void getActualisationsUsesOpenWindowWhenDatesMissing() {
 		// Parameter values: no dates or ascending set — page/limit default to 1/100
 		final var parameters = new PeriodParameters();
 		parameters.setPartyId(PARTY_ID);
 
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareFcIntegrationMock.getActualisations(any(), any(), any(), any(), any(), any()))
+		when(familyCareIntegrationMock.getActualisations(any(), any(), any(), any(), anyInt(), any()))
 			.thenReturn(new ApiPaginationCompositePersonBasedAktualiseringDTO());
 
 		// Act
 		familyCareService.getActualisations(MUNICIPALITY_ID, parameters);
 
-		// Verify: default 10-year lookback window, default paging (page 1, limit 100)
-		final var today = LocalDate.now(ZoneId.of("Europe/Stockholm"));
-		verify(lifecareFcIntegrationMock).getActualisations(PERSON_NUMBER, today.minusYears(10), today, 100, 1, null);
+		// Verify: everything is asked for, with default paging (page 1, limit 100)
+		verify(familyCareIntegrationMock).getActualisations(PERSON_NUMBER, LocalDate.parse("1900-01-01"), LocalDate.parse("2100-12-31"), 100, 1, null);
 	}
 
 	@Test
@@ -152,7 +136,7 @@ class FamilyCareServiceTest {
 		};
 
 		// Mock
-		when(lifecareFcIntegrationMock.getDocumentContent("doc-1")).thenReturn(java.util.Optional.of(content));
+		when(familyCareIntegrationMock.getDocumentContent("doc-1")).thenReturn(content);
 
 		// Act
 		final var result = familyCareService.getDocumentContent("doc-1");
@@ -163,32 +147,19 @@ class FamilyCareServiceTest {
 	}
 
 	@Test
-	void getDocumentContentNotFound() {
-		// Mock
-		when(lifecareFcIntegrationMock.getDocumentContent("doc-1")).thenReturn(empty());
-
-		// Act
-		final var exception = assertThrows(ThrowableProblem.class, () -> familyCareService.getDocumentContent("doc-1"));
-
-		// Verify
-		assertThat(exception.getStatus()).isEqualTo(NOT_FOUND);
-		assertThat(exception.getDetail()).isEqualTo("No document content found for document 'doc-1'");
-	}
-
-	@Test
 	void getUsersDoesNotResolveParty() {
 		// Parameter values
 		final var modifiedAfter = OffsetDateTime.parse("2026-01-01T00:00:00Z");
 
 		// Mock
-		when(lifecareFcIntegrationMock.getUsers(100, 0, modifiedAfter, null)).thenReturn(List.of());
+		when(familyCareIntegrationMock.getUsers(100, 0, modifiedAfter, null)).thenReturn(List.of());
 
 		// Act
 		final var result = familyCareService.getUsers(100, 0, modifiedAfter, null);
 
 		// Verify
 		assertThat(result).isEmpty();
-		verify(lifecareFcIntegrationMock).getUsers(100, 0, modifiedAfter, null);
+		verify(familyCareIntegrationMock).getUsers(100, 0, modifiedAfter, null);
 		verifyNoInteractions(partyIntegrationMock);
 	}
 
@@ -202,14 +173,14 @@ class FamilyCareServiceTest {
 
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareFcIntegrationMock.createActualisation(any())).thenReturn(42);
+		when(familyCareIntegrationMock.createActualisation(any())).thenReturn(42);
 
 		// Act
 		final var result = familyCareService.createActualisation(MUNICIPALITY_ID, request);
 
 		// Verify: the FC body carries the resolved person number, never the partyId
 		final var captor = ArgumentCaptor.forClass(PostAktualiseringsBodyRequest.class);
-		verify(lifecareFcIntegrationMock).createActualisation(captor.capture());
+		verify(familyCareIntegrationMock).createActualisation(captor.capture());
 		assertThat(captor.getValue().getPersonId()).isEqualTo(PERSON_NUMBER);
 		assertThat(result).isEqualTo(42);
 	}
@@ -218,7 +189,7 @@ class FamilyCareServiceTest {
 	void getCalculationProposalSwapsHouseholdMemberPersonNumbers() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareFcIntegrationMock.getCalculationProposal(PERSON_NUMBER)).thenReturn(new PersonBasedCalculationProposalDTO()
+		when(familyCareIntegrationMock.getCalculationProposal(PERSON_NUMBER)).thenReturn(new PersonBasedCalculationProposalDTO()
 			.householdMembers(List.of(new PersonBasedCalculationHouseholdMemberDTO().personId(MEMBER_PERSON_NUMBER).name("Member"))));
 		when(partyIntegrationMock.getPartyIds(MUNICIPALITY_ID, List.of(MEMBER_PERSON_NUMBER))).thenReturn(Map.of(MEMBER_PERSON_NUMBER, MEMBER_PARTY_ID));
 
@@ -229,6 +200,53 @@ class FamilyCareServiceTest {
 		assertThat(result.getHouseholdMembers()).hasSize(1);
 		assertThat(result.getHouseholdMembers().getFirst().getPartyId()).isEqualTo(MEMBER_PARTY_ID);
 		assertThat(result.getHouseholdMembers().getFirst().getName()).isEqualTo("Member");
+	}
+
+	@Test
+	void getCalculationProposalWithoutHouseholdMembers() {
+		// Mock: FC may send "HouseholdMembers": null
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(familyCareIntegrationMock.getCalculationProposal(PERSON_NUMBER)).thenReturn(new PersonBasedCalculationProposalDTO().householdMembers(null));
+
+		// Act
+		final var result = familyCareService.getCalculationProposal(MUNICIPALITY_ID, PARTY_ID);
+
+		// Verify
+		assertThat(result.getHouseholdMembers()).isEmpty();
+		verify(partyIntegrationMock).getPartyIds(MUNICIPALITY_ID, List.of());
+	}
+
+	@Test
+	void getCalculationProposalWithoutProposal() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(familyCareIntegrationMock.getCalculationProposal(PERSON_NUMBER)).thenReturn(null);
+
+		// Act & verify
+		assertThat(familyCareService.getCalculationProposal(MUNICIPALITY_ID, PARTY_ID)).isNull();
+	}
+
+	@Test
+	void getCalculationsSwapsPersonNumbersForPartyIds() {
+		// Parameter values
+		final var parameters = new PeriodParameters();
+		parameters.setPartyId(PARTY_ID);
+
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(familyCareIntegrationMock.getCalculations(any(), any(), any(), any(), anyInt(), any())).thenReturn(new ApiPaginationCompositePersonBasedCalculationDTO()
+			.result(List.of(new PersonBasedCalculationDTO().id(1).calculationPersonDTOs(List.of(
+				new PersonBasedCalculationPersonDTO().personId(MEMBER_PERSON_NUMBER).name("Member"))))));
+		when(partyIntegrationMock.getPartyIds(MUNICIPALITY_ID, List.of(MEMBER_PERSON_NUMBER))).thenReturn(Map.of(MEMBER_PERSON_NUMBER, MEMBER_PARTY_ID));
+
+		// Act
+		final var result = familyCareService.getCalculations(MUNICIPALITY_ID, parameters);
+
+		// Verify: persons expose partyId, never the person number
+		assertThat(result.getCalculations()).singleElement()
+			.satisfies(calculation -> assertThat(calculation.getPersons()).singleElement()
+				.satisfies(person -> assertThat(person.getPartyId()).isEqualTo(MEMBER_PARTY_ID)));
+		assertThat(result.toString()).doesNotContain(MEMBER_PERSON_NUMBER);
 	}
 
 	@Test
@@ -245,14 +263,14 @@ class FamilyCareServiceTest {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
 		when(partyIntegrationMock.getPersonNumbers(MUNICIPALITY_ID, List.of(MEMBER_PARTY_ID))).thenReturn(Map.of(MEMBER_PARTY_ID, MEMBER_PERSON_NUMBER));
-		when(lifecareFcIntegrationMock.createCalculation(any())).thenReturn(99);
+		when(familyCareIntegrationMock.createCalculation(any())).thenReturn(99);
 
 		// Act
 		final var result = familyCareService.createCalculation(MUNICIPALITY_ID, request);
 
 		// Verify: applicant + member person numbers are forwarded, not partyIds
 		final var captor = ArgumentCaptor.forClass(PostCalculationBodyRequest.class);
-		verify(lifecareFcIntegrationMock).createCalculation(captor.capture());
+		verify(familyCareIntegrationMock).createCalculation(captor.capture());
 		assertThat(captor.getValue().getPersonId()).isEqualTo(PERSON_NUMBER);
 		assertThat(captor.getValue().getCalculationPersons().getFirst().getPersonId()).isEqualTo(MEMBER_PERSON_NUMBER);
 		assertThat(result).isEqualTo(99);
@@ -269,7 +287,7 @@ class FamilyCareServiceTest {
 		familyCareService.addActualisationAttachment(12345, "type", "sender", "title", "senderName", file);
 
 		// Verify
-		verify(lifecareFcIntegrationMock).addActualisationAttachment(12345, "type", "sender", "title", "senderName", file);
+		verify(familyCareIntegrationMock).addActualisationAttachment(12345, "type", "sender", "title", "senderName", file);
 		verifyNoInteractions(partyIntegrationMock);
 	}
 
@@ -277,13 +295,13 @@ class FamilyCareServiceTest {
 	void getActualisationProposalDelegates() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareFcIntegrationMock.getActualisationProposal(PERSON_NUMBER)).thenReturn(null);
+		when(familyCareIntegrationMock.getActualisationProposal(PERSON_NUMBER)).thenReturn(null);
 
 		// Act
 		final var result = familyCareService.getActualisationProposal(MUNICIPALITY_ID, PARTY_ID);
 
 		// Verify
 		assertThat(result).isNull();
-		verify(lifecareFcIntegrationMock).getActualisationProposal(PERSON_NUMBER);
+		verify(familyCareIntegrationMock).getActualisationProposal(PERSON_NUMBER);
 	}
 }

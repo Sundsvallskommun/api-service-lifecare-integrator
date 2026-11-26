@@ -1,0 +1,45 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Document/GetNoteProposalForService",
+		"queryParameters": {
+			"id": {
+				"equalTo": "42"
+			}
+		},
+		"headers": {
+			"X-Requested-With": {
+				"equalTo": "XMLHttpRequest"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"documentJournalNote": {
+				"documentId": 0,
+				"serviceId": 42,
+				"title": "",
+				"content": "",
+				"occurenceDate": "2026-11-01",
+				"occurenceTime": "10:00",
+				"protected": false
+			},
+			"documentNoteTypes": [
+				{
+					"code": 1,
+					"text": "Journalanteckning",
+					"isActive": true
+				}
+			]
+		},
+		"status": 200
+	}
+}

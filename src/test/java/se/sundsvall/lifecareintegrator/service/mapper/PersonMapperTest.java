@@ -1,8 +1,9 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.PersonBasedAddressDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedContactDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedPersonDTO;
+import generated.se.sundsvall.familycare.PersonBasedAddressDTO;
+import generated.se.sundsvall.familycare.PersonBasedContactDTO;
+import generated.se.sundsvall.familycare.PersonBasedPersonDTO;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Contact;
@@ -65,11 +66,6 @@ class PersonMapperTest {
 		// Assert
 		assertThat(result).hasAllNullFieldsOrPropertiesExcept("name");
 		assertThat(result.getName()).isEqualTo("Anna Andersson");
-	}
-
-	@Test
-	void toContactsWithNull() {
-		assertThat(PersonMapper.toContacts(null)).isEmpty();
 	}
 
 	@Test
@@ -136,5 +132,14 @@ class PersonMapperTest {
 		assertThat(result).hasSize(1);
 		assertThat(result.getFirst()).hasAllNullFieldsOrPropertiesExcept("name");
 		assertThat(result.getFirst().getName()).isEqualTo("Bo Bosson");
+	}
+
+	@Test
+	void toContactsLeavesOutANullElement() {
+		// Act
+		final var result = PersonMapper.toContacts(Arrays.asList(new PersonBasedContactDTO().name("Bo Bosson"), null));
+
+		// Assert
+		assertThat(result).extracting(Contact::getName).containsExactly("Bo Bosson");
 	}
 }

@@ -1,0 +1,29 @@
+{
+	"payment": {
+		"paymentId": 0,
+		"serviceId": 42,
+		"susPersonId": "19880209T050",
+		"payDate": "2026-11-25",
+		"postings": []
+	},
+	"payees": [
+		{
+			"payeeId": 3,
+			"name": "Testsson, Test"
+		}
+	],
+	"paymentMethods": [
+		{
+			"code": 1,
+			"text": "Bankgiro",
+			"isActive": true
+		}
+	],
+	"balances": [],
+	"paymentConcernMonths": [
+		{
+			"code": "2026-11",
+			"text": "November 2026"
+		}
+	]
+}

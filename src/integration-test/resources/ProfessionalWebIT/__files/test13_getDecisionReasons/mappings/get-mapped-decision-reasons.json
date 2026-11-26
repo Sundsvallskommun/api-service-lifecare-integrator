@@ -1,0 +1,42 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Decision/GetMappedDecisionReasons",
+		"queryParameters": {
+			"id": {
+				"equalTo": "12"
+			}
+		},
+		"headers": {
+			"X-Requested-With": {
+				"equalTo": "XMLHttpRequest"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": [
+			{
+				"header": "Bifall",
+				"name": null,
+				"reasonCode": null,
+				"options": [
+					{
+						"header": null,
+						"name": "Försörjningsstöd",
+						"reasonCode": 1,
+						"options": []
+					}
+				]
+			}
+		],
+		"status": 200
+	}
+}

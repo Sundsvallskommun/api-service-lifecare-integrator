@@ -1,0 +1,7 @@
+{
+	"serviceId": 42,
+	"totalSum": 1500.5,
+	"unknownToTheIntegrator": {
+		"kept": true
+	}
+}

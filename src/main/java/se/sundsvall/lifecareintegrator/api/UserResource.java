@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -56,7 +57,7 @@ class UserResource {
 	ResponseEntity<List<Caseworker>> getUsers(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "limit", description = "The maximum number of users to return", example = "100") @NotNull @Positive @Max(1000) @RequestParam final Integer limit,
-		@Parameter(name = "offset", description = "The starting point within the result set", example = "0") @RequestParam(required = false) final Integer offset,
+		@Parameter(name = "offset", description = "The starting point within the result set", example = "0") @PositiveOrZero @RequestParam(required = false) final Integer offset,
 		@Parameter(name = "modifiedAfter", description = "Only users modified after this time") @DateTimeFormat(iso = DATE_TIME) @RequestParam(required = false) final OffsetDateTime modifiedAfter,
 		@Parameter(name = "modifiedBefore", description = "Only users modified before this time") @DateTimeFormat(iso = DATE_TIME) @RequestParam(required = false) final OffsetDateTime modifiedBefore) {
 

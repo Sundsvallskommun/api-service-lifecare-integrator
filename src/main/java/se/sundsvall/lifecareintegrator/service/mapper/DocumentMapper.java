@@ -1,8 +1,8 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedDocumentDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedDocumentDTO;
-import java.util.List;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedDocumentDTO;
+import generated.se.sundsvall.familycare.PersonBasedDocumentDTO;
+import java.util.Objects;
 import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.familycare.DocumentMetadata;
 import se.sundsvall.lifecareintegrator.api.model.familycare.PagedDocumentResponse;
@@ -16,31 +16,26 @@ public final class DocumentMapper {
 	private DocumentMapper() {}
 
 	public static PagedDocumentResponse toDocuments(final ApiPaginationCompositePersonBasedDocumentDTO documents) {
-		return Optional.ofNullable(documents)
-			.map(source -> toDocumentMetadataList(source.getResult()))
-			.map(documentList -> PagedDocumentResponse.create()
-				.withDocuments(documentList)
-				.withMetaData(toPagingMetaData(documents.getPageNumber(), documents.getPageSize(), documents.getTotalNumberOfPages(), documents.getTotalNumberOfRecords(), documentList.size())))
-			.orElseGet(() -> PagedDocumentResponse.create().withDocuments(emptyList()));
+		if (documents == null) {
+			return PagedDocumentResponse.create().withDocuments(emptyList());
+		}
+
+		final var documentList = Optional.ofNullable(documents.getResult()).orElse(emptyList()).stream()
+			.filter(Objects::nonNull)
+			.map(DocumentMapper::toDocumentMetadata)
+			.toList();
+		return PagedDocumentResponse.create()
+			.withDocuments(documentList)
+			.withMetaData(toPagingMetaData(documents.getPageNumber(), documents.getPageSize(), documents.getTotalNumberOfPages(), documents.getTotalNumberOfRecords(), documentList.size()));
 	}
 
-	private static List<DocumentMetadata> toDocumentMetadataList(final List<PersonBasedDocumentDTO> documents) {
-		return Optional.ofNullable(documents)
-			.map(list -> list.stream()
-				.map(DocumentMapper::toDocumentMetadata)
-				.toList())
-			.orElse(emptyList());
-	}
-
-	private static DocumentMetadata toDocumentMetadata(final PersonBasedDocumentDTO document) {
+	private static DocumentMetadata toDocumentMetadata(final PersonBasedDocumentDTO source) {
 		// Intentionally drops the ownerId — it may hold a personnummer, which never leaves this service
-		return Optional.ofNullable(document)
-			.map(source -> DocumentMetadata.create()
-				.withId(source.getId())
-				.withTitle(source.getTitle())
-				.withDate(toLocalDate(source.getDate()))
-				.withDocumentType(source.getDocumentType())
-				.withOwnerType(source.getOwnerType()))
-			.orElse(null);
+		return DocumentMetadata.create()
+			.withId(source.getId())
+			.withTitle(source.getTitle())
+			.withDate(toLocalDate(source.getDate()))
+			.withDocumentType(source.getDocumentType())
+			.withOwnerType(source.getOwnerType());
 	}
 }

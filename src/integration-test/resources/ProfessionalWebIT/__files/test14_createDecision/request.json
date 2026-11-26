@@ -1,0 +1,8 @@
+{
+	"decisionCode": 12,
+	"reasonId": 1,
+	"amount": 1500.5,
+	"unknownToTheIntegrator": {
+		"kept": true
+	}
+}

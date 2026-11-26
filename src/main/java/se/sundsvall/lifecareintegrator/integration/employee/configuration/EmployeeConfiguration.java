@@ -1,6 +1,5 @@
 package se.sundsvall.lifecareintegrator.integration.employee.configuration;
 
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -14,11 +13,10 @@ import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
  * the platform's OAuth2 client credentials flow, unlike the Lifecare integrations.
  *
  * <p>
- * An unknown login name is handled by {@code dismiss404} on the client, which returns null without reaching this error
- * decoder — many Lifecare caseworker ids are not employees at all.
+ * An unknown login name is handled by {@code dismiss404} on the client, which gives an empty Optional without reaching
+ * this error decoder. Many Lifecare caseworker ids are not employees at all.
  */
 @Import(FeignConfiguration.class)
-@EnableConfigurationProperties(EmployeeProperties.class)
 public class EmployeeConfiguration {
 
 	public static final String CLIENT_ID = "employee";

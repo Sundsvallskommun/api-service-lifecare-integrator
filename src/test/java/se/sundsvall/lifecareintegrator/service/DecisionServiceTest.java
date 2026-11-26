@@ -1,13 +1,14 @@
 package se.sundsvall.lifecareintegrator.service;
 
-import generated.se.sundsvall.lifecareec.WEECIntegrationContractsCommonV1Caseworker;
-import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1Decision;
-import generated.se.sundsvall.lifecareec.WEECIntegrationContractsDecisionV1LssDecision;
-import generated.se.sundsvall.lifecarefc.PersonBasedDecisionDTO;
+import generated.se.sundsvall.elderlycare.WEECIntegrationContractsCommonV1Caseworker;
+import generated.se.sundsvall.elderlycare.WEECIntegrationContractsDecisionV1Decision;
+import generated.se.sundsvall.elderlycare.WEECIntegrationContractsDecisionV1LssDecision;
+import generated.se.sundsvall.familycare.PersonBasedDecisionDTO;
+import generated.se.sundsvall.familycare.PersonBasedDecisionPersonDTO;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,9 +19,10 @@ import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.lifecareintegrator.api.model.common.Decision;
 import se.sundsvall.lifecareintegrator.api.model.common.SourceStatus;
+import se.sundsvall.lifecareintegrator.api.model.familycare.RelatedPerson;
+import se.sundsvall.lifecareintegrator.integration.elderlycare.ElderlyCareIntegration;
 import se.sundsvall.lifecareintegrator.integration.employee.EmployeeIntegration;
-import se.sundsvall.lifecareintegrator.integration.lifecareec.LifecareEcIntegration;
-import se.sundsvall.lifecareintegrator.integration.lifecarefc.LifecareFcIntegration;
+import se.sundsvall.lifecareintegrator.integration.familycare.FamilyCareIntegration;
 import se.sundsvall.lifecareintegrator.integration.party.PartyIntegration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,15 +45,17 @@ class DecisionServiceTest {
 	private static final String PERSON_NUMBER = "199001011234";
 	private static final String OTHER_PERSON_NUMBER = "198001011234";
 	private static final String DECISION_ID = "1001";
+	private static final String RELATED_PERSON_NUMBER = "199505057890";
+	private static final String RELATED_PARTY_ID = "22222222-5798-11e9-ae24-57fa13b361e2";
 
 	@Mock
 	private PartyIntegration partyIntegrationMock;
 
 	@Mock
-	private LifecareEcIntegration lifecareEcIntegrationMock;
+	private ElderlyCareIntegration elderlyCareIntegrationMock;
 
 	@Mock
-	private LifecareFcIntegration lifecareFcIntegrationMock;
+	private FamilyCareIntegration familyCareIntegrationMock;
 
 	@Mock
 	private EmployeeIntegration employeeIntegrationMock;
@@ -63,11 +67,11 @@ class DecisionServiceTest {
 	void getDecisions() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of(
+		when(elderlyCareIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of(
 			new WEECIntegrationContractsDecisionV1Decision().id(1).date(LocalDateTime.parse("2026-01-01T00:00:00"))));
-		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(
+		when(elderlyCareIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(
 			new WEECIntegrationContractsDecisionV1LssDecision().id(2).date(LocalDateTime.parse("2026-03-01T00:00:00"))));
-		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
+		when(familyCareIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
 			new PersonBasedDecisionDTO().id(3).date("2026-02-01")));
 
 		// Act
@@ -87,9 +91,41 @@ class DecisionServiceTest {
 				tuple("ELDERLY_CARE", "LSS", "OK"),
 				tuple("FAMILY_CARE", null, "OK"));
 
-		// Default FC window: 10 years back until today
-		final var today = LocalDate.now(ZoneId.of("Europe/Stockholm"));
-		verify(lifecareFcIntegrationMock).getAllDecisions(PERSON_NUMBER, today.minusYears(10), today);
+		// No bounds: FC is asked for everything
+		verify(familyCareIntegrationMock).getAllDecisions(PERSON_NUMBER, LocalDate.parse("1900-01-01"), LocalDate.parse("2100-12-31"));
+	}
+
+	/**
+	 * A FamilyCare decision no longer carries the raw personnummer of the persons it names: the personnummer is
+	 * resolved to a partyId (in one batch call for every person on every FC decision) before the decision reaches the
+	 * caller, and the personnummer itself must never appear anywhere in the response.
+	 */
+	@Test
+	void getDecisionsResolvesFamilyCarePersonsToPartyIdsInOneBatch() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(elderlyCareIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of());
+		when(elderlyCareIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of());
+		when(familyCareIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
+			new PersonBasedDecisionDTO().id(3).date("2026-02-01")
+				.decisionPersonDTOs(List.of(new PersonBasedDecisionPersonDTO()
+					.personId(RELATED_PERSON_NUMBER)
+					.name("Kalle Karlsson")
+					.isCoApplicant(false)))));
+		when(partyIntegrationMock.getPartyIds(MUNICIPALITY_ID, List.of(RELATED_PERSON_NUMBER)))
+			.thenReturn(Map.of(RELATED_PERSON_NUMBER, RELATED_PARTY_ID));
+
+		// Act
+		final var result = decisionService.getDecisions(MUNICIPALITY_ID, PARTY_ID, null, null);
+
+		// Verify: the batch call was made exactly once with the personnummer found on the decision
+		verify(partyIntegrationMock).getPartyIds(MUNICIPALITY_ID, List.of(RELATED_PERSON_NUMBER));
+
+		final var persons = result.getDecisions().getFirst().getFamilyCareDetails().getPersons();
+		assertThat(persons).extracting(RelatedPerson::getPartyId).containsExactly(RELATED_PARTY_ID);
+
+		// The personnummer itself must never survive into the response
+		assertThat(result.getDecisions().toString()).doesNotContain(RELATED_PERSON_NUMBER);
 	}
 
 	@Test
@@ -100,7 +136,7 @@ class DecisionServiceTest {
 
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of(
+		when(elderlyCareIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of(
 			// Ends before the window — filtered out
 			new WEECIntegrationContractsDecisionV1Decision().id(1)
 				.fromDate(LocalDateTime.parse("2020-01-01T00:00:00"))
@@ -115,8 +151,8 @@ class DecisionServiceTest {
 			// Starts after the window — filtered out
 			new WEECIntegrationContractsDecisionV1Decision().id(4)
 				.fromDate(LocalDateTime.parse("2026-08-01T00:00:00"))));
-		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of());
-		when(lifecareFcIntegrationMock.getAllDecisions(PERSON_NUMBER, from, to)).thenReturn(List.of());
+		when(elderlyCareIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of());
+		when(familyCareIntegrationMock.getAllDecisions(PERSON_NUMBER, from, to)).thenReturn(List.of());
 
 		// Act
 		final var result = decisionService.getDecisions(MUNICIPALITY_ID, PARTY_ID, from, to);
@@ -125,17 +161,17 @@ class DecisionServiceTest {
 		assertThat(result.getDecisions())
 			.extracting(Decision::getDecisionId)
 			.containsExactlyInAnyOrder("2", "3");
-		verify(lifecareFcIntegrationMock).getAllDecisions(PERSON_NUMBER, from, to);
+		verify(familyCareIntegrationMock).getAllDecisions(PERSON_NUMBER, from, to);
 	}
 
 	@Test
 	void getDecisionsWithFailingSourceReturnsPartialResult() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of(
+		when(elderlyCareIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of(
 			new WEECIntegrationContractsDecisionV1Decision().id(1)));
-		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of());
-		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenThrow(new RuntimeException("FC is down"));
+		when(elderlyCareIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of());
+		when(familyCareIntegrationMock.getAllDecisions(any(), any(), any())).thenThrow(new RuntimeException("FC is down"));
 
 		// Act
 		final var result = decisionService.getDecisions(MUNICIPALITY_ID, PARTY_ID, null, null);
@@ -156,9 +192,9 @@ class DecisionServiceTest {
 	void getDecisionsWithAllSourcesFailing() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenThrow(new RuntimeException("EC is down"));
-		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenThrow(new RuntimeException("EC is down"));
-		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenThrow(new RuntimeException("FC is down"));
+		when(elderlyCareIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenThrow(new RuntimeException("EC is down"));
+		when(elderlyCareIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenThrow(new RuntimeException("EC is down"));
+		when(familyCareIntegrationMock.getAllDecisions(any(), any(), any())).thenThrow(new RuntimeException("FC is down"));
 
 		// Act
 		final var result = decisionService.getDecisions(MUNICIPALITY_ID, PARTY_ID, null, null);
@@ -181,7 +217,7 @@ class DecisionServiceTest {
 
 		// Verify
 		assertThat(exception.getStatus()).isEqualTo(NOT_FOUND);
-		verifyNoInteractions(lifecareEcIntegrationMock, lifecareFcIntegrationMock);
+		verifyNoInteractions(elderlyCareIntegrationMock, familyCareIntegrationMock);
 	}
 
 	@Test
@@ -193,17 +229,17 @@ class DecisionServiceTest {
 		// Verify
 		assertThat(exception.getStatus()).isEqualTo(BAD_REQUEST);
 		assertThat(exception.getDetail()).isEqualTo("'from' must be on or before 'to'");
-		verifyNoInteractions(partyIntegrationMock, lifecareEcIntegrationMock, lifecareFcIntegrationMock);
+		verifyNoInteractions(partyIntegrationMock, elderlyCareIntegrationMock, familyCareIntegrationMock);
 	}
 
 	@Test
 	void getDecisionsSortsNullDecisionDatesLast() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of(
+		when(elderlyCareIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of(
 			new WEECIntegrationContractsDecisionV1Decision().id(1)));
-		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of());
-		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
+		when(elderlyCareIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of());
+		when(familyCareIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
 			new PersonBasedDecisionDTO().id(2).date("2026-02-01")));
 
 		// Act
@@ -216,12 +252,12 @@ class DecisionServiceTest {
 	}
 
 	@Test
-	void aCaseworkerWithoutANameIsResolvedOnceAndReusedAcrossDecisions() {
+	void aCaseworkerWithoutANameIsResolvedOnceAcrossTheDecisionsOfOneSource() {
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of());
-		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(
+		when(elderlyCareIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of());
+		when(elderlyCareIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(
 			lssDecisionWithBlankSfbCaseworker(1), lssDecisionWithBlankSfbCaseworker(2)));
-		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of());
+		when(familyCareIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of());
 		when(employeeIntegrationMock.getFullName(MUNICIPALITY_ID, "LOHE")).thenReturn(Optional.of("Lotta Helsinger"));
 
 		final var response = decisionService.getDecisions(MUNICIPALITY_ID, PARTY_ID, null, null);
@@ -235,11 +271,30 @@ class DecisionServiceTest {
 	}
 
 	@Test
+	void aCaseworkerWithoutANameIsResolvedForTheSolDecisionsToo() {
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(elderlyCareIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of(solDecisionWithBlankCaseworker(1)));
+		when(elderlyCareIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(lssDecisionWithBlankSfbCaseworker(2)));
+		when(familyCareIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of());
+		when(employeeIntegrationMock.getFullName(MUNICIPALITY_ID, "LOHE")).thenReturn(Optional.of("Lotta Helsinger"));
+
+		final var response = decisionService.getDecisions(MUNICIPALITY_ID, PARTY_ID, null, null);
+
+		assertThat(response.getDecisions())
+			.filteredOn(decision -> "SOL".equals(decision.getLaw()))
+			.singleElement()
+			.satisfies(decision -> assertThat(decision.getDecisionMaker()).isEqualTo("Lotta Helsinger"));
+
+		// Each source looks up its own caseworkers, so one appearing in both SoL and LSS is looked up twice.
+		verify(employeeIntegrationMock, times(2)).getFullName(MUNICIPALITY_ID, "LOHE");
+	}
+
+	@Test
 	void anUnresolvableCaseworkerLeavesTheNameOutRatherThanBlank() {
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of());
-		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(lssDecisionWithBlankSfbCaseworker(1)));
-		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of());
+		when(elderlyCareIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of());
+		when(elderlyCareIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(lssDecisionWithBlankSfbCaseworker(1)));
+		when(familyCareIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of());
 		when(employeeIntegrationMock.getFullName(MUNICIPALITY_ID, "LOHE")).thenReturn(Optional.empty());
 
 		final var response = decisionService.getDecisions(MUNICIPALITY_ID, PARTY_ID, null, null);
@@ -253,11 +308,11 @@ class DecisionServiceTest {
 	@Test
 	void theLawComesFromTheDecisionRatherThanTheEndpoint() {
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareEcIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of());
-		when(lifecareEcIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(
+		when(elderlyCareIntegrationMock.getSolDecisions(PERSON_NUMBER)).thenReturn(List.of());
+		when(elderlyCareIntegrationMock.getLssDecisions(PERSON_NUMBER)).thenReturn(List.of(
 			new WEECIntegrationContractsDecisionV1LssDecision().id(1).law(3),
 			new WEECIntegrationContractsDecisionV1LssDecision().id(2).law(7)));
-		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of());
+		when(familyCareIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of());
 
 		final var response = decisionService.getDecisions(MUNICIPALITY_ID, PARTY_ID, null, null);
 
@@ -275,11 +330,17 @@ class DecisionServiceTest {
 			.sfbCaseworker(new WEECIntegrationContractsCommonV1Caseworker().id("LOHE").fullName(""));
 	}
 
+	private static WEECIntegrationContractsDecisionV1Decision solDecisionWithBlankCaseworker(final int id) {
+		return new WEECIntegrationContractsDecisionV1Decision()
+			.id(id)
+			.caseworker(new WEECIntegrationContractsCommonV1Caseworker().id("LOHE").fullName(""));
+	}
+
 	@Test
 	void getDecisionFromElderlyCareSol() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareEcIntegrationMock.getSolDecision(DECISION_ID)).thenReturn(Optional.of(
+		when(elderlyCareIntegrationMock.getSolDecision(DECISION_ID)).thenReturn(Optional.of(
 			new WEECIntegrationContractsDecisionV1Decision().id(1001).personId(PERSON_NUMBER).date(LocalDateTime.parse("2026-01-01T00:00:00"))));
 
 		// Act
@@ -290,16 +351,16 @@ class DecisionServiceTest {
 		assertThat(result.getLaw()).isEqualTo("SOL");
 		assertThat(result.getDecisionId()).isEqualTo(DECISION_ID);
 		assertThat(result.getDecided()).isEqualTo(LocalDate.parse("2026-01-01"));
-		verify(lifecareEcIntegrationMock).getSolDecision(DECISION_ID);
-		verifyNoMoreInteractions(lifecareEcIntegrationMock);
-		verifyNoInteractions(lifecareFcIntegrationMock);
+		verify(elderlyCareIntegrationMock).getSolDecision(DECISION_ID);
+		verifyNoMoreInteractions(elderlyCareIntegrationMock);
+		verifyNoInteractions(familyCareIntegrationMock);
 	}
 
 	@Test
 	void getDecisionFromElderlyCareLss() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareEcIntegrationMock.getLssDecision(DECISION_ID)).thenReturn(Optional.of(
+		when(elderlyCareIntegrationMock.getLssDecision(DECISION_ID)).thenReturn(Optional.of(
 			new WEECIntegrationContractsDecisionV1LssDecision().id(1001).personId(PERSON_NUMBER).law(3)));
 
 		// Act
@@ -309,16 +370,16 @@ class DecisionServiceTest {
 		assertThat(result.getSource()).isEqualTo("ELDERLY_CARE");
 		assertThat(result.getLaw()).isEqualTo("LSS");
 		assertThat(result.getDecisionId()).isEqualTo(DECISION_ID);
-		verify(lifecareEcIntegrationMock).getLssDecision(DECISION_ID);
-		verifyNoMoreInteractions(lifecareEcIntegrationMock);
-		verifyNoInteractions(lifecareFcIntegrationMock);
+		verify(elderlyCareIntegrationMock).getLssDecision(DECISION_ID);
+		verifyNoMoreInteractions(elderlyCareIntegrationMock);
+		verifyNoInteractions(familyCareIntegrationMock);
 	}
 
 	@Test
 	void getDecisionWithLawSfbIsServedByTheLssSource() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareEcIntegrationMock.getLssDecision(DECISION_ID)).thenReturn(Optional.of(
+		when(elderlyCareIntegrationMock.getLssDecision(DECISION_ID)).thenReturn(Optional.of(
 			new WEECIntegrationContractsDecisionV1LssDecision().id(1001).personId(PERSON_NUMBER).law(7)));
 
 		// Act
@@ -326,15 +387,31 @@ class DecisionServiceTest {
 
 		// Verify: the law is the decision's own, as on the list
 		assertThat(result.getLaw()).isEqualTo("SFB");
-		verify(lifecareEcIntegrationMock).getLssDecision(DECISION_ID);
-		verifyNoMoreInteractions(lifecareEcIntegrationMock);
+		verify(elderlyCareIntegrationMock).getLssDecision(DECISION_ID);
+		verifyNoMoreInteractions(elderlyCareIntegrationMock);
+	}
+
+	@Test
+	void getDecisionFromElderlyCareSolResolvesTheCaseworkerName() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(elderlyCareIntegrationMock.getSolDecision(DECISION_ID)).thenReturn(Optional.of(
+			solDecisionWithBlankCaseworker(1001).personId(PERSON_NUMBER)));
+		when(employeeIntegrationMock.getFullName(MUNICIPALITY_ID, "LOHE")).thenReturn(Optional.of("Lotta Helsinger"));
+
+		// Act
+		final var result = decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "ELDERLY_CARE", "SOL");
+
+		// Verify
+		assertThat(result.getDecisionMaker()).isEqualTo("Lotta Helsinger");
+		verify(employeeIntegrationMock).getFullName(MUNICIPALITY_ID, "LOHE");
 	}
 
 	@Test
 	void getDecisionFromElderlyCareResolvesTheCaseworkerName() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareEcIntegrationMock.getLssDecision(DECISION_ID)).thenReturn(Optional.of(
+		when(elderlyCareIntegrationMock.getLssDecision(DECISION_ID)).thenReturn(Optional.of(
 			lssDecisionWithBlankSfbCaseworker(1001).personId(PERSON_NUMBER)));
 		when(employeeIntegrationMock.getFullName(MUNICIPALITY_ID, "LOHE")).thenReturn(Optional.of("Lotta Helsinger"));
 
@@ -350,28 +427,51 @@ class DecisionServiceTest {
 	void getDecisionFromFamilyCare() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
+		when(familyCareIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
 			new PersonBasedDecisionDTO().id(1000).date("2026-01-01"),
 			new PersonBasedDecisionDTO().id(1001).date("2026-02-01")));
 
 		// Act
 		final var result = decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "FAMILY_CARE", null);
 
-		// Verify: the party's decisions are listed over the default window and the one with the id picked out
+		// Verify: all the party's decisions are listed and the one with the id picked out
 		assertThat(result.getSource()).isEqualTo("FAMILY_CARE");
 		assertThat(result.getLaw()).isNull();
 		assertThat(result.getDecisionId()).isEqualTo(DECISION_ID);
 		assertThat(result.getDecided()).isEqualTo(LocalDate.parse("2026-02-01"));
-		final var today = LocalDate.now(ZoneId.of("Europe/Stockholm"));
-		verify(lifecareFcIntegrationMock).getAllDecisions(PERSON_NUMBER, today.minusYears(10), today);
-		verifyNoInteractions(lifecareEcIntegrationMock, employeeIntegrationMock);
+		verify(familyCareIntegrationMock).getAllDecisions(PERSON_NUMBER, LocalDate.parse("1900-01-01"), LocalDate.parse("2100-12-31"));
+		verifyNoInteractions(elderlyCareIntegrationMock, employeeIntegrationMock);
+	}
+
+	@Test
+	void getDecisionFromFamilyCareResolvesPersonsToPartyIdsWithoutLeakingThePersonNumber() {
+		// Mock
+		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
+		when(familyCareIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
+			new PersonBasedDecisionDTO().id(1001).date("2026-02-01")
+				.decisionPersonDTOs(List.of(new PersonBasedDecisionPersonDTO()
+					.personId(RELATED_PERSON_NUMBER)
+					.name("Kalle Karlsson")
+					.isCoApplicant(true)))));
+		when(partyIntegrationMock.getPartyIds(MUNICIPALITY_ID, List.of(RELATED_PERSON_NUMBER)))
+			.thenReturn(Map.of(RELATED_PERSON_NUMBER, RELATED_PARTY_ID));
+
+		// Act
+		final var result = decisionService.getDecision(MUNICIPALITY_ID, PARTY_ID, DECISION_ID, "FAMILY_CARE", null);
+
+		// Verify
+		verify(partyIntegrationMock).getPartyIds(MUNICIPALITY_ID, List.of(RELATED_PERSON_NUMBER));
+		assertThat(result.getFamilyCareDetails().getPersons())
+			.extracting(RelatedPerson::getPartyId, RelatedPerson::getCoApplicant)
+			.containsExactly(tuple(RELATED_PARTY_ID, true));
+		assertThat(result.toString()).doesNotContain(RELATED_PERSON_NUMBER);
 	}
 
 	@Test
 	void getDecisionFromFamilyCareNotFound() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
+		when(familyCareIntegrationMock.getAllDecisions(any(), any(), any())).thenReturn(List.of(
 			new PersonBasedDecisionDTO().id(1000)));
 
 		// Act
@@ -387,7 +487,7 @@ class DecisionServiceTest {
 	void getDecisionFromElderlyCareNotFound() {
 		// Mock
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareEcIntegrationMock.getSolDecision(DECISION_ID)).thenReturn(Optional.empty());
+		when(elderlyCareIntegrationMock.getSolDecision(DECISION_ID)).thenReturn(Optional.empty());
 
 		// Act
 		final var exception = assertThrows(ThrowableProblem.class,
@@ -402,7 +502,7 @@ class DecisionServiceTest {
 	void getDecisionBelongingToAnotherPersonIsNotFound() {
 		// Mock: EC serves any decision by id — one that belongs to someone else must not be published
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareEcIntegrationMock.getSolDecision(DECISION_ID)).thenReturn(Optional.of(
+		when(elderlyCareIntegrationMock.getSolDecision(DECISION_ID)).thenReturn(Optional.of(
 			new WEECIntegrationContractsDecisionV1Decision().id(1001).personId(OTHER_PERSON_NUMBER)));
 
 		// Act
@@ -417,7 +517,7 @@ class DecisionServiceTest {
 	void getDecisionWithoutPersonOnTheDecisionIsNotFound() {
 		// Mock: no PersonId on the decision means ownership cannot be established — never publish on a guess
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareEcIntegrationMock.getLssDecision(DECISION_ID)).thenReturn(Optional.of(
+		when(elderlyCareIntegrationMock.getLssDecision(DECISION_ID)).thenReturn(Optional.of(
 			new WEECIntegrationContractsDecisionV1LssDecision().id(1001)));
 
 		// Act
@@ -437,7 +537,7 @@ class DecisionServiceTest {
 		// Verify
 		assertThat(exception.getStatus()).isEqualTo(BAD_REQUEST);
 		assertThat(exception.getDetail()).isEqualTo("'law' is required when 'source' is ELDERLY_CARE");
-		verifyNoInteractions(partyIntegrationMock, lifecareEcIntegrationMock, lifecareFcIntegrationMock);
+		verifyNoInteractions(partyIntegrationMock, elderlyCareIntegrationMock, familyCareIntegrationMock);
 	}
 
 	@Test
@@ -449,7 +549,7 @@ class DecisionServiceTest {
 		// Verify
 		assertThat(exception.getStatus()).isEqualTo(BAD_REQUEST);
 		assertThat(exception.getDetail()).isEqualTo("'law' is not applicable when 'source' is FAMILY_CARE");
-		verifyNoInteractions(partyIntegrationMock, lifecareEcIntegrationMock, lifecareFcIntegrationMock);
+		verifyNoInteractions(partyIntegrationMock, elderlyCareIntegrationMock, familyCareIntegrationMock);
 	}
 
 	@Test
@@ -463,14 +563,14 @@ class DecisionServiceTest {
 
 		// Verify
 		assertThat(exception.getStatus()).isEqualTo(NOT_FOUND);
-		verifyNoInteractions(lifecareEcIntegrationMock, lifecareFcIntegrationMock);
+		verifyNoInteractions(elderlyCareIntegrationMock, familyCareIntegrationMock);
 	}
 
 	@Test
 	void getDecisionWithFailingSourceFailsTheRequest() {
 		// Mock: unlike the list, there is no partial result to fall back on
 		when(partyIntegrationMock.getPersonNumber(MUNICIPALITY_ID, PARTY_ID)).thenReturn(PERSON_NUMBER);
-		when(lifecareFcIntegrationMock.getAllDecisions(any(), any(), any())).thenThrow(new RuntimeException("FC is down"));
+		when(familyCareIntegrationMock.getAllDecisions(any(), any(), any())).thenThrow(new RuntimeException("FC is down"));
 
 		// Act
 		final var exception = assertThrows(RuntimeException.class,

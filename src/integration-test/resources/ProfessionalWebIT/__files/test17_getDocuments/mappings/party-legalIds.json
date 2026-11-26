@@ -1,0 +1,22 @@
+{
+	"request": {
+		"method": "POST",
+		"urlPath": "/party/2281/PRIVATE/legalIds",
+		"bodyPatterns": [
+			{
+				"equalToJson": [
+					"81471222-5798-11e9-ae24-57fa13b361e1"
+				]
+			}
+		]
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"81471222-5798-11e9-ae24-57fa13b361e1": "199001012385"
+		},
+		"status": 200
+	}
+}

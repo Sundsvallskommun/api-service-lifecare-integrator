@@ -1,8 +1,8 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedAktualiseringDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringDTO;
-import java.util.List;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedAktualiseringDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringDTO;
+import java.util.Objects;
 import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Actualisation;
 import se.sundsvall.lifecareintegrator.api.model.familycare.PagedActualisationResponse;
@@ -16,12 +16,17 @@ public final class ActualisationMapper {
 	private ActualisationMapper() {}
 
 	public static PagedActualisationResponse toActualisations(final ApiPaginationCompositePersonBasedAktualiseringDTO composite) {
-		return Optional.ofNullable(composite)
-			.map(source -> toActualisationList(source.getResult()))
-			.map(actualisations -> PagedActualisationResponse.create()
-				.withActualisations(actualisations)
-				.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), actualisations.size())))
-			.orElseGet(() -> PagedActualisationResponse.create().withActualisations(emptyList()));
+		if (composite == null) {
+			return PagedActualisationResponse.create().withActualisations(emptyList());
+		}
+
+		final var actualisations = Optional.ofNullable(composite.getResult()).orElse(emptyList()).stream()
+			.filter(Objects::nonNull)
+			.map(ActualisationMapper::toActualisation)
+			.toList();
+		return PagedActualisationResponse.create()
+			.withActualisations(actualisations)
+			.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), actualisations.size()));
 	}
 
 	public static Actualisation toActualisation(final PersonBasedAktualiseringDTO actualisation) {
@@ -42,13 +47,5 @@ public final class ActualisationMapper {
 				.withServiceId(source.getServiceId())
 				.withDecisionId(source.getDecisionId()))
 			.orElse(null);
-	}
-
-	private static List<Actualisation> toActualisationList(final List<PersonBasedAktualiseringDTO> actualisations) {
-		return Optional.ofNullable(actualisations)
-			.map(list -> list.stream()
-				.map(ActualisationMapper::toActualisation)
-				.toList())
-			.orElse(emptyList());
 	}
 }

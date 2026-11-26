@@ -1,0 +1,101 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Calculation/GetCalculationForEdit",
+		"queryParameters": {
+			"businessType": {
+				"equalTo": "3"
+			},
+			"businessId": {
+				"equalTo": "7"
+			}
+		},
+		"headers": {
+			"X-Requested-With": {
+				"equalTo": "XMLHttpRequest"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"calculation": {
+				"calculationId": 7,
+				"normId": 1,
+				"normText": "Riksnorm 2026",
+				"date": "2026-11-01",
+				"startDate": "2026-11-01",
+				"endDate": "2026-11-30",
+				"calculationSummary": null,
+				"calculationPersons": [
+					{
+						"personId": "19880209T050",
+						"personKey": 1,
+						"name": "Testsson, Test",
+						"normRowId": 2,
+						"normRow": "Ensamstående",
+						"amount": 3940,
+						"included": true,
+						"deviationFromDate": "",
+						"deviationToDate": "",
+						"personIdFormatted": "880209-T050"
+					}
+				],
+				"calculationIncomes": [
+					{
+						"incomeCode": 1,
+						"incomeType": "Lön efter skatt",
+						"amountApplicant": 3750,
+						"grossAmountApplicant": 5000,
+						"amountCoApplicant": 0
+					}
+				],
+				"calculationExpenses": [
+					{
+						"expenseCode": 3,
+						"expenseType": "Boendekostnad",
+						"appliedAmount": 5000,
+						"approvedAmount": 5000,
+						"note": ""
+					}
+				],
+				"calculationSpecialExpenses": [],
+				"hasCustomHouseholdSize": false,
+				"isFinalized": false,
+				"updateTimestamp": "2026-11-01",
+				"hasApplicantJobStimuli": true
+			},
+			"norms": [
+				{
+					"normId": 1,
+					"name": "Riksnorm 2026"
+				}
+			],
+			"incomeTypes": [
+				{
+					"id": 1,
+					"text": "Lön efter skatt",
+					"isActive": true,
+					"isJobStimulus": true,
+					"jobStimulusPercent": 25
+				}
+			],
+			"expenseTypes": [
+				{
+					"id": 3,
+					"text": "Boendekostnad",
+					"isActive": true
+				}
+			],
+			"specialExpenseTypes": []
+		},
+		"status": 200
+	}
+}

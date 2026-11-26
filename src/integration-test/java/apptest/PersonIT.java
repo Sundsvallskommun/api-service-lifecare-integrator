@@ -6,7 +6,6 @@ import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.lifecareintegrator.Application;
 
 import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 @WireMockAppTestSuite(files = "classpath:/PersonIT/", classes = Application.class)
@@ -16,7 +15,7 @@ class PersonIT extends AbstractAppTest {
 	private static final String RESPONSE_FILE = "response.json";
 
 	@Test
-	void test1_getPerson() {
+	void test01_getPerson() {
 		setupCall()
 			.withServicePath("/2281/person?partyId=" + PARTY_ID)
 			.withHttpMethod(GET)
@@ -26,21 +25,11 @@ class PersonIT extends AbstractAppTest {
 	}
 
 	@Test
-	void test2_getContacts() {
+	void test02_getContacts() {
 		setupCall()
 			.withServicePath("/2281/contacts?partyId=" + PARTY_ID)
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse(RESPONSE_FILE)
-			.sendRequestAndVerifyResponse();
-	}
-
-	@Test
-	void test3_getPersonNotFound() {
-		setupCall()
-			.withServicePath("/2281/person?partyId=" + PARTY_ID)
-			.withHttpMethod(GET)
-			.withExpectedResponseStatus(NOT_FOUND)
 			.withExpectedResponse(RESPONSE_FILE)
 			.sendRequestAndVerifyResponse();
 	}

@@ -31,11 +31,11 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
-import static se.sundsvall.lifecareintegrator.service.mapper.DecisionMapper.LAW_LSS;
-import static se.sundsvall.lifecareintegrator.service.mapper.DecisionMapper.LAW_SFB;
-import static se.sundsvall.lifecareintegrator.service.mapper.DecisionMapper.LAW_SOL;
-import static se.sundsvall.lifecareintegrator.service.mapper.DecisionMapper.SOURCE_ELDERLY_CARE;
-import static se.sundsvall.lifecareintegrator.service.mapper.DecisionMapper.SOURCE_FAMILY_CARE;
+import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.LAW_LSS;
+import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.LAW_SFB;
+import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.LAW_SOL;
+import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.SOURCE_ELDERLY_CARE;
+import static se.sundsvall.lifecareintegrator.api.model.common.DecisionConstants.SOURCE_FAMILY_CARE;
 
 @RestController
 @Validated

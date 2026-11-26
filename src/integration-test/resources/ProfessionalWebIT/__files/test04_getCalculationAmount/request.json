@@ -1,0 +1,7 @@
+{
+	"serviceId": 42,
+	"income": 10000.0,
+	"unknownToTheIntegrator": {
+		"kept": true
+	}
+}

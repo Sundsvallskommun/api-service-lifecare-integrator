@@ -1,0 +1,9 @@
+{
+	"serviceId": 42,
+	"text": "Ring brukaren",
+	"dueDate": "2026-12-01T00:00:00",
+	"personNumber": "199001012385",
+	"unknownToTheIntegrator": {
+		"kept": true
+	}
+}

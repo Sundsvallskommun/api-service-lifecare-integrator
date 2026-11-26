@@ -1,0 +1,21 @@
+{
+	"amount": 3000.0,
+	"decided": "2025-04-01",
+	"decisionId": "3003",
+	"decisionMaker": "Fc Handläggare",
+	"familyCareDetails": {
+		"organization": "IFO",
+		"persons": [
+			{
+				"coApplicant": false,
+				"name": "Kalle Karlsson",
+				"partyId": "33333333-5798-11e9-ae24-57fa13b361e3"
+			}
+		]
+	},
+	"reason": "Försörjningsstöd",
+	"source": "FAMILY_CARE",
+	"type": "Ekonomiskt bistånd",
+	"validFrom": "2025-04-01",
+	"validTo": "2026-03-31"
+}

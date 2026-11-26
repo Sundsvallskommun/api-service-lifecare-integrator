@@ -1,0 +1,15 @@
+[
+	{
+		"header": "Bifall",
+		"name": null,
+		"reasonCode": null,
+		"options": [
+			{
+				"header": null,
+				"name": "Försörjningsstöd",
+				"reasonCode": 1,
+				"options": []
+			}
+		]
+	}
+]

@@ -5,6 +5,7 @@ info:
 paths:
   '/api/v2/employee/{municipalityId}/api-docs':
     get:
+      operationId: apiV2EmployeeMunicipalityIdApiDocsGET
       tags:
         - Employee
       summary: OpenAPI specification
@@ -31,6 +32,7 @@ paths:
       x-auth-type: None
   '/api/v2/employee/{municipalityId}/employed/{personId}/accounts':
     get:
+      operationId: apiV2EmployeeMunicipalityIdEmployedPersonIdAccountsGET
       tags:
         - Employee
       parameters:
@@ -79,6 +81,7 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
   '/api/v2/employee/{municipalityId}/portalpersondata/{domain}/{loginName}':
     get:
+      operationId: apiV2EmployeeMunicipalityIdPortalpersondataDomainLoginNameGET
       tags:
         - Employee
       parameters:
@@ -113,6 +116,7 @@ paths:
                 $ref: '#/components/schemas/PortalPersonData'
   '/api/v2/employee/{municipalityId}/portalpersondata/{email}':
     get:
+      operationId: apiV2EmployeeMunicipalityIdPortalpersondataEmailGET
       tags:
         - Employee
       parameters:
@@ -142,6 +146,7 @@ paths:
                 $ref: '#/components/schemas/PortalPersonData'
   '/api/v2/employee/{municipalityId}/employments':
     get:
+      operationId: apiV2EmployeeMunicipalityIdEmploymentsGET
       tags:
         - Employee
       parameters:
@@ -206,6 +211,7 @@ paths:
                   $ref: '#/components/schemas/Employeev2'
   '/api/v2/employee/{municipalityId}/newemployments':
     get:
+      operationId: apiV2EmployeeMunicipalityIdNewemploymentsGET
       tags:
         - Employee
       parameters:
@@ -278,6 +284,7 @@ paths:
     get:
       tags:
         - Employee
+      operationId: apiV2EmployeeMunicipalityIdPersonIdPersonimageGET
       parameters:
         - name: personId
           in: path
@@ -302,6 +309,7 @@ paths:
     put:
       tags:
         - Employee
+      operationId: apiV2EmployeeMunicipalityIdPersonIdPersonimagePUT
       parameters:
         - name: personId
           in: path
@@ -332,6 +340,7 @@ paths:
     delete:
       tags:
         - Employee
+      operationId: apiV2EmployeeMunicipalityIdPersonIdPersonimageDELETE
       parameters:
         - name: personId
           in: path
@@ -350,6 +359,7 @@ paths:
           description: Success
   '/api/v2/employee/{municipalityId}/manageremployees/{managerId}':
     get:
+      operationId: apiV2EmployeeMunicipalityIdManageremployeesManagerIdGET
       tags:
         - Employee
       parameters:
@@ -732,7 +742,7 @@ components:
         instance:
           type: string
           nullable: true
-      additionalProperties: { }
+      additionalProperties: true
     ReferenceNumberCompany:
       type: object
       properties:

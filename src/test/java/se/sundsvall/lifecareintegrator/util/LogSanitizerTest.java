@@ -3,6 +3,7 @@ package se.sundsvall.lifecareintegrator.util;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,11 +93,26 @@ class LogSanitizerTest {
 
 	@Test
 	void aPartyIdIsLeftReadable() {
-		// A partyId is already opaque — it cannot be resolved to a person without API access — so masking it would
-		// cost traceability and buy nothing. PiiMasker.maskUuid is deliberately not applied, and dept44 8.0.10's
-		// twelve-digit personnummer shape (which matches the UUID's first two groups) is kept away from it.
+		// A partyId is opaque and incidents are traced by it, so no mask may bite into it.
 		assertThat(redact("partyId 81471222-5798-11e9-ae24-57fa13b361e1 failed"))
 			.contains("81471222-5798-11e9-ae24-57fa13b361e1");
+	}
+
+	@Test
+	void aPartyIdStartingLikeAPersonNumberIsLeftReadable() {
+		assertThat(redact("partyId 20110101-5798-11e9-ae24-57fa13b361e1 failed"))
+			.isEqualTo("partyId 20110101-5798-11e9-ae24-57fa13b361e1 failed");
+	}
+
+	@Test
+	void aPartyIdWhoseLastGroupStartsLikeAPersonNumberIsLeftReadable() {
+		assertThat(redact("partyId 81471222-5798-11e9-ae24-201234567890 failed"))
+			.isEqualTo("partyId 81471222-5798-11e9-ae24-201234567890 failed");
+	}
+
+	@Test
+	void aLongNumericIdIsLeftAlone() {
+		assertThat(redact("id 2026112512345678 failed")).isEqualTo("id 2026112512345678 failed");
 	}
 
 	@Test
@@ -109,7 +125,7 @@ class LogSanitizerTest {
 
 	@ParameterizedTest
 	@ValueSource(strings = {
-		"199001011234",       // twelve digits — caught by this sanitizer before dept44 8.0.10's pattern sees it
+		"199001011234",       // twelve digits, caught here before dept44's pattern sees it
 		"19900101-1234",      // likewise the hyphenated form
 		"19900101TF03",       // the test population's letter suffix, which dept44's \d{4} cannot match
 	})
@@ -124,6 +140,24 @@ class LogSanitizerTest {
 		// dept44's word boundaries cannot fire between the hex digits of the surrounding escapes.
 		assertThat(redact("?q=PersonId%3D%27199001011234%27"))
 			.doesNotContain("199001011234")
+			.contains("[REDACTED-PNR]");
+	}
+
+	@Test
+	void aPersonNumberAfterAnEncodedSpaceIsCovered() {
+		assertThat(redact("?q=x%2019900101-1234%27")).isEqualTo("?q=x%20[REDACTED-PNR]%27");
+	}
+
+	@ParameterizedTest
+	@CsvSource({
+		"file 19900101TF03-utredning.pdf, 19900101TF03",
+		"file utredning-19900101TF03.pdf, 19900101TF03",
+		"q=19900101%2d1234-x, 19900101%2d1234",
+		"id-199001011234, 199001011234"
+	})
+	void aPersonNumberNextToAHyphenIsCovered(final String text, final String personNumber) {
+		assertThat(redact(text))
+			.doesNotContain(personNumber)
 			.contains("[REDACTED-PNR]");
 	}
 

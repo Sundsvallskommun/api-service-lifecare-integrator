@@ -1,0 +1,49 @@
+{
+	"request": {
+		"method": "POST",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Payment/Create",
+		"queryParameters": {
+			"businessType": {
+				"equalTo": "8"
+			},
+			"businessId": {
+				"equalTo": "42"
+			}
+		},
+		"headers": {
+			"Content-Type": {
+				"contains": "application/json"
+			},
+			"X-LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"serviceId": 42,
+					"payeeId": 3,
+					"amount": 1200.0,
+					"unknownToTheIntegrator": {
+						"kept": true
+					}
+				}
+			}
+		]
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"paymentId": 6,
+			"unknownToTheIntegrator": "kept"
+		},
+		"status": 200
+	}
+}

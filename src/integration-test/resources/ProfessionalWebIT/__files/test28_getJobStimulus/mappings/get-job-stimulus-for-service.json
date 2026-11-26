@@ -1,0 +1,44 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Calculation/GetJobStimulusForService",
+		"queryParameters": {
+			"businessType": {
+				"equalTo": "8"
+			},
+			"businessId": {
+				"equalTo": "42"
+			}
+		},
+		"headers": {
+			"X-Requested-With": {
+				"equalTo": "XMLHttpRequest"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"applicant": {
+				"periods": [
+					{
+						"fromDate": "2026-11-01T00:00:00",
+						"toDate": "2027-04-30T00:00:00",
+						"amount": 1500.5
+					}
+				]
+			},
+			"coApplicant": {
+				"periods": []
+			}
+		},
+		"status": 200
+	}
+}

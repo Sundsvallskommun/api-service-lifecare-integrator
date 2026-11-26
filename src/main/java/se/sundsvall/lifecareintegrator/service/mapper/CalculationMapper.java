@@ -1,12 +1,14 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedCalculationDTO;
-import generated.se.sundsvall.lifecarefc.CommonCalculationExpenseDTO;
-import generated.se.sundsvall.lifecarefc.CommonCalculationIncomeDTO;
-import generated.se.sundsvall.lifecarefc.CommonCalculationSpecialExpenseDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationPersonDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedCalculationDTO;
+import generated.se.sundsvall.familycare.CommonCalculationExpenseDTO;
+import generated.se.sundsvall.familycare.CommonCalculationIncomeDTO;
+import generated.se.sundsvall.familycare.CommonCalculationSpecialExpenseDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationPersonDTO;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import se.sundsvall.lifecareintegrator.api.model.familycare.Calculation;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationExpense;
@@ -18,21 +20,27 @@ import static java.util.Collections.emptyList;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toBigDecimal;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toLocalDate;
 import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toPagingMetaData;
+import static se.sundsvall.lifecareintegrator.service.mapper.MapperUtil.toPartyId;
 
 public final class CalculationMapper {
 
 	private CalculationMapper() {}
 
-	public static PagedCalculationResponse toCalculations(final ApiPaginationCompositePersonBasedCalculationDTO composite) {
-		return Optional.ofNullable(composite)
-			.map(source -> toCalculationList(source.getResult()))
-			.map(calculations -> PagedCalculationResponse.create()
-				.withCalculations(calculations)
-				.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), calculations.size())))
-			.orElseGet(() -> PagedCalculationResponse.create().withCalculations(emptyList()));
+	public static PagedCalculationResponse toCalculations(final ApiPaginationCompositePersonBasedCalculationDTO composite, final Map<String, String> partyIdsByPersonNumber) {
+		if (composite == null) {
+			return PagedCalculationResponse.create().withCalculations(emptyList());
+		}
+
+		final var calculations = Optional.ofNullable(composite.getResult()).orElse(emptyList()).stream()
+			.filter(Objects::nonNull)
+			.map(calculation -> toCalculation(calculation, partyIdsByPersonNumber))
+			.toList();
+		return PagedCalculationResponse.create()
+			.withCalculations(calculations)
+			.withMetaData(toPagingMetaData(composite.getPageNumber(), composite.getPageSize(), composite.getTotalNumberOfPages(), composite.getTotalNumberOfRecords(), calculations.size()));
 	}
 
-	public static Calculation toCalculation(final PersonBasedCalculationDTO calculation) {
+	public static Calculation toCalculation(final PersonBasedCalculationDTO calculation, final Map<String, String> partyIdsByPersonNumber) {
 		return Optional.ofNullable(calculation)
 			.map(source -> Calculation.create()
 				.withId(source.getId())
@@ -51,32 +59,36 @@ public final class CalculationMapper {
 				.withServiceId(source.getServiceId())
 				.withFinalCalculation(source.getFinal())
 				.withConnectedApplication(source.getConnectedApplication())
-				.withPersons(toCalculationPersons(source.getCalculationPersonDTOs()))
+				.withPersons(toCalculationPersons(source.getCalculationPersonDTOs(), partyIdsByPersonNumber))
 				.withIncomes(toCalculationIncomes(source.getCalculationIncomesDTOs()))
 				.withExpenses(toCalculationExpenses(source.getCalculationExpensesDTOs()))
 				.withSpecialExpenses(toCalculationSpecialExpenses(source.getCalculationSpecialExpensesDTOs())))
 			.orElse(null);
 	}
 
-	private static List<Calculation> toCalculationList(final List<PersonBasedCalculationDTO> calculations) {
-		return Optional.ofNullable(calculations)
-			.map(list -> list.stream()
-				.map(CalculationMapper::toCalculation)
-				.toList())
-			.orElse(emptyList());
+	private static List<CalculationPerson> toCalculationPersons(final List<PersonBasedCalculationPersonDTO> persons, final Map<String, String> partyIdsByPersonNumber) {
+		return Optional.ofNullable(persons).orElse(emptyList()).stream()
+			.map(person -> toCalculationPerson(person, partyIdsByPersonNumber))
+			.toList();
 	}
 
-	private static List<CalculationPerson> toCalculationPersons(final List<PersonBasedCalculationPersonDTO> persons) {
-		return Optional.ofNullable(persons)
-			.map(list -> list.stream()
-				.map(CalculationMapper::toCalculationPerson)
-				.toList())
-			.orElse(null);
+	public static List<String> collectPersonNumbers(final ApiPaginationCompositePersonBasedCalculationDTO composite) {
+		return Optional.ofNullable(composite)
+			.map(ApiPaginationCompositePersonBasedCalculationDTO::getResult)
+			.orElseGet(List::of).stream()
+			.map(PersonBasedCalculationDTO::getCalculationPersonDTOs)
+			.filter(Objects::nonNull)
+			.flatMap(List::stream)
+			.map(PersonBasedCalculationPersonDTO::getPersonId)
+			.filter(Objects::nonNull)
+			.distinct()
+			.toList();
 	}
 
-	private static CalculationPerson toCalculationPerson(final PersonBasedCalculationPersonDTO person) {
-		// Intentionally drops the personId — personnummer never leaves this service
+	/** An unresolvable person keeps a null party id rather than being dropped, which would shrink the household. */
+	private static CalculationPerson toCalculationPerson(final PersonBasedCalculationPersonDTO person, final Map<String, String> partyIdsByPersonNumber) {
 		return CalculationPerson.create()
+			.withPartyId(toPartyId(person.getPersonId(), partyIdsByPersonNumber))
 			.withName(person.getName())
 			.withAmount(toBigDecimal(person.getAmount()))
 			.withDeviationFromDate(toLocalDate(person.getDeviationFromDate()))
@@ -84,11 +96,9 @@ public final class CalculationMapper {
 	}
 
 	private static List<CalculationIncome> toCalculationIncomes(final List<CommonCalculationIncomeDTO> incomes) {
-		return Optional.ofNullable(incomes)
-			.map(list -> list.stream()
-				.map(CalculationMapper::toCalculationIncome)
-				.toList())
-			.orElse(null);
+		return Optional.ofNullable(incomes).orElse(emptyList()).stream()
+			.map(CalculationMapper::toCalculationIncome)
+			.toList();
 	}
 
 	private static CalculationIncome toCalculationIncome(final CommonCalculationIncomeDTO income) {
@@ -101,11 +111,9 @@ public final class CalculationMapper {
 	}
 
 	private static List<CalculationExpense> toCalculationExpenses(final List<CommonCalculationExpenseDTO> expenses) {
-		return Optional.ofNullable(expenses)
-			.map(list -> list.stream()
-				.map(CalculationMapper::toCalculationExpense)
-				.toList())
-			.orElse(null);
+		return Optional.ofNullable(expenses).orElse(emptyList()).stream()
+			.map(CalculationMapper::toCalculationExpense)
+			.toList();
 	}
 
 	private static CalculationExpense toCalculationExpense(final CommonCalculationExpenseDTO expense) {
@@ -116,11 +124,9 @@ public final class CalculationMapper {
 	}
 
 	private static List<CalculationExpense> toCalculationSpecialExpenses(final List<CommonCalculationSpecialExpenseDTO> specialExpenses) {
-		return Optional.ofNullable(specialExpenses)
-			.map(list -> list.stream()
-				.map(CalculationMapper::toCalculationExpense)
-				.toList())
-			.orElse(null);
+		return Optional.ofNullable(specialExpenses).orElse(emptyList()).stream()
+			.map(CalculationMapper::toCalculationExpense)
+			.toList();
 	}
 
 	private static CalculationExpense toCalculationExpense(final CommonCalculationSpecialExpenseDTO specialExpense) {

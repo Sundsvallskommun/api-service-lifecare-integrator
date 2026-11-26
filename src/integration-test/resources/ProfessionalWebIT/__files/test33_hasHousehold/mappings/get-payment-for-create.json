@@ -1,0 +1,59 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Payment/GetPaymentForCreate",
+		"queryParameters": {
+			"businessType": {
+				"equalTo": "8"
+			},
+			"businessId": {
+				"equalTo": "42"
+			}
+		},
+		"headers": {
+			"X-Requested-With": {
+				"equalTo": "XMLHttpRequest"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"payment": {
+				"paymentId": 0,
+				"serviceId": 42,
+				"susPersonId": "199001012385",
+				"payDate": "2026-11-25",
+				"postings": []
+			},
+			"payees": [
+				{
+					"payeeId": 3,
+					"name": "Testsson, Test"
+				}
+			],
+			"paymentMethods": [
+				{
+					"code": 1,
+					"text": "Bankgiro",
+					"isActive": true
+				}
+			],
+			"balances": [],
+			"paymentConcernMonths": [
+				{
+					"code": "2026-11",
+					"text": "November 2026"
+				}
+			]
+		},
+		"status": 200
+	}
+}

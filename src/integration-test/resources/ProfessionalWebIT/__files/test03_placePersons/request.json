@@ -1,0 +1,11 @@
+{
+	"serviceId": 42,
+	"persons": [
+		{
+			"personId": "199001012385"
+		}
+	],
+	"unknownToTheIntegrator": {
+		"kept": true
+	}
+}

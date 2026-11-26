@@ -1,0 +1,37 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Document/GetDocumentsListForClient/",
+		"queryParameters": {
+			"id": {
+				"equalTo": "199001012385"
+			}
+		},
+		"headers": {
+			"X-Requested-With": {
+				"equalTo": "XMLHttpRequest"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"documentModels": [
+				{
+					"id": 20,
+					"title": "Utredning",
+					"documentType_Name": "Utredning",
+					"date": "2026-11-01T00:00:00"
+				}
+			]
+		},
+		"status": 200
+	}
+}

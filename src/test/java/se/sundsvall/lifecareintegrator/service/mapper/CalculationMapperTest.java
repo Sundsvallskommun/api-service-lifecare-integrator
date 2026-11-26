@@ -1,14 +1,15 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.ApiPaginationCompositePersonBasedCalculationDTO;
-import generated.se.sundsvall.lifecarefc.CommonCalculationExpenseDTO;
-import generated.se.sundsvall.lifecarefc.CommonCalculationIncomeDTO;
-import generated.se.sundsvall.lifecarefc.CommonCalculationSpecialExpenseDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationPersonDTO;
+import generated.se.sundsvall.familycare.ApiPaginationCompositePersonBasedCalculationDTO;
+import generated.se.sundsvall.familycare.CommonCalculationExpenseDTO;
+import generated.se.sundsvall.familycare.CommonCalculationIncomeDTO;
+import generated.se.sundsvall.familycare.CommonCalculationSpecialExpenseDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationPersonDTO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationExpense;
 import se.sundsvall.lifecareintegrator.api.model.familycare.CalculationIncome;
@@ -19,10 +20,13 @@ import static org.assertj.core.api.Assertions.tuple;
 
 class CalculationMapperTest {
 
+	/** The batch party lookup's answer: only 199001011234 resolves. */
+	private static final Map<String, String> PARTY_IDS = Map.of("199001011234", "party-1");
+
 	@Test
 	void toCalculationsWithNull() {
 		// Act
-		final var result = CalculationMapper.toCalculations(null);
+		final var result = CalculationMapper.toCalculations(null, PARTY_IDS);
 
 		// Assert
 		assertThat(result).isNotNull();
@@ -32,7 +36,7 @@ class CalculationMapperTest {
 
 	@Test
 	void toCalculationWithNull() {
-		assertThat(CalculationMapper.toCalculation(null)).isNull();
+		assertThat(CalculationMapper.toCalculation(null, PARTY_IDS)).isNull();
 	}
 
 	@Test
@@ -55,12 +59,15 @@ class CalculationMapperTest {
 			.serviceId(3)
 			._final(true)
 			.connectedApplication(4)
-			.calculationPersonDTOs(List.of(new PersonBasedCalculationPersonDTO()
-				.personId("199001011234")
-				.name("Kalle Karlsson")
-				.amount(4000.0)
-				.deviationFromDate("2026-05-01")
-				.deviationToDate("2026-05-31")))
+			.calculationPersonDTOs(List.of(
+				new PersonBasedCalculationPersonDTO()
+					.personId("199001011234")
+					.name("Kalle Karlsson")
+					.amount(4000.0)
+					.deviationFromDate("2026-05-01")
+					.deviationToDate("2026-05-31"),
+				new PersonBasedCalculationPersonDTO().personId("201001011234").name("Okänd Person"),
+				new PersonBasedCalculationPersonDTO().personId(null).name("Utan Personnummer")))
 			.calculationIncomesDTOs(List.of(new CommonCalculationIncomeDTO()
 				.type("Lön")
 				.amountApplicant(9000.0)
@@ -77,7 +84,7 @@ class CalculationMapperTest {
 				.approvedAmount(450.0)));
 
 		// Act
-		final var result = CalculationMapper.toCalculation(source);
+		final var result = CalculationMapper.toCalculation(source, PARTY_IDS);
 
 		// Assert
 		assertThat(result.getId()).isEqualTo(1);
@@ -97,10 +104,15 @@ class CalculationMapperTest {
 		assertThat(result.getFinalCalculation()).isTrue();
 		assertThat(result.getConnectedApplication()).isEqualTo(4);
 
-		// The person id (personnummer) must never survive the mapping
+		// The personnummer is swapped for the party id; unresolvable persons keep a null party id
 		assertThat(result.getPersons())
-			.extracting(CalculationPerson::getName, CalculationPerson::getAmount, CalculationPerson::getDeviationFromDate, CalculationPerson::getDeviationToDate)
-			.containsExactly(tuple("Kalle Karlsson", BigDecimal.valueOf(4000.0), LocalDate.parse("2026-05-01"), LocalDate.parse("2026-05-31")));
+			.extracting(CalculationPerson::getPartyId, CalculationPerson::getName, CalculationPerson::getAmount, CalculationPerson::getDeviationFromDate,
+				CalculationPerson::getDeviationToDate)
+			.containsExactly(
+				tuple("party-1", "Kalle Karlsson", BigDecimal.valueOf(4000.0), LocalDate.parse("2026-05-01"), LocalDate.parse("2026-05-31")),
+				tuple(null, "Okänd Person", null, null, null),
+				tuple(null, "Utan Personnummer", null, null, null));
+		assertThat(result.toString()).doesNotContain("199001011234", "201001011234");
 
 		assertThat(result.getIncomes())
 			.extracting(CalculationIncome::getType, CalculationIncome::getAmountApplicant, CalculationIncome::getApplicantSearchDate,
@@ -117,9 +129,25 @@ class CalculationMapperTest {
 	}
 
 	@Test
+	void toCalculationWithoutLists() {
+		final var source = new PersonBasedCalculationDTO()
+			.calculationPersonDTOs(null)
+			.calculationIncomesDTOs(null)
+			.calculationExpensesDTOs(null)
+			.calculationSpecialExpensesDTOs(null);
+
+		final var result = CalculationMapper.toCalculation(source, PARTY_IDS);
+
+		assertThat(result.getPersons()).isEmpty();
+		assertThat(result.getIncomes()).isEmpty();
+		assertThat(result.getExpenses()).isEmpty();
+		assertThat(result.getSpecialExpenses()).isEmpty();
+	}
+
+	@Test
 	void toCalculationWithUnparseableDate() {
 		// Act
-		final var result = CalculationMapper.toCalculation(new PersonBasedCalculationDTO().fromDate("garbage-date").toDate("2026"));
+		final var result = CalculationMapper.toCalculation(new PersonBasedCalculationDTO().fromDate("garbage-date").toDate("2026"), PARTY_IDS);
 
 		// Assert
 		assertThat(result.getFromDate()).isNull();
@@ -137,7 +165,7 @@ class CalculationMapperTest {
 			.result(List.of(new PersonBasedCalculationDTO().id(1).norm("Riksnorm 2026")));
 
 		// Act
-		final var result = CalculationMapper.toCalculations(composite);
+		final var result = CalculationMapper.toCalculations(composite, PARTY_IDS);
 
 		// Assert
 		assertThat(result.getMetaData().getPage()).isEqualTo(1);
@@ -148,5 +176,20 @@ class CalculationMapperTest {
 		assertThat(result.getCalculations()).hasSize(1);
 		assertThat(result.getCalculations().getFirst().getId()).isEqualTo(1);
 		assertThat(result.getCalculations().getFirst().getNorm()).isEqualTo("Riksnorm 2026");
+	}
+
+	@Test
+	void collectPersonNumbers() {
+		final var composite = new ApiPaginationCompositePersonBasedCalculationDTO().result(List.of(
+			new PersonBasedCalculationDTO().calculationPersonDTOs(List.of(
+				new PersonBasedCalculationPersonDTO().personId("199001011234"),
+				new PersonBasedCalculationPersonDTO().personId(null))),
+			new PersonBasedCalculationDTO().calculationPersonDTOs(List.of(
+				new PersonBasedCalculationPersonDTO().personId("199001011234"),
+				new PersonBasedCalculationPersonDTO().personId("201001011234"))),
+			new PersonBasedCalculationDTO().calculationPersonDTOs(null)));
+
+		assertThat(CalculationMapper.collectPersonNumbers(composite)).containsExactly("199001011234", "201001011234");
+		assertThat(CalculationMapper.collectPersonNumbers(null)).isEmpty();
 	}
 }

@@ -1,0 +1,15 @@
+{
+	"request": {
+		"method": "POST",
+		"urlPath": "/party/2281/PRIVATE/partyIds"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": {
+			"199505057890": "33333333-5798-11e9-ae24-57fa13b361e3"
+		},
+		"status": 200
+	}
+}

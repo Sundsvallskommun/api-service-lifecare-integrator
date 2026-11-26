@@ -1,0 +1,14 @@
+{
+	"reminders": [
+		{
+			"reminderId": 7,
+			"reminderDate": "2026-12-01T00:00:00",
+			"status": 1,
+			"statusText": "Aktiv",
+			"text": "Följ upp insatsen",
+			"unknownToTheIntegrator": {
+				"kept": true
+			}
+		}
+	]
+}

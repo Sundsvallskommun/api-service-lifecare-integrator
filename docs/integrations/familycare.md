@@ -1,0 +1,48 @@
+# Lifecare family care (FC)
+
+Lifecare FamilyCare, API `WESE.FC.Api.FC`. Source of everything in family care: persons, case data, decisions,
+payments, documents and users.
+
+## Used by
+
+Every endpoint outside `/professional-web`. See [architecture.md](../architecture.md).
+
+## Calls
+
+All under `/apifc/v1`.
+
+|                                               Call                                                |                Purpose                |
+|---------------------------------------------------------------------------------------------------|---------------------------------------|
+| `GET Persons`, `GET Contacts`                                                                     | Person and contacts                   |
+| `GET Actualisations`, `GET Actualisations/Proposals`, `POST Actualisations`                       | Actualisations: read, propose, create |
+| `POST Actualisations/{id}/Attachments`                                                            | Attach a file to an actualisation     |
+| `GET Calculations`, `GET Calculations/Proposals`, `POST Calculations`                             | Calculations: read, propose, create   |
+| `GET Decisions`                                                                                   | Decisions. There is no by-id read     |
+| `GET Payments`, `GET Investigations`, `GET Services`, `GET Executions`, `GET ResourceAllocations` | Case data in a date window            |
+| `GET Documents`, `GET DocumentContent`                                                            | Document metadata and the PDF         |
+| `GET Users/GetUsers`                                                                              | User directory                        |
+
+## Authentication
+
+`domain` and `key` as query parameters (`integration/familycare/configuration/FamilyCareConfiguration.java`), with both keys configured percent-encoded
+([ADR 0002](../adr/0002-lifecare-keys-configured-encoded.md)). `/Users/*` is licensed to a separate
+consumer and may need its own `user-key`. The two refuse the wrong key in different ways, described under
+Configuration in `README.md`.
+
+## Code and configuration
+
+- Client: `src/main/java/se/sundsvall/lifecareintegrator/integration/familycare/`, generated from
+  `src/main/resources/integrations/familycare-api.json`.
+- Configuration: `integration.familycare` in `application.yml`.
+
+## Behaviour worth knowing
+
+- Dates must be sent as RFC 3339 with a time component. See `integration/familycare/FamilyCareDates.java`.
+- The period reads require both dates. A bound left open in our API is sent as 1900-01-01 or 2100-12-31, so it reads
+  everything on that side. See `service/DateWindow.java`.
+- Errors arrive as `{"Message": "…"}` and are kept as the problem's `detail`. See `integration/LifecareErrorDecoder.java`.
+- A 404, such as a missing person or a document without a PDF, reaches the caller as 404 rather than 502, with
+  Lifecare's message as the `detail`.
+- Feign logging is off by default (`log-level`), since request URLs carry the personnummer and the key.
+
+TODO: field mapping notes and code values not documented in the spec.

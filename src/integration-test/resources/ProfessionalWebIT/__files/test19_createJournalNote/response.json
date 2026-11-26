@@ -1,0 +1,13 @@
+{
+	"id": 21,
+	"title": "Telefonsamtal",
+	"date": "2026-11-01",
+	"time": "10:00",
+	"type": 1,
+	"ownerTypeText": "Insats",
+	"updateSignature": "RPA_031DEV",
+	"updateDate": "2026-11-01",
+	"locked": false,
+	"protected": false,
+	"documentType_Name": "Journalanteckning"
+}

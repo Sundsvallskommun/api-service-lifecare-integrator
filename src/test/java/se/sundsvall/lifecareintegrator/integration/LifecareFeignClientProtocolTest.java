@@ -12,8 +12,8 @@ import org.springframework.cloud.openfeign.FeignClientFactory;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 import se.sundsvall.lifecareintegrator.Application;
-import se.sundsvall.lifecareintegrator.integration.lifecareec.configuration.LifecareEcConfiguration;
-import se.sundsvall.lifecareintegrator.integration.lifecarefc.configuration.LifecareFcConfiguration;
+import se.sundsvall.lifecareintegrator.integration.elderlycare.configuration.ElderlyCareConfiguration;
+import se.sundsvall.lifecareintegrator.integration.familycare.configuration.FamilyCareConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +31,7 @@ class LifecareFeignClientProtocolTest {
 	private FeignClientFactory feignClientFactory;
 
 	private static Stream<String> lifecareClientIds() {
-		return Stream.of(LifecareEcConfiguration.CLIENT_ID, LifecareFcConfiguration.CLIENT_ID);
+		return Stream.of(ElderlyCareConfiguration.CLIENT_ID, FamilyCareConfiguration.CLIENT_ID);
 	}
 
 	@ParameterizedTest

@@ -1,14 +1,14 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationExpensePostDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationIncomePostDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationPersonPostDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationSpecialExpensePostDTO;
-import generated.se.sundsvall.lifecarefc.PostCalculationBodyRequest;
+import generated.se.sundsvall.familycare.PersonBasedCalculationExpensePostDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationIncomePostDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationPersonPostDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationSpecialExpensePostDTO;
+import generated.se.sundsvall.familycare.PostCalculationBodyRequest;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -59,11 +59,6 @@ class RequestMapperTest {
 		assertThat(result.getServiceId()).isEqualTo(6);
 		assertThat(result.getInvestigationId()).isEqualTo(7);
 		assertThat(result.getWorkingStatus()).isEqualTo(8);
-	}
-
-	@Test
-	void toPostAktualiseringsBodyRequestWithNull() {
-		assertThat(RequestMapper.toPostAktualiseringsBodyRequest(null, PERSON_NUMBER)).isNull();
 	}
 
 	@Test
@@ -119,14 +114,14 @@ class RequestMapperTest {
 			.calculationPersons(List.of(new PersonBasedCalculationPersonPostDTO()
 				.personId(MEMBER_PERSON_NUMBER)
 				.numberOfDays(30)
-				.deviationFromDate(OffsetDateTime.of(2026, 5, 10, 0, 0, 0, 0, ZoneOffset.UTC))
-				.deviationToDate(OffsetDateTime.of(2026, 5, 20, 0, 0, 0, 0, ZoneOffset.UTC))))
+				.deviationFromDate(LocalDateTime.of(2026, Month.MAY, 10, 0, 0, 0, 0))
+				.deviationToDate(LocalDateTime.of(2026, Month.MAY, 20, 0, 0, 0, 0))))
 			.calculationIncomes(List.of(new PersonBasedCalculationIncomePostDTO()
 				.id(11)
 				.applicantAmount(1000.0)
-				.applicantAmountDate(OffsetDateTime.of(2026, 5, 1, 0, 0, 0, 0, ZoneOffset.UTC))
+				.applicantAmountDate(LocalDateTime.of(2026, Month.MAY, 1, 0, 0, 0, 0))
 				.coApplicantAmount(500.0)
-				.coApplicantAmountDate(OffsetDateTime.of(2026, 5, 2, 0, 0, 0, 0, ZoneOffset.UTC))
+				.coApplicantAmountDate(LocalDateTime.of(2026, Month.MAY, 2, 0, 0, 0, 0))
 				.note("income note")))
 			.calculationExpenses(List.of(new PersonBasedCalculationExpensePostDTO()
 				.id(21)
@@ -141,11 +136,6 @@ class RequestMapperTest {
 
 		// Assert: applicant person number injected, top-level fields mapped
 		assertThat(result).usingRecursiveComparison().isEqualTo(expected);
-	}
-
-	@Test
-	void toPostCalculationBodyRequestWithNull() {
-		assertThat(RequestMapper.toPostCalculationBodyRequest(null, PERSON_NUMBER, Map.of())).isNull();
 	}
 
 	@Test

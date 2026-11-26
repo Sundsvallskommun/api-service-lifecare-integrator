@@ -1,0 +1,45 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Calculation/ListCalculations",
+		"queryParameters": {
+			"businessType": {
+				"equalTo": "8"
+			},
+			"businessId": {
+				"equalTo": "42"
+			},
+			"investigationId": {
+				"equalTo": "0"
+			},
+			"serviceId": {
+				"equalTo": "42"
+			},
+			"onlylatest": {
+				"equalTo": "true"
+			}
+		},
+		"headers": {
+			"X-Requested-With": {
+				"equalTo": "XMLHttpRequest"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": [
+			{
+				"calculationId": 6,
+				"totalSum": 1200.0
+			}
+		],
+		"status": 200
+	}
+}

@@ -1,0 +1,62 @@
+{
+	"calculation": {
+		"calculationId": 0,
+		"serviceId": 42,
+		"normId": 1,
+		"normText": null,
+		"date": "2026-11-01",
+		"startDate": "",
+		"endDate": "",
+		"calculationSummary": null,
+		"calculationPersons": [
+			{
+				"personId": "19880209T050",
+				"personKey": 1,
+				"name": "Testsson, Test",
+				"normRowId": 0,
+				"normRow": null,
+				"amount": 0,
+				"included": false,
+				"deviationFromDate": "",
+				"deviationToDate": "",
+				"personIdFormatted": "880209-T050"
+			}
+		],
+		"calculationIncomes": [
+			{
+				"incomeCode": 1,
+				"incomeType": "Lön efter skatt",
+				"amountApplicant": 0,
+				"amountCoApplicant": 0
+			}
+		],
+		"calculationExpenses": [],
+		"calculationSpecialExpenses": [],
+		"hasCustomHouseholdSize": false,
+		"isFinalized": false,
+		"updateTimestamp": ""
+	},
+	"norms": [
+		{
+			"normId": 1,
+			"name": "Riksnorm 2026"
+		}
+	],
+	"incomeTypes": [
+		{
+			"id": 1,
+			"text": "Lön efter skatt",
+			"isActive": true,
+			"isJobStimulus": true,
+			"jobStimulusPercent": 25
+		}
+	],
+	"expenseTypes": [
+		{
+			"id": 3,
+			"text": "Boendekostnad",
+			"isActive": true
+		}
+	],
+	"specialExpenseTypes": []
+}

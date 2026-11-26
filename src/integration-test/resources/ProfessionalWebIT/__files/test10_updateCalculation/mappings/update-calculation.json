@@ -1,0 +1,49 @@
+{
+	"request": {
+		"method": "POST",
+		"urlPath": "/WESE.FC.ProfessionalWeb/api2/Calculation/Update",
+		"queryParameters": {
+			"businessType": {
+				"equalTo": "3"
+			},
+			"businessId": {
+				"equalTo": "7"
+			}
+		},
+		"headers": {
+			"Content-Type": {
+				"contains": "application/json"
+			},
+			"X-LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"cookies": {
+			"LEGACY-TOKEN": {
+				"equalTo": "it-legacy-token"
+			}
+		},
+		"bodyPatterns": [
+			{
+				"equalToJson": {
+					"calculationId": 7,
+					"serviceId": 42,
+					"totalSum": 1600.0,
+					"unknownToTheIntegrator": {
+						"kept": true
+					}
+				}
+			}
+		]
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json; charset=utf-8"
+		},
+		"jsonBody": {
+			"calculationId": 7,
+			"totalSum": 1600.0
+		},
+		"status": 200
+	}
+}

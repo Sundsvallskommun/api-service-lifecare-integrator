@@ -15,14 +15,20 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.LoggerFactory;
 import se.sundsvall.dept44.exception.ClientProblem;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static se.sundsvall.lifecareintegrator.integration.LifecareErrorDecoder.withRepeatableBody;
 
 class LifecareErrorDecoderTest {
 
@@ -32,53 +38,115 @@ class LifecareErrorDecoderTest {
 		{"title":"Invalid query format","status":400,"detail":"unsupported filter"}""";
 
 	@Test
-	void keepsTheErrorMessageThatDept44WouldOtherwiseLose() {
-		// dept44's AbstractErrorDecoder reads the body twice; with a one-shot stream the second read comes back empty
-		// and the message degrades to "Unknown error". Buffering first is what makes the real title survive.
-		final var problem = new LifecareErrorDecoder("lifecare-ec")
-			.decode("LifecareEcClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY));
+	void keepsTheMessageOfAOneShotBody() {
+		// The body is read more than once while decoding, and an OkHttp body is one-shot. dept44 buffers it first; without
+		// that the second read comes back empty and only the bare status title is left.
+		final var problem = new LifecareErrorDecoder("elderlycare")
+			.decode("ElderlyCareClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY));
 
 		assertThat(problem).isInstanceOf(ClientProblem.class);
 		assertThat(problem.getMessage())
 			.contains("Invalid query format")
-			.doesNotContain("Unknown error");
+			.doesNotContain("title=Bad Request");
+	}
+
+	@Test
+	void carriesLifecaresOwnMessageOnAsTheDetail() {
+		// The body FamilyCare really answered create_actualisation with on 2026-09-22. dept44 finds no title or detail in
+		// it and reduces it to the bare status; the message is the whole diagnosis.
+		final var problem = new LifecareErrorDecoder("familycare")
+			.decode("FamilyCareClient#createActualisation(Actualisation)",
+				oneShotResponse(400, "{\"Message\":\"No fromWho entry with id 0 found for aktualiserings-type 0\"}"));
+
+		assertThat(problem).isInstanceOf(ClientProblem.class)
+			.hasFieldOrPropertyWithValue("status", BAD_GATEWAY);
+		assertThat(problem.getMessage())
+			.isEqualTo("Bad Gateway: familycare error: {detail=No fromWho entry with id 0 found for aktualiserings-type 0, "
+				+ "status=400 Bad Request, title=Bad Request}");
+	}
+
+	@Test
+	void aServerErrorCarriesItsMessageToo() {
+		final var problem = new LifecareErrorDecoder("familycare")
+			.decode("FamilyCareClient#commitNormberakning(Normberakning)",
+				oneShotResponse(500, "{\"Message\":\"An error has occurred.\"}"));
+
+		assertThat(problem.getMessage())
+			.isEqualTo("Bad Gateway: familycare error: {detail=An error has occurred., status=500 Internal Server Error, "
+				+ "title=Internal Server Error}");
+	}
+
+	@Test
+	void aBodyWithoutAMessageStillNamesTheStatusRatherThanUnknownError() {
+		final var problem = new LifecareErrorDecoder("elderlycare")
+			.decode("ElderlyCareClient#getSolDecisions(String,Integer)",
+				oneShotResponse(502, "<html><body><h1>502 Bad Gateway</h1></body></html>"));
+
+		assertThat(problem.getMessage())
+			.isEqualTo("Bad Gateway: elderlycare error: {status=502 Bad Gateway, title=Bad Gateway}");
+	}
+
+	@Test
+	void theCarriedMessageIsRedactedAndCapped() {
+		// Unlike the body, the message leaves the service in the problem — so it passes the same sanitizer the logs do.
+		final var body = "{\"Message\":\"Ingen person 19900101TF03 hittades " + "x".repeat(600) + "\"}";
+
+		final var problem = new LifecareErrorDecoder("familycare")
+			.decode("FamilyCareClient#getPerson(String)", oneShotResponse(400, body));
+
+		assertThat(problem.getMessage())
+			.doesNotContain("19900101TF03")
+			.contains("Ingen person [REDACTED-PNR] hittades")
+			.contains(TRUNCATION_MARKER)
+			.hasSizeLessThan(650);
+	}
+
+	@Test
+	void aStatusWithoutAnHttpStatusConstantStillCarriesTheMessage() {
+		final var problem = new LifecareErrorDecoder("familycare")
+			.decode("FamilyCareClient#getPerson(String)", oneShotResponse(520, "{\"Message\":\"Origin unreachable\"}"));
+
+		assertThat(problem.getMessage())
+			.isEqualTo("Bad Gateway: familycare error: {detail=Origin unreachable, status=520 Unknown Status, title=Unknown Status}");
+	}
+
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("lifecareBodies")
+	void extractLifecareMessageReadsTheShapesLifecareAnswersIn(final String description, final String body, final Optional<String> expected) {
+		assertThat(LifecareErrorDecoder.extractLifecareMessage(body)).isEqualTo(expected);
+	}
+
+	private static Stream<Arguments> lifecareBodies() {
+		return Stream.of(
+			arguments("ASP.NET Message", "{\"Message\":\"Saknar norm för angiven hushållsstorlek\"}",
+				Optional.of("Saknar norm för angiven hushållsstorlek")),
+			arguments("lower-case message", "{\"message\":\"Invalid key\"}", Optional.of("Invalid key")),
+			arguments("with MessageDetail", "{\"Message\":\"No HTTP resource was found\",\"MessageDetail\":\"No action matched\"}",
+				Optional.of("No HTTP resource was found (No action matched)")),
+			arguments("with ModelState", """
+				{"Message":"The request is invalid.","ModelState":{"model.NumberOfDays":["Too many days","Must be positive"],"model.Norm":["Required"]}}""",
+				Optional.of("The request is invalid.: model.NumberOfDays: Too many days, model.NumberOfDays: Must be positive, model.Norm: Required")),
+			arguments("empty ModelState", "{\"Message\":\"The request is invalid.\",\"ModelState\":{}}",
+				Optional.of("The request is invalid.")),
+			arguments("internals left out", "{\"Message\":\"An error has occurred.\",\"ExceptionMessage\":\"secret\",\"StackTrace\":\"at X\"}",
+				Optional.of("An error has occurred.")),
+			arguments("bare JSON string", "\"Aktualiseringstypen saknas\"", Optional.of("Aktualiseringstypen saknas")),
+			arguments("plain text", "  Aktualiseringstypen saknas\n", Optional.of("Aktualiseringstypen saknas")),
+			arguments("HTML page", "<html><body>Bad Gateway</body></html>", Optional.empty()),
+			arguments("blank Message", "{\"Message\":\" \"}", Optional.empty()),
+			arguments("non-text Message", "{\"Message\":42}", Optional.empty()),
+			arguments("other JSON object", "{\"Code\":\"E1\"}", Optional.empty()),
+			arguments("JSON array", "[\"a\"]", Optional.empty()),
+			arguments("blank JSON string", "\"  \"", Optional.empty()));
 	}
 
 	@Test
 	void bypassedStatusIsStillHonoured() {
-		final var problem = new LifecareErrorDecoder("lifecare-fc", List.of(NOT_FOUND.value()))
-			.decode("LifecareFcClient#getPerson(String)", oneShotResponse(404, PROBLEM_BODY));
+		final var problem = new LifecareErrorDecoder("familycare", List.of(NOT_FOUND.value()))
+			.decode("FamilyCareClient#getPerson(String)", oneShotResponse(404, PROBLEM_BODY));
 
 		assertThat(problem).isInstanceOf(ClientProblem.class)
 			.hasFieldOrPropertyWithValue("status", NOT_FOUND);
-	}
-
-	@Test
-	void loggingTheBodyDoesNotConsumeItForTheDecoder() {
-		// The snippet is logged from the same body the decoder then parses; if reading it were destructive the message
-		// would come back empty — which is the whole failure this class exists to prevent.
-		final var problem = new LifecareErrorDecoder("lifecare-ec")
-			.decode("LifecareEcClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY));
-
-		assertThat(problem.getMessage()).contains("Invalid query format");
-	}
-
-	@Test
-	void anUnbufferedBodyIsLeftUnreadRatherThanConsumed() throws IOException {
-		// withRepeatableBody gives up on an unreadable body; the snippet must not spend its single pass.
-		final var unbuffered = oneShotResponse(400, PROBLEM_BODY);
-
-		assertThat(LifecareErrorDecoder.bodySnippet(unbuffered)).isEqualTo("<unbuffered>");
-		assertThat(read(unbuffered.body())).isEqualTo(PROBLEM_BODY);
-	}
-
-	@Test
-	void bodySnippetReportsAbsentAndEmptyBodies() {
-		final var bodiless = Response.builder().status(401).request(request()).build();
-		assertThat(LifecareErrorDecoder.bodySnippet(bodiless)).isEqualTo("<none>");
-
-		final var empty = Response.builder().status(400).request(request()).body("   ", UTF_8).build();
-		assertThat(LifecareErrorDecoder.bodySnippet(empty)).isEqualTo("<empty>");
 	}
 
 	@Test
@@ -86,25 +154,20 @@ class LifecareErrorDecoderTest {
 		// Redaction runs before capping. The other order would cut the number into a fragment the pattern no longer
 		// matches, leaving its leading digits in the log.
 		final var onTheBoundary = "x".repeat(1995) + "199001011234" + "y".repeat(100);
-		final var body = Response.builder().status(400).request(request()).body(onTheBoundary, UTF_8).build();
 
 		// The placeholder is what the cap clips ("[REDACTED-PNR]" → "[REDA"), since it lands at the cut. The marker is
 		// appended afterwards and always survives. What matters is that no digit of the number does.
-		assertThat(LifecareErrorDecoder.bodySnippet(body))
+		assertThat(LifecareErrorDecoder.redactAndCap(onTheBoundary))
 			.doesNotContain("199001011234")
 			.doesNotContain("19900")
 			.endsWith(TRUNCATION_MARKER);
 	}
 
 	@Test
-	void bodySnippetRedactsAndCapsWhatItLogs() {
-		final var long_ = Response.builder()
-			.status(400)
-			.request(request())
-			.body("{\"Message\":\"no such person 19900101TF03\"}" + "x".repeat(3000), UTF_8)
-			.build();
+	void redactAndCapRedactsAndCapsWhatItLogs() {
+		final var long_ = "{\"Message\":\"no such person 19900101TF03\"}" + "x".repeat(3000);
 
-		assertThat(LifecareErrorDecoder.bodySnippet(long_))
+		assertThat(LifecareErrorDecoder.redactAndCap(long_))
 			.doesNotContain("19900101TF03")
 			.contains("[REDACTED-PNR]")
 			.endsWith("…(truncated)")
@@ -112,37 +175,17 @@ class LifecareErrorDecoderTest {
 	}
 
 	@Test
-	void bufferedBodyCanBeReadMoreThanOnce() throws IOException {
-		final var buffered = withRepeatableBody(oneShotResponse(400, PROBLEM_BODY)).body();
-
-		assertThat(buffered.isRepeatable()).isTrue();
-		assertThat(read(buffered)).isEqualTo(PROBLEM_BODY);
-		assertThat(read(buffered)).isEqualTo(PROBLEM_BODY);
+	void redactAndCapOfNoBodyIsNull() {
+		assertThat(LifecareErrorDecoder.redactAndCap(null)).isNull();
 	}
 
 	@Test
 	void aOneShotBodyReallyIsOneShot() throws IOException {
-		// Guards the fixture itself: if this ever passes twice, the test above proves nothing.
+		// Guards the fixture itself: if this ever passes twice, the one-shot decode tests prove nothing.
 		final var oneShot = oneShotResponse(400, PROBLEM_BODY).body();
 
 		assertThat(read(oneShot)).isEqualTo(PROBLEM_BODY);
 		assertThat(read(oneShot)).isEmpty();
-	}
-
-	@Test
-	void alreadyRepeatableAndBodilessResponsesArePassedThrough() {
-		final var repeatable = Response.builder()
-			.status(400)
-			.request(request())
-			.body(PROBLEM_BODY, UTF_8)
-			.build();
-		assertThat(withRepeatableBody(repeatable)).isSameAs(repeatable);
-
-		final var bodiless = Response.builder()
-			.status(401)
-			.request(request())
-			.build();
-		assertThat(withRepeatableBody(bodiless)).isSameAs(bodiless);
 	}
 
 	private static String read(final Response.Body body) throws IOException {
@@ -203,13 +246,13 @@ class LifecareErrorDecoderTest {
 
 	@Test
 	void anUnexpectedStatusWarnsWithTheRequestButNotTheBody() {
-		final var logged = capturingLogs(Level.WARN, () -> new LifecareErrorDecoder("lifecare-ec")
-			.decode("LifecareEcClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY)));
+		final var logged = capturingLogs(Level.WARN, () -> new LifecareErrorDecoder("elderlycare")
+			.decode("ElderlyCareClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY)));
 
 		assertThat(logged).singleElement().satisfies(event -> {
 			assertThat(event.getLevel()).isEqualTo(Level.WARN);
 			assertThat(event.getFormattedMessage())
-				.contains("lifecare-ec responded 400 to GET")
+				.contains("elderlycare responded 400 to GET")
 				.contains("key=[REDACTED]", "[REDACTED-PNR]")
 				// The body is vendor-controlled and only ever written at DEBUG.
 				.doesNotContain("Invalid query format");
@@ -220,23 +263,42 @@ class LifecareErrorDecoderTest {
 	void aBypassedStatusDoesNotWarnAtAll() {
 		// NOT_FOUND is an outcome the caller handles, not a failure worth a warning. Captured at DEBUG so the
 		// assertion rests on the level of what was logged rather than on the test configuration hiding it.
-		final var logged = capturingLogs(Level.DEBUG, () -> new LifecareErrorDecoder("lifecare-fc", List.of(NOT_FOUND.value()))
-			.decode("LifecareFcClient#getPerson(String)", oneShotResponse(404, PROBLEM_BODY)));
+		final var logged = capturingLogs(Level.DEBUG, () -> new LifecareErrorDecoder("familycare", List.of(NOT_FOUND.value()))
+			.decode("FamilyCareClient#getPerson(String)", oneShotResponse(404, PROBLEM_BODY)));
 
-		assertThat(logged).isNotEmpty().noneMatch(event -> event.getLevel() == Level.WARN);
+		assertThat(logged)
+			.isNotEmpty()
+			.noneMatch(event -> event.getLevel() == Level.WARN)
+			.noneMatch(event -> event.getFormattedMessage().contains("response body was"));
 	}
 
 	@Test
 	void theBodyIsWrittenOnlyWhenDebugIsOn() {
-		final var logged = capturingLogs(Level.DEBUG, () -> new LifecareErrorDecoder("lifecare-ec")
-			.decode("LifecareEcClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY)));
+		final var logged = capturingLogs(Level.DEBUG, () -> new LifecareErrorDecoder("elderlycare")
+			.decode("ElderlyCareClient#getSolDecisions(String,Integer)", oneShotResponse(400, PROBLEM_BODY)));
 
 		// Also covers the deferred argument: with DEBUG off the supplier is never invoked, so this is the only path
-		// that exercises it from logFailure.
+		// that exercises it from logBody.
 		assertThat(logged)
 			.filteredOn(event -> event.getLevel() == Level.DEBUG)
 			.singleElement()
 			.satisfies(event -> assertThat(event.getFormattedMessage()).contains("Invalid query format"));
+	}
+
+	@Test
+	void theLoggedBodyIsRedactedAndCapped() {
+		final var body = "{\"Message\":\"no such person 19900101TF03\"}" + "x".repeat(3000);
+
+		final var logged = capturingLogs(Level.DEBUG, () -> new LifecareErrorDecoder("familycare")
+			.decode("FamilyCareClient#getPerson(String)", oneShotResponse(400, body)));
+
+		assertThat(logged)
+			.filteredOn(event -> event.getFormattedMessage().contains("response body was"))
+			.singleElement()
+			.satisfies(event -> assertThat(event.getFormattedMessage())
+				.doesNotContain("19900101TF03")
+				.contains("[REDACTED-PNR]")
+				.endsWith(TRUNCATION_MARKER));
 	}
 
 	/**

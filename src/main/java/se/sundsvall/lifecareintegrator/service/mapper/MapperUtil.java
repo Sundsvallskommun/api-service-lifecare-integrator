@@ -4,22 +4,18 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import se.sundsvall.dept44.models.api.paging.PagingMetaData;
+import se.sundsvall.lifecareintegrator.configuration.ClockConfiguration;
 
 import static java.time.Month.DECEMBER;
 import static java.time.Month.JANUARY;
-import static java.util.Collections.emptyList;
 
 /**
- * Shared mapping helpers for the vendor models: the FC API represents dates as strings (sometimes with a time part),
- * the EC API as LocalDateTime — EC sends its date-times without a zone offset ({@code "2024-02-07T00:00:00"}), so the
- * EC models are generated with {@code dateLibrary=java8-localdatetime}. FC request models still take OffsetDateTime,
- * which is what {@link #toOffsetDateTime(LocalDate)} is for.
+ * Shared mapping helpers for the vendor models. The vendors send date-times without a zone or an offset, and this
+ * service's API uses {@link OffsetDateTime}, read as Stockholm time.
  */
 final class MapperUtil {
 
@@ -37,14 +33,6 @@ final class MapperUtil {
 	private static final LocalDate NO_END_DATE = LocalDate.of(9999, DECEMBER, 31);
 
 	private MapperUtil() {}
-
-	static <S, T> List<T> mapList(final List<S> source, final Function<S, T> mapper) {
-		return Optional.ofNullable(source)
-			.map(list -> list.stream()
-				.map(mapper)
-				.toList())
-			.orElse(emptyList());
-	}
 
 	/**
 	 * The date part of an EC date-time, with both of EC's sentinels resolved to {@code null}.
@@ -72,16 +60,40 @@ final class MapperUtil {
 			.orElse(null);
 	}
 
+	static String toPartyId(final String personNumber, final Map<String, String> partyIdsByPersonNumber) {
+		return Optional.ofNullable(personNumber)
+			.map(partyIdsByPersonNumber::get)
+			.orElse(null);
+	}
+
 	static String toStringValue(final Integer value) {
 		return Optional.ofNullable(value)
 			.map(String::valueOf)
 			.orElse(null);
 	}
 
-	static OffsetDateTime toOffsetDateTime(final LocalDate date) {
+	/**
+	 * A date as the start of that day, for an FC request. No offset is attached because FC has none to attach it to:
+	 * it reads and writes wall-clock time, and rejects a value carrying a zone.
+	 */
+	static LocalDateTime toLocalDateTime(final LocalDate date) {
 		return Optional.ofNullable(date)
 			.map(LocalDate::atStartOfDay)
-			.map(dateTime -> dateTime.atOffset(ZoneOffset.UTC))
+			.orElse(null);
+	}
+
+	/**
+	 * An FC date-time as an instant, for this service's own API, which speaks {@link OffsetDateTime}.
+	 *
+	 * <p>
+	 * FC's value is wall-clock time with nothing to say which clock, so the zone has to come from somewhere, and
+	 * Sundsvall's is the only honest answer: the times are entered and read by handläggare in Sweden. Reading them as
+	 * UTC would silently shift every one of them by an hour in winter and two in summer — and an hour is enough to
+	 * move a decision's validity across a day boundary.
+	 */
+	static OffsetDateTime toOffsetDateTime(final LocalDateTime dateTime) {
+		return Optional.ofNullable(dateTime)
+			.map(value -> value.atZone(ClockConfiguration.STOCKHOLM).toOffsetDateTime())
 			.orElse(null);
 	}
 

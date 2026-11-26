@@ -23,15 +23,24 @@ spring:
             client-id: the-client-id
             client-secret: the-client-secret
 integration:
-  lifecare-ec:
-    url: http://localhost:${wiremock.server.port}/lifecare-ec
+  elderlycare:
+    url: http://localhost:${wiremock.server.port}/elderlycare
     domain: it-domain
     key: it-key
-  lifecare-fc:
-    url: http://localhost:${wiremock.server.port}/lifecare-fc
+  familycare:
+    url: http://localhost:${wiremock.server.port}/familycare
     domain: it-domain
     key: it-key
   employee:
     url: http://localhost:${wiremock.server.port}/employee
   party:
     url: http://localhost:${wiremock.server.port}/party
+    # Off in the ITs: they share one context, and every test stubs (and verifies) its own Party calls.
+    cache-time-to-live: PT0S
+  lifecare-professionalweb:
+    url: http://localhost:${wiremock.server.port}
+    domain: it-domain
+    # A seeded session, so the ITs need no sign-in at the identity provider.
+    session-cookie: ASP.NET_SessionId=it-session; LEGACY-TOKEN=it-legacy-token
+    # Longer than the IT run, so no keep-alive Heartbeat reaches WireMock unstubbed.
+    keep-alive-interval: 1h

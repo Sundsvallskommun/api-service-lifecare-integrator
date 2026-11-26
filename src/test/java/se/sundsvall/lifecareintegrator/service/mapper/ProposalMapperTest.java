@@ -1,27 +1,27 @@
 package se.sundsvall.lifecareintegrator.service.mapper;
 
-import generated.se.sundsvall.lifecarefc.AktualisationsAttachmentSenderTypeDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringAttachmentTypeDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringProposalDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringsFromWhoDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringsInfoDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringsInvestigationDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringsInvestigationTypeDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringsOrganizationDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringsReasonDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringsServiceDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringsServiceTypeDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringsSpecifyTypeDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedAktualiseringsWorkingStatusDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationAktualiseringDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationCalculationIncomeTypeDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationExpenseTypeDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationHouseholdMemberDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationInvestigationDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationNormDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationProposalDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationServiceDTO;
-import generated.se.sundsvall.lifecarefc.PersonBasedCalculationSpecialExpenseTypeDTO;
+import generated.se.sundsvall.familycare.AktualisationsAttachmentSenderTypeDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringAttachmentTypeDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringProposalDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringsFromWhoDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringsInfoDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringsInvestigationDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringsInvestigationTypeDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringsOrganizationDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringsReasonDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringsServiceDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringsServiceTypeDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringsSpecifyTypeDTO;
+import generated.se.sundsvall.familycare.PersonBasedAktualiseringsWorkingStatusDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationAktualiseringDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationCalculationIncomeTypeDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationExpenseTypeDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationHouseholdMemberDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationInvestigationDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationNormDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationProposalDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationServiceDTO;
+import generated.se.sundsvall.familycare.PersonBasedCalculationSpecialExpenseTypeDTO;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -115,7 +115,8 @@ class ProposalMapperTest {
 			.norms(List.of(new PersonBasedCalculationNormDTO().id(3).name("Riksnorm 2026").fromDate("2026-01-01").toDate("2026-12-31")))
 			.householdMembers(List.of(
 				new PersonBasedCalculationHouseholdMemberDTO().personId(PERSON_NUMBER).name("Kalle Karlsson").childFromOtherHousehold(false),
-				new PersonBasedCalculationHouseholdMemberDTO().personId(UNRESOLVED_PERSON_NUMBER).name("Lisa Larsson").childFromOtherHousehold(true)))
+				new PersonBasedCalculationHouseholdMemberDTO().personId(UNRESOLVED_PERSON_NUMBER).name("Lisa Larsson").childFromOtherHousehold(true),
+				new PersonBasedCalculationHouseholdMemberDTO().personId(null).name("Utan Personnummer").childFromOtherHousehold(false)))
 			.calculationIncomeTypes(List.of(new PersonBasedCalculationCalculationIncomeTypeDTO().id(4).name("Lön")))
 			.calculationExpenseTypes(List.of(new PersonBasedCalculationExpenseTypeDTO().id(5).name("Hyra")))
 			.calculationSpecialExpenseTypes(List.of(new PersonBasedCalculationSpecialExpenseTypeDTO().id(6).name("Tandvård")))
@@ -142,7 +143,8 @@ class ProposalMapperTest {
 			.extracting(HouseholdMember::getPartyId, HouseholdMember::getName, HouseholdMember::getChildFromOtherHousehold)
 			.containsExactly(
 				tuple(PARTY_ID, "Kalle Karlsson", false),
-				tuple(null, "Lisa Larsson", true));
+				tuple(null, "Lisa Larsson", true),
+				tuple(null, "Utan Personnummer", false));
 
 		assertThat(result.getIncomeTypes()).extracting(Lookup::getId, Lookup::getName).containsExactly(tuple(4, "Lön"));
 		assertThat(result.getExpenseTypes()).extracting(Lookup::getId, Lookup::getName).containsExactly(tuple(5, "Hyra"));
@@ -173,5 +175,22 @@ class ProposalMapperTest {
 		assertThat(result.getExpenseTypes()).isEmpty();
 		assertThat(result.getSpecialExpenseTypes()).isEmpty();
 		assertThat(result.getActualisations()).isEmpty();
+	}
+
+	@Test
+	void collectPersonNumbers() {
+		final var proposal = new PersonBasedCalculationProposalDTO().householdMembers(List.of(
+			new PersonBasedCalculationHouseholdMemberDTO().personId("199001011234"),
+			new PersonBasedCalculationHouseholdMemberDTO().personId(null),
+			new PersonBasedCalculationHouseholdMemberDTO().personId("199001011234"),
+			new PersonBasedCalculationHouseholdMemberDTO().personId("201001011234")));
+
+		assertThat(ProposalMapper.collectPersonNumbers(proposal)).containsExactly("199001011234", "201001011234");
+	}
+
+	@Test
+	void collectPersonNumbersWithoutHouseholdMembers() {
+		assertThat(ProposalMapper.collectPersonNumbers(null)).isEmpty();
+		assertThat(ProposalMapper.collectPersonNumbers(new PersonBasedCalculationProposalDTO().householdMembers(null))).isEmpty();
 	}
 }

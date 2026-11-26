@@ -1,0 +1,34 @@
+{
+	"decision": {
+		"decisionId": 0,
+		"serviceId": 42,
+		"ownerPersonId": "19880209T050",
+		"decisionCode": 0,
+		"decisionType": 0,
+		"date": "2026-11-01",
+		"fromDate": "",
+		"toDate": "",
+		"reasonCode": 0,
+		"reason": null,
+		"decisionMaker": "RPA_031DEV",
+		"decisionMakerName": null,
+		"amount": 0,
+		"decisionPersons": [
+			{
+				"decisionId": 0,
+				"personId": "19880209T050",
+				"name": "Testsson, Test",
+				"coApplicant": false,
+				"included": false,
+				"personIdFormatted": "880209-T050"
+			}
+		]
+	},
+	"decisionTypes": [
+		{
+			"code": 12,
+			"text": "Ekonomiskt bistånd",
+			"isActive": true
+		}
+	]
+}

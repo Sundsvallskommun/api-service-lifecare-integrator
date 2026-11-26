@@ -13,7 +13,8 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 
 /**
  * Shared query parameters for the person-scoped, date-windowed family care reads. Extends the dept44 paging base
- * ({@code page} + {@code limit}); {@code from}/{@code to} are optional and default to a wide window in the service.
+ * ({@code page} + {@code limit}); {@code from}/{@code to} are optional, and a bound left open reads everything on that
+ * side.
  */
 @ParameterObject
 @Schema(description = "Query parameters for the person-scoped family care period reads")

@@ -20,7 +20,7 @@ class CalculationsIT extends AbstractAppTest {
 	private static final String RESPONSE_FILE = "response.json";
 
 	@Test
-	void test1_getCalculations() {
+	void test01_getCalculations() {
 		setupCall()
 			.withServicePath("/2281/calculations?partyId=" + PARTY_ID + "&from=2025-01-01&to=2026-12-31")
 			.withHttpMethod(GET)
@@ -30,7 +30,7 @@ class CalculationsIT extends AbstractAppTest {
 	}
 
 	@Test
-	void test2_getCalculationProposal() {
+	void test02_getCalculationProposal() {
 		setupCall()
 			.withServicePath("/2281/calculations/proposal?partyId=" + PARTY_ID)
 			.withHttpMethod(GET)
@@ -40,7 +40,7 @@ class CalculationsIT extends AbstractAppTest {
 	}
 
 	@Test
-	void test3_createCalculation() {
+	void test03_createCalculation() {
 		setupCall()
 			.withServicePath("/2281/calculations")
 			.withHttpMethod(POST)

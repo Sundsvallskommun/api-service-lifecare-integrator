@@ -19,7 +19,7 @@ class DocumentsIT extends AbstractAppTest {
 	private static final String RESPONSE_FILE = "response.json";
 
 	@Test
-	void test1_getDocuments() {
+	void test01_getDocuments() {
 		setupCall()
 			.withServicePath("/2281/documents?partyId=" + PARTY_ID + "&from=2025-01-01&to=2026-12-31")
 			.withHttpMethod(GET)
@@ -29,7 +29,7 @@ class DocumentsIT extends AbstractAppTest {
 	}
 
 	@Test
-	void test2_getDocumentContent() throws IOException {
+	void test02_getDocumentContent() throws IOException {
 		setupCall()
 			.withServicePath("/2281/documents/12345/content")
 			.withHttpMethod(GET)

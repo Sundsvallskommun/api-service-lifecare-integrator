@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "POST",
+		"urlPath": "/familycare/apifc/v1/Actualisations"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"body": "98765",
+		"status": 200
+	}
+}

@@ -1,0 +1,93 @@
+# ProfessionalWeb api2 as resources
+
+## Goal
+
+api-service-caremanagement reaches Lifecare's api2 through `POST /{municipalityId}/professional-web/exchange`, which
+passes any api2 or RenderPdf call through: the caller names the method, the path and the body. That makes the
+integration account reachable for any api2 operation, and it keeps all knowledge of an undocumented API in
+caremanagement.
+
+The target is one REST resource per api2 operation caremanagement uses, backed by one `@FeignClient` for all of
+api2 and an integration class between it and the service, built the way the other api-service-* integrations are.
+Exchange stays until every client has moved, then it goes.
+
+## Where we are
+
+Reminders is done as the pilot (HYDRAN-3431), and the pattern for the other areas is set by it:
+
+- Six resources under `/{municipalityId}/professional-web/`: the reminders of a service, the proposal for a new one,
+  one reminder, create, update and remove. See [architecture.md](../architecture.md).
+- `ProfessionalWebClient`, a `@FeignClient` with `@CircuitBreaker`, on `ProfessionalWebApi2Configuration`, called
+  by `ProfessionalWebService` through `ProfessionalWebIntegration`. The session, its renewal and the error mapping
+  are Feign parts in that configuration. See [lifecare-professionalweb.md](../integrations/lifecare-professionalweb.md).
+- Exchange is unchanged and shares the same session. Its code is in the `legacy` packages.
+- Sign-in, the session and the exchange transport run on OkHttp pinned to HTTP/1.1, the same as the Feign client.
+- Unit tests per layer, and an integration test per endpoint in
+  `src/integration-test/java/apptest/ProfessionalWebIT.java`, end to end against WireMock.
+
+Done since, on the same pattern, with unit tests per layer, every call on `ProfessionalWebClient` and every endpoint
+in `ProfessionalWebIT`:
+
+- Job stimulus: a service's periods, the end date of a period and saving a person's periods.
+- Payment, Payee and Household: the underlag and the latest payments of a service, whether the service's person has a
+  household on a date, and creating a payment and a payee. The person is the one Lifecare's payment underlag names, as
+  caremanagement does it, so no Party lookup is needed.
+- Decision: the underlag for a decision with or without a calculation, the reasons of a decision type, and reading,
+  creating and updating a decision.
+- Document: a person's journal notes and documents, reading one to show or to edit, the proposals of a service, and
+  creating and updating a journal note or a document.
+- Calculation: the underlag and the latest calculation of a service, reading one to show or to edit, the four
+  reckonings that change nothing in Lifecare, and creating, updating and removing a calculation.
+- Prints: Lifecare's PDF of a calculation, a decision and a document, with the template ids under
+  `integration.lifecare-professionalweb.print`. A template's parameter questions are answered with Lifecare's defaults
+  and posted back as a form.
+
+All areas caremanagement uses now have resources and an integration test.
+
+Decided along the way:
+
+- REST paths per domain object under `/{municipalityId}/professional-web/`, not api2's names.
+- Lifecare's JSON passes through untouched in both directions, as bytes. caremanagement builds every write from an
+  object Lifecare handed out, with a few fields changed, and has no typed model of api2 to reuse. A typed model here
+  would have to keep the fields it does not know.
+- Lifecare's refusals become 400, 403, 404, 422 (for its 461) and 502. The 4xx ones do not count against the
+  circuit breaker.
+- A person is given as a partyId, never a personnummer.
+- The `RenderPdf` prints move here too, as resources that return Lifecare's own PDF. caremanagement shows Lifecare's
+  print today and does not render these with templating, so the PDF stays Lifecare's. This service answers a
+  template's parameter questions with Lifecare's defaults, as caremanagement does now, and holds the template ids as
+  configuration. Templating stays outside this service.
+- The session renewal exists twice while exchange lives, once in `ProfessionalWebExchange` and once in the Feign
+  configuration. That is accepted for the transition.
+- One `@FeignClient`, one `ProfessionalWebIntegration` and one `ProfessionalWebService` for every area, with one
+  resource class per area ([ADR 0003](../adr/0003-professionalweb-resource-per-area.md)). The integration holds what
+  api2 expects, such as the businessType codes and the fixed parameters. The service holds the checks that are this
+  service's own.
+
+## Adding an area
+
+1. A method per operation on `ProfessionalWebClient`, with the full path including `/WESE.FC.ProfessionalWeb`, named
+   after the operation and its area, such as `getReminderProposalForService`.
+2. A method per operation on `ProfessionalWebIntegration` that takes the domain's ids and fills in the api2
+   parameters, such as the businessType.
+3. A method per operation on `ProfessionalWebService` with the checks the resources need, such as a body that must
+   be a JSON object or an id in the body that must match the path.
+4. A resource per operation, returning Lifecare's bytes, and the OpenAPI baseline.
+5. An integration test per endpoint, appended to `ProfessionalWebIT`.
+
+## After the areas
+
+- caremanagement moves to the resources, area by area, and stops calling exchange.
+- Remove exchange: the `legacy` packages under `integration/professionalweb/`, `api/` and `api/model/professionalweb/`,
+  with their tests. The Feign configuration then holds the only session renewal.
+- Decide whether caremanagement keeps its own direct ProfessionalWeb transport once everything goes through this
+  service.
+
+## Open
+
+- `@CircuitBreaker` does not seem to take effect on any Feign client in this service. See [bugs.md](bugs.md).
+- Exchange still reads an HTML error page as a lost session. The Feign client does not, apart from a successful one on a
+  read. See [bugs.md](bugs.md).
+- caremanagement fetches prints through exchange today. When it moves to the `pdf` resources it has to send
+  `Accept: application/pdf`, since they answer 406 to `Accept: */*`. Done when caremanagement's print calls send it.
+

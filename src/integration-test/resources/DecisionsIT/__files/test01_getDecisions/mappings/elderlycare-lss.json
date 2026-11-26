@@ -1,0 +1,61 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/elderlycare/api/v1/lss_decisions",
+		"queryParameters": {
+			"q": {
+				"equalTo": "PersonId='199001011234'"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"jsonBody": [
+			{
+				"Id": 2002,
+				"Date": "2025-03-01T00:00:00",
+				"FromDate": "2025-03-01T00:00:00",
+				"ToDate": "2026-02-28T00:00:00",
+				"Type": {
+					"Code": 12,
+					"Text": "Ledsagning"
+				},
+				"Reason": {
+					"Code": 22,
+					"Text": "LSS behov"
+				},
+				"Caseworker": {
+					"FullName": "Lss Handläggare"
+				},
+				"Amount": 2000.0
+			},
+			{
+				"Id": 2003,
+				"Law": 7,
+				"Date": "2025-02-15T00:00:00",
+				"FromDate": "2025-02-15T00:00:00",
+				"ToDate": "9999-12-31T23:59:59.9999999",
+				"Type": {
+					"Code": 2,
+					"Text": "Beslut att verkställa"
+				},
+				"Reason": {
+					"Code": 0,
+					"Text": ""
+				},
+				"Caseworker": {
+					"FullName": "Försäkringskassan"
+				},
+				"SfbCaseworker": {
+					"Id": "LOHE",
+					"FullName": ""
+				},
+				"ExecutionStartDate": "0001-01-01T00:00:00",
+				"Amount": 0.0
+			}
+		],
+		"status": 200
+	}
+}

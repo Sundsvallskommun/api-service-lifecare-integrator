@@ -1,9 +1,0 @@
-{
-	"request": {
-		"method": "POST",
-		"urlPath": "/lifecare-fc/apifc/v1/Actualisations/98765/Attachments"
-	},
-	"response": {
-		"status": 204
-	}
-}
